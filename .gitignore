@@ -186,6 +186,7 @@ models/
 results/
 private_docs/
 catboost_info/
+refs/
 
 # Data files (downloaded per competition; never committed)
 *.csv

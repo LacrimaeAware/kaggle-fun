@@ -7,6 +7,7 @@ Kaggle competition work. One folder per competition, each treated as a self-cont
 | Competition | Task | Metric | Status | Lesson |
 | --- | --- | --- | --- | --- |
 | [Predicting Stellar Class](predicting-stellar-class/) | Multiclass classification (GALAXY, QSO, STAR) | Balanced accuracy | Stack submitted | Stack public 0.96659 (baseline 0.96523); at the optical-plus-redshift ceiling, top cluster noise-limited |
+| [UMUD Muscle Architecture](umud-muscle-architecture/) | Image regression (pennation angle, fascicle length, muscle thickness) | UMUD Score (tolerance-normalized MAE) | Selected, planning | Deadline 2026-11-14; segment-then-measure; GPU-gated |
 | [Spaceship Titanic](spaceship-titanic/) | Binary classification | Accuracy | Parked (closed 2026-02-28) | Pending |
 
 Digit Recognizer (MNIST) was completed before this repository and is not tracked here.
@@ -16,6 +17,7 @@ Digit Recognizer (MNIST) was completed before this repository and is not tracked
 - [docs/conventions.md](docs/conventions.md): writing and documentation conventions for this repository.
 - [docs/lessons-learned.md](docs/lessons-learned.md): rules that carry across competitions, each with its evidence.
 - [predicting-stellar-class/](predicting-stellar-class/): active competition (Kaggle Playground Series Season 6 Episode 6, slug `playground-series-s6e6`). Holds the analysis code, a gitignored `data/` directory, and [writeup.md](predicting-stellar-class/writeup.md).
+- [umud-muscle-architecture/](umud-muscle-architecture/): next competition (UMUD Challenge, muscle architecture from ultrasound, deadline 2026-11-14). Holds [plan.md](umud-muscle-architecture/plan.md), [writeup.md](umud-muscle-architecture/writeup.md), and a gitignored `data/` directory.
 - [spaceship-titanic/](spaceship-titanic/): parked competition (closed 2026-02-28). Holds the analysis code, a gitignored `data/` directory, and [writeup.md](spaceship-titanic/writeup.md).
 
 Each competition folder holds the code, a local `data/` directory (not committed), and a `writeup.md`. Every `writeup.md` uses the same five sections in the same order: Question, Method, Result, Caveat, Lesson.
