@@ -45,3 +45,15 @@ Evidence: in playground-series-s6e6 the seed-to-seed out-of-fold standard deviat
 A stacked ensemble lowers the variance of the prediction by averaging uncorrelated model errors. It does not supply information the inputs lack, and its gain shrinks as the base models correlate. Metric-aligned post-processing (per-class thresholds for an imbalanced metric) helps only when the base model is not already aligned.
 
 Evidence: in playground-series-s6e6 (experiment 06) a 5-model stack added about 0.0008 over the best single base, while correcting the first attempt's tree count added about 0.0012; threshold calibration added nothing because the base models already used balanced class weights.
+
+## Explainability as validation
+
+### High metrics can hide leakage, feature dominance, and fragility; check why the model decides, not only how well it scores
+
+A model with strong accuracy or AUC can rely on leaked, biased, or unstable features. Beyond the score, inspect the reasoning: feature importance (SHAP for global attribution, LIME for individual predictions), leakage (features that encode the target or information unavailable at prediction time), fragility (does the score collapse when the top feature is removed), and over-reliance on attributes that should not drive the decision (protected attributes, or features with no causal link to the target).
+
+Evidence (external, from a practitioner writeup): a LendingClub credit model scored 0.946 AUC but ranked post-application payment features (out_prncp, last_pymnt_amnt) at the top; removing the 23 leakage features dropped AUC to 0.869, and removing the single top feature dropped it another 0.077. An insurance-cost model had good R-squared but age drove 42 percent of predictions. The metrics did not reveal these; the feature attribution did.
+
+Tool notes: SHAP is deterministic, fast, and gives exact attributions, but is unreliable under highly correlated features. LIME is local and sampling-based, so its explanations vary run to run and use binned ranges, which can read more clearly for non-technical stakeholders but is less precise. Both reflect the model: if the model learned a biased pattern, the explanation reports the bias, it does not correct it.
+
+Applied here: the same checks ran in playground-series-s6e6. Feature importance showed redshift at 0.554; the agreement between cross-validation and the leaderboard was the leakage check (it passed); and the nonzero importance of sky position (alpha, delta), which cannot causally determine class, was flagged as a warning sign of a generation artifact. The named tools formalize a practice already in use.
