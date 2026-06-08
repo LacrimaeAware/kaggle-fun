@@ -179,3 +179,16 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Kaggle project: data, artifacts, and private notes
+data/
+models/
+results/
+private_docs/
+catboost_info/
+
+# Data files (downloaded per competition; never committed)
+*.csv
+*.parquet
+*.feather
+*.zip

@@ -1,0 +1,10 @@
+# Python 3.13. Pinned to the versions used in this repository.
+numpy==2.4.6
+pandas==3.0.3
+scikit-learn==1.9.0
+lightgbm==4.6.0
+catboost==1.2.10
+xgboost==3.2.0
+matplotlib==3.10.9
+jupyter==1.1.1
+kaggle==2.2.1
