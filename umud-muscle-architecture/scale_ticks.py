@@ -178,6 +178,26 @@ def recover_scale_faint_left(gray, x_max=70, win=16, tick_cm=0.5, min_strength=0
     return dict(scale_px_per_cm=float(scale), conf=float(best[1]), spacing_px=float(period))
 
 
+def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=134.0):
+    """Recognize the family-B instrument by its FIXED left-margin UI marks (focus markers/labels at
+    fixed canvas rows, independent of depth) and return its validated fixed scale. The faint ruler on
+    these images is not robustly periodic (autocorrelation false-positives); but the 49 family-B images
+    we DO read via bottom ticks are all exactly 134 px/cm, and family C never matches this signature
+    (49/49 vs 0/87), so a signature match reliably implies the 134 scale."""
+    col = gray[:, :25].max(axis=1)
+    ys = np.where(col > np.percentile(col, 97))[0]
+    if len(ys) == 0:
+        return None
+    pk = [int(ys[0])]
+    for y in ys[1:]:
+        if y - pk[-1] > 8:
+            pk.append(int(y))
+    pk = pk[:4]
+    if len(pk) == 4 and all(abs(pk[i] - sig[i]) <= tol for i in range(4)):
+        return dict(scale_px_per_cm=float(scale), conf=1.0)
+    return None
+
+
 def recover_for_image(gray, name=""):
     """Per-family router. Returns (scale_px_per_cm, method, conf) or (None, 'none', 0).
 
@@ -203,9 +223,9 @@ def recover_for_image(gray, name=""):
         d = recover_scale_right_ruler(gray, tick_cm=0.5)
         if d and d["conf"] >= 0.5 and 80 <= d["scale_px_per_cm"] <= 200:
             return d["scale_px_per_cm"], "right_ruler_5mm", d["conf"]
-        d = recover_scale_faint_left(gray)  # autocorrelation reader for the faint left ruler (~120 px/cm)
+        d = recover_scale_family_b_signature(gray)  # instrument recognition -> validated fixed scale 134
         if d:
-            return d["scale_px_per_cm"], "faint_left_autocorr", d["conf"]
+            return d["scale_px_per_cm"], "family_b_signature", d["conf"]
     return None, "none", 0.0
 
 

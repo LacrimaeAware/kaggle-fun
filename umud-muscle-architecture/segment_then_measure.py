@@ -87,7 +87,7 @@ USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT b
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-09.7"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-09.8"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
