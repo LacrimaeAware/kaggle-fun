@@ -43,6 +43,12 @@ Current first scored submission: 1.23135
 
 Lower is better. This is not a noise-limited leaderboard. There is a large real gap to close.
 
+## Compute and GPU status
+
+The available discrete GPU is an AMD RX 5700 XT. PyTorch on it needs DirectML (torch-directml), which has no build for Python 3.13 (this project's environment), so the AMD path would need a separate Python 3.11 environment. CPU training of the U-Nets is too slow to be practical. The clean path is Kaggle's free GPU (CUDA).
+
+The segment-then-measure pipeline is written in `segment_then_measure.py` (with a standalone trainer in `train_segmentation.py`). It auto-detects Kaggle versus local paths and the device. To train: run `segment_then_measure.py` in a Kaggle notebook with the competition attached and GPU plus internet enabled. It trains the aponeurosis and fascicle U-Nets (smp U-Net, ResNet34, Dice-BCE), predicts on the test images, measures pennation angle from the geometry, and writes `submission_segmentation.csv`. This first version takes pennation from the segmentation and keeps fascicle length and thickness at the prior, until tick-mark calibration is added.
+
 ## What the problem really is
 
 This is not ordinary image regression in the usual Kaggle sense. The task is to recover geometry from ultrasound images.
