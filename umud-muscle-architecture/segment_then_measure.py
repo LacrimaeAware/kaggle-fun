@@ -78,6 +78,9 @@ USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), validated in exp01
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
+FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
+FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
+FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -270,6 +273,9 @@ def train_segmenter(target, epochs=12, bs=8):
     opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
     bce = nn.BCEWithLogitsLoss()
+    if target == "fasc" and FASC_POS_WEIGHT > 0:  # idea-2: counter dash sparsity, push fascicle recall
+        bce = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(FASC_POS_WEIGHT, device=DEVICE))
+        print(f"[{target}] using pos_weight={FASC_POS_WEIGHT} on BCE (recall bias)", flush=True)
     scaler = torch.amp.GradScaler("cuda", enabled=USE_AMP)
     tr_dl = DataLoader(SegDS(tr, tf(True)), batch_size=bs, shuffle=True, num_workers=NW,
                        pin_memory=PIN, persistent_workers=(NW > 0))
@@ -398,7 +404,7 @@ def measure(apo_mask, fasc_mask):
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
     angs, fls, wts = [], [], []
     for i in range(1, nf):
-        if statsf[i, 4] < 20:
+        if statsf[i, 4] < FASC_MIN_AREA:
             continue
         ys, xs = np.where(labf == i)
         if len(xs) < 8:
@@ -413,7 +419,7 @@ def measure(apo_mask, fasc_mask):
         fl = None
         if upper is not None and lower is not None:
             fl = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
-        if 2 <= a <= 75:
+        if FASC_MIN_ANG <= a <= 75:
             angs.append(a)
             wts.append(int(statsf[i, 4]))  # weight by fragment size (exp05: sharpens PA)
             if fl is not None and 10.0 <= fl <= 4000.0:

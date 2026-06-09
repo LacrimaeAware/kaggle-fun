@@ -181,6 +181,38 @@ mt 0.490) - vs human 0.307, DL-Track 0.331, our prior end-state 0.383. The measu
 *between* DL-Track and the human floor on PA, and closing on DL-Track overall. The Kaggle bottleneck
 is still the 251 unscaled TIFFs.
 
+## exp09 - post-processing sweep on the TTA masks (`exp09_postproc_sweep.py`)  [partly WIRED]
+
+Grounding work (a 4-agent investigation) confirmed the segmenter facts: apo + fascicle are already
+TWO separate models; loss is 0.5 Dice + 0.5 BCE with NO class weighting; the local fascicle TRAINING
+masks (2761 files) are dash-style - mean 13.7 fragments/image, median 59 px, each ~6% of image width,
+within-image orientation std 2.7 deg. Apo masks are clean (exactly 2 bands in 48/50). So bend cannot
+be supervised into the fascicle model (no curve in the labels), and the fascicle model under-draws
+because thin sparse positives under unweighted BCE bias toward background.
+
+Swept the only no-retrain levers on the already-TTA'd probability maps: threshold {.45,.50,.55} x
+fascicle min-area {20,40,60} x min-orientation filter {3,6,9} deg. Best vs current wired (thr .5,
+area 20, ang 2 = 0.370):
+
+| thr | area | ang | overall | PA | FL | MT |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.50 | 40 | 6 | **0.368** | **0.164** | 0.449 | 0.490 |
+| 0.50 | 20 | 6 | 0.368 | 0.168 | 0.447 | 0.490 |
+| 0.50 | 20 | 2 (current) | 0.370 | 0.171 | 0.449 | 0.490 |
+| 0.55 | 60 | 6 | 0.390 | 0.180 | 0.500 | 0.490 |
+
+Read: the whole gain is PA (0.171 -> 0.164), from the min-6-deg filter rejecting apo-parallel
+fragments (the user's mid-line observation). **FL does not move - it sits at 0.447-0.451 across every
+combo.** The local post-processing lever is now spent; FL is pinned at the straight-mask floor, as
+the scatter analysis (exp06) predicted. WIRED the free PA win: `FASC_MIN_AREA=40`, `FASC_MIN_ANG=6`
+(confirmed PA 0.164 in `score_on_benchmark.py`). New end-state ~0.368 (pa .164, fl .449, mt .490).
+
+The only untested FL lever left is the user's idea-2: bias the FASCICLE model toward recall so it
+draws more of each dash, giving the geometry more/fuller fragments. Wired as `UMUD_FASC_POS_WEIGHT`
+(>0 adds a pos_weight to the fascicle BCE; apo untouched). It is a Kaggle-GPU retrain (local AMD has
+no CUDA). Expected: better fascicle recall and PA stability; FL payoff uncertain because FL is
+scatter-limited (exp06), and exp08 warned that merely adding pixels at a low threshold hurt FL.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
