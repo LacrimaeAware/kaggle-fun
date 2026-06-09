@@ -43,6 +43,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 IMG_SIZE = 384
 SEED = 42
+EPOCHS = int(os.environ.get("UMUD_EPOCHS", "12"))  # set UMUD_EPOCHS=2 for a fast smoke run
 PRIOR = {"fl_mm": 74.424, "mt_mm": 18.628, "pa_deg": 15.105}
 
 PAIRS = {
@@ -188,8 +189,8 @@ def measure(apo_mask, fasc_mask):
 
 
 def main():
-    apo = train_segmenter("apo")
-    fasc = train_segmenter("fasc")
+    apo = train_segmenter("apo", epochs=EPOCHS)
+    fasc = train_segmenter("fasc", epochs=EPOCHS)
     test_files = sorted(glob.glob(str(DATA / "test_images_v2" / "**" / "*.*"), recursive=True))
     test_files = [f for f in test_files if f.lower().endswith((".tif", ".tiff", ".png"))]
     print(f"test images: {len(test_files)}", flush=True)

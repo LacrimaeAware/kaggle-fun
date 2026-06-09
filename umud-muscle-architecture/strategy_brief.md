@@ -47,7 +47,9 @@ Lower is better. This is not a noise-limited leaderboard. There is a large real 
 
 The available discrete GPU is an AMD RX 5700 XT. PyTorch on it needs DirectML (torch-directml), which has no build for Python 3.13 (this project's environment), so the AMD path would need a separate Python 3.11 environment. CPU training of the U-Nets is too slow to be practical. The clean path is Kaggle's free GPU (CUDA).
 
-The segment-then-measure pipeline is written in `segment_then_measure.py` (with a standalone trainer in `train_segmentation.py`). It auto-detects Kaggle versus local paths and the device. To train: run `segment_then_measure.py` in a Kaggle notebook with the competition attached and GPU plus internet enabled. It trains the aponeurosis and fascicle U-Nets (smp U-Net, ResNet34, Dice-BCE), predicts on the test images, measures pennation angle from the geometry, and writes `submission_segmentation.csv`. This first version takes pennation from the segmentation and keeps fascicle length and thickness at the prior, until tick-mark calibration is added.
+The segment-then-measure pipeline is written in `segment_then_measure.py` (with a standalone trainer in `train_segmentation.py`). It auto-detects Kaggle versus local paths and the device. It trains the aponeurosis and fascicle U-Nets (smp U-Net, ResNet34, Dice-BCE), predicts on the test images, measures pennation angle from the geometry, and writes `submission_segmentation.csv`. This first version takes pennation from the segmentation and keeps fascicle length and thickness at the prior, until tick-mark calibration is added.
+
+The turnkey way to run it is `kaggle_segment_notebook.ipynb`. On Kaggle: New Notebook, File > Import Notebook (upload that file), Add Input (this competition), set Accelerator to GPU and Internet to On, then Run All. The notebook pulls `segment_then_measure.py` live from this repo, so it stays in sync. There is an optional 2-epoch smoke cell (set via `UMUD_EPOCHS`) before the full 12-epoch run. No Kaggle API token or local setup is required; submit the output CSV with Submit to Competition.
 
 ## What the problem really is
 
