@@ -56,6 +56,28 @@ Read: temporal smoothing of our *own* predictions within a clip is a legitimate,
 (we use the test set's structure, not its labels) to reduce per-frame noise. Worth a submission once
 a base FL/MT method is set.
 
+## exp03 - curved FL, texture PA, no-scale FL (`exp03_curved_fl_and_texture_pa.py`)
+
+Two orthogonal ideas, both tested, both FAILED (logged because negative results are the point):
+
+(A) Curved/arc-length FL: fit a parabola to all fascicle pixels, take arc length not chord.
+    FL-term **0.688 vs the straight 0.680 - slightly worse**. A parabola over all pixels captures
+    the arrangement of many fascicles, not one fascicle's bend. Real bend needs per-fascicle tracking.
+
+(B) Texture-orientation PA (the dark-space / complement idea): structure-tensor orientation of the
+    belly, independent of segmentation. **PA MAE 8.2 deg vs the segmentation's 1.35**; blending makes
+    PA worse. The raw belly structure tensor is too noisy (speckle, aponeurosis edges). The instinct
+    (fascicles and dark gaps share orientation) is right; a raw structure tensor is the wrong tool. A
+    Gabor / coherence-weighted version might do better, not pursued.
+
+(C) Kaggle-relevant: does FL = MT/sin(PA) help even WITHOUT scale? Constant thickness (18.628 mm)
+    over our PA gives FL-term **0.799 vs constant-FL 1.172** - it captures per-image FL variation via
+    PA. With true scale, 0.680. Caveat: benchmark FL mean (~61) differs from Kaggle's (74.4), so the
+    constant looks worse here than on Kaggle; the real Kaggle gain is uncertain, a submission decides.
+
+Standing best (benchmark): PA seg 0.225, FL = MT/sin(PA) 0.680, overall 0.465. Neither new idea beat
+it. Bend stays uncracked without real fascicle tracking.
+
 ## Next
 
 - **exp03 (frontier): measure the curved fascicle path.** Fit a polynomial/spline to the fascicle

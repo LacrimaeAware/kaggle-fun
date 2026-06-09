@@ -76,6 +76,7 @@ FL_MIN, FL_MAX = 30.0, 200.0
 MT_MIN, MT_MAX = 10.0, 50.0
 USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
+USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), validated in exp01
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -445,6 +446,12 @@ def main():
             if USE_CALIBRATED_FL and geom["fl_px"] is not None:
                 fl_mm = float(np.clip(geom["fl_px"] / px_per_mm, FL_MIN, FL_MAX))
                 fl_ok += 1
+        # FL from the MT/PA identity (exp01: the only FL estimator that beat a constant on the expert
+        # benchmark). Uses calibrated MT where available, else the prior thickness; needs a measured
+        # PA. The straight identity floors at the fascicle bend; toggle off with UMUD_USE_IDENTITY_FL=0.
+        if USE_IDENTITY_FL and geom is not None and geom["pa_deg"] is not None:
+            fl_mm = float(np.clip(mt_mm / np.sin(np.radians(pa)), FL_MIN, FL_MAX))
+            fl_ok += 1
         calib_rows.append({
             "image_id": p.name,
             "px_per_mm": px_per_mm,
@@ -463,8 +470,7 @@ def main():
     sub.to_csv(out_csv, index=False)
     pd.DataFrame(calib_rows).to_csv(OUT / "calibration_measurement_debug.csv", index=False)
     print(f"geometry succeeded on {ok}/{len(test_files)} images", flush=True)
-    print(f"calibrated MT used on {mt_ok}/{len(test_files)} images; "
-          f"calibrated FL used on {fl_ok}/{len(test_files)} images", flush=True)
+    print(f"calibrated MT on {mt_ok}/{len(test_files)}; FL=MT/sin(PA) on {fl_ok}/{len(test_files)}", flush=True)
     print(f"wrote {out_csv} ({len(sub)} rows)", flush=True)
     print(sub["pa_deg"].describe().to_string(), flush=True)
 
