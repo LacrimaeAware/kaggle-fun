@@ -92,6 +92,23 @@ fascicle models and tuned tracking (0.312), not a structure-tensor streamline ha
 straight identity (0.528) stands as our best FL. Beating it needs DL-Track's models (the architecture
 model folders in the OSF download were empty) or a serious tracking build, not a quick experiment.
 
+## exp05 - sharper PA (PCA + length weighting), banded FL (`exp05_better_pa_and_banded_fl.py`)
+
+Iterating on exp03/04 instead of bailing.
+
+(A) PA: `polyfit` minimizes the vertical residual, biased for steep fascicles. Total-least-squares
+    (PCA) orientation, weighted by fragment size, gives **PA MAE 1.10 deg / term 0.184** (from
+    polyfit's 1.35 / 0.225) - and beats DL-Track's PA (0.242). WIRED into `segment_then_measure.py`.
+(B) Banded curved FL (per-depth angle from the clean mask, integrated): 0.658 - still worse than the
+    straight line (0.514). Bend stays uncracked, but the sharper PA dropped the straight FL to 0.514.
+
+**Combined end-state**, our full pipeline on the 35 experts WITH good scale (wpca PA + recentered
+identity FL + true MT): **overall 0.383** (pa 0.184, fl 0.476, mt 0.489) - vs human 0.307, DL-Track
+0.331, SMA 0.409, and our start-of-night 0.634. So the MEASUREMENT is now DL-Track-competitive given
+scale. HONEST caveat: true scale, benchmark devices; our real Kaggle score is ~0.9-1.09 because the
+251 TIFFs have NO scale and fall back to constants. **The real Kaggle bottleneck is now per-image
+scale on the TIFFs (ranked #3)** - that is what unlocks the now-good measurement.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant

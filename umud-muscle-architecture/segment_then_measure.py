@@ -325,6 +325,25 @@ def fit_line(ys, xs):
     return float(s), float(b)
 
 
+def pca_line(ys, xs):
+    """Total-least-squares line (slope, intercept); unbiased for steep fascicles, unlike polyfit (exp05)."""
+    xs = np.asarray(xs, np.float64)
+    ys = np.asarray(ys, np.float64)
+    xc, yc = xs.mean(), ys.mean()
+    d = np.stack([xs - xc, ys - yc])
+    _, v = np.linalg.eigh(d @ d.T / max(len(xs), 1))
+    vx, vy = v[:, 1]
+    s = (vy / vx) if abs(vx) > 1e-6 else 1e6
+    return float(s), float(yc - s * xc)
+
+
+def weighted_median(vals, wts):
+    order = np.argsort(vals)
+    v = np.asarray(vals, float)[order]
+    c = np.cumsum(np.asarray(wts, float)[order])
+    return float(v[np.searchsorted(c, c[-1] / 2.0)])
+
+
 def line_y(line, x):
     s, b = line
     return s * x + b
@@ -363,14 +382,14 @@ def measure(apo_mask, fasc_mask):
     mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
 
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
-    angs, fls = [], []
+    angs, fls, wts = [], [], []
     for i in range(1, nf):
         if statsf[i, 4] < 20:
             continue
         ys, xs = np.where(labf == i)
         if len(xs) < 8:
             continue
-        fs, fb = fit_line(ys, xs)
+        fs, fb = pca_line(ys, xs)  # unbiased fascicle orientation (exp05)
         a = abs(np.degrees(np.arctan(fs) - np.arctan(deep_s)))
         if a > 90:
             a = 180 - a
@@ -382,10 +401,11 @@ def measure(apo_mask, fasc_mask):
             fl = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
         if 2 <= a <= 75:
             angs.append(a)
+            wts.append(int(statsf[i, 4]))  # weight by fragment size (exp05: sharpens PA)
             if fl is not None and 10.0 <= fl <= 4000.0:
                 fls.append(fl)
     return {
-        "pa_deg": float(np.median(angs)) if angs else None,
+        "pa_deg": weighted_median(angs, wts) if angs else None,
         "fl_px": float(np.median(fls)) if fls else None,
         "mt_px": float(mt_px),
         "n_fascicles": len(angs),
