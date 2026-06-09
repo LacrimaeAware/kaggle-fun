@@ -178,7 +178,7 @@ def recover_scale_faint_left(gray, x_max=70, win=16, tick_cm=0.5, min_strength=0
     return dict(scale_px_per_cm=float(scale), conf=float(best[1]), spacing_px=float(period))
 
 
-def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=134.0):
+def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=134.5):
     """Recognize the family-B instrument by its FIXED left-margin UI marks (focus markers/labels at
     fixed canvas rows, independent of depth) and return its validated fixed scale. The faint ruler on
     these images is not robustly periodic (autocorrelation false-positives); but the 49 family-B images
