@@ -2,7 +2,7 @@
 
 Public-safe working brief for the UMUD Challenge: Muscle Architecture in Ultrasound Data.
 
-Companion docs: [rundown.md](rundown.md) explains the problem in plain language; [leader_playbook.md](leader_playbook.md) distills the reusable method of the current leader (suguuuuu) and maps it onto UMUD.
+Companion docs: [rundown.md](rundown.md) explains the problem in plain language; [leader_playbook.md](leader_playbook.md) distills the reusable method of the current leader (suguuuuu) and maps it onto UMUD; [codex_review.md](codex_review.md) gives a second-pass hypothesis map and next-experiment order.
 
 ## Current state
 

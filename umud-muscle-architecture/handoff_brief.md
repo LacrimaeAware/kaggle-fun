@@ -41,6 +41,11 @@ Submission history (also in `writeup.md`):
   built. Runs on a Kaggle GPU via `kaggle_segment_notebook.ipynb` (no API token needed; the
   notebook pulls the script from the public repo).
 - `mask_geometry.py`: derives PA / FL_px / MT_px from ground-truth masks (the pseudo-labels).
+- `tick_calibration.py`: first standalone calibration prototype. It writes
+  `results/calibration_debug/tick_calibration.csv` plus overlays. First diagnostics:
+  203/309 images detected; after the PNG left-ruler fix, 58/58 PNGs and 10/251 TIFFs are
+  above confidence 0.7. PNG coverage is now depth-aware; cropped TIFF coverage needs a
+  second strategy.
 - `metric.py`: a local UMUD scorer.
 - `train_pseudo_baseline.py`, `submission_variants.py`: the earlier ExtraTrees regressor path.
 - Data layout (the local mirror equals the Kaggle mount): aponeurosis 1048 image/mask pairs,
@@ -131,6 +136,7 @@ browser check), so leader-specific points stay inference. What was verifiable:
 - `strategy_brief.md` - improvement levers (DLTrack repro, calibration, segmentation,
   geometry, temporal, ensemble, outlier) and compute status.
 - `leader_playbook.md` - reconstructed method of the leader (not his actual UMUD code).
+- `codex_review.md` - second-pass hypothesis map and prioritized next experiments.
 - `plan.md` - staged plan and verified data facts.
 - `segment_then_measure.py` - the current pipeline; `kaggle_segment_notebook.ipynb` runs it.
 - `mask_geometry.py`, `metric.py` - geometry and scoring.

@@ -28,6 +28,16 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
+try:
+    from tick_calibration import choose_candidate as choose_calibration_candidate
+    from tick_calibration import read_gray as read_calibration_gray
+    CALIBRATION_AVAILABLE = True
+except Exception as exc:
+    choose_calibration_candidate = None
+    read_calibration_gray = None
+    CALIBRATION_AVAILABLE = False
+    CALIBRATION_IMPORT_ERROR = exc
+
 # segmentation_models_pytorch and albumentations (install on Kaggle if missing)
 try:
     import segmentation_models_pytorch as smp
@@ -62,6 +72,11 @@ EPOCHS = int(os.environ.get("UMUD_EPOCHS", "12"))      # UMUD_EPOCHS=2 for a fas
 MAX_PAIRS = int(os.environ.get("UMUD_MAX_PAIRS", "0"))  # >0 caps train pairs (local smoke tests)
 PRIOR = {"fl_mm": 74.424, "mt_mm": 18.628, "pa_deg": 15.105}
 PA_MIN, PA_MAX = 5.0, 45.0  # competition physiological range for pennation angle
+FL_MIN, FL_MAX = 30.0, 200.0
+MT_MIN, MT_MAX = 10.0, 50.0
+USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
+USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
+CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
 # Known leaf folder names, located wherever they are mounted. Do not hard-code the
@@ -309,8 +324,23 @@ def fit_line(ys, xs):
     return float(s), float(b)
 
 
+def line_y(line, x):
+    s, b = line
+    return s * x + b
+
+
+def line_intersection(a, b):
+    s1, b1 = a
+    s2, b2 = b
+    denom = s1 - s2
+    if abs(denom) < 1e-6:
+        return None
+    x = (b2 - b1) / denom
+    return float(x), float(line_y(a, x))
+
+
 def measure(apo_mask, fasc_mask):
-    """Return pennation angle in degrees, or None if geometry fails."""
+    """Return PA plus pixel-space FL/MT geometry, or None if aponeurosis geometry fails."""
     apo_mask = np.ascontiguousarray(apo_mask, np.uint8)
     fasc_mask = np.ascontiguousarray(fasc_mask, np.uint8)
     n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
@@ -325,22 +355,47 @@ def measure(apo_mask, fasc_mask):
         s, b = fit_line(ys, xs)
         lines.append((np.mean(ys), s, b))
     lines.sort()
-    deep_s = lines[-1][1]  # lower band = deep aponeurosis
+    superficial = (lines[0][1], lines[0][2])
+    deep = (lines[-1][1], lines[-1][2])  # lower band = deep aponeurosis
+    deep_s = deep[0]
+    x_center = apo_mask.shape[1] / 2.0
+    mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
+
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
-    angs = []
+    angs, fls = [], []
     for i in range(1, nf):
         if statsf[i, 4] < 20:
             continue
         ys, xs = np.where(labf == i)
         if len(xs) < 8:
             continue
-        fs, _ = fit_line(ys, xs)
+        fs, fb = fit_line(ys, xs)
         a = abs(np.degrees(np.arctan(fs) - np.arctan(deep_s)))
         if a > 90:
             a = 180 - a
+        fasc = (fs, fb)
+        upper = line_intersection(fasc, superficial)
+        lower = line_intersection(fasc, deep)
+        fl = None
+        if upper is not None and lower is not None:
+            fl = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
         if 2 <= a <= 75:
             angs.append(a)
-    return float(np.median(angs)) if angs else None
+            if fl is not None and 10.0 <= fl <= 4000.0:
+                fls.append(fl)
+    return {
+        "pa_deg": float(np.median(angs)) if angs else None,
+        "fl_px": float(np.median(fls)) if fls else None,
+        "mt_px": float(mt_px),
+        "n_fascicles": len(angs),
+    }
+
+
+def calibrate_image(path):
+    if not CALIBRATION_AVAILABLE:
+        return None
+    gray = read_calibration_gray(path)
+    return choose_calibration_candidate(gray, side_tick_mm=5.0, bottom_tick_mm=10.0, image_name=path.name)
 
 
 def main():
@@ -353,26 +408,63 @@ def main():
 
     apo = train_segmenter("apo", epochs=EPOCHS)
     fasc = train_segmenter("fasc", epochs=EPOCHS)
+    if (USE_CALIBRATED_MT or USE_CALIBRATED_FL) and not CALIBRATION_AVAILABLE:
+        print(f"calibration unavailable: {CALIBRATION_IMPORT_ERROR}", flush=True)
+    print(f"calibrated MT: {USE_CALIBRATED_MT}, calibrated FL: {USE_CALIBRATED_FL}, "
+          f"min calibration confidence: {CALIBRATION_MIN_CONF}", flush=True)
 
-    rows, ok = [], 0
+    rows, calib_rows, ok, mt_ok, fl_ok = [], [], 0, 0, 0
     for p in test_files:
         img = read_rgb(p)
         try:
-            pa = measure(predict_mask(apo, img), predict_mask(fasc, img))
+            geom = measure(predict_mask(apo, img), predict_mask(fasc, img))
         except Exception as e:  # no single image can abort the 309-row submission
             print(f"  measure failed on {p.name}: {e}", flush=True)
-            pa = None
+            geom = None
+        pa = geom["pa_deg"] if geom else None
         if pa is None:
             pa = PRIOR["pa_deg"]
         else:
             ok += 1
         pa = float(np.clip(pa, PA_MIN, PA_MAX))  # keep inside the scored 5-45 deg band
+
+        fl_mm = PRIOR["fl_mm"]
+        mt_mm = PRIOR["mt_mm"]
+        cand = calibrate_image(p) if (USE_CALIBRATED_MT or USE_CALIBRATED_FL) else None
+        px_per_mm = None
+        calib_conf = 0.0
+        calib_method = "none"
+        if cand is not None:
+            px_per_mm = cand.px_per_mm
+            calib_conf = cand.confidence
+            calib_method = f"{cand.method}/{cand.edge}"
+        if cand is not None and calib_conf >= CALIBRATION_MIN_CONF and geom is not None:
+            if USE_CALIBRATED_MT and geom["mt_px"] is not None:
+                mt_mm = float(np.clip(geom["mt_px"] / px_per_mm, MT_MIN, MT_MAX))
+                mt_ok += 1
+            if USE_CALIBRATED_FL and geom["fl_px"] is not None:
+                fl_mm = float(np.clip(geom["fl_px"] / px_per_mm, FL_MIN, FL_MAX))
+                fl_ok += 1
+        calib_rows.append({
+            "image_id": p.name,
+            "px_per_mm": px_per_mm,
+            "calibration_confidence": calib_conf,
+            "calibration_method": calib_method,
+            "pa_deg": pa,
+            "fl_px": geom["fl_px"] if geom else None,
+            "mt_px": geom["mt_px"] if geom else None,
+            "fl_mm": fl_mm,
+            "mt_mm": mt_mm,
+        })
         rows.append({"image_id": p.name, "pa_deg": round(pa, 3),
-                     "fl_mm": PRIOR["fl_mm"], "mt_mm": PRIOR["mt_mm"]})
+                     "fl_mm": round(fl_mm, 3), "mt_mm": round(mt_mm, 3)})
     sub = pd.DataFrame(rows)
     out_csv = OUT / "submission_segmentation.csv"
     sub.to_csv(out_csv, index=False)
+    pd.DataFrame(calib_rows).to_csv(OUT / "calibration_measurement_debug.csv", index=False)
     print(f"geometry succeeded on {ok}/{len(test_files)} images", flush=True)
+    print(f"calibrated MT used on {mt_ok}/{len(test_files)} images; "
+          f"calibrated FL used on {fl_ok}/{len(test_files)} images", flush=True)
     print(f"wrote {out_csv} ({len(sub)} rows)", flush=True)
     print(sub["pa_deg"].describe().to_string(), flush=True)
 

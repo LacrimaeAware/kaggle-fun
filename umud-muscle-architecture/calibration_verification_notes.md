@@ -53,3 +53,18 @@ Hold the Kaggle run until PNG calibration reads the ruler/depth rather than the 
 re-check the overlays (the red tick lines should land on the left ruler and px/mm should track the
 depth readout). The segmentation training itself is unaffected and ready; only the MT-calibration
 input needs the fix. Overlays for inspection: `results/calibration_debug/overlays/`.
+
+## Follow-up fix applied
+
+`tick_calibration.py` now has a PNG-specific `png_left_ruler` path. For `.png` images it ignores
+the right-side UI text panel and reads the extreme-left numbered ruler instead. Re-running the
+local diagnostics gives the expected depth-aware behavior:
+
+- `IMG_00252.png` (4.0 cm): `75 px / 5 mm = 15.0 px/mm`, method `png_left_ruler`.
+- `IMG_00280.png` (3.0 cm): `100 px / 5 mm = 20.0 px/mm`, method `png_left_ruler`.
+- PNG split: `58/58` detected, `58/58` above confidence `0.7`.
+- TIFF split remains cautious: only `10/251` above confidence `0.7`, so most TIFFs still fall
+  back to the prior MT until a separate scale source is found.
+
+The current calibration status is therefore: PNG MT calibration is ready for a cautious
+confidence-gated Kaggle run; TIFF calibration is still mostly fallback.

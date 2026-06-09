@@ -2,7 +2,7 @@
 
 The current UMUD public-leaderboard leader is suguuuuu (Kaggle handle sugupoko) at 0.37766, marked "no hand labelling", well ahead of the DL-Track benchmark at 0.67944. He is a Kaggle competitions grandmaster with first-place finishes in imaging and signal competitions.
 
-Honesty note: he has not published his UMUD solution. The notebooks of his that are public are from other competitions (a Pokemon match-prediction baseline, a prostate-epithelium segmentation baseline, his HMS and other solutions). So nothing below is his UMUD code. It is his reusable method, read from his public notebooks and write-ups, mapped onto UMUD.
+Scope note: he has not published his UMUD solution. The notebooks of his that are public are from other competitions (a Pokemon match-prediction baseline, a prostate-epithelium segmentation baseline, his HMS and other solutions). So nothing below is his UMUD code. It is his reusable method, read from his public notebooks and write-ups, mapped onto UMUD.
 
 ## His public code shows a reusable segmentation recipe
 
@@ -27,7 +27,7 @@ From his 1st, 3rd, and 4th-place solutions (HMS brain activity, RSNA lumbar spin
 - Self-training on the test set. His PlantCLEF solution domain-adapted on test-tile pseudo-labels, FixMatch-style, with hard labels and a high confidence threshold. For UMUD, pseudo-label confident test segmentations and fine-tune toward the test domain.
 - Test-time augmentation with label-aware remapping. Flips and rotations at inference, averaging logits, watching for symmetry that needs a remap (a missed vertical-flip remap cost him a large drop until fixed).
 - Ensemble by the cheapest diversity knob first. He reaches for the same model with a different hyperparameter or seed before a different architecture, and uses equal-weight averaging rather than out-of-fold-tuned weights, which cost him leaderboard score more than once.
-- Anchor on the honest validation signal. When out-of-fold and leaderboard scores disagree near the top, he anchors on the leaderboard for ensemble decisions and keeps a strong baseline visible.
+- Anchor on the validation signal. When out-of-fold and leaderboard scores disagree near the top, he keeps the baseline visible and makes ensemble decisions from the most reliable signal available.
 - Outlier and quality control. His muscle cross-section tool discards a few percent of unreliable predictions. For UMUD, detect failed segmentations and fall back to priors.
 
 ## Mapped to concrete UMUD actions
@@ -39,7 +39,7 @@ From his 1st, 3rd, and 4th-place solutions (HMS brain activity, RSNA lumbar spin
 5. Ensemble the segment-then-measure pipeline with a direct regressor, and, if time allows, a second segmentation backbone.
 6. Outlier control: clip to physiological ranges and fall back to sequence medians where geometry is unstable.
 
-The honest summary: the leader's edge is not a secret method. It is disciplined segment-then-measure with a standard segmentation backbone, validation by looking at predictions, domain-shift handling, self-training, and clean ensembling. All of it is documented and reproducible, which suits this repository's standards.
+Working synthesis: the leader's edge is unlikely to be one secret method. The public pattern is disciplined segment-then-measure with standard segmentation backbones, validation by looking at predictions, domain-shift handling, self-training, and clean ensembling. Those are all documented and reproducible enough to fit this repository's standards, but they still need to be tested on UMUD rather than assumed.
 
 ## 2026-06 update: calibration is the most likely single edge
 
