@@ -78,7 +78,34 @@ Two orthogonal ideas, both tested, both FAILED (logged because negative results 
 Standing best (benchmark): PA seg 0.225, FL = MT/sin(PA) 0.680, overall 0.465. Neither new idea beat
 it. Bend stays uncracked without real fascicle tracking.
 
+## exp04 - real curved fascicle tracking (`exp04_fascicle_tracking.py`)
+
+Question (ranked idea #5, done properly): trace streamlines through a per-pixel orientation field
+(structure tensor on the image) from the deep aponeurosis to the superficial one; arc length = FL,
+capturing bend.
+
+Result: **FAILED.** FL-term 2.27 raw / 1.78 recentered - far worse than even a good constant (0.682).
+The ultrasound orientation field is too noisy (speckle), so streamlines wander and lengths are junk.
+
+Read: tracking that beats the straight line is genuinely hard - it is what DL-Track does with trained
+fascicle models and tuned tracking (0.312), not a structure-tensor streamline hack. The recentered
+straight identity (0.528) stands as our best FL. Beating it needs DL-Track's models (the architecture
+model folders in the OSF download were empty) or a serious tracking build, not a quick experiment.
+
+## Fair-test correction (important)
+
+The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
+(74.4 on a set whose mean is 61). Against a constant centered at the RIGHT mean (0.682), raw MT/sin(PA)
+(0.680) only TIES. The per-image shape helps **only after recentering the mean** (0.528 < 0.682). So the
+wired FL is the recentered identity, and the realized gain is ~0.05 on the benchmark, not a halving.
+
 ## Next
+
+- Score FL ideas against the 35 experts locally - never submit to "test". The recentered identity is
+  wired (UMUD_USE_IDENTITY_FL); its Kaggle transfer is unmeasured and small.
+- Real FL beyond the straight floor needs DL-Track's trained fascicle models (re-download the OSF
+  architecture-model folders) or a serious tracking pipeline. Quick heuristics (parabola, texture,
+  streamlines) all failed.
 
 - **exp03 (frontier): measure the curved fascicle path.** Fit a polynomial/spline to the fascicle
   fragment pixels (capturing bend), integrate arc length between the two aponeuroses, and compare to

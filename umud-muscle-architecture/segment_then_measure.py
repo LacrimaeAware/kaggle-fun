@@ -466,6 +466,8 @@ def main():
         rows.append({"image_id": p.name, "pa_deg": round(pa, 3),
                      "fl_mm": round(fl_mm, 3), "mt_mm": round(mt_mm, 3)})
     sub = pd.DataFrame(rows)
+    if USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
+        sub["fl_mm"] = (sub["fl_mm"] * (PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(FL_MIN, FL_MAX).round(3)
     out_csv = OUT / "submission_segmentation.csv"
     sub.to_csv(out_csv, index=False)
     pd.DataFrame(calib_rows).to_csv(OUT / "calibration_measurement_debug.csv", index=False)

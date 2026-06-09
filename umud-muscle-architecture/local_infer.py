@@ -63,6 +63,8 @@ def main():
         if (i + 1) % 50 == 0:
             print(f"  {i+1}/{len(files)} ({time.time()-t0:.0f}s)", flush=True)
     sub = pd.DataFrame(rows)
+    if M.USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
+        sub["fl_mm"] = (sub["fl_mm"] * (M.PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(M.FL_MIN, M.FL_MAX).round(3)
     out = ROOT / "results" / "submission_local.csv"
     sub.to_csv(out, index=False)
     print(f"\nwrote {out} ({len(sub)} rows) in {time.time()-t0:.0f}s; "
