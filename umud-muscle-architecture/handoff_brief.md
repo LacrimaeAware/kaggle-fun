@@ -18,7 +18,7 @@ Plain-language explainer: `rundown.md`. Competition writeup: `writeup.md`.
 
 ## Where we stand
 
-- Best public score so far: **1.11066**.
+- Best public score so far: **1.09194**.
 - Leaderboard leader: **0.37766** (handle sugupoko, marked "no hand-labelling").
 - Official DL-Track benchmark: **0.67944**.
 - Lower is better, so there is a large real gap. This is not a noise-limited leaderboard.
@@ -28,18 +28,20 @@ Submission history (also in `writeup.md`):
 | What | Public LB |
 | --- | --- |
 | ExtraTrees on mask pseudo-labels, with inflated model FL/MT | 1.23135 |
-| ExtraTrees pennation + prior FL/MT constants | **1.11066** (best) |
+| ExtraTrees pennation + prior FL/MT constants | 1.11066 (previous best) |
 | Segmentation U-Net pennation + prior FL/MT constants | 1.12324 |
+| Segmentation U-Net pennation + calibrated MT on 68 images, prior FL | **1.09194** (current best) |
 
 ## What has been built
 
 - `segment_then_measure.py`: the main pipeline. Auto-discovers the data wherever it is
   mounted, trains aponeurosis and fascicle U-Nets (segmentation_models_pytorch, ResNet34,
   Dice+BCE, flips/rotations, AMP), predicts masks on the 309 test images, fits lines,
-  computes pennation geometrically, writes `submission_segmentation.csv`. FL and MT are
-  left at prior constants (74.424 mm, 18.628 mm) because pixels-to-mm calibration is not
-  built. Runs on a Kaggle GPU via `kaggle_segment_notebook.ipynb` (no API token needed; the
-  notebook pulls the script from the public repo).
+  computes pennation geometrically, writes `submission_segmentation.csv`. MT can now be
+  calibrated when `tick_calibration.py` returns a confident scale; FL is still gated off by
+  default because fascicle geometry is noisier. Runs on a Kaggle GPU via
+  `kaggle_segment_notebook.ipynb` (no API token needed; the notebook pulls the script from
+  the public repo).
 - `mask_geometry.py`: derives PA / FL_px / MT_px from ground-truth masks (the pseudo-labels).
 - `tick_calibration.py`: first standalone calibration prototype. It writes
   `results/calibration_debug/tick_calibration.csv` plus overlays. First diagnostics:
@@ -55,13 +57,13 @@ Submission history (also in `writeup.md`):
 
 ## The problem we are stuck on
 
-The score is dominated by fascicle length and muscle thickness, and we have no per-image
-signal for either: both are flat constants in every submission so far. PA is the only target
-we can currently estimate per image, and PA is the smallest of the three levers (tolerance
-6 deg vs FL 12 mm, MT 3 mm, but FL and MT are completely unmodelled). Moving toward the
-benchmark most likely needs pixels-to-millimetre calibration (tick marks on the images) so
-FL and MT become real measurements. That calibration is unsolved and is the central
-difficulty. PA is scale-free, so it does not need calibration.
+The score is dominated by fascicle length and muscle thickness. MT now has real per-image
+signal on the 58 PNGs and 10 suspicious TIFFs, but FL is still flat constant everywhere and
+most TIFF MT rows still fall back to the prior. PA is the only fully per-image target, and PA
+is the smallest of the three levers (tolerance 6 deg vs FL 12 mm, MT 3 mm). Moving toward the
+benchmark most likely needs broader pixels-to-millimetre calibration so FL and MT become real
+measurements. That calibration is the central difficulty. PA is scale-free, so it does not
+need calibration.
 
 ## What the latest result suggests (hypotheses, not settled)
 
@@ -75,10 +77,17 @@ difficulty. PA is scale-free, so it does not need calibration.
      with a 6 deg tolerance, which rewards staying near the centre when true signal is weak.
    - Would break it: a better-trained segmentation (higher Dice, TTA, more epochs) that
      scores below 1.11066, or evidence the spread is correct and the regressor was biased.
-2. Bigger picture: PA looks near its achievable floor with simple methods, and the FL/MT
-   constants account for most of the gap.
-   - Supports it: we are at ~1.11 vs ~0.68 with FL/MT untouched; the benchmark gets FL/MT
-     right by measuring in mm.
+2. Adding calibrated MT to 68 images improved the U-Net path from 1.12324 to 1.09194.
+   - Hypothesis: the PNG MT calibration is real signal, but its global impact is limited
+     because it touches only part of MT and still leaves FL constant.
+   - Supports it: all 58 PNG rows got plausible depth-aware MT values; the 10 calibrated
+     TIFF rows all share `13.45 px/mm` and remain suspicious.
+   - Would break it: overlay review showing the PNG ruler read is systematically wrong, or a
+     PNG-only MT ablation that gives back the gain.
+3. Bigger picture: PA looks near its achievable floor with simple methods, and the unmodelled
+   FL plus mostly-prior TIFF MT account for most of the gap.
+   - Supports it: we are at ~1.09 vs ~0.68 with FL still untouched and most TIFF MT rows at
+     the prior; the benchmark gets FL/MT by measuring in mm.
    - Would break it: a large score drop from a PA-only change (would mean PA had headroom).
 
 ## The open question we are actively researching
@@ -138,6 +147,7 @@ browser check), so leader-specific points stay inference. What was verifiable:
 - `leader_playbook.md` - reconstructed method of the leader (not his actual UMUD code).
 - `codex_review.md` - second-pass hypothesis map and prioritized next experiments.
 - `forward_plan.md` - post-1.09194 interpretation, no-GPU ablations, and larger plan.
+- `ranked_research_directions.md` - current ranked plan for major vs minor future work.
 - `plan.md` - staged plan and verified data facts.
 - `segment_then_measure.py` - the current pipeline; `kaggle_segment_notebook.ipynb` runs it.
 - `mask_geometry.py`, `metric.py` - geometry and scoring.
