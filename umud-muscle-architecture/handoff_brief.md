@@ -1,153 +1,134 @@
 # UMUD handoff brief (for a collaborating model)
 
-A current-state briefing so another model can review or extend this work and cross-check
-the conclusions. Read it alongside the canonical docs listed at the end. Where it draws a
-conclusion it states the hypothesis and what would confirm or break it, because several of
-these conclusions are not yet verified.
+Current-state briefing so another model can get caught up and extend or cross-check this work.
+Read it with the canonical docs at the end. Last substantive update: 2026-06-09.
 
 ## The competition
 
-UMUD Challenge: Muscle Architecture in Ultrasound Data (Kaggle community competition,
-deadline 2026-11-14). For each skeletal-muscle ultrasound image, predict three numbers:
-pennation angle PA (degrees), fascicle length FL (millimetres), muscle thickness MT
-(millimetres). One row per image. The test set is 309 images: 251 `.tif`
-(IMG_00001..IMG_00251) then 58 `.png` (IMG_00252..IMG_00309). Metric (UMUD Score):
-tolerance-normalized mean absolute error, tolerances PA 6 deg, FL 12 mm, MT 3 mm, equal
-weight, lower is better. Submission is a comma CSV with columns `image_id,pa_deg,fl_mm,mt_mm`.
-Plain-language explainer: `rundown.md`. Competition writeup: `writeup.md`.
+UMUD Challenge: Muscle Architecture in Ultrasound Data (Kaggle community competition, deadline
+2026-11-14). For each B-mode skeletal-muscle ultrasound image, predict three numbers: pennation
+angle PA (deg), fascicle length FL (mm), muscle thickness MT (mm). One row per image.
 
-## Where we stand
+- Test set: 309 images, `IMG_00001..IMG_00251` (.tif) then `IMG_00252..IMG_00309` (.png).
+- Metric (UMUD Score): tolerance-normalized MAE, tolerances PA 6 deg / FL 12 mm / MT 3 mm, equal
+  weight, **lower is better**. Submission: comma CSV `image_id,pa_deg,fl_mm,mt_mm`.
+- Geometry: segment the two aponeuroses (bright bands) + fascicles (thin diagonal fragments), fit
+  lines, then PA = angle of fascicle to the deep aponeurosis, MT = perpendicular gap between the
+  aponeuroses, FL = fascicle length between them. Identity used: **FL = MT / sin(PA)**.
+- Full official facts + host forum clarifications: **`competition_reference.md`** (read it).
 
-- Best public score so far: **1.09194**.
-- Leaderboard leader: **0.37766** (handle sugupoko, marked "no hand-labelling").
-- Official DL-Track benchmark: **0.67944**.
-- Lower is better, so there is a large real gap. This is not a noise-limited leaderboard.
+## Where we stand (2026-06-09)
 
-Submission history (also in `writeup.md`):
+- Best **submitted** public LB: **1.09194** (U-Net PA + tick-calibrated MT on the 58 PNGs, prior FL/MT
+  elsewhere). Nothing newer has been submitted yet.
+- Leaderboard leader **0.378**; provided DL-Track benchmark **0.679**; a careful BY-HAND human
+  labeling of the test set scored **0.459** on the public LB (forum, "PatrickAIForFun").
+- The big lever turned out NOT to be a secret method. DL-Track uses MANUAL scaling; the gap from our
+  constants to a real score is automated per-image pixels-to-mm calibration + real FL/MT measurement.
+  Do not speculate about the leader's private method.
 
-| What | Public LB |
-| --- | --- |
-| ExtraTrees on mask pseudo-labels, with inflated model FL/MT | 1.23135 |
-| ExtraTrees pennation + prior FL/MT constants | 1.11066 (previous best) |
-| Segmentation U-Net pennation + prior FL/MT constants | 1.12324 |
-| Segmentation U-Net pennation + calibrated MT on 68 images, prior FL | **1.09194** (current best) |
+## How we iterate WITHOUT submitting (the most important tool)
 
-## What has been built
+The user downloaded a published **35-image expert benchmark** (OSF, gitignored at
+`data/osf_arch_benchmark/...`, with `Results_benchmark_architecture_v0.1.0.xlsx`). The xlsx gives,
+per image: the TRUE pixels-per-cm scale, all 7 experts' PA/FL/MT, and DL-Track's + SMA's automated
+outputs. This is our **local scoreboard**:
 
-- `segment_then_measure.py`: the main pipeline. Auto-discovers the data wherever it is
-  mounted, trains aponeurosis and fascicle U-Nets (segmentation_models_pytorch, ResNet34,
-  Dice+BCE, flips/rotations, AMP), predicts masks on the 309 test images, fits lines,
-  computes pennation geometrically, writes `submission_segmentation.csv`. MT can now be
-  calibrated when `tick_calibration.py` returns a confident scale; FL is still gated off by
-  default because fascicle geometry is noisier. Runs on a Kaggle GPU via
-  `kaggle_segment_notebook.ipynb` (no API token needed; the notebook pulls the script from
-  the public repo).
-- `mask_geometry.py`: derives PA / FL_px / MT_px from ground-truth masks (the pseudo-labels).
-- `tick_calibration.py`: first standalone calibration prototype. It writes
-  `results/calibration_debug/tick_calibration.csv` plus overlays. First diagnostics:
-  203/309 images detected; after the PNG left-ruler fix, 58/58 PNGs and 10/251 TIFFs are
-  above confidence 0.7. PNG coverage is now depth-aware; cropped TIFF coverage needs a
-  second strategy.
-- `metric.py`: a local UMUD scorer.
-- `train_pseudo_baseline.py`, `submission_variants.py`: the earlier ExtraTrees regressor path.
-- Data layout (the local mirror equals the Kaggle mount): aponeurosis 1048 image/mask pairs,
-  fascicle 2761 image/mask pairs, test 309. Images are uint8. Masks arrive at different
-  resolution and aspect than their images, so they are resized to the image; this alignment
-  is a known quirk, not yet shown to matter.
+- `benchmark_validate.py` - `load_truth()` (expert consensus, human floor, DLTrack/SMA refs) and
+  `score(pred_df, truth)` (tolerance-normalized MAE). Human floor 0.307, DL-Track-with-true-scale
+  0.331, SMA 0.409.
+- `score_on_benchmark.py` - run the saved weights' geometry on the 35 images with TRUE scale.
+- `local_infer.py` - regenerate the full 309-row submission from saved weights on CPU (~110 s with
+  TTA), VERIFIED to reproduce the Kaggle PA/MT exactly. **Test changes here; never submit to test.**
 
-## The problem we are stuck on
+Caveat: the benchmark is different devices than the Kaggle test set, so FL/MT *magnitudes* don't
+transfer, but the *rankings* and the measurement-logic conclusions do.
 
-The score is dominated by fascicle length and muscle thickness. MT now has real per-image
-signal on the 58 PNGs and 10 suspicious TIFFs, but FL is still flat constant everywhere and
-most TIFF MT rows still fall back to the prior. PA is the only fully per-image target, and PA
-is the smallest of the three levers (tolerance 6 deg vs FL 12 mm, MT 3 mm). Moving toward the
-benchmark most likely needs broader pixels-to-millimetre calibration so FL and MT become real
-measurements. That calibration is the central difficulty. PA is scale-free, so it does not
-need calibration.
+## Per-target status (measured on the 35 experts, with TRUE scale)
 
-## What the latest result suggests (hypotheses, not settled)
+Current end-state geometry: **overall 0.368** (PA 0.164, FL 0.449, MT 0.490) vs human 0.307,
+DL-Track 0.331. So the MEASUREMENT is DL-Track-competitive given scale.
 
-1. Swapping the regressor's pennation for segmentation-geometry pennation made the score
-   slightly worse (1.11066 -> 1.12324). The only column that changed was pennation; FL and MT
-   were identical constants in both files.
-   - Hypothesis: the segmentation models are undertrained (fascicle Dice ~0.25), so their
-     per-image angles are more dispersed (std 3.74 deg), and the tolerance-normalized MAE
-     penalizes confident wrong angles more than the regressor's mean-reverting ones.
-   - Supports it: only the PA column changed; the new PA is more spread; the metric is L1
-     with a 6 deg tolerance, which rewards staying near the centre when true signal is weak.
-   - Would break it: a better-trained segmentation (higher Dice, TTA, more epochs) that
-     scores below 1.11066, or evidence the spread is correct and the regressor was biased.
-2. Adding calibrated MT to 68 images improved the U-Net path from 1.12324 to 1.09194.
-   - Hypothesis: the PNG MT calibration is real signal, but its global impact is limited
-     because it touches only part of MT and still leaves FL constant.
-   - Supports it: all 58 PNG rows got plausible depth-aware MT values; the 10 calibrated
-     TIFF rows all share `13.45 px/mm` and remain suspicious.
-   - Would break it: overlay review showing the PNG ruler read is systematically wrong, or a
-     PNG-only MT ablation that gives back the gain.
-3. Bigger picture: PA looks near its achievable floor with simple methods, and the unmodelled
-   FL plus mostly-prior TIFF MT account for most of the gap.
-   - Supports it: we are at ~1.09 vs ~0.68 with FL still untouched and most TIFF MT rows at
-     the prior; the benchmark gets FL/MT by measuring in mm.
-   - Would break it: a large score drop from a PA-only change (would mean PA had headroom).
+- **PA - effectively solved (0.164, beats DL-Track's 0.242).** Total-least-squares (PCA) fragment
+  orientation + length-weighted median + a min-6-deg filter that rejects aponeurosis-parallel
+  fragments. Wired. Leave it.
+- **MT - good given scale (0.490), ~+1 mm high.** Apo-gap geometry works; the only lever is scale.
+- **FL - the bottleneck (0.449), scatter-limited.** It is NOT bend or systematic bias (correcting
+  bias did not help). The fascicle TRAINING masks are sparse dashes by design (~14 fragments/image,
+  median 59 px, ~6 % of image width - host confirmed they label only clear-contrast fascicles), so
+  per-image FL is noisy. FL = MT/sin(PA), recentered to the trusted mean, is the wired estimator.
+  Every bend/curve/tracking attempt failed (parabola, streamlines, banded - see experiments log).
 
-## The open question we are actively researching
+## The pipeline and its switches (`segment_then_measure.py`)
 
-Why is the leader (~0.378) about twice as good as the official DL-Track tool (~0.679)?
-Candidate explanations, none verified yet:
+Trains apo + fascicle smp U-Nets (ResNet34, 0.5 Dice + 0.5 BCE, flips/rotations, 384 px), predicts
+masks, measures geometry, writes `submission_segmentation.csv`. Runs on a Kaggle GPU via
+`kaggle_segment_notebook.ipynb` (pulls the script from the public repo; no API token here). Saved
+weights `results/seg_apo.pt` / `seg_fasc.pt` let everything else run on CPU.
 
-- He solved calibration well (tick-mark pixels-to-mm), so FL and MT drop sharply.
-- He trained on external labeled data with real measured PA/FL/MT (e.g. the DL-Track-US
-  dataset or FALLMUD), which we have not used.
-- Self-training / domain adaptation toward the test images' appearance.
-- Temporal smoothing across the 5-frame test sequences plus outlier control.
-- A carefully tuned full segment-then-measure pipeline (the benchmark may be a default run).
-- Some data-structure signal (sequence grouping, file metadata) we have not examined.
+Env switches (defaults in parens):
+- `UMUD_TTA` (on) - mirror+scale test-time aug, averages sigmoids then thresholds; denoises the sparse
+  masks (benchmark 0.383 -> 0.370). The only FL gain that is not a mean-fit.
+- `UMUD_USE_IDENTITY_FL` (on) - FL = MT/sin(PA), recentered to the prior mean.
+- `UMUD_USE_CALIBRATED_MT` (on) - MT_px / px_per_mm where scale is found.
+- `UMUD_SCALE_ROUTER` (on) - the validated per-family scale router (below). `CALIBRATION_MIN_CONF` 0.5.
+- `FASC_MIN_AREA` 40, `FASC_MIN_ANG` 6 - the PA-polish post-processing (wired constants).
+- `UMUD_FASC_POS_WEIGHT` (0) - >0 adds a pos_weight to the FASCICLE BCE to push recall (the user's
+  idea to make the model draw more of each dash). Kaggle-GPU retrain only. UNTESTED.
+- `UMUD_CLAHE` (0) - CLAHE contrast-normalize input in read_rgb; surfaces more fragments but MUST
+  retrain BOTH models with it on (inference-only hurts, train/test mismatch). UNTESTED on GPU.
 
-`leader_playbook.md` reconstructs his general method from his other public notebooks, but it
-is explicitly NOT his UMUD solution. Verifying which of the above is true is in progress.
+## Scale calibration - the leaderboard lever (NEW, the main 2026-06-09 work)
 
-### What a 2026-06 web check found (calibration is the leading hypothesis)
+The 251 "unscaled" TIFFs ARE scalable. The host confirmed pixels are always square and bottom ticks
+are 1 cm apart. The test set is **four device families by UI** (the 800x1200 size hides two devices);
+each family's scale was validated by reading its actual ruler (no test labels exist):
 
-Could not read the leader's UMUD notebook or the competition discussion (Kaggle was behind a
-browser check), so leader-specific points stay inference. What was verifiable:
+| family | n | scale | source |
+| --- | ---: | ---: | --- |
+| PNG left numbered ruler | 58 | 150 px/cm | left ruler, 5 mm minor ticks (the feared 2x bug does NOT exist) |
+| 644x1088 left depth ruler | 50 | 126 px/cm | left ruler 0-50 mm, 1 cm ticks |
+| Telemed 800x1200 ("De 50 mm") | 49 | 134 px/cm | bottom ticks AND left 0-50 mm ruler agree |
+| clean cropped/other | ~10 | varies | bottom ticks (IMG_00040 -> 78 px/cm) |
+| **German Siemens 800x1200 ("12L3 Quadriceps")** | **~132** | **UNSOLVED** | scale is a measured BRACKET, not ticks |
 
-- DL-Track-US (the tool behind the 0.679 benchmark) uses a **manual scaling tool**: a human
-  enters the scale or clicks a known distance. UMUD requires fully automated prediction over
-  309 images, so the benchmark run almost certainly used one fixed/assumed scale, which is
-  wrong for images shot at different depths and inflates FL and MT error.
-- DL-Track's published accuracy is ~5 mm FL, <1 mm MT, <1.5 deg PA. A rough decomposition of
-  the leader's 0.378 (illustrative, per-term errors not observed) lands near those numbers,
-  which is only reachable with a correct per-image scale.
-- So the leading hypothesis: the leader's edge is **automated per-image pixels-to-mm
-  calibration** (tick-mark detection), not anything about pennation. Supports it: DL-Track is
-  manual-scale, the numbers line up, FL/MT are our flat constants. Against it: the score
-  decomposition is assumed not observed, and his actual code was not seen. Secondary
-  hypothesis: external labeled data + direct mm-regression (weighted lower; DL-Track ships no
-  public labeled set, it says bring your own).
-- Actionable consequence: the whole gap from our ~1.11 (constants) to ~0.68 is the value of
-  real per-image FL and MT; PA is a rounding error. We already segment the aponeuroses, so
-  muscle thickness in pixels is measurable now and waits only on scale (tightest tolerance,
-  3 mm, so high value). Next experiment: a tick-mark detector returning pixels-per-mm per
-  image, then verify the "bottom ticks ~1 cm apart" assumption on real images before relying
-  on it.
+- `scale_ticks.py` - `recover_scale` (bottom ticks), `recover_scale_left_ruler`, and
+  `recover_for_image(gray, name)` the per-family ROUTER. Wired into `calibrate_image`.
+- Coverage: **167/309 = 54 % scaled** with validated detectors (was 58 PNG = 19 %). Regenerating
+  `submission_local.csv`: calibrated MT on 167, FL now per-image (std 25.6, range 30-158, was flat
+  74.4), MT mean 20.8 mm range 13-31 with ZERO clipping (the tell that scales are sane).
+- Harness: `experiments/scale_coverage.py`, `experiments/scale_qa.py` (overlays in
+  `results/calibration_qa/`), `experiments/check_submission.py`. Full map: `competition_reference.md`
+  sections 3, 3a, 3b.
+
+This is the first change that targets the actual LEADERBOARD (the test set) vs the local benchmark.
+The Kaggle gain is UNMEASURABLE locally (no test labels); it is submission-ready and the user decides
+whether to spend a submission.
+
+## The two open fronts
+
+1. **German Siemens scale-bar reader (~132 imgs, 43 %).** The remaining scale gap; its depth is a
+   bracket/label, not periodic ticks. Solving it pushes coverage past 90 %.
+2. **Kaggle-GPU fascicle retrain** with `UMUD_FASC_POS_WEIGHT` (recall) +/- `UMUD_CLAHE` (contrast),
+   to fill out the sparse masks and reduce FL scatter. Evaluate the downloaded `seg_fasc.pt` locally
+   on the 35-expert board; zero submissions to test. FL payoff uncertain (it is scatter-limited).
 
 ## Constraints and values
 
-- CV discipline, no leakage, claims proportional to evidence.
-- No manual labeling of the 309 test images.
-- Any external data or pretrained model must be documented.
-- Public GitHub repo: no secrets, no personal data.
+- The artifact that matters is the thinking and writeup, not the rank. Claims proportional to
+  evidence; label hypotheses; cite or drop.
+- No manual labeling of the 309 test images. External data (the 35-expert benchmark, used for local
+  validation only) must be DECLARED in any writeup. Pipeline must be reproducible.
+- Public GitHub repo (github.com/LacrimaeAware/kaggle-fun): no secrets, no personal data, no
+  Co-Authored-By trailer. Do not submit without explicit say-so. Local AMD 5700 XT cannot train on
+  Py3.13 (no torch-directml); CPU training works but is slow; Kaggle GPU is the training path.
 
 ## Canonical docs to cross-check
 
-- `rundown.md` - plain-language explainer of the task.
-- `writeup.md` - competition writeup and result table.
-- `strategy_brief.md` - improvement levers (DLTrack repro, calibration, segmentation,
-  geometry, temporal, ensemble, outlier) and compute status.
-- `leader_playbook.md` - reconstructed method of the leader (not his actual UMUD code).
-- `codex_review.md` - second-pass hypothesis map and prioritized next experiments.
-- `forward_plan.md` - post-1.09194 interpretation, no-GPU ablations, and larger plan.
-- `ranked_research_directions.md` - current ranked plan for major vs minor future work.
-- `plan.md` - staged plan and verified data facts.
-- `segment_then_measure.py` - the current pipeline; `kaggle_segment_notebook.ipynb` runs it.
-- `mask_geometry.py`, `metric.py` - geometry and scoring.
+- `competition_reference.md` - official rules + host clarifications + the full scale family map (3a/3b). **Most current.**
+- `synthesis.md` - the canonical methods synthesis (folds in the older codex_review / forward_plan / ranked_research_directions).
+- `experiments/README.md` - the experiment log (exp01-11 + scale tools), with method/result/read each.
+- `benchmark_findings.md` - the 35-expert benchmark analysis.
+- `segment_then_measure.py` + `kaggle_segment_notebook.ipynb` - the pipeline and its Kaggle runner.
+- `scale_ticks.py`, `benchmark_validate.py`, `score_on_benchmark.py`, `local_infer.py` - the calibration router and the local scoreboard.
+- Older/partly-superseded: `leader_playbook.md`, `forward_plan.md`, `ranked_research_directions.md`, `codex_review.md`, `strategy_brief.md`, `plan.md`, `rundown.md`, `writeup.md`.

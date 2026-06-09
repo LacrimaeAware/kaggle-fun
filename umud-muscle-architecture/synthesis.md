@@ -6,6 +6,13 @@ the scattered planning notes (Codex's `codex_review.md`, `forward_plan.md`,
 the original intuitions intact rather than reduce them to standard method names. The document
 map at the end says what every other file is for.
 
+> **Status note (2026-06-09):** the framing and intuitions below are current and intact, but the
+> "Where we are" numbers (section 2) reflect the older `1.09194` run. For the CURRENT state - PA
+> effectively solved (0.164), the local 35-expert scoreboard we now iterate on, TTA wired, and the
+> validated scale router that scales 167/309 test images - read **`handoff_brief.md`** and
+> **`competition_reference.md`** first. The intuitions here (scene-reading, path geometry, the
+> fascicle bottleneck) all held up; the scale work confirmed the per-image-scale intuition.
+
 A note on voice: the sections marked "(your framing)" are deliberately stated as the intuition,
 with tool names kept secondary, because the recurring failure in earlier summaries was
 flattening a real idea ("recover the latent path geometry") into a tool ("just use Hough").

@@ -240,6 +240,30 @@ Conclusion: preprocessing must go into TRAINING so train matches inference. Wire
 requires retraining BOTH models). It is the second knob to test in the one Kaggle GPU run, alongside
 `UMUD_FASC_POS_WEIGHT` (recall bias). The FL improvement under equalize is the reason to try it.
 
+## exp11 - per-image scale recovery for the test TIFFs (`exp11_calibration_coverage.py`, `../scale_ticks.py`)  [WIRED]
+
+Prompted by the host's forum clarifications (pixels always square; test images carry tick marks;
+bottom ticks = 1 cm). The 251 "unscaled" TIFFs ARE scalable. Findings:
+
+- The test set is FOUR device families by UI, not one - the 800x1200 size hides TWO devices.
+- Each family's scale was validated by reading its actual ruler (no test labels exist to score it):
+  PNG (58) = 150 px/cm (5 mm minor left ruler; the feared 2x bug does NOT exist); 644x1088 (50) =
+  126 px/cm (left ruler 0-50 mm); Telemed-800x1200 "De 50 mm" (49) = 134 px/cm (bottom ticks AND left
+  ruler agree); clean cropped (~10) = bottom ticks (IMG_00040 -> 78 px/cm, ticks land on real marks).
+- The ONE unsolved family is the German Siemens 800x1200 ("12L3 Quadriceps") ~132 imgs, whose scale
+  is a measured scale-bar BRACKET, not periodic ticks.
+- Detection ACCURACY where a ruler is found is good (benchmark spacing MAE 1.7 px/cm).
+
+Built `scale_ticks.py` (`recover_scale` bottom ticks, `recover_scale_left_ruler`, and
+`recover_for_image` the per-family router). WIRED into `segment_then_measure.calibrate_image`
+(`UMUD_SCALE_ROUTER`, default on; `CALIBRATION_MIN_CONF` lowered to 0.5 - the router gates per-family
+internally). Regenerated `submission_local.csv`: **calibrated MT on 167/309 (was 58)**, FL now
+per-image (std 25.6, range 30-158, was a flat 74.4), MT mean 20.8 mm range 13-31 with ZERO clipping
+(the tell that scales are sane). This is the first change targeting the actual LEADERBOARD; the Kaggle
+gain is unmeasurable locally. Harness: `experiments/scale_coverage.py`, `experiments/scale_qa.py`
+(overlays `results/calibration_qa/`), `experiments/check_submission.py`. Full map:
+`competition_reference.md` 3a/3b. Remaining: the German-Siemens bracket reader (~132 imgs).
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
