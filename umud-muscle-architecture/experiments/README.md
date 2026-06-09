@@ -109,6 +109,22 @@ scale. HONEST caveat: true scale, benchmark devices; our real Kaggle score is ~0
 251 TIFFs have NO scale and fall back to constants. **The real Kaggle bottleneck is now per-image
 scale on the TIFFs (ranked #3)** - that is what unlocks the now-good measurement.
 
+## exp06 - visual diagnosis of FL errors (`../benchmark_overlay.py`)
+
+Drew our predicted geometry + measured PA/FL/MT vs the experts on all 35 images
+(`results/benchmark_overlay/`). Findings:
+- Good cases (im_01): our PA/FL match the experts closely (28.1/35 vs 27.5/36).
+- Misses (im_06, im_20): PA runs slightly LOW, MT slightly HIGH; since FL=MT/sin(PA) both inflate FL.
+- BUT across all 35 the bias is small (PA -0.5 deg, MT +0.95 mm) and CORRECTING it does NOT help FL
+  (0.476 -> 0.488). So FL is **per-image scatter-limited, not bias-limited** - the noise comes from
+  the fragmentary fascicle masks (6 tiny segments per image, never a full fascicle, per the user's
+  observation). FL will not yield to a formula tweak; it needs fuller/cleaner fascicle masks (better
+  segmentation) or real tracking. The MT ~+1 mm overestimate is a real aponeurosis-line-placement
+  issue (the bands are thick) worth fixing - it helps the MT term even if not FL.
+
+Human-in-the-loop: the overlays exist to eyeball where the model misses fascicles or mis-places the
+aponeuroses; that feedback guides the next segmentation/geometry fix.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
