@@ -135,6 +135,49 @@ def recover_scale_right_ruler(gray, tick_cm=0.5, thr=90, min_spacing=40):
     return best
 
 
+def _runmed(x, win=15):
+    h = win // 2
+    return np.array([np.median(x[max(0, i - h):i + h + 1]) for i in range(len(x))])
+
+
+def _autocorr_period(prof, smin=25, smax=220):
+    p = prof - prof.mean()
+    if p.std() < 1e-6:
+        return None
+    ac = np.correlate(p, p, "full")[len(p) - 1:]
+    ac = ac / (ac[0] + 1e-9)
+    hi = min(smax, len(ac) - 1)
+    if hi <= smin + 1:
+        return None
+    lag = smin + int(np.argmax(ac[smin:hi]))
+    return lag, float(ac[lag])
+
+
+def recover_scale_faint_left(gray, x_max=70, win=16, tick_cm=0.5, min_strength=0.30):
+    """Autocorrelation reader for a FAINT left-edge ruler (the bright-pixel detector misses these).
+    Restricts to the left UI margin (x < x_max) to exclude content/text, slides a narrow strip, and
+    takes the most-periodic offset. period -> px/cm at 0.5 cm ticks (validated by MT plausibility:
+    1 cm gives an absurd 56 mm, 0.5 cm gives ~28 mm)."""
+    band = gray[:, :x_max].astype(np.float32)
+    best = None
+    for off in range(0, max(1, x_max - win), 4):
+        prof = band[:, off:off + win].mean(axis=1)
+        prof = prof - _runmed(prof, 15)
+        prof = np.convolve(prof, np.ones(3) / 3.0, "same")
+        r = _autocorr_period(prof)
+        if r and (best is None or r[1] > best[1]):
+            best = r
+    if best is None or best[1] < min_strength:
+        return None
+    period = best[0]
+    if period < 45:                    # fold the 0.5x harmonic back to the fundamental
+        period *= 2
+    scale = period / tick_cm
+    if not (80 <= scale <= 200):
+        return None
+    return dict(scale_px_per_cm=float(scale), conf=float(best[1]), spacing_px=float(period))
+
+
 def recover_for_image(gray, name=""):
     """Per-family router. Returns (scale_px_per_cm, method, conf) or (None, 'none', 0).
 
@@ -160,6 +203,9 @@ def recover_for_image(gray, name=""):
         d = recover_scale_right_ruler(gray, tick_cm=0.5)
         if d and d["conf"] >= 0.5 and 80 <= d["scale_px_per_cm"] <= 200:
             return d["scale_px_per_cm"], "right_ruler_5mm", d["conf"]
+        d = recover_scale_faint_left(gray)  # autocorrelation reader for the faint left ruler (~120 px/cm)
+        if d:
+            return d["scale_px_per_cm"], "faint_left_autocorr", d["conf"]
     return None, "none", 0.0
 
 
