@@ -52,6 +52,30 @@ threads (captured 2026-06-09). Where a fact changes what we should DO, it is fla
   periodic bright marks, assume 1 cm spacing, derive px/cm. This is the real fix for the 251 TIFFs and
   the actual leaderboard bottleneck, larger than any FL/segmentation refinement.
 
+### 3a. Scale is FOUR device families, not one (empirical, 2026-06-09)
+
+Shape distribution of the 309 test images: (800,1200) x239, (644,1088) x50, (853,1069) x11, and
+~8 small (513x465 etc). Crucially the families do NOT share a scale source despite sharing a size:
+
+| family | count | scale source | detector status (exp11, scale_qa.py) |
+| --- | ---: | --- | --- |
+| PNG left numbered ruler | 58 | left edge numbered ruler | png_left_ruler works (conf ~1.0); gives 150-172 px/cm BUT this may be **2x too high** - tick_mm is assumed 5 mm, and if the ruler ticks are 1 cm the true scale is ~75-85. The benchmark validation showed exactly this 2x (implied x0.5 -> MAE 1.7 px/cm). **OPEN: confirm the PNG ruler tick interval; the current 1.09 submission's PNG MT may be 2x off.** |
+| Siemens 800x1200 (German UI, "12L3 Quadriceps") | ~181 | bottom ticks + "X.X cm" label | left strip is a TEXT panel, not a ruler (ungating png_left_ruler reads text-as-ruler = garbage). side/bottom detection is low-confidence (conf 0.27-0.44). Needs a clean bottom-tick reader. |
+| 644x1088 (left depth ruler, "50" mm) | 50 | left edge depth ruler to 50 mm | **0 detected** - ticks are fainter than the >150 threshold. Needs a lower-threshold left-ruler reader. |
+| cropped (853x1069, 513x465, ...) | ~20 | bottom ticks (1 cm) | bottom-tick detector (scale_ticks.py) works on CLEAN ones (IMG_00040 -> 78 px/cm conf 0.99, green ticks land on the real marks) but fails on faint/content-cluttered ones (IMG_00036 -> garbage 10 px/cm). |
+
+What is SOLID: where a ruler/ticks are cleanly found, spacing detection is accurate (benchmark MAE
+1.7 px/cm after the per-family mm-factor; IMG_00040 bottom ticks 78 px/cm validated by eye). What is
+HARD: coverage (each family needs its own reader) and pinning the mm-per-tick factor per family
+(the 2x trap). No test-set scale labels exist, so per-family readers must be QA'd visually
+(results/calibration_qa/). Tools built: scale_ticks.py (bottom-tick reader), experiments/exp11
+(coverage), experiments/scale_qa.py (overlays), experiments/scale_probe.py.
+
+**Per-family build plan:** (1) clean bottom-tick reader for Siemens-800x1200 + cropped (~200 imgs,
+the bulk) - host says 1 cm so tick_mm=10; (2) lower-threshold left-ruler reader for the 644 family
+(50 imgs, depth to 50 mm); (3) re-confirm the PNG ruler interval and fix the possible 2x; (4) gate
+each by visual QA overlay before wiring into the submission - a 2x-off scale would tank MT/FL.
+
 ## 4. Training data structure
 
 - 2761 fascicle images + masks; 1048 aponeurosis images + masks; 309 test images.
