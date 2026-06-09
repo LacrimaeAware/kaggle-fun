@@ -125,6 +125,34 @@ Drew our predicted geometry + measured PA/FL/MT vs the experts on all 35 images
 Human-in-the-loop: the overlays exist to eyeball where the model misses fascicles or mis-places the
 aponeuroses; that feedback guides the next segmentation/geometry fix.
 
+## exp07 - testing the user's two visual observations (`exp07_depth_angle_and_filter.py`)
+
+The user eyeballed the overlays and offered two domain observations. Tested both vs the 35 experts
+instead of guessing:
+
+| PA angle source | PA-term | FL-term |
+| --- | ---: | ---: |
+| all fragments (current) | 0.184 | 0.476 |
+| near-superficial (the "bend toward upper apo") | 0.250 | **0.458** |
+| near-deep | 0.200 | 0.535 |
+| depth-weighted toward superficial | 0.193 | 0.481 |
+| **stricter horizontal filter, min 6 deg (the "mid-line is not a fascicle")** | **0.182** | **0.473** |
+
+Read: **both observations were directionally correct, both tiny - exactly as the user predicted
+("nitpicky", "not a crazy result").**
+- The bend-toward-superficial does shorten FL (0.476 -> 0.458) but worsens PA, because the experts
+  define PA at the *deep* aponeurosis, not the top. So the steeper top angle is the wrong thing to
+  report as PA, though it hints the straight FL is a touch long.
+- The mid-line/horizontal-artifact filter (min 6 deg) is a clean free win on BOTH terms
+  (PA 0.184 -> 0.182, FL 0.476 -> 0.473). The user's instinct that near-aponeurosis-parallel
+  fragments are not fascicles is right; they were mildly poisoning the angle.
+
+Conclusion: this confirms exp06 from the other side - the geometry is at its ceiling. Sub-0.02 left in
+angle-picking. The FL gap to DL-Track (0.47 vs 0.31) is the **mask quality** the user flagged (sparse,
+under-segments fascicles), which is a *segmentation* problem, not a geometry one. The overlay
+(`benchmark_overlay.py`) now renders the predicted fascicle mask as a clear dilated red blend so a
+human can actually see the under-segmentation.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant

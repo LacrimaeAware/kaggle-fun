@@ -71,7 +71,9 @@ def main():
         vis = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         am = np.ascontiguousarray(M.predict_mask(apo, img), np.uint8)
         fm = np.ascontiguousarray(M.predict_mask(fasc, img), np.uint8)
-        vis[fm > 0] = (0, 0, 200)  # fascicle mask tint (red)
+        fmd = cv2.dilate(fm, np.ones((3, 3), np.uint8), iterations=1)  # thicken so the mask is visible
+        ov = vis.copy(); ov[fmd > 0] = (0, 0, 255)
+        vis = cv2.addWeighted(ov, 0.55, vis, 0.45, 0)  # clear red where the model predicts fascicle
         al = apo_lines(am)
         h, w = vis.shape[:2]
         ppm = float(r.scale_px_per_cm) / 10.0
