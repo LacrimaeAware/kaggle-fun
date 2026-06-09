@@ -137,6 +137,7 @@ browser check), so leader-specific points stay inference. What was verifiable:
   geometry, temporal, ensemble, outlier) and compute status.
 - `leader_playbook.md` - reconstructed method of the leader (not his actual UMUD code).
 - `codex_review.md` - second-pass hypothesis map and prioritized next experiments.
+- `forward_plan.md` - post-1.09194 interpretation, no-GPU ablations, and larger plan.
 - `plan.md` - staged plan and verified data facts.
 - `segment_then_measure.py` - the current pipeline; `kaggle_segment_notebook.ipynb` runs it.
 - `mask_geometry.py`, `metric.py` - geometry and scoring.
