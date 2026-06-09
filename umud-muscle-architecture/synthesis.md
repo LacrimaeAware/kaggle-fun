@@ -83,6 +83,23 @@ So knowing the recipe is not the same as having cooked it. We have cooked about 
 
 ---
 
+## 3b. Evidenced update from the OSF expert benchmark (see benchmark_findings.md)
+
+The downloaded expert benchmark (35 images with true scale, 7 experts, and DL-Track's/SMA's own
+outputs) turned some speculation into measurement and corrected an overclaim. Scored the same way as
+the competition, on those 35: the human floor (one expert vs the rest) is ~0.31, DL-Track's real
+measurement is ~0.33 (human-level), and our constant-prior baseline is ~0.92. So the supported claim
+is that replacing constants with real per-image measurement is worth ~0.59 *within this set*.
+Correction: do NOT compare the Kaggle 0.68 benchmark with the 0.33 here and call the gap "scale" -
+they are different evaluations (different images, devices, hidden labels), and an earlier draft wrongly
+did this. Scale is a *necessary part* of real measurement (per-image scale varies 74-126 px/cm, and a
+fixed-scale upper bound is ~0.6), but its standalone value to our Kaggle score is unmeasured - the one
+real scale fix we ran moved 0.03. The ceiling (~0.3) is human reproducibility, which the leader (0.378)
+sits near. Caveat: benchmark images are different devices than the Kaggle test set, so their tick
+convention (1 cm) does NOT transfer - the Kaggle PNG family is ~5 mm, verified against its depth text.
+This set is also our local scoreboard (`benchmark_validate.py`: real measured PA/FL/MT, CPU, instant),
+which is what makes the oracle/visual loop possible without fast training.
+
 ## 4. The intuitions driving the "clever" path (your framing)
 
 These are the ideas to protect from flattening. Tool names appear only as possible
