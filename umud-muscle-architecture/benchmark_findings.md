@@ -58,6 +58,27 @@ even for experts; MT the most reliable. This matches the reliability literature,
    about 2x off (it assumes 5 mm side ticks; these devices use 1 cm ticks), at low confidence. The
    value is that we now have the true scale to fix it against - but per device (see the caveat).
 
+## First measured result: where our pipeline actually fails (with TRUE scale)
+
+Ran our trained U-Nets on the 35 images and converted pixels to mm with the TRUE per-image scale,
+to isolate measurement quality from calibration (`score_on_benchmark.py`). Overall **0.634**, but
+the per-target split is the real finding:
+
+| target | our term | DL-Track | read |
+| --- | ---: | ---: | --- |
+| PA | **0.225** | 0.242 | competitive, near human - pennation is effectively solved |
+| MT | **0.489** | 0.438 | decent WITH true scale - the aponeurosis-gap geometry works; the lever is scale |
+| FL | **1.188** | 0.312 | broken, and no better than a constant (~1.17) even with perfect scale |
+
+So, measured: PA is good, MT works once scale is right, and **fascicle length is the bottleneck -
+and it is a geometry problem, not a scale problem** (true scale, FL still 1.19). Our fascicle-length
+geometry (straight line fit + aponeurosis intersection on fragmented masks) does not recover real
+length. This corrects the earlier scale over-emphasis: scale is the lever for MT, but the big gap is
+FL, which needs better fascicle geometry (extrapolation / curves) - the path-geometry intuition.
+Caveat: different devices, and the FL constant here (Kaggle mean 74.4) is mismatched to this set's
+~61 mm, so the FL *magnitude* does not transfer cleanly; the geometry-is-broken conclusion does (it
+holds with true scale, which removes calibration from the picture).
+
 ## Why this also answers the "can we even iterate locally" worry
 
 Yes. We now have **35 images with true measured PA/FL/MT and the true scale**, plus DL-Track's and
