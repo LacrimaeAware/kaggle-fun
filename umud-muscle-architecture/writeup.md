@@ -19,6 +19,7 @@ First pass: create constant and model-based 309-row CSV artifacts. `mask_geometr
 | ExtraTrees image features on mask-derived pseudo-labels | Pseudo-label PA MAE 3.43 deg; FL/MT worse than median | 1.23135 |
 | Model pennation angle, prior FL 74.424 / MT 18.628 | replaces inflated model FL (mean ~100 mm) with the prior | 1.11066 |
 | Segmentation U-Net pennation + prior FL/MT | PA from predicted-mask geometry: mean 13.65, std 3.74 deg | 1.12324 |
+| U-Net pennation + calibrated MT (68 imgs), prior FL | MT from apo gap times ruler scale; PNG MT median 20.7 mm | 1.09194 |
 
 ## Caveat
 
