@@ -86,6 +86,7 @@ FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-p
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
+PIPELINE_VERSION = "2026-06-09.5"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.5"))  # router gates per-family internally
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -488,6 +489,11 @@ def temporal_smooth(sub, fps, thresh=0.92, max_len=12):
 
 
 def main():
+    print(f"\n##### UMUD pipeline VERSION {PIPELINE_VERSION} #####", flush=True)
+    print(f"      scale_router={USE_SCALE_ROUTER}  TTA={USE_TTA}  fasc_pos_weight={FASC_POS_WEIGHT}  "
+          f"clahe={USE_CLAHE}  temporal={USE_TEMPORAL_SMOOTH}  epochs={EPOCHS}  min_conf={CALIBRATION_MIN_CONF}",
+          flush=True)
+    print("      (old code would NOT print this line - if you don't see VERSION, re-run the wget cell)\n", flush=True)
     test_dir = DIRS["test"]
     test_files = sorted(p for p in test_dir.iterdir() if p.is_file() and p.suffix.lower() in IMG_EXTS)
     print(f"test images: {len(test_files)} (from {test_dir})", flush=True)
