@@ -99,6 +99,42 @@ def recover_scale_left_ruler(gray, x_max=30, tick_cm=1.0):
                 n_ticks=len(peaks), peaks=peaks, edge="left")
 
 
+def recover_scale_right_ruler(gray, tick_cm=0.5, thr=90, min_spacing=40):
+    """Recover px-per-cm from a faint RIGHT-edge depth ruler (German Siemens family).
+
+    Ticks are dim gray (~thr 90) at ~x=w-50, spaced `tick_cm` apart (0.5 cm -> 136 px/cm; the MT
+    physiology check rules out 1 cm). `min_spacing` rejects fine-texture false ticks. Returns dict or None.
+    """
+    h, w = gray.shape
+    best = None
+    for x in range(w - 110, w - 40, 3):
+        ys = np.where(gray[:, x].astype(np.int32) > thr)[0]
+        if len(ys) < 6:
+            continue
+        peaks, cur = [], [ys[0]]
+        for y in ys[1:]:
+            if y - cur[-1] <= 4:
+                cur.append(y)
+            else:
+                peaks.append(int(np.mean(cur))); cur = [y]
+        peaks.append(int(np.mean(cur)))
+        peaks = [p for p in peaks if 5 < p < h - 5]
+        if len(peaks) < 6:
+            continue
+        g = np.diff(peaks).astype(float)
+        gm = np.median(g)
+        if gm < min_spacing:                       # fine-texture garbage, not ruler ticks
+            continue
+        good = g[(g > 0.7 * gm) & (g < 1.3 * gm)]
+        if len(good) < 5:
+            continue
+        conf = float(len(good) / len(g) * (1.0 - min(1.0, np.std(good) / (np.mean(good) + 1e-9))))
+        if best is None or conf > best["conf"]:
+            best = dict(scale_px_per_cm=float(np.median(good)) / tick_cm, spacing_px=float(np.median(good)),
+                        conf=conf, n_ticks=len(peaks), peaks=peaks, edge="right")
+    return best
+
+
 def recover_for_image(gray, name=""):
     """Per-family router. Returns (scale_px_per_cm, method, conf) or (None, 'none', 0).
 
@@ -116,11 +152,14 @@ def recover_for_image(gray, name=""):
         d = recover_scale_left_ruler(gray, x_max=30, tick_cm=1.0)
         if d and d["conf"] >= 0.5 and 50 <= d["scale_px_per_cm"] <= 200:
             return d["scale_px_per_cm"], "left_ruler_1cm", d["conf"]
-    # bottom ticks: only trust HIGH confidence (clean cropped). Siemens 800x1200 has a scale-bar
-    # bracket, not periodic ticks - its low/inconsistent detections are excluded by the 0.9 gate.
+    # bottom ticks: only trust HIGH confidence (Telemed 800x1200 + clean cropped).
     d = recover_scale(gray, tick_cm=1.0)
     if d and d["conf"] >= 0.9 and 50 <= d["scale_px_per_cm"] <= 200:
         return d["scale_px_per_cm"], "bottom_ticks", d["conf"]
+    if (h, w) == (800, 1200):  # German Siemens: faint right-edge 5 mm depth ruler (-> ~136 px/cm)
+        d = recover_scale_right_ruler(gray, tick_cm=0.5)
+        if d and d["conf"] >= 0.5 and 80 <= d["scale_px_per_cm"] <= 200:
+            return d["scale_px_per_cm"], "right_ruler_5mm", d["conf"]
     return None, "none", 0.0
 
 

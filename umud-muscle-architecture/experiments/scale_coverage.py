@@ -30,10 +30,16 @@ for f in sorted(base.iterdir()):
         r["scales"].append(s)
         r["methods"][m] += 1
 
-print(f"{'family':>16} {'n':>4} {'scaled':>6} {'med px/cm':>10}  methods")
+print(f"{'family':>16} {'n':>4} {'scaled':>6} {'px/cm min-med-max (std)':>26}  methods")
 tot = to = 0
 for k, r in sorted(fam.items(), key=lambda kv: -kv[1]["n"]):
-    med = f"{np.median(r['scales']):.0f}" if r["scales"] else "--"
-    print(f"{str(k):>16} {r['n']:>4} {r['ok']:>6} {med:>10}  {dict(r['methods'])}")
+    if r["scales"]:
+        s = np.array(r["scales"])
+        spread = f"{s.min():.0f}-{np.median(s):.0f}-{s.max():.0f} (std {s.std():.1f})"
+    else:
+        spread = "--"
+    print(f"{str(k):>16} {r['n']:>4} {r['ok']:>6} {spread:>26}  {dict(r['methods'])}")
     tot += r["n"]; to += r["ok"]
 print(f"{'TOTAL':>16} {tot:>4} {to:>6}  ({to * 100 // tot}% of test set scaled)")
+print("\nper-image spread within a family = the detector adapting to each image's own zoom/depth")
+print("(reads that image's ticks); a single constant would instead mean it is NOT per-image.")
