@@ -268,6 +268,20 @@ unmeasurable locally. Harness: `experiments/{scale_coverage,scale_qa,siemens_rul
 (overlays `results/calibration_qa/`). Full map: `competition_reference.md` 3a/3b. Remaining unscaled
 ~55 (45 fainter German Siemens + cropped stragglers) fall safely to the constant prior.
 
+## exp12 - temporal smoothing within sequence clips (`temporal_check.py`)  [built, OFF by default]
+
+The test set has clips (exp02: ~112/308 consecutive frame-pairs >0.9 similar = same moving muscle).
+Within a clip the true PA/FL/MT are ~constant, so median-smoothing our per-frame predictions is
+variance reduction using the test set's STRUCTURE, not labels (non-leakage; DL-Track does the same
+with Hampel/Savitzky-Golay). Built `fingerprint` + `temporal_smooth` in segment_then_measure
+(`UMUD_TEMPORAL_SMOOTH`, default off), wired into main() and local_infer.
+
+Clip detection is stable and safe (thr 0.88-0.95 all give ~28 clips covering ~140 images, longest
+clip only 5 - no mega-clips that would blur different muscles). Smoothing moves predictions a small,
+safe amount vs the tolerances: PA 0.16/6, FL 1.28/12, MT 0.21/3 mm on ~140 images. So it is a modest
+positive-EV lever, NOT a big mover. Cannot score it locally (the 35-expert benchmark is not
+sequences). Kept OFF for the first scale submission to isolate the scale value; flip on for the next.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant

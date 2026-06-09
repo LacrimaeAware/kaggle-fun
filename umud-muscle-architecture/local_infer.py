@@ -40,8 +40,10 @@ def main():
     print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} calib_MT={M.USE_CALIBRATED_MT} "
           f"conf>={M.CALIBRATION_MIN_CONF}", flush=True)
     rows, mt_ok, fl_ok, t0 = [], 0, 0, time.time()
+    fps = []
     for i, p in enumerate(files):
         img = M.read_rgb(p)
+        fps.append(M.fingerprint(img))
         try:
             geom = M.measure(M.predict_mask(apo, img), M.predict_mask(fasc, img))
         except Exception as e:
@@ -65,6 +67,8 @@ def main():
     sub = pd.DataFrame(rows)
     if M.USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
         sub["fl_mm"] = (sub["fl_mm"] * (M.PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(M.FL_MIN, M.FL_MAX).round(3)
+    if M.USE_TEMPORAL_SMOOTH:
+        sub = M.temporal_smooth(sub, fps)
     out = ROOT / "results" / "submission_local.csv"
     sub.to_csv(out, index=False)
     print(f"\nwrote {out} ({len(sub)} rows) in {time.time()-t0:.0f}s; "

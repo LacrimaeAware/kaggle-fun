@@ -85,6 +85,7 @@ FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
+USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.5"))  # router gates per-family internally
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -459,6 +460,33 @@ def calibrate_image(path):
     return choose_calibration_candidate(gray, side_tick_mm=5.0, bottom_tick_mm=10.0, image_name=path.name)
 
 
+def fingerprint(image_rgb):
+    """Tiny normalized descriptor for detecting consecutive same-muscle frames (sequence clips)."""
+    g = cv2.resize(image_rgb, (32, 32)).astype(np.float32).reshape(-1)
+    return g / (np.linalg.norm(g) + 1e-9)
+
+
+def temporal_smooth(sub, fps, thresh=0.92, max_len=12):
+    """Median-smooth PA/FL/MT within runs of consecutive highly-similar frames (the test set's clip
+    structure, not labels - a legitimate variance reduction; exp02 found ~112/308 consecutive pairs
+    >0.9 similar). Clips longer than max_len are left alone (likely a mis-grouping)."""
+    fps = np.asarray(fps, np.float32)
+    sim = (fps[:-1] * fps[1:]).sum(axis=1)        # consecutive cosine similarity (fps are unit norm)
+    clip = np.zeros(len(fps), int)
+    for i in range(1, len(fps)):
+        clip[i] = clip[i - 1] + (1 if sim[i - 1] < thresh else 0)
+    out = sub.copy()
+    smoothed = 0
+    for cid in np.unique(clip):
+        idx = np.where(clip == cid)[0]
+        if 2 <= len(idx) <= max_len:
+            smoothed += 1
+            for col in ("pa_deg", "fl_mm", "mt_mm"):
+                out.iloc[idx, out.columns.get_loc(col)] = round(float(np.median(sub[col].values[idx])), 3)
+    print(f"temporal smoothing: {smoothed} clips (2-{max_len} frames) median-smoothed", flush=True)
+    return out
+
+
 def main():
     test_dir = DIRS["test"]
     test_files = sorted(p for p in test_dir.iterdir() if p.is_file() and p.suffix.lower() in IMG_EXTS)
@@ -475,8 +503,10 @@ def main():
           f"min calibration confidence: {CALIBRATION_MIN_CONF}", flush=True)
 
     rows, calib_rows, ok, mt_ok, fl_ok = [], [], 0, 0, 0
+    fps = []
     for p in test_files:
         img = read_rgb(p)
+        fps.append(fingerprint(img))
         try:
             geom = measure(predict_mask(apo, img), predict_mask(fasc, img))
         except Exception as e:  # no single image can abort the 309-row submission
@@ -528,6 +558,8 @@ def main():
     sub = pd.DataFrame(rows)
     if USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
         sub["fl_mm"] = (sub["fl_mm"] * (PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(FL_MIN, FL_MAX).round(3)
+    if USE_TEMPORAL_SMOOTH:  # variance reduction within sequence clips (off by default)
+        sub = temporal_smooth(sub, fps)
     out_csv = OUT / "submission_segmentation.csv"
     sub.to_csv(out_csv, index=False)
     pd.DataFrame(calib_rows).to_csv(OUT / "calibration_measurement_debug.csv", index=False)

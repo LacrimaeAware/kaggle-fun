@@ -108,13 +108,17 @@ This is the first change that targets the actual LEADERBOARD (the test set) vs t
 The Kaggle gain is UNMEASURABLE locally (no test labels); it is submission-ready and the user decides
 whether to spend a submission.
 
-## The two open fronts
+## Open fronts
 
 1. **Scale stragglers (~55 imgs, 18 %).** German Siemens is largely solved (right-edge ruler); ~45
    fainter German Siemens rulers fall below the threshold, plus a few cropped/other. Catching them
    needs a lower threshold + false-positive guards or OCR of the "X.X cm" depth label. They safely use
    the constant prior now. Lower priority than submitting once to learn the value of the 82 % we have.
-2. **Kaggle-GPU fascicle retrain** with `UMUD_FASC_POS_WEIGHT` (recall) +/- `UMUD_CLAHE` (contrast),
+2. **Temporal smoothing** (`UMUD_TEMPORAL_SMOOTH`, built, OFF by default) - median-smooth PA/FL/MT
+   within sequence clips (~28 clips, ~140 images). Modest positive-EV variance reduction; flip on for
+   the submission after the clean scale one (one-change-at-a-time discipline, since neither can be
+   scored locally).
+3. **Kaggle-GPU fascicle retrain** with `UMUD_FASC_POS_WEIGHT` (recall) +/- `UMUD_CLAHE` (contrast),
    to fill out the sparse masks and reduce FL scatter. Evaluate the downloaded `seg_fasc.pt` locally
    on the 35-expert board; zero submissions to test. FL payoff uncertain (it is scatter-limited).
 
