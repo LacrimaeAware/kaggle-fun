@@ -17,6 +17,7 @@ Env knobs (optional):
 """
 
 import os
+os.environ.setdefault("OPENCV_LOG_LEVEL", "ERROR")  # quiet libtiff ImageJ-tag warns (set before cv2 import)
 import time
 from pathlib import Path
 
@@ -37,6 +38,14 @@ except ImportError:
     import segmentation_models_pytorch as smp
     import albumentations as A
     from albumentations.pytorch import ToTensorV2
+
+# Quiet OpenCV's per-image libtiff warnings: these images carry ImageJ private tags
+# (50838/50839) that libtiff does not recognize. The pixels decode fine; only the log
+# is affected. Suppressing keeps the training output readable.
+try:
+    cv2.setLogLevel(getattr(cv2, "LOG_LEVEL_ERROR", 2))
+except Exception:
+    pass
 
 # ---- environment ----
 HERE = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd()
