@@ -42,7 +42,10 @@ def main():
         if g and g["pa_deg"]:
             pa = float(np.clip(g["pa_deg"], M.PA_MIN, M.PA_MAX))
             mt = float(np.clip(g["mt_px"] / ppm, M.MT_MIN, M.MT_MAX))
-            fl = float(np.clip(mt / np.sin(np.radians(pa)), M.FL_MIN, M.FL_MAX))
+            if M.USE_FRAGMENT_FL and g.get("fl_px"):       # fragment-extrapolation FL (beats the identity)
+                fl = float(np.clip(g["fl_px"] / ppm, M.FL_MIN, M.FL_MAX))
+            else:
+                fl = float(np.clip(mt / np.sin(np.radians(pa)), M.FL_MIN, M.FL_MAX))
         else:
             pa, mt, fl = M.PRIOR["pa_deg"], M.PRIOR["mt_mm"], M.PRIOR["fl_mm"]
         rows.append((r.pa_deg_true, r.fl_mm_true, r.mt_mm_true, pa, fl, mt))

@@ -53,11 +53,14 @@ def main():
         pa = float(np.clip(pa if pa is not None else M.PRIOR["pa_deg"], M.PA_MIN, M.PA_MAX))
         fl_mm, mt_mm = M.PRIOR["fl_mm"], M.PRIOR["mt_mm"]
         cand = M.calibrate_image(p) if (M.USE_CALIBRATED_MT or M.USE_CALIBRATED_FL) else None
-        if cand is not None and cand.confidence >= M.CALIBRATION_MIN_CONF and geom is not None:
-            if M.USE_CALIBRATED_MT and geom["mt_px"] is not None:
-                mt_mm = float(np.clip(geom["mt_px"] / cand.px_per_mm, M.MT_MIN, M.MT_MAX))
-                mt_ok += 1
-        if M.USE_IDENTITY_FL and geom is not None and geom["pa_deg"] is not None:
+        px_per_mm = cand.px_per_mm if (cand is not None and cand.confidence >= M.CALIBRATION_MIN_CONF) else None
+        if px_per_mm and M.USE_CALIBRATED_MT and geom is not None and geom["mt_px"] is not None:
+            mt_mm = float(np.clip(geom["mt_px"] / px_per_mm, M.MT_MIN, M.MT_MAX))
+            mt_ok += 1
+        if M.USE_FRAGMENT_FL and px_per_mm and geom is not None and geom.get("fl_px"):
+            fl_mm = float(np.clip(geom["fl_px"] / px_per_mm, M.FL_MIN, M.FL_MAX))
+            fl_ok += 1
+        elif M.USE_IDENTITY_FL and geom is not None and geom["pa_deg"] is not None:
             fl_mm = float(np.clip(mt_mm / np.sin(np.radians(pa)), M.FL_MIN, M.FL_MAX))
             fl_ok += 1
         rows.append({"image_id": p.name, "pa_deg": round(pa, 3),
@@ -65,7 +68,7 @@ def main():
         if (i + 1) % 50 == 0:
             print(f"  {i+1}/{len(files)} ({time.time()-t0:.0f}s)", flush=True)
     sub = pd.DataFrame(rows)
-    if M.USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
+    if (M.USE_FRAGMENT_FL or M.USE_IDENTITY_FL) and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
         sub["fl_mm"] = (sub["fl_mm"] * (M.PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(M.FL_MIN, M.FL_MAX).round(3)
     if M.USE_TEMPORAL_SMOOTH:
         sub = M.temporal_smooth(sub, fps)

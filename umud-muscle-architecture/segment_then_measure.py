@@ -79,7 +79,8 @@ MT_MIN, MT_MAX = 10.0, 50.0
 USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
 USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated per-family scale (54% coverage)
-USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), validated in exp01
+USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), fallback when no fragment
+USE_FRAGMENT_FL = os.environ.get("UMUD_FRAGMENT_FL", "1") != "0"  # FL from fascicle fragment extrapolated to apo lines; beats identity once apo inner-edge is fixed (0.481->0.353 on the 35 experts)
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
@@ -87,7 +88,7 @@ USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT b
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-09.8"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-09.9"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -553,10 +554,13 @@ def main():
             if USE_CALIBRATED_FL and geom["fl_px"] is not None:
                 fl_mm = float(np.clip(geom["fl_px"] / px_per_mm, FL_MIN, FL_MAX))
                 fl_ok += 1
-        # FL from the MT/PA identity (exp01: the only FL estimator that beat a constant on the expert
-        # benchmark). Uses calibrated MT where available, else the prior thickness; needs a measured
-        # PA. The straight identity floors at the fascicle bend; toggle off with UMUD_USE_IDENTITY_FL=0.
-        if USE_IDENTITY_FL and geom is not None and geom["pa_deg"] is not None:
+        # FL: prefer fascicle-fragment extrapolation to the apo lines where we have scale + a fragment
+        # (best on the 35 experts once the apo inner-edge fix is in: 0.481->0.353, vs DL-Track 0.312).
+        # Else the MT/sin(PA) identity (needs a measured PA), else the prior constant.
+        if USE_FRAGMENT_FL and px_per_mm and geom is not None and geom.get("fl_px"):
+            fl_mm = float(np.clip(geom["fl_px"] / px_per_mm, FL_MIN, FL_MAX))
+            fl_ok += 1
+        elif USE_IDENTITY_FL and geom is not None and geom["pa_deg"] is not None:
             fl_mm = float(np.clip(mt_mm / np.sin(np.radians(pa)), FL_MIN, FL_MAX))
             fl_ok += 1
         calib_rows.append({
@@ -573,7 +577,7 @@ def main():
         rows.append({"image_id": p.name, "pa_deg": round(pa, 3),
                      "fl_mm": round(fl_mm, 3), "mt_mm": round(mt_mm, 3)})
     sub = pd.DataFrame(rows)
-    if USE_IDENTITY_FL and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
+    if (USE_FRAGMENT_FL or USE_IDENTITY_FL) and sub["fl_mm"].mean() > 0:  # pin per-image FL mean to the trusted prior
         sub["fl_mm"] = (sub["fl_mm"] * (PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(FL_MIN, FL_MAX).round(3)
     if USE_TEMPORAL_SMOOTH:  # variance reduction within sequence clips (off by default)
         sub = temporal_smooth(sub, fps)
