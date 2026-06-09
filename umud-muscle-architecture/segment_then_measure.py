@@ -31,10 +31,12 @@ from torch.utils.data import Dataset, DataLoader
 try:
     from tick_calibration import choose_candidate as choose_calibration_candidate
     from tick_calibration import read_gray as read_calibration_gray
+    import scale_ticks  # validated per-family scale router (competition_reference.md 3b)
     CALIBRATION_AVAILABLE = True
 except Exception as exc:
     choose_calibration_candidate = None
     read_calibration_gray = None
+    scale_ticks = None
     CALIBRATION_AVAILABLE = False
     CALIBRATION_IMPORT_ERROR = exc
 
@@ -76,13 +78,14 @@ FL_MIN, FL_MAX = 30.0, 200.0
 MT_MIN, MT_MAX = 10.0, 50.0
 USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
+USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated per-family scale (54% coverage)
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), validated in exp01
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
-CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
+CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.5"))  # router gates per-family internally
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
 # Known leaf folder names, located wherever they are mounted. Do not hard-code the
@@ -436,10 +439,23 @@ def measure(apo_mask, fasc_mask):
     }
 
 
+class _Cal:  # lightweight calibration result, matches the attrs main() reads off a Candidate
+    def __init__(self, px_per_mm, confidence, method, edge=""):
+        self.px_per_mm = px_per_mm
+        self.confidence = confidence
+        self.method = method
+        self.edge = edge
+
+
 def calibrate_image(path):
     if not CALIBRATION_AVAILABLE:
         return None
     gray = read_calibration_gray(path)
+    if USE_SCALE_ROUTER and scale_ticks is not None:  # validated per-family router (PNG/644/Telemed/cropped)
+        scale, method, conf = scale_ticks.recover_for_image(gray, path.name)
+        if scale is None:
+            return None
+        return _Cal(px_per_mm=scale / 10.0, confidence=float(conf), method=method)
     return choose_calibration_candidate(gray, side_tick_mm=5.0, bottom_tick_mm=10.0, image_name=path.name)
 
 
