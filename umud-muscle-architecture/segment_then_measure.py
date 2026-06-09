@@ -83,10 +83,11 @@ USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
+USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT between bands' muscle-facing INNER edges, not centroids (exp14: MT-term 0.49->0.18)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-09.5"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-09.6"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.5"))  # router gates per-family internally
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -396,16 +397,26 @@ def measure(apo_mask, fasc_mask):
     bands = sorted([(stats[i, 4], i) for i in range(1, n)], reverse=True)[:2]
     if len(bands) < 2:
         return None
-    lines = []
+    band_info = []
     for _, i in bands:
         ys, xs = np.where(lab == i)
         if len(xs) < 10:
             return None
-        s, b = fit_line(ys, xs)
-        lines.append((np.mean(ys), s, b))
-    lines.sort()
-    superficial = (lines[0][1], lines[0][2])
-    deep = (lines[-1][1], lines[-1][2])  # lower band = deep aponeurosis
+        band_info.append((float(np.mean(ys)), xs, ys))
+    band_info.sort()  # by mean y: [0] = superficial (top band), [1] = deep (bottom band)
+    fit = []
+    for role, (_, xs, ys) in zip(("sup", "deep"), band_info):
+        if USE_APO_INNER:  # fit the muscle-facing INNER edge: bottom of superficial, top of deep
+            ux, inv = np.unique(xs, return_inverse=True)
+            if role == "sup":
+                ey = np.full(len(ux), -1.0); np.maximum.at(ey, inv, ys.astype(float))
+            else:
+                ey = np.full(len(ux), 1e18); np.minimum.at(ey, inv, ys.astype(float))
+            fit.append(fit_line(ey, ux.astype(float)))
+        else:
+            fit.append(fit_line(ys, xs))
+    superficial = fit[0]
+    deep = fit[1]  # bands were ordered superficial-then-deep above
     deep_s = deep[0]
     x_center = apo_mask.shape[1] / 2.0
     mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
