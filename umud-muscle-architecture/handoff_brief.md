@@ -92,6 +92,31 @@ Candidate explanations, none verified yet:
 `leader_playbook.md` reconstructs his general method from his other public notebooks, but it
 is explicitly NOT his UMUD solution. Verifying which of the above is true is in progress.
 
+### What a 2026-06 web check found (calibration is the leading hypothesis)
+
+Could not read the leader's UMUD notebook or the competition discussion (Kaggle was behind a
+browser check), so leader-specific points stay inference. What was verifiable:
+
+- DL-Track-US (the tool behind the 0.679 benchmark) uses a **manual scaling tool**: a human
+  enters the scale or clicks a known distance. UMUD requires fully automated prediction over
+  309 images, so the benchmark run almost certainly used one fixed/assumed scale, which is
+  wrong for images shot at different depths and inflates FL and MT error.
+- DL-Track's published accuracy is ~5 mm FL, <1 mm MT, <1.5 deg PA. A rough decomposition of
+  the leader's 0.378 (illustrative, per-term errors not observed) lands near those numbers,
+  which is only reachable with a correct per-image scale.
+- So the leading hypothesis: the leader's edge is **automated per-image pixels-to-mm
+  calibration** (tick-mark detection), not anything about pennation. Supports it: DL-Track is
+  manual-scale, the numbers line up, FL/MT are our flat constants. Against it: the score
+  decomposition is assumed not observed, and his actual code was not seen. Secondary
+  hypothesis: external labeled data + direct mm-regression (weighted lower; DL-Track ships no
+  public labeled set, it says bring your own).
+- Actionable consequence: the whole gap from our ~1.11 (constants) to ~0.68 is the value of
+  real per-image FL and MT; PA is a rounding error. We already segment the aponeuroses, so
+  muscle thickness in pixels is measurable now and waits only on scale (tightest tolerance,
+  3 mm, so high value). Next experiment: a tick-mark detector returning pixels-per-mm per
+  image, then verify the "bottom ticks ~1 cm apart" assumption on real images before relying
+  on it.
+
 ## Constraints and values
 
 - CV discipline, no leakage, claims proportional to evidence.

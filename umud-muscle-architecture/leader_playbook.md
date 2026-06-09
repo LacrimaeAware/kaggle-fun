@@ -40,3 +40,12 @@ From his 1st, 3rd, and 4th-place solutions (HMS brain activity, RSNA lumbar spin
 6. Outlier control: clip to physiological ranges and fall back to sequence medians where geometry is unstable.
 
 The honest summary: the leader's edge is not a secret method. It is disciplined segment-then-measure with a standard segmentation backbone, validation by looking at predictions, domain-shift handling, self-training, and clean ensembling. All of it is documented and reproducible, which suits this repository's standards.
+
+## 2026-06 update: calibration is the most likely single edge
+
+A web check could not reach his actual UMUD notebook or the competition discussion (Kaggle was behind a browser check), so this stays a hypothesis. What was verifiable points hard at calibration:
+
+- DL-Track-US (the 0.679 benchmark tool) uses a manual scaling tool: a human enters the scale or clicks a known distance. UMUD requires a fully automated prediction over 309 images, so the benchmark run almost certainly applied one fixed/assumed scale, which is wrong for images at different depths and inflates fascicle length and muscle thickness error.
+- DL-Track's published accuracy is roughly 5 mm fascicle length, under 1 mm thickness, under 1.5 degrees angle. A rough decomposition of the leader's 0.378 lands near those figures, which is only reachable with a correct per-image scale.
+
+So the leading hypothesis is that his edge is automated per-image pixels-to-millimetre calibration (tick-mark detection), not pennation. Pennation is scale-free and is the smallest of the three levers. The whole gap from a constants-only score (~1.11) to the benchmark (~0.68) is the value of real per-image fascicle length and thickness. We already segment the aponeuroses, so muscle thickness in pixels is measurable now and waits only on scale. The concrete next step is a tick-mark detector returning pixels-per-millimetre per image, validated against the "bottom ticks about 1 cm apart" assumption on real images.
