@@ -76,6 +76,30 @@ the bulk) - host says 1 cm so tick_mm=10; (2) lower-threshold left-ruler reader 
 (50 imgs, depth to 50 mm); (3) re-confirm the PNG ruler interval and fix the possible 2x; (4) gate
 each by visual QA overlay before wiring into the submission - a 2x-off scale would tank MT/FL.
 
+### 3b. Validated scale coverage - router built (`scale_ticks.recover_for_image`)
+
+Resolved by READING each family's actual ruler (the only validation without test labels), then building
+a per-family router. Each scale below is cross-checked, not assumed:
+
+| family | n | scale | how validated |
+| --- | ---: | ---: | --- |
+| PNG left ruler | 58 | 150 px/cm | ruler reads 0->4 cm over ~595 px; 5 mm minor ticks (tick_mm=5 is correct - the feared 2x bug does NOT exist) |
+| 644x1088 left ruler | 50 | 126 px/cm | left depth ruler 0->50 mm, 1 cm ticks ~126 px; all 50 identical |
+| Telemed 800x1200 (English "De 50 mm", right text panel) | 49 | 134 px/cm | bottom ticks AND left 0->50 mm ruler independently agree (~134-140) |
+| clean cropped/other | ~10 | bottom ticks | e.g. IMG_00040 -> 78 px/cm conf 0.99, green ticks land on real marks |
+| **German Siemens 800x1200 ("12L3 Quadriceps", left text panel)** | **~132** | **UNSOLVED** | scale encoded as a measured scale-bar BRACKET, not periodic ticks; left strip is a text panel |
+
+**Coverage: 167/309 = 54% scaled with validated detectors** (was 58 PNG = 19%). The one large unsolved
+family is the German Siemens (~132 imgs, 43%) - its scale is a bracket, needs a different reader
+(bracket-length or a depth ruler on another edge; not yet found). NOTE the 800x1200 size hides TWO
+different devices (Telemed vs German Siemens) - route by UI, not by shape.
+
+**Next:** wire `recover_for_image` into segment_then_measure so the 167 scaled images get real per-image
+MT (and FL via the identity) instead of the constant prior; German-Siemens + low-conf stay on the
+constant. Then it is a submission-ready improvement, evaluated by visual QA + physiological-range checks
+(no test labels exist to score it locally). Tools: scale_ticks.py, experiments/scale_coverage.py,
+experiments/scale_qa.py (overlays in results/calibration_qa/).
+
 ## 4. Training data structure
 
 - 2761 fascicle images + masks; 1048 aponeurosis images + masks; 309 test images.
