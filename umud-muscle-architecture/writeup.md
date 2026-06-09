@@ -9,18 +9,21 @@ Predict three muscle-architecture parameters for each skeletal-muscle ultrasound
 
 ## Method
 
-First pass: create a valid constant submission from the real test image IDs using `baseline_constant.py`. Planned next: derive PA/FL/MT from the supplied aponeurosis and fascicle masks, then use or fine-tune DL-Track-US style segmentation models and compute the three measurements geometrically. Pretrained models and public external data are allowed.
+First pass: create constant and model-based 309-row CSV artifacts. `mask_geometry.py` derives mask-based pseudo-labels for PA, fascicle length in pixels, and muscle thickness in pixels. `train_pseudo_baseline.py` trains an ExtraTrees image-feature regressor against those pseudo-labels. Planned next: segment aponeuroses and fascicles directly, recover tick-mark calibration, then compute PA/FL/MT geometrically.
 
 ## Result
 
 | Approach | Local UMUD Score | Public LB |
 | --- | --- | --- |
-| Constant sample-submission mean, 251 rows | N/A, hidden labels | Submitted (score pending) |
+| Constant sample-submission mean, 309 rows, comma CSV | N/A, hidden labels | Not scored |
+| ExtraTrees image features on mask-derived pseudo-labels | Pseudo-label PA MAE 3.43 deg; FL/MT worse than median | 1.23135 |
 
 ## Caveat
 
-The first baseline only validates the output pipeline. It is not evidence of model quality. Local scoring requires held-out labels derived from masks or source metadata. Serious segmentation training depends on a GPU. Calibration is the main blocker: test images vary in size with no scale metadata, so fascicle length and thickness in mm cannot be produced without recovering a per-image pixel-to-mm scale; pennation angle is scale-free and is the tractable parameter.
+The first model uses mask-derived pseudo-labels, not the hidden manual PA/FL/MT labels. Its local numbers measure agreement with extracted mask geometry, not leaderboard quality. Serious segmentation training benefits from a CUDA GPU but the current CPU pipeline is enough to build and test the measurement logic.
+
+Submission mechanism: the competition asks for CSV. The valid IDs are the visible test filenames with their true suffixes: 251 `.tif` rows and 58 `.png` rows. Semicolon CSVs fail column parsing, 251-row TIFF-only CSVs are short, page-style IDs mismatch, and all-`.tif` IDs mismatch.
 
 ## Lesson
 
-The task is not a normal image-regression CSV problem. The public training supervision is mask-based: 1,048 aponeurosis masks and 2,761 fascicle masks, with 251 hidden-label test images. The main lever is segment-then-measure, not direct tabular target fitting.
+The task is not a normal image-regression CSV problem. The public training supervision is mask-based: 1,048 aponeurosis masks and 2,761 fascicle masks, with 309 test images. The first CPU model learns pennation angle signal from images, but FL/MT need segmentation plus tick-mark calibration. The main lever is segment-then-measure, not direct tabular target fitting.

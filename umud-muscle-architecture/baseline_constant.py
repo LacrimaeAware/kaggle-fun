@@ -21,7 +21,7 @@ def _default_data_dir() -> Path:
 
 
 def _default_output_path() -> Path:
-    return Path(__file__).resolve().parent / "results" / "submission_constant.csv"
+    return Path(__file__).resolve().parent / "results" / "submission_constant_comma_309.csv"
 
 
 def test_image_ids(data_dir: Path) -> list[str]:
@@ -74,10 +74,11 @@ def write_constant_submission(
     image_ids: list[str],
     values: dict[str, float],
     output_path: Path,
+    delimiter: str = ",",
 ) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=("image_id", *TARGET_COLUMNS), delimiter=";")
+        writer = csv.DictWriter(f, fieldnames=("image_id", *TARGET_COLUMNS), delimiter=delimiter)
         writer.writeheader()
         for image_id in image_ids:
             writer.writerow(
@@ -94,6 +95,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=_default_data_dir())
     parser.add_argument("--output", type=Path, default=_default_output_path())
+    parser.add_argument(
+        "--delimiter",
+        choices=("comma", "semicolon"),
+        default="comma",
+        help="Kaggle's CSV parser expects comma. The provided sample file uses semicolons.",
+    )
     parser.add_argument(
         "--strategy",
         choices=("sample-mean", "range-midpoint"),
@@ -114,10 +121,12 @@ def main() -> None:
     else:
         values = RANGE_MIDPOINTS
 
-    write_constant_submission(image_ids, values, output_path)
+    delimiter = "," if args.delimiter == "comma" else ";"
+    write_constant_submission(image_ids, values, output_path, delimiter=delimiter)
 
     print(f"wrote {output_path}")
     print(f"rows: {len(image_ids)}")
+    print(f"delimiter: {args.delimiter}")
     print(
         "values: "
         + ", ".join(f"{col}={values[col]:.3f}" for col in TARGET_COLUMNS)

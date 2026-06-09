@@ -5,8 +5,8 @@ scale, so this checks the TIFF resolution tags (a likely calibration source) and
 mask structure. It also reconciles the true test-image count and IDs against the
 sample submission, since the constant baseline assumed 309 rows.
 
-Run from umud-muscle-architecture/ in the project .venv:
-    python eda.py
+Run from the repository root in the project .venv:
+    python umud-muscle-architecture/eda.py
 """
 
 from pathlib import Path
@@ -23,6 +23,15 @@ FOLDERS = ["apo_imgs_v1", "apo_masks_v1", "fasc_imgs_v1", "fasc_masks_v1", "test
 def list_tifs(folder):
     p = DATA / folder
     return sorted(p.rglob("*.tif")) if p.exists() else []
+
+
+def list_test_images():
+    p = DATA / "test_images_v2"
+    if not p.exists():
+        return []
+    return sorted(
+        f for f in p.rglob("*") if f.suffix.lower() in {".tif", ".tiff", ".png"}
+    )
 
 
 def imread(path):
@@ -71,15 +80,19 @@ def main():
         print(f"\n{kind}: imgs {len(imgs)}, masks {len(masks)}, shared names {len(imgs & masks)}")
 
     # test reconciliation
-    test = list_tifs("test_images_v2")
+    test = list_test_images()
     names = sorted(f.name for f in test)
     print(f"\n=== test images: {len(names)} on disk ===")
     print("first:", names[:2], "last:", names[-2:])
     man = DATA / "file_manifest.csv"
     if man.exists():
         txt = man.read_text(errors="ignore")
-        n_manifest = sum(1 for ln in txt.splitlines() if "test_images_v2" in ln and ".tif" in ln)
-        print(f"manifest lists {n_manifest} test_images_v2 .tif entries")
+        n_manifest = sum(
+            1
+            for ln in txt.splitlines()
+            if "test_images_v2" in ln and (".tif" in ln.lower() or ".png" in ln.lower())
+        )
+        print(f"manifest lists {n_manifest} test_images_v2 image entries")
     samp = DATA / "sample_submission.csv"
     if samp.exists():
         print("sample_submission:", samp.read_text(errors='ignore')[:120].replace(chr(10), ' | '))

@@ -1,8 +1,8 @@
 """Experiment 03 for Predicting Stellar Class: physics-motivated features and diagnostics.
 
-From the literature note (private_docs/stellar-classification-research.md): the
-quasar class limits balanced accuracy, the optical star/quasar degeneracy is the
-obstacle, and the stellar locus is a 1D curve u-g = 2.15 (g-r) + 0.26. This batch:
+From astronomy literature on optical colors: the quasar class often limits
+balanced accuracy, the optical star/quasar degeneracy is the obstacle, and the
+stellar locus is a 1D curve u-g = 2.15 (g-r) + 0.26. This batch:
 
 1. Tests the signed perpendicular distance from that stellar-locus line, and a
    UV-excess region indicator (u-g < 0.6 and g-r > 0), against the baseline on
