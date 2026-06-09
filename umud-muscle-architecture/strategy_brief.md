@@ -2,6 +2,8 @@
 
 Public-safe working brief for the UMUD Challenge: Muscle Architecture in Ultrasound Data.
 
+Companion docs: [rundown.md](rundown.md) explains the problem in plain language; [leader_playbook.md](leader_playbook.md) distills the reusable method of the current leader (suguuuuu) and maps it onto UMUD.
+
 ## Current state
 
 The submission loop works. A first scored submission reached public LB 1.23135, around rank 31 when checked on 2026-06-09. The file that scored was `submission_pseudo_baseline_comma_309.csv`.
