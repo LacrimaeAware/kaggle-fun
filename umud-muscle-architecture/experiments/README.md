@@ -153,6 +153,34 @@ under-segments fascicles), which is a *segmentation* problem, not a geometry one
 (`benchmark_overlay.py`) now renders the predicted fascicle mask as a clear dilated red blend so a
 human can actually see the under-segmentation.
 
+## exp08 - test-time augmentation denoises the masks (`exp08_tta_masks.py`)  [WIRED]
+
+Following exp06/07's conclusion that the bottleneck is mask quality (not geometry), tested the
+cheapest mask fix that needs no retraining: TTA - average the sigmoid over the image, its horizontal
+mirror, and a second scale (448), then threshold. Also swept the threshold. Scored vs the 35 experts,
+true scale, recentered-identity FL (the wired pipeline):
+
+| config | overall | PA | FL | MT |
+| --- | ---: | ---: | ---: | ---: |
+| baseline (single pass, 0.5) | 0.383 | 0.185 | 0.476 | 0.490 |
+| **TTA, threshold 0.5** | **0.370** | **0.171** | **0.449** | 0.490 |
+| TTA, threshold 0.4 | 0.377 | 0.180 | 0.460 | 0.490 |
+| TTA, threshold 0.35 | 0.397 | 0.196 | 0.507 | 0.490 |
+| TTA, threshold 0.30 | 0.386 | 0.184 | 0.484 | 0.490 |
+
+Read: TTA at the standard 0.5 threshold is a **real, measured win** - the first FL improvement that
+is not a mean-fit (0.476 -> 0.449) and a solid PA gain (0.185 -> 0.171, now well under DL-Track's
+0.242). Crucially, *lowering* the threshold to add pixels makes it WORSE - so TTA is not filling
+gaps, it is **denoising** (the mirror/scale ensemble cancels spurious fragments, leaving a cleaner
+fascicle set to fit). Cost: 3 forward passes/image (~a few minutes for the full 309), no retraining.
+**WIRED into `segment_then_measure.py` as `UMUD_TTA` (default on);** PA term transfers exactly
+(0.171) in `score_on_benchmark.py`, confirming the wiring.
+
+New combined end-state on the 35 experts (true scale): **overall 0.370** (pa 0.171, fl 0.449,
+mt 0.490) - vs human 0.307, DL-Track 0.331, our prior end-state 0.383. The measurement is now
+*between* DL-Track and the human floor on PA, and closing on DL-Track overall. The Kaggle bottleneck
+is still the 251 unscaled TIFFs.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant

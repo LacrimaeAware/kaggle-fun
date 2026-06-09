@@ -77,6 +77,7 @@ MT_MIN, MT_MAX = 10.0, 50.0
 USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), validated in exp01
+USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -308,12 +309,25 @@ def train_segmenter(target, epochs=12, bs=8):
 
 
 @torch.no_grad()
-def predict_mask(model, image_rgb):
+def _prob_at(model, image_rgb, size):
+    """Sigmoid probability map at native resolution, run through the model at `size`x`size`."""
     h, w = image_rgb.shape[:2]
-    t = tf(False)(image=image_rgb, mask=np.zeros((h, w), np.float32))
-    logit = model(t["image"].unsqueeze(0).to(DEVICE))
-    prob = torch.sigmoid(logit)[0, 0].cpu().numpy()
-    return cv2.resize((prob > 0.5).astype(np.uint8), (w, h), interpolation=cv2.INTER_NEAREST)
+    im = cv2.resize(image_rgb, (size, size))
+    t = tf(False)(image=im, mask=np.zeros((size, size), np.float32))
+    with torch.no_grad():
+        prob = torch.sigmoid(model(t["image"].unsqueeze(0).to(DEVICE)))[0, 0].cpu().numpy()
+    return cv2.resize(prob, (w, h))
+
+
+def predict_mask(model, image_rgb):
+    if USE_TTA:  # average original + horizontal mirror + second scale, then threshold (exp08: denoises)
+        flipped = np.ascontiguousarray(image_rgb[:, ::-1])
+        prob = (_prob_at(model, image_rgb, IMG_SIZE)
+                + _prob_at(model, flipped, IMG_SIZE)[:, ::-1]
+                + _prob_at(model, image_rgb, 448)) / 3.0
+    else:
+        prob = _prob_at(model, image_rgb, IMG_SIZE)
+    return (prob > 0.5).astype(np.uint8)
 
 
 def fit_line(ys, xs):
