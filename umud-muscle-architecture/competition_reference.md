@@ -87,18 +87,24 @@ a per-family router. Each scale below is cross-checked, not assumed:
 | 644x1088 left ruler | 50 | 126 px/cm | left depth ruler 0->50 mm, 1 cm ticks ~126 px; all 50 identical |
 | Telemed 800x1200 (English "De 50 mm", right text panel) | 49 | 134 px/cm | bottom ticks AND left 0->50 mm ruler independently agree (~134-140) |
 | clean cropped/other | ~10 | bottom ticks | e.g. IMG_00040 -> 78 px/cm conf 0.99, green ticks land on real marks |
-| **German Siemens 800x1200 ("12L3 Quadriceps", left text panel)** | **~132** | **UNSOLVED** | scale encoded as a measured scale-bar BRACKET, not periodic ticks; left strip is a text panel |
+| German Siemens 800x1200 ("12L3 Quadriceps", left text panel) | 87 of ~132 | 136 px/cm | SOLVED: faint RIGHT-edge 5 mm depth ruler (not the bottom bracket). Interval pinned 3 ways: MT physiology (1cm->49mm absurd, 0.5cm->24.7mm), the "4.5 cm" depth label (ruler span ~141 vs detected 136), 4.5cm/9ticks=5mm. ~45 fainter ones stay on constant. |
 
-**Coverage: 167/309 = 54% scaled with validated detectors** (was 58 PNG = 19%). The one large unsolved
-family is the German Siemens (~132 imgs, 43%) - its scale is a bracket, needs a different reader
-(bracket-length or a depth ruler on another edge; not yet found). NOTE the 800x1200 size hides TWO
-different devices (Telemed vs German Siemens) - route by UI, not by shape.
+**Coverage: 254/309 = 82% scaled with validated detectors** (was 58 PNG = 19%). The German Siemens
+"bracket" was a red herring - the real scale is a faint right-edge DEPTH RULER (dim gray, thr 90,
+x~1150), read by `recover_scale_right_ruler` (tick_cm=0.5). NOTE the 800x1200 size hides TWO devices
+(Telemed bottom-ticks vs German Siemens right-ruler) - route by detector, not by shape.
 
-**Next:** wire `recover_for_image` into segment_then_measure so the 167 scaled images get real per-image
-MT (and FL via the identity) instead of the constant prior; German-Siemens + low-conf stay on the
-constant. Then it is a submission-ready improvement, evaluated by visual QA + physiological-range checks
-(no test labels exist to score it locally). Tools: scale_ticks.py, experiments/scale_coverage.py,
-experiments/scale_qa.py (overlays in results/calibration_qa/).
+Remaining unscaled ~55 (18%): ~45 German Siemens whose right ruler is below the 90 threshold (would
+need a lower threshold + false-positive guards, or OCR of the depth label) and a few cropped/other
+stragglers. These fall safely to the constant prior.
+
+**Status: wired** into `segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on).
+Regenerated `submission_local.csv`: calibrated MT on **254/309**, MT mean 21.9 mm range 12-35 with ZERO
+clipping (scales sane), FL per-image (std 24, range 30-151). Per-family scales vary per-image (German
+Siemens 94-136-174, PNG 120-150-201) = each image's own ruler is read, so it generalizes to unseen
+images (not hand-labeling). Submission-ready; Kaggle gain unmeasurable locally (no test labels). Tools:
+scale_ticks.py, experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py (overlays in
+results/calibration_qa/).
 
 ## 4. Training data structure
 

@@ -250,19 +250,23 @@ bottom ticks = 1 cm). The 251 "unscaled" TIFFs ARE scalable. Findings:
   PNG (58) = 150 px/cm (5 mm minor left ruler; the feared 2x bug does NOT exist); 644x1088 (50) =
   126 px/cm (left ruler 0-50 mm); Telemed-800x1200 "De 50 mm" (49) = 134 px/cm (bottom ticks AND left
   ruler agree); clean cropped (~10) = bottom ticks (IMG_00040 -> 78 px/cm, ticks land on real marks).
-- The ONE unsolved family is the German Siemens 800x1200 ("12L3 Quadriceps") ~132 imgs, whose scale
-  is a measured scale-bar BRACKET, not periodic ticks.
+- The German Siemens 800x1200 ("12L3 Quadriceps") "bracket" was a red herring: its real scale is a
+  faint RIGHT-edge 5 mm depth ruler (`recover_scale_right_ruler`, thr 90, x~1150). The 5 mm interval
+  is pinned three ways (MT physiology: 1cm->49mm absurd vs 0.5cm->24.7mm; the "4.5 cm" depth label:
+  span ~141 vs detected 136; 4.5cm/9ticks=5mm). Detected on 87 of ~132; QA overlay confirms ticks
+  land on real marks.
 - Detection ACCURACY where a ruler is found is good (benchmark spacing MAE 1.7 px/cm).
 
-Built `scale_ticks.py` (`recover_scale` bottom ticks, `recover_scale_left_ruler`, and
-`recover_for_image` the per-family router). WIRED into `segment_then_measure.calibrate_image`
-(`UMUD_SCALE_ROUTER`, default on; `CALIBRATION_MIN_CONF` lowered to 0.5 - the router gates per-family
-internally). Regenerated `submission_local.csv`: **calibrated MT on 167/309 (was 58)**, FL now
-per-image (std 25.6, range 30-158, was a flat 74.4), MT mean 20.8 mm range 13-31 with ZERO clipping
-(the tell that scales are sane). This is the first change targeting the actual LEADERBOARD; the Kaggle
-gain is unmeasurable locally. Harness: `experiments/scale_coverage.py`, `experiments/scale_qa.py`
-(overlays `results/calibration_qa/`), `experiments/check_submission.py`. Full map:
-`competition_reference.md` 3a/3b. Remaining: the German-Siemens bracket reader (~132 imgs).
+Built `scale_ticks.py` (`recover_scale` bottom ticks, `recover_scale_left_ruler`,
+`recover_scale_right_ruler`, and `recover_for_image` the per-family router). WIRED into
+`segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on; `CALIBRATION_MIN_CONF` 0.5).
+Regenerated `submission_local.csv`: **calibrated MT on 254/309 (was 58), 82% coverage**, FL per-image
+(std 24, range 30-151, was flat 74.4), MT mean 21.9 mm range 12-35 with ZERO clipping (scales sane).
+Per-family scales vary per-image (German Siemens 94-136-174, PNG 120-150-201) = each image's own ruler
+read (generalizes, not hand-labeling). First change targeting the actual LEADERBOARD; Kaggle gain
+unmeasurable locally. Harness: `experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py`
+(overlays `results/calibration_qa/`). Full map: `competition_reference.md` 3a/3b. Remaining unscaled
+~55 (45 fainter German Siemens + cropped stragglers) fall safely to the constant prior.
 
 ## Fair-test correction (important)
 

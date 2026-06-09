@@ -119,14 +119,14 @@ def recover_scale_right_ruler(gray, tick_cm=0.5, thr=90, min_spacing=40):
                 peaks.append(int(np.mean(cur))); cur = [y]
         peaks.append(int(np.mean(cur)))
         peaks = [p for p in peaks if 5 < p < h - 5]
-        if len(peaks) < 6:
+        if len(peaks) < 5:
             continue
         g = np.diff(peaks).astype(float)
         gm = np.median(g)
         if gm < min_spacing:                       # fine-texture garbage, not ruler ticks
             continue
         good = g[(g > 0.7 * gm) & (g < 1.3 * gm)]
-        if len(good) < 5:
+        if len(good) < 4:
             continue
         conf = float(len(good) / len(g) * (1.0 - min(1.0, np.std(good) / (np.mean(good) + 1e-9))))
         if best is None or conf > best["conf"]:

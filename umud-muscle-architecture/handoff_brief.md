@@ -90,13 +90,16 @@ each family's scale was validated by reading its actual ruler (no test labels ex
 | 644x1088 left depth ruler | 50 | 126 px/cm | left ruler 0-50 mm, 1 cm ticks |
 | Telemed 800x1200 ("De 50 mm") | 49 | 134 px/cm | bottom ticks AND left 0-50 mm ruler agree |
 | clean cropped/other | ~10 | varies | bottom ticks (IMG_00040 -> 78 px/cm) |
-| **German Siemens 800x1200 ("12L3 Quadriceps")** | **~132** | **UNSOLVED** | scale is a measured BRACKET, not ticks |
+| German Siemens 800x1200 ("12L3 Quadriceps") | 87 of ~132 | 136 px/cm | faint RIGHT-edge 5 mm depth ruler; interval pinned by MT physiology + the "4.5 cm" depth label. ~45 fainter ones stay on constant |
 
-- `scale_ticks.py` - `recover_scale` (bottom ticks), `recover_scale_left_ruler`, and
-  `recover_for_image(gray, name)` the per-family ROUTER. Wired into `calibrate_image`.
-- Coverage: **167/309 = 54 % scaled** with validated detectors (was 58 PNG = 19 %). Regenerating
-  `submission_local.csv`: calibrated MT on 167, FL now per-image (std 25.6, range 30-158, was flat
-  74.4), MT mean 20.8 mm range 13-31 with ZERO clipping (the tell that scales are sane).
+- `scale_ticks.py` - `recover_scale` (bottom ticks), `recover_scale_left_ruler`,
+  `recover_scale_right_ruler` (German Siemens), and `recover_for_image(gray, name)` the per-family
+  ROUTER. Wired into `calibrate_image`.
+- Coverage: **254/309 = 82 % scaled** with validated detectors (was 58 PNG = 19 %). Regenerated
+  `submission_local.csv`: calibrated MT on 254, FL now per-image (std 24, range 30-151, was flat 74.4),
+  MT mean 21.9 mm range 12-35 with ZERO clipping (the tell that scales are sane). Per-family scales
+  vary per-image (German Siemens 94-136-174, PNG 120-150-201), i.e. each image's own ruler is read -
+  it generalizes to unseen images, it is NOT hand-labeling.
 - Harness: `experiments/scale_coverage.py`, `experiments/scale_qa.py` (overlays in
   `results/calibration_qa/`), `experiments/check_submission.py`. Full map: `competition_reference.md`
   sections 3, 3a, 3b.
@@ -107,8 +110,10 @@ whether to spend a submission.
 
 ## The two open fronts
 
-1. **German Siemens scale-bar reader (~132 imgs, 43 %).** The remaining scale gap; its depth is a
-   bracket/label, not periodic ticks. Solving it pushes coverage past 90 %.
+1. **Scale stragglers (~55 imgs, 18 %).** German Siemens is largely solved (right-edge ruler); ~45
+   fainter German Siemens rulers fall below the threshold, plus a few cropped/other. Catching them
+   needs a lower threshold + false-positive guards or OCR of the "X.X cm" depth label. They safely use
+   the constant prior now. Lower priority than submitting once to learn the value of the 82 % we have.
 2. **Kaggle-GPU fascicle retrain** with `UMUD_FASC_POS_WEIGHT` (recall) +/- `UMUD_CLAHE` (contrast),
    to fill out the sparse masks and reduce FL scatter. Evaluate the downloaded `seg_fasc.pt` locally
    on the 35-expert board; zero submissions to test. FL payoff uncertain (it is scatter-limited).
