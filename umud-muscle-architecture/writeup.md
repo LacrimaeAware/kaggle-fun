@@ -17,6 +17,7 @@ First pass: create constant and model-based 309-row CSV artifacts. `mask_geometr
 | --- | --- | --- |
 | Constant sample-submission mean, 309 rows, comma CSV | N/A, hidden labels | Not scored |
 | ExtraTrees image features on mask-derived pseudo-labels | Pseudo-label PA MAE 3.43 deg; FL/MT worse than median | 1.23135 |
+| Model pennation angle, prior FL 74.424 / MT 18.628 | replaces inflated model FL (mean ~100 mm) with the prior | 1.11066 |
 
 ## Caveat
 
