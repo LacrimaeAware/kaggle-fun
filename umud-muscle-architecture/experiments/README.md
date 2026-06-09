@@ -213,6 +213,33 @@ draws more of each dash, giving the geometry more/fuller fragments. Wired as `UM
 no CUDA). Expected: better fascicle recall and PA stability; FL payoff uncertain because FL is
 scatter-limited (exp06), and exp08 warned that merely adding pixels at a low threshold hurt FL.
 
+## exp10 - image preprocessing (contrast / brightness / bleed) (`exp10_preprocessing.py`)  [flag WIRED]
+
+User question: do contrast (CLAHE), brightness, or "brightness bleed" (blur) help the fascicle mask
+catch more? Tested at INFERENCE on the current model over the 35 experts (apo input kept raw, only
+fascicle input preprocessed):
+
+| preprocess | overall | PA | FL | fragments/img |
+| --- | ---: | ---: | ---: | ---: |
+| none (current) | 0.368 | 0.164 | 0.449 | 16.9 |
+| CLAHE | 0.398 | 0.197 | 0.507 | **19.3** |
+| CLAHE strong | 0.422 | 0.229 | 0.547 | 20.6 |
+| histogram equalize | 0.394 | 0.260 | **0.432** | 20.1 |
+| gamma brighten | 0.391 | 0.205 | 0.479 | 14.9 |
+| brightness bleed (Gaussian blur) | 0.386 | 0.189 | 0.480 | 12.5 |
+
+Read: the user's intuition is half-right. **Contrast DOES surface more fascicle fragments** (CLAHE/
+equalize: ~20 vs 17 on raw). But every variant HURT the score at inference, because the model was
+trained on RAW images and contrast-boosting creates a train/test MISMATCH - the extra fragments are
+noisier and PA degrades. One signal: equalize *improved* FL (0.449 -> 0.432) while wrecking PA, so
+contrast genuinely changes the FL signal; it is just unusable as an inference-only bolt-on. Blur
+("bleed") merges fragments into fewer blobs (12.5) and hurts.
+
+Conclusion: preprocessing must go into TRAINING so train matches inference. Wired CLAHE as
+`UMUD_CLAHE` inside read_rgb (applies to both train and inference; default OFF because turning it on
+requires retraining BOTH models). It is the second knob to test in the one Kaggle GPU run, alongside
+`UMUD_FASC_POS_WEIGHT` (recall bias). The FL improvement under equalize is the reason to try it.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant

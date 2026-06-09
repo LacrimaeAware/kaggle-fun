@@ -81,6 +81,7 @@ USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; 
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
+USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.7"))
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -206,6 +207,9 @@ def read_rgb(path):
         a = cv2.cvtColor(np.ascontiguousarray(a[:, :, 0]), cv2.COLOR_GRAY2RGB)
     if a.dtype != np.uint8:  # guard against 16-bit inputs
         a = cv2.normalize(a, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    if USE_CLAHE:  # contrast-normalize; only meaningful if BOTH models are (re)trained with it on (exp10)
+        g = cv2.createCLAHE(2.0, (8, 8)).apply(cv2.cvtColor(a, cv2.COLOR_RGB2GRAY))
+        a = cv2.cvtColor(g, cv2.COLOR_GRAY2RGB)
     return a
 
 
