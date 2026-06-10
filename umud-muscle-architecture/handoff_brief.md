@@ -252,3 +252,7 @@ reproducible; private sharing and hand-labeling target records are not. Current 
 to find learned-vs-router disagreements and decide whether an ROI/crop cue model is worth building,
 and/or prepare a controlled public-asset segmentation ensemble branch, while keeping temporal-only
 and 4-row bar-only as isolated small-probe options.
+
+Latest alignment note: `current_alignment.md`. It explicitly records that the learned scale-cue path
+is useful as QA/disagreement machinery but is not the score-first submission path unless it exposes a
+concrete router failure.

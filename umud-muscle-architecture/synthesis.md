@@ -369,6 +369,10 @@ assignments; keep their method names visible.
 
 ## 7. Concrete next implementation order
 
+See `current_alignment.md` for the current cross-model reconciliation after exp26-29. The short
+version: learned scale-cue detection is valid as QA/disagreement machinery, but not the main
+score-moving path unless it exposes a concrete router failure.
+
 ```text
 1. Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline and use it as
    the comparison anchor.
@@ -398,6 +402,8 @@ target-set error attribution plus FL/orientation geometry, not in another blind 
 Canonical:
 
 - **`synthesis.md`** (this file) - the entry point: goals, intuitions, problems, plan.
+- `current_alignment.md` - the latest cross-model reconciliation and score-first direction after
+  exp26-29.
 
 Reference (still accurate, more detail on one topic each):
 
