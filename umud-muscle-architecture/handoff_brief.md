@@ -261,6 +261,12 @@ MT movement 0.0646 mm, max 1.471 mm). It is grounded in the host's public straig
 left/middle/right MT procedure and improved the 35-reference score 0.2274 -> 0.2192 by moving MT
 0.1795 -> 0.1550. This is a small, principled candidate, not a leader-jump guarantee. Do **not**
 submit the FL low-extrapolation top-3 candidate: it worsened the local FL term 0.3528 -> 0.3668.
+Also do **not** stack scale-tail into this submission. Tail is a separate scale probe: all-tail moves
+FL on 307 rows through recentering and has max FL movement ~43 mm, so it would confound the clean MT
+test. If MT vertical-3 improves or is neutral, the next tail probe should be the four-row
+`results/submission_scale_tail_bar_only.csv`; shape-only and all-tail are riskier later probes.
+
+Reviewer handoff for the immediate submission: `NEXT_SUBMISSION_REVIEW.md`.
 
 After that, current next work is: use exp29 to find learned-vs-router disagreements and decide
 whether an ROI/crop cue model is worth building, and/or prepare a controlled public-asset

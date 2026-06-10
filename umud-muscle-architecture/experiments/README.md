@@ -874,6 +874,11 @@ evidence.
   classes, especially left/right rulers, but not good enough to replace the deterministic router.
 - `exp30` tests host-protocol measurement alignment. FL low-extrapolation top-3 is rejected for now;
   MT vertical-3 is the current isolated no-oracle submission candidate.
+- Tail recovery should not be stacked into the MT vertical-3 submission. `submission_scale_tail.csv`
+  moves FL on 307 rows via recentering, so it confounds the clean MT test. If the MT candidate
+  improves or is neutral, the next tail probe should be `submission_scale_tail_bar_only.csv` as a
+  separate submission; keep shape-only and all-tail later/riskier.
+- Immediate reviewer handoff: `NEXT_SUBMISSION_REVIEW.md`.
 - Remaining no-submission work: choose between controlled public-asset retraining/ensembling,
   scale-cue detector training from exp26 weak labels, temporal-only, or isolated bar-only probing.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored

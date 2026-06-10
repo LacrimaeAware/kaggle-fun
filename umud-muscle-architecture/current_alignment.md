@@ -102,13 +102,18 @@ The score-first path is no longer more scale polishing. The current ranking is:
      0.0646 mm, and protocol alignment can still fail if the target images differ from the reference.
 3. Do not submit the FL low-extrapolation top-3 candidate. It was a good structural hypothesis but
    worsened the local FL term (0.3528 -> 0.3668).
-4. Use exp29 only as a disagreement audit for the router, not as production logic.
-5. Move the main score effort to measurement/model quality:
+4. Do not stack scale-tail into this MT candidate. The tail files are real scale probes, but they
+   move FL on 307 rows through recentering and should be tested separately. If the MT candidate
+   improves or is neutral, the next tail probe should be `results/submission_scale_tail_bar_only.csv`,
+   not all-tail or shape-only.
+5. Read `NEXT_SUBMISSION_REVIEW.md` before asking another model to verify the current submission.
+6. Use exp29 only as a disagreement audit for the router, not as production logic.
+7. Move the main score effort to measurement/model quality:
    - controlled public-asset retraining or fold/seed ensembling,
    - denser/cleaner structure supervision on public training images,
    - conservative self-training only through exp23-style gates,
    - temporal-only as a small isolated probe, not a presumed margin-closer.
-6. Keep all FL changes isolated from recentering effects and report direct row movement.
+8. Keep all FL changes isolated from recentering effects and report direct row movement.
 
 ## What We Should Not Do
 
