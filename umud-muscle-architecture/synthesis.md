@@ -338,6 +338,22 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    (0.3528 normalized), MT is 0.1795, and PA is 0.1498. The result argues for measurement quality,
    legal external/reference data, ensembling, or carefully isolated target-structure probes over
    more broad scale polishing.
+7. **Scale-cue supervision bridge.** `experiments/exp26_scale_cue_pseudolabels.py` exports
+   machine-learning-ready masks/boxes/overlays for scale cues using only the production-accepted
+   router path, plus the narrow visible-bar fallback on router-`none` rows. It labels 299/309 target
+   images with 299 total cue rows: bottom_ticks 59, right_ruler_5mm 87, left_ruler_1cm 50,
+   png_left_ruler 58, family_b_signature 41, bottom_scale_bar_3cm 4. This is how the deterministic
+   scale code becomes a teacher for a learned cue detector without hand-labeling target records.
+8. **External/public asset inventory.** `experiments/exp27_external_asset_inventory.py` confirms the
+   local repo already contains public supervised assets: 1048 image/mask pairs for one segmentation
+   target, 2761 pairs for the other, the 35-image reference benchmark, the 309 competition target
+   images, and one public pretrained weight file. The external-data path is therefore not blocked by
+   missing assets; the remaining choice is which controlled training branch to run.
+9. **Cue-detector training harness.** `experiments/exp28_train_scale_cue_segmenter.py` now trains a
+   weak-label multi-class U-Net from exp26 cue masks. Smoke mode ran on CPU (19/5 train/val items,
+   one epoch, weak-label val Dice 0.0015), which verifies the data/model path but does not establish
+   model usefulness. The next meaningful run is all 299 weak-label rows for more epochs, followed by
+   learned-vs-deterministic cue disagreement analysis.
 
 ### What not to do
 
@@ -360,7 +376,8 @@ assignments; keep their method names visible.
    not stack it with sub-pixel or temporal smoothing for a probe.
 5. Treat public/free/equally accessible external data and models as rules-clean if declared and
    reproducible; do not use private assets or hand-labeled target records.
-6. Inventory the public reference assets and prepare a controlled external/ensemble branch.
+6. Use the now-inventoried public assets for a controlled segmentation retrain/ensemble branch, or
+   run the exp28 learned scale-cue detector from exp26's reproducible weak labels.
 7. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
 8. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.

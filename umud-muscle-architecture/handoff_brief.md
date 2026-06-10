@@ -180,6 +180,19 @@ whether to spend a submission.
      oracle-scale attribution, not production-scale validation. With true scale, raw FL MAPE is
      10.365%, recentered FL MAPE is 6.833%, MT MAPE is 2.396%, and the current recentered reference
      score is 0.2274 (PA 0.1498, FL 0.3528, MT 0.1795).
+   - Done in `experiments/exp26_scale_cue_pseudolabels.py`: code-generated weak labels for scale
+     cues on the 309 target images. The corrected teacher policy exports only production-accepted
+     router cues, plus the narrow visible-bar fallback on router-`none` rows. Results: 299/309 images
+     labeled, 299 label rows total: bottom_ticks 59, right_ruler_5mm 87, left_ruler_1cm 50,
+     png_left_ruler 58, family_b_signature 41, bottom_scale_bar_3cm 4. This is training prep for a
+     learned cue detector, not a submission and not hand annotation.
+   - Done in `experiments/exp27_external_asset_inventory.py`: local public assets are inventoried.
+     The repo already has 1048 image/mask pairs for one segmentation target, 2761 for the other,
+     35 public benchmark images, 309 competition target images, and one public pretrained weight
+     file. External/public supervised data is real and local, not a hypothetical future download.
+   - Started in `experiments/exp28_train_scale_cue_segmenter.py`: a weak-label multi-class U-Net
+     harness now trains from exp26 cue masks. Smoke mode ran on CPU (19/5 train/val items, one epoch)
+     and wrote smoke-only artifacts; this verifies the path, not model usefulness.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -203,8 +216,10 @@ whether to spend a submission.
 
 - The artifact that matters is the thinking and writeup, not the rank. Claims proportional to
   evidence; label hypotheses; cite or drop.
-- No manual labeling of the 309 test images. External data (the 35-expert benchmark, used for local
-  validation only) must be DECLARED in any writeup. Pipeline must be reproducible.
+- No manual labeling or human prediction of the validation/test records for any submission path.
+  Public/free/equally accessible external data and models are allowed if declared and reproducible.
+  Code-generated pseudo-labels on target images must remain reproducible and must not be
+  hand-corrected.
 - Public GitHub repo (github.com/LacrimaeAware/kaggle-fun): no secrets, no personal data, no
   Co-Authored-By trailer. Do not submit without explicit say-so. Local AMD 5700 XT cannot train on
   Py3.13 (no torch-directml); CPU training works but is slow; Kaggle GPU is the training path.
@@ -227,6 +242,7 @@ the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
 not by a global mean or the 35-image FL score alone. The external-data rules question is now read as
 settled: public/free/equally accessible external data and models are allowed if declared and
-reproducible; private sharing and hand-labeling target records are not. Current next work: inventory
-the public reference assets and prepare a controlled external/ensemble branch, while keeping
-temporal-only and 4-row bar-only as isolated small-probe options.
+reproducible; private sharing and hand-labeling target records are not. Current next work: run a real
+exp28 cue-detector training/evaluation pass and compare learned cue detections against the router,
+and/or prepare a controlled public-asset segmentation ensemble branch, while keeping temporal-only
+and 4-row bar-only as isolated small-probe options.

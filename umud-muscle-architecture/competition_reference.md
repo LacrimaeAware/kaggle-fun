@@ -169,15 +169,19 @@ results/calibration_qa/).
 
 ## 9. Test-set leakage discussion and our stance
 
-- The 309 test images and the DL-Track manual-analysis method are both public, so a person can manually
-  label the test set and use those labels as a **proxy target** for tuning / local validation. Host:
-  technically possible, cannot be policed, but it counts as **external data (must be declared)** and
-  the final pipeline must still be reproducible. Patrick and TheOneTheOnly are doing variants of this.
-- Host's nuance: labels != architecture estimates - even good manual fragment labels still need a
-  computational step to get PA/FL/MT, and expert-vs-expert variability remains (the benchmark folder
-  shows this). So a hand-labeled proxy is imperfect.
-- **Our stance (per the user):** we do NOT label the 309 test images. We validate only on the published
-  35-image expert benchmark. Cleaner, declarable, and keeps the pipeline honest and reproducible.
+- Kaggle foundational rule 3.4.b says submissions may not use or incorporate information from
+  **hand labeling or human prediction of validation/test data records**. Therefore: do not manually
+  annotate the 309 target images and use those annotations in any submission path.
+- Public/free/equally accessible external data and external models are separately allowed by the
+  competition-specific external-data rule, provided they are declared and reproducible. This covers
+  the downloaded public DL-Track/OSF-style image/mask assets and pretrained weights; it does **not**
+  convert hand-labeled target records into a safe training set.
+- Code-generated pseudo-labels are the safe bridge: deterministic detectors can produce reproducible
+  weak labels from target images, but those labels must not be hand-corrected before use in a
+  submission.
+- **Our stance (per the user):** we do NOT hand-label the 309 test images. We validate on the
+  published 35-image expert benchmark and use public training assets or reproducible pseudo-labels
+  only.
 
 ## 10. Immediate implications (ranked)
 
@@ -193,4 +197,12 @@ results/calibration_qa/).
    Use robust orientation aggregation and coherence checks before a blind retrain.
 4. **Demote augmentation/self-training-for-domain** unless correctness checks point back at
    segmentation. Real train-vs-target image stats do not show a large discrete domain gap.
-5. **Declare external data** (the benchmark) and keep the notebook reproducible.
+5. **Use supervised/public assets deliberately.** `experiments/exp27_external_asset_inventory.py`
+   confirms the repo already has 1048 + 2761 public image/mask pairs, the 35-image benchmark, 309
+   target images, and one public pretrained weight file. Missing assets are not the blocker.
+6. **Train scale-cue recognition instead of hand-building forever.** `experiments/exp26_scale_cue_pseudolabels.py`
+   exports code-generated cue masks/boxes for 299/309 target images from trusted router paths:
+   bottom_ticks 59, right_ruler_5mm 87, left_ruler_1cm 50, png_left_ruler 58,
+   family_b_signature 41, and bottom_scale_bar_3cm 4.
+7. **Declare external data** (the benchmark and any public training assets/weights) and keep the
+   notebook reproducible.
