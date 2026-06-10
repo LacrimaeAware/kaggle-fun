@@ -417,6 +417,33 @@ scatter, but coherence did not guarantee the blend would transfer. The `none` fa
 coherence (still high: p10 0.978), so it is the obvious visual-audit candidate. Use this diagnostic
 for orientation/texture audit, not as approval for the rejected blend.
 
+## exp19 - target scale cross-check (`exp19_scale_crosscheck.py`)  [diagnostic]
+
+Question: after the failed FL blend, can we at least bound whether the current 295/309 scale router
+contains a broad hidden scale mistake, without target labels and without using global output means?
+
+Method: run every scale cue independently on all 309 target images, then compare only rows where two
+strict cues fire on the same image. Writes `results/scale_crosscheck.csv` and
+`results/scale_crosscheck_pairs.csv` (gitignored result artifacts).
+
+Result:
+
+| pair | n | median abs % disagreement | p95 | max | rows >2% | rows >5% |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| bottom_ticks vs family_b_signature | 49 | 0.000 | 0.000 | 0.000 | 0 | 0 |
+| bottom_ticks vs left_ruler_1cm | 29 | 0.000 | 0.000 | 0.000 | 0 | 0 |
+| left_ruler_1cm vs png_left_ruler | 36 | 0.921 | 2.532 | 2.532 | 4 | 0 |
+
+Strict cue multiplicity: 14 images with zero strict cues, 181 with one strict cue, and 114 with two
+strict cues. Router counts are unchanged: right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58,
+left_ruler_1cm 50, family_b_signature 41, none 14.
+
+Read: this is a strong label-free sanity check for the multi-cue scale families. It specifically
+validates the risky `family_b_signature` assignment against bottom ticks on 49 images, with exact
+agreement. It does **not** prove the single-cue `right_ruler_5mm` family is correct, and it leaves
+the 14 `none` rows unresolved. Of those 14, five have weak/non-strict cues in the audit output and
+may be recoverable; nine have no current cue.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -431,8 +458,8 @@ evidence.
 
 - Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline. Compare any new
   candidate row-by-row against it before submitting.
-- Bound target-set scale error using two-cue ruler families; do not keep guessing the scale-vs-method
-  split.
+- Scale cross-check is now partly done: multi-cue families agree well; focus remaining scale work on
+  the single-cue `right_ruler_5mm` family and the 14 `none` rows.
 - The blend is rejected as a submission default despite its local win.
 - Remaining no-submission work: two-cue scale-error bound, a visual audit of the 14 `none` scale rows,
   and a classical orientation-correctness audit.

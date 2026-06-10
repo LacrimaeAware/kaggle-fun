@@ -296,7 +296,10 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
 ### Track A: bound the public-gap causes
 
 1. **Scale bound on the target set.** Use two-cue families to measure disagreement between
-   independent rulers. This is label-free and directly sizes the remaining scale risk.
+   independent rulers. `experiments/exp19_scale_crosscheck.py` started this: 114/309 images have
+   two strict cues, and no pair class has >5% disagreement. The broad 2x-router-failure hypothesis
+   is weakened; remaining scale risk is concentrated in the single-cue `right_ruler_5mm` family and
+   the 14 `none` rows.
 2. **Prior/recentering audit.** The full clean score benefits from recentering FL to a known
    benchmark mean. The failed blend proves that this kind of local FL win can point in the wrong
    direction publicly. Mean matching is now an audit risk, not evidence.
@@ -332,7 +335,8 @@ assignments; keep their method names visible.
 1. Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline and use it as
    the comparison anchor.
 2. Compare every candidate row-by-row against that baseline before any submission.
-3. Two-cue scale-error bound on the current 295/309 router.
+3. Finish scale-risk narrowing: single-cue `right_ruler_5mm` QA plus recover/audit the 14 `none`
+   rows.
 4. Visual audit of the 14 `none` scale rows and weakest-coherence rows.
 5. Build a classical orientation-correctness audit before another FL-method submission.
 6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or

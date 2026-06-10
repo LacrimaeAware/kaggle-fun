@@ -136,6 +136,11 @@ whether to spend a submission.
 1. **Bound target-set scale error, do not guess it.** Use families with two independent scale cues to
    measure disagreement on the real 309 images. This sizes how much of the remaining public gap is
    scale versus measurement.
+   - Started in `experiments/exp19_scale_crosscheck.py`: 114/309 images have two strict scale cues.
+     Multi-cue families agree well (signature vs bottom ticks: 49 images, 0% disagreement; bottom
+     vs left ruler: 29 images, 0%; PNG left-ruler cross-check: median 0.9%, max 2.5%, no >5% rows).
+     This narrows remaining scale risk to the single-cue `right_ruler_5mm` family and the 14 `none`
+     rows, not a broad 2x router failure.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -181,4 +186,5 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone.
+not by a global mean or the 35-image FL score alone. Current next work: finish scale-risk narrowing
+on the single-cue/fallback rows, then build an independent orientation-correctness audit.
