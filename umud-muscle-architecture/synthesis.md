@@ -349,11 +349,14 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    target, 2761 pairs for the other, the 35-image reference benchmark, the 309 competition target
    images, and one public pretrained weight file. The external-data path is therefore not blocked by
    missing assets; the remaining choice is which controlled training branch to run.
-9. **Cue-detector training harness.** `experiments/exp28_train_scale_cue_segmenter.py` now trains a
-   weak-label multi-class U-Net from exp26 cue masks. Smoke mode ran on CPU (19/5 train/val items,
-   one epoch, weak-label val Dice 0.0015), which verifies the data/model path but does not establish
-   model usefulness. The next meaningful run is all 299 weak-label rows for more epochs, followed by
-   learned-vs-deterministic cue disagreement analysis.
+9. **Cue-detector training harness and audit.** `experiments/exp28_train_scale_cue_segmenter.py` now
+   trains a weak-label multi-class U-Net from exp26 cue masks. The naive full-frame run failed as a
+   sparse-mask/class-prior learner (weak-label val Dice 0.1202), so the harness now uses mask dilation
+   and class-balanced BCE; the improved 8-epoch CPU run reached weak-label val Dice 0.1644.
+   `experiments/exp29_scale_cue_model_audit.py` then showed useful learned presence signal for some
+   classes against the weak teacher: left ruler F1 1.000, right ruler F1 0.978, bottom ticks F1 0.702,
+   UI signature F1 0.698, and lower bar F1 0.046. This is a QA/disagreement tool, not a replacement
+   router yet.
 
 ### What not to do
 
@@ -377,7 +380,8 @@ assignments; keep their method names visible.
 5. Treat public/free/equally accessible external data and models as rules-clean if declared and
    reproducible; do not use private assets or hand-labeled target records.
 6. Use the now-inventoried public assets for a controlled segmentation retrain/ensemble branch, or
-   run the exp28 learned scale-cue detector from exp26's reproducible weak labels.
+   turn the exp28/29 learned scale-cue detector into a disagreement audit and possibly an ROI/crop
+   cue model.
 7. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
 8. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.

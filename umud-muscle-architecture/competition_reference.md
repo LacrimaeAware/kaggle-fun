@@ -204,5 +204,9 @@ results/calibration_qa/).
    exports code-generated cue masks/boxes for 299/309 target images from trusted router paths:
    bottom_ticks 59, right_ruler_5mm 87, left_ruler_1cm 50, png_left_ruler 58,
    family_b_signature 41, and bottom_scale_bar_3cm 4.
-7. **Declare external data** (the benchmark and any public training assets/weights) and keep the
+7. **Treat the first learned cue model as QA, not production.** `experiments/exp28_train_scale_cue_segmenter.py`
+   and `experiments/exp29_scale_cue_model_audit.py` show the learned cue path runs and has useful
+   weak-label presence signal for left/right rulers, but the full-frame thin-mask model is not good
+   enough to replace the deterministic router.
+8. **Declare external data** (the benchmark and any public training assets/weights) and keep the
    notebook reproducible.

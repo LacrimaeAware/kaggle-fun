@@ -729,7 +729,9 @@ CSV?
 
 Implementation: add a small multi-label U-Net training harness over the exp26 masks. It trains
 against weak labels only, splits rows into train/validation, reports validation Dice against the
-teacher masks, and saves smoke artifacts separately from real-run artifacts. Outputs:
+teacher masks, and saves smoke artifacts separately from real-run artifacts. The first naive
+full-frame run was weak (best val Dice 0.1202) and overpredicted class priors. The harness now dilates
+thin cue masks and uses class-balanced BCE for the sparse-label problem. Outputs:
 
 - `results/scale_cue_segmenter.pt` and `results/scale_cue_segmenter_metrics.csv` for a real run
 - `results/scale_cue_segmenter_smoke.pt` and `results/scale_cue_segmenter_smoke_metrics.csv` for
@@ -748,6 +750,48 @@ Read: the smoke test only verifies the data/model path. The low one-epoch Dice i
 not evidence for or against the cue-detector idea. A real run should use all 299 weak-label rows,
 more epochs, and then compare learned cue detections against the deterministic router before any
 production change.
+
+Real CPU run after sparse-mask fixes:
+
+| item | value |
+| --- | ---: |
+| train/val items | 239/60 |
+| epochs | 8 |
+| mask dilation | 2 px |
+| class pos_weight cap | 100 |
+| best weak-label val Dice | 0.1644 |
+
+Read: better than the naive run but still not a production model. The learned path needs a presence
+audit and probably an ROI/crop design before it can replace any deterministic scale reader.
+
+## exp29 - learned scale-cue model audit (`exp29_scale_cue_model_audit.py`)  [diagnostic]
+
+Question: did the exp28 model learn any useful cue-presence signal, or only class priors?
+
+Implementation: run the trained cue model over all target records, compare against exp26 weak labels
+with target-mask dilation 2, write per-class audit rows, and sweep `prob_max` thresholds by class.
+Outputs:
+
+- `results/scale_cue_segmenter_audit.csv`
+- `results/scale_cue_segmenter_audit_summary.csv`
+- `results/scale_cue_segmenter_threshold_sweep.csv`
+- `results/scale_cue_segmenter_threshold_best.csv`
+- `results/scale_cue_segmenter_audit_overlays/*.jpg`
+
+Best class-specific `prob_max` thresholds against the weak teacher:
+
+| cue class | threshold | precision | recall | F1 | false positives | false negatives |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| bottom_scale_bar | 0.54 | 0.024 | 0.750 | 0.046 | 123 | 1 |
+| bottom_tick_axis | 0.88 | 0.541 | 1.000 | 0.702 | 50 | 0 |
+| left_ruler_ticks | 0.91 | 1.000 | 1.000 | 1.000 | 0 | 0 |
+| right_ruler_ticks | 0.64 | 0.956 | 1.000 | 0.978 | 4 | 0 |
+| ui_signature_marks | 0.92 | 0.569 | 0.902 | 0.698 | 28 | 4 |
+
+Read: this is not ground truth; it is agreement with the code-generated weak teacher. Still, it
+shows the model learned a real presence signal for left/right rulers and some signal for bottom
+ticks/signatures. The 4-row lower-bar class is not learnable from current labels. The learned model
+is currently a QA/disagreement tool, not a replacement router and not a submission input.
 
 ## Fair-test correction (important)
 
@@ -783,8 +827,10 @@ evidence.
   training prep for a learned scale-cue model, not a submission.
 - Local public/external assets are inventoried in `exp27`: 1048 + 2761 public image/mask pairs are
   already local, plus the benchmark and one public weight file. External-data use is not hypothetical.
-- A weak-label cue-segmenter training harness is built in `exp28` and smoke-tested on CPU. It proves
-  the training path runs, but not that the learned model is useful yet.
+- A weak-label cue-segmenter training harness is built in `exp28`. The improved sparse-mask run gets
+  weak-label val Dice 0.1644.
+- `exp29` audits the learned cue model. It is useful as a presence/disagreement signal for some
+  classes, especially left/right rulers, but not good enough to replace the deterministic router.
 - Remaining no-submission work: choose between controlled public-asset retraining/ensembling,
   scale-cue detector training from exp26 weak labels, temporal-only, or isolated bar-only probing.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored

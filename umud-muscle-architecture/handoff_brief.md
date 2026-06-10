@@ -191,8 +191,14 @@ whether to spend a submission.
      35 public benchmark images, 309 competition target images, and one public pretrained weight
      file. External/public supervised data is real and local, not a hypothetical future download.
    - Started in `experiments/exp28_train_scale_cue_segmenter.py`: a weak-label multi-class U-Net
-     harness now trains from exp26 cue masks. Smoke mode ran on CPU (19/5 train/val items, one epoch)
-     and wrote smoke-only artifacts; this verifies the path, not model usefulness.
+     harness now trains from exp26 cue masks. Smoke mode ran on CPU. A real 8-epoch CPU run with
+     dilated masks and class-balanced BCE reached weak-label val Dice 0.1644. This is still training
+     prep, not a production model.
+   - Done in `experiments/exp29_scale_cue_model_audit.py`: learned cue-model audit against the exp26
+     weak teacher. Best class-specific presence thresholds show strong weak-label agreement for
+     left_ruler_ticks (F1 1.000) and right_ruler_ticks (F1 0.978), moderate bottom_tick_axis
+     (F1 0.702) and ui_signature_marks (F1 0.698), and failed bottom_scale_bar (F1 0.046). Use this
+     as a QA/disagreement signal only.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -242,7 +248,7 @@ the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
 not by a global mean or the 35-image FL score alone. The external-data rules question is now read as
 settled: public/free/equally accessible external data and models are allowed if declared and
-reproducible; private sharing and hand-labeling target records are not. Current next work: run a real
-exp28 cue-detector training/evaluation pass and compare learned cue detections against the router,
+reproducible; private sharing and hand-labeling target records are not. Current next work: use exp29
+to find learned-vs-router disagreements and decide whether an ROI/crop cue model is worth building,
 and/or prepare a controlled public-asset segmentation ensemble branch, while keeping temporal-only
 and 4-row bar-only as isolated small-probe options.

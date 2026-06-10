@@ -32,6 +32,7 @@ import pandas as pd
 import segmentation_models_pytorch as smp
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader, Dataset
 
@@ -101,9 +102,10 @@ def load_items(manifest_path: Path) -> list[dict]:
 
 
 class CueDS(Dataset):
-    def __init__(self, items: list[dict], tf):
+    def __init__(self, items: list[dict], tf, mask_dilate: int = 0):
         self.items = items
         self.tf = tf
+        self.mask_dilate = int(mask_dilate)
 
     def __len__(self):
         return len(self.items)
@@ -122,7 +124,11 @@ class CueDS(Dataset):
                 masks.append(m)
         mask = np.stack(masks, axis=-1)
         t = self.tf(image=img, mask=mask)
-        return t["image"], t["mask"].permute(2, 0, 1).float()
+        mask_t = t["mask"].permute(2, 0, 1).float()
+        if self.mask_dilate > 0:
+            k = 2 * self.mask_dilate + 1
+            mask_t = F.max_pool2d(mask_t.unsqueeze(0), kernel_size=k, stride=1, padding=self.mask_dilate).squeeze(0)
+        return t["image"], mask_t
 
 
 def make_tf(img_size: int, train: bool):
@@ -169,6 +175,19 @@ def split_items(items: list[dict], val_frac: float, seed: int):
     return train, val
 
 
+def estimate_pos_weight(items: list[dict], img_size: int, mask_dilate: int) -> torch.Tensor:
+    ds = CueDS(items, make_tf(img_size, False), mask_dilate=mask_dilate)
+    dl = DataLoader(ds, batch_size=8, shuffle=False, num_workers=0)
+    pos = torch.zeros(len(CUE_CLASSES), dtype=torch.float64)
+    total = 0
+    for _img, mask in dl:
+        pos += mask.sum(dim=(0, 2, 3)).double()
+        total += mask.shape[0] * mask.shape[2] * mask.shape[3]
+    neg = torch.clamp(torch.tensor(float(total), dtype=torch.float64) - pos, min=1.0)
+    weights = neg / torch.clamp(pos, min=1.0)
+    return torch.clamp(weights.float(), min=1.0, max=100.0)
+
+
 def parse_args():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--epochs", type=int, default=8)
@@ -178,6 +197,8 @@ def parse_args():
     ap.add_argument("--encoder-weights", default=None)
     ap.add_argument("--val-frac", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--mask-dilate", type=int, default=2)
+    ap.add_argument("--no-pos-weight", action="store_true")
     ap.add_argument("--smoke", action="store_true")
     return ap.parse_args()
 
@@ -204,8 +225,18 @@ def main():
     print(f"items train/val: {len(train_items)}/{len(val_items)}")
     print(f"device: {devname}")
 
-    train_dl = DataLoader(CueDS(train_items, make_tf(args.img_size, True)), batch_size=args.bs, shuffle=True, num_workers=0)
-    val_dl = DataLoader(CueDS(val_items, make_tf(args.img_size, False)), batch_size=args.bs, shuffle=False, num_workers=0)
+    train_dl = DataLoader(
+        CueDS(train_items, make_tf(args.img_size, True), mask_dilate=args.mask_dilate),
+        batch_size=args.bs,
+        shuffle=True,
+        num_workers=0,
+    )
+    val_dl = DataLoader(
+        CueDS(val_items, make_tf(args.img_size, False), mask_dilate=args.mask_dilate),
+        batch_size=args.bs,
+        shuffle=False,
+        num_workers=0,
+    )
 
     model = smp.Unet(
         args.encoder,
@@ -214,7 +245,15 @@ def main():
         classes=len(CUE_CLASSES),
     ).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
-    bce = nn.BCEWithLogitsLoss()
+    if args.no_pos_weight:
+        pos_weight = None
+        bce = nn.BCEWithLogitsLoss()
+    else:
+        pos_weight = estimate_pos_weight(train_items, args.img_size, args.mask_dilate).to(dev).view(1, -1, 1, 1)
+        bce = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    print(f"mask_dilate: {args.mask_dilate}")
+    if pos_weight is not None:
+        print("pos_weight:", ", ".join(f"{x:.1f}" for x in pos_weight.flatten().detach().cpu().tolist()))
     best = -1.0
     metrics_rows = []
 
@@ -261,6 +300,8 @@ def main():
                 "encoder": args.encoder,
                 "encoder_weights": args.encoder_weights,
                 "weak_label_manifest": str(MANIFEST.relative_to(ROOT)),
+                "mask_dilate": args.mask_dilate,
+                "pos_weight": None if pos_weight is None else pos_weight.flatten().detach().cpu().tolist(),
                 "smoke": bool(args.smoke),
             }, model_out)
 
