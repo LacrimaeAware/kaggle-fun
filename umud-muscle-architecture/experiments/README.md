@@ -475,6 +475,46 @@ candidate CSV against the restored 0.61918 baseline. It should be treated as an 
 0.61918 submission. The next scale work is still the single-cue/fallback audit: right-ruler QA,
 14 `none` rows, and possibly tail-detector recovery.
 
+## exp21 - scale-tail recovery (`exp21_scale_tail_recovery.py`)  [diagnostic candidate only]
+
+Question: can we resolve the 14 remaining unscaled rows without target labels or global output means?
+
+Implementation: audit only rows where the production router returns `none`, plus QA the single-cue
+`right_ruler_5mm` family. The script writes:
+
+- `results/scale_tail_audit/none_rows.csv`
+- `results/scale_tail_audit/right_ruler_qa.csv`
+- `results/scale_tail_audit/none_overlays/*.jpg`
+- `results/scale_tail_audit/right_ruler_worst/*.jpg`
+- `results/submission_scale_tail.csv`
+- `results/submission_scale_tail_shape_only.csv`
+- `results/submission_scale_tail_bar_only.csv`
+
+Result:
+
+| item | value |
+| --- | ---: |
+| `none` rows audited | 14 |
+| Shape-neighbor recoveries | 10 |
+| Direct 3 cm scale-bar recoveries | 4 |
+| Rows left unresolved by exp21 | 0 |
+| Right-ruler rows audited | 87 |
+| Right-ruler review flags | 5 |
+| Right-ruler residual fraction p50 / p95 / max | 0.0037 / 0.0065 / 0.0068 |
+| All-tail candidate PA delta vs 0.61918 | 0 |
+| All-tail candidate MT changed rows | 14 |
+| All-tail candidate MT mean abs / max delta | 0.190 / 10.949 mm |
+| All-tail candidate FL mean abs / p95 / max delta | 1.269 / 1.038 / 42.991 mm |
+
+Read: this is the first genuinely non-trivial post-0.619 candidate found after the failed blend.
+It is not a mean trick: 10 rows borrow from stable same-shape neighbors (five matching reads in each
+shape group; spread 0.0% for the 853-high family and 0.59% for the small-crop family), and four
+800x1200 fallback rows expose a visible lower-right `3 cm` bar measured at 296 px = 98.667 px/cm.
+Risk is concentrated in the shape-neighbor rows that have no per-image tick cue; keep the overlay
+evidence visible and treat `submission_scale_tail.csv` as an isolated candidate, not a stacked
+submission. For cleaner probes, the script also writes split candidates for shape-only and bar-only
+recovery.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -491,11 +531,12 @@ evidence.
   candidate row-by-row against it before submitting.
 - Sub-pixel refinement is now wired as a gated precision pass and produces a tiny diagnostic
   candidate; do not stack it with other changes for a submission.
-- Scale cross-check is partly done: multi-cue families agree well; focus remaining scale work on the
-  single-cue `right_ruler_5mm` family and the 14 `none` rows.
+- Scale-tail recovery is now tested in `exp21`: all 14 former `none` rows have a structural candidate
+  (10 shape-neighbor, four visible 3 cm scale-bar), and right-ruler QA has five review rows but no
+  broad failure signal.
 - The blend is rejected as a submission default despite its local win.
-- Remaining no-submission work: two-cue scale-error bound, a visual audit of the 14 `none` scale rows,
-  and a classical orientation-correctness audit.
+- Remaining no-submission work: review the exp21 overlays, decide whether to wire/probe the isolated
+  scale-tail candidate, and build a classical orientation-correctness audit.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points

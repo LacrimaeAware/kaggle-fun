@@ -299,7 +299,10 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    independent rulers. `experiments/exp19_scale_crosscheck.py` started this: 114/309 images have
    two strict cues, and no pair class has >5% disagreement after sub-pixel refinement. The broad
    2x-router-failure hypothesis is weakened; remaining scale risk is concentrated in the single-cue
-   `right_ruler_5mm` family and the 14 `none` rows.
+   `right_ruler_5mm` family and the 14 `none` rows. `exp21_scale_tail_recovery.py` now turns those
+   14 rows into an isolated scale-tail candidate: 10 stable shape-neighbor recoveries and four
+   visible `3 cm` scale-bar recoveries, while right-ruler QA shows low residual fractions and five
+   review rows. The script writes all-tail plus split shape-only and bar-only candidate CSVs.
 2. **Prior/recentering audit.** The full clean score benefits from recentering FL to a known
    benchmark mean. The failed blend proves that this kind of local FL win can point in the wrong
    direction publicly. Mean matching is now an audit risk, not evidence.
@@ -337,9 +340,9 @@ assignments; keep their method names visible.
 2. Compare every candidate row-by-row against that baseline before any submission.
 3. Keep sub-pixel scale refinement isolated: `results/submission_subpixel_scale.csv` is a tiny
    precision candidate, not a stacked submission.
-4. Finish scale-risk narrowing: single-cue `right_ruler_5mm` QA plus recover/audit the 14 `none`
-   rows.
-5. Visual audit of the 14 `none` scale rows and weakest-coherence rows.
+4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
+   not stack it with sub-pixel or temporal smoothing for a probe.
+5. Visual audit of the weakest-coherence rows.
 6. Build a classical orientation-correctness audit before another FL-method submission.
 6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.

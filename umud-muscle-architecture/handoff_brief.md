@@ -151,6 +151,14 @@ whether to spend a submission.
      integer router). The diagnostic sub-pixel candidate changes FL by mean 0.094 mm and MT by mean
      0.024 mm versus the restored 0.61918 baseline. Treat it as an isolated precision candidate, not
      a stacked submission.
+   - Done in `experiments/exp21_scale_tail_recovery.py`: the 14 `none` rows now have a structural
+     candidate, still isolated. Ten rows use stable same-shape neighbor scale (853-high family and
+     small-crop family); four 800x1200 fallback rows expose a visible lower-right `3 cm` scale bar
+     measured at 296 px = 98.667 px/cm. `results/submission_scale_tail.csv` changes PA by 0, MT on
+     14 rows (mean abs 0.190 mm, max 10.949 mm), and FL broadly through recentering (mean abs
+     1.269 mm, max 42.991 mm). Right-ruler QA flags five rows for review but shows low residual
+     fractions overall (p95 0.0065). The script also writes split bar-only and shape-only candidate
+     CSVs so these two recovery ideas do not have to be probed together.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -196,6 +204,5 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: finish scale-risk narrowing
-on the single-cue/fallback rows, especially right-ruler QA and the 14 `none` rows, then build an
-independent orientation-correctness audit.
+not by a global mean or the 35-image FL score alone. Current next work: inspect/decide on the
+isolated exp21 scale-tail candidate, then build an independent orientation-correctness audit.
