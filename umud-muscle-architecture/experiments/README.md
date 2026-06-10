@@ -586,6 +586,45 @@ or row-weighted ensembling where the target row is accepted only when multiple i
 agree. The 4 visible-bar scale-tail rows remain policy-gated, and the 10 shape-neighbor rows are not
 accepted for metric pseudo-labeling even when their masks look usable.
 
+## exp24 - recentering and temporal-smoothing audit (`exp24_recenter_temporal_audit.py`)  [diagnostic]
+
+Question: is the production FL recentering step a hidden confounder, and how large is a clean
+temporal-only candidate relative to the protected 0.61918 baseline?
+
+Implementation: treat `results/submission_local.csv` as the protected baseline and never overwrite
+it. Reconstruct the no-recenter FL column from `results/calibration_measurement_debug.csv`, verify
+that recentering that same cached debug output reproduces the protected baseline, then write a
+separate temporal-smoothing candidate. Outputs:
+
+- `results/recenter_temporal_audit/submission_no_recenter_from_debug.csv`
+- `results/recenter_temporal_audit/submission_debug_recentered_to_prior.csv`
+- `results/recenter_temporal_audit/submission_temporal_smooth_thr_0.92.csv`
+- `results/recenter_temporal_audit/summary.csv`
+- `results/recenter_temporal_audit/row_diffs.csv`
+- `results/recenter_temporal_audit/clip_summary.csv`
+
+Result:
+
+| item | value |
+| --- | ---: |
+| Protected baseline equals downloaded 0.61918 file | true |
+| Debug raw FL mean before recentering | 91.596 mm |
+| Protected baseline FL mean after recentering | 74.450 mm |
+| Debug recentered vs baseline mean abs / max FL delta | 0.00019 / 0.001 mm |
+| No-recenter FL changed rows | 308/309 |
+| No-recenter mean abs / p95 / max FL delta | 17.147 / 26.233 / 30.206 mm |
+| No-recenter mean normalized row movement | 0.476 |
+| Temporal-smoothed clips at threshold 0.92 | 28 clips, 140 frames |
+| Temporal-only mean normalized row movement | 0.020 |
+| Temporal-only changed rows PA / FL / MT | 111 / 112 / 108 |
+| Temporal-only mean abs deltas PA / FL / MT | 0.058 deg / 0.397 mm / 0.050 mm |
+
+Read: recentering is not a small decoration; it is a dominant hidden assumption in the current
+0.61918 file. But because the protected 0.61918 score already includes it, this audit is not an
+argument to remove it blindly. It is an argument to keep every future FL candidate isolated and to
+report whether its apparent effect is direct or recenter-ripple. Temporal smoothing is much smaller,
+cleanly isolated, and plausible as a low-risk probe only after deciding to spend a submission.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -610,9 +649,11 @@ evidence.
   and no flags in right-ruler or former `none` rows.
 - Gated pseudo-labeling is now tested in `exp23`: 273/309 rows pass mask-level gates, 263/309 pass
   strict metric pseudo-label gates, and 267/309 pass if the visible-bar scale policy is allowed.
-- Remaining no-submission work: use the exp23 manifest to build a conservative self-training or
-  robust-ensemble experiment, and separately decide whether the 4-row bar-only scale-tail probe is
-  worth one isolated submission.
+- Recenter/temporal audit is now tested in `exp24`: removing FL recentering would move 308/309 rows
+  by mean 17.147 mm, while temporal-only smoothing moves much less (mean normalized row movement
+  0.020).
+- Remaining no-submission work: build the reference error-budget adapter, then use the exp23
+  manifest only after recentering and term-level ownership are understood.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points

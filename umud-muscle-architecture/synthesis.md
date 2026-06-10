@@ -327,6 +327,11 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    a target-row manifest: 273/309 rows pass mask-level gates, 263/309 pass strict metric pseudo-label
    gates, and 267/309 pass if the visible-bar scale-tail policy is allowed. This is the right input
    for self-training or conservative ensembling; it is not a submission by itself.
+5. **Recenter/temporal audit.** `experiments/exp24_recenter_temporal_audit.py` shows the current FL
+   recentering is a large hidden assumption: removing it moves 308/309 rows by mean 17.147 mm.
+   Cached debug recentering reconstructs the protected 0.61918 baseline, so this is a meaningful
+   ablation. Temporal-only smoothing is much smaller (28 clips, 140 frames, mean normalized movement
+   0.020) and should be treated as an isolated probe candidate, not a proven fix.
 
 ### What not to do
 
@@ -347,8 +352,9 @@ assignments; keep their method names visible.
    precision candidate, not a stacked submission.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
-5. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
-6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
+5. Run the reference error-budget adapter before pseudo-label export.
+6. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
+7. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.
 ```
 

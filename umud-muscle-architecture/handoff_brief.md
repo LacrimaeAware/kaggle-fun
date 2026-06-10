@@ -170,6 +170,11 @@ whether to spend a submission.
      support/count, and scale tier. Results: 273/309 rows pass mask-level gates; 263/309 pass strict
      metric pseudo-label gates; 267/309 pass if the visible-bar scale-tail policy is allowed. This
      is not a submission CSV.
+   - Done in `experiments/exp24_recenter_temporal_audit.py`: protected-baseline audit for FL
+     recentering and temporal smoothing. Cached debug recentering reconstructs the protected 0.61918
+     baseline almost exactly (mean abs FL delta 0.00019 mm), so the no-recenter audit is meaningful:
+     removing recentering moves 308/309 rows by mean 17.147 mm. Temporal-only smoothing at 0.92 finds
+     28 clips covering 140 frames and has much smaller row movement (mean normalized movement 0.020).
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -215,6 +220,7 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: decide whether the 4-row
-bar-only scale-tail probe is worth one isolated submission; otherwise keep working offline from the
-exp23 pseudo-label manifest.
+not by a global mean or the 35-image FL score alone. Current next work: build the reference
+error-budget adapter and decide whether temporal-only smoothing or the 4-row bar-only scale-tail
+probe is worth an isolated submission. Keep pseudo-label export behind recentering and error-budget
+attribution.
