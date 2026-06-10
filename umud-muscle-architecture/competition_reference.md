@@ -26,6 +26,12 @@ threads (captured 2026-06-09). Where a fact changes what we should DO, it is fla
   validation counts as external data and should be declared in the writeup. We do **not** label the
   309 test images. **ACTION:** if we submit, declare "published UMUD expert benchmark used for local
   validation only; test set not labeled."
+- **Public external data and pretrained models are allowed if equally accessible.** The rules allow
+  external data/models unless the host specifically prohibits them, provided they are public,
+  reasonably accessible, minimal/no cost for all participants, and declared/reproducible. This means
+  rules-clean public UMUD/OSF benchmark data, public training data, and public pretrained reference
+  weights can be used in a controlled branch. The real prohibitions are private sharing, private or
+  costly/non-reproducible assets, and hand-labeling/predicting the hidden validation/test records.
 - **Reproducibility:** a runnable notebook/repo must be shared; the *whole pipeline* is evaluated, not
   just the leaderboard number. A high score from a non-reproducible pipeline does not win.
 - Classic CV and DL are both allowed. The provided training labels may or may not be used.

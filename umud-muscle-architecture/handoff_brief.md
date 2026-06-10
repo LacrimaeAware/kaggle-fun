@@ -225,7 +225,8 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: resolve the external
-data/rules question, then decide whether the next action is a rules-legal ensemble/external-data
-training run, a temporal-only probe, a 4-row bar-only scale-tail probe, or continued offline
-pseudo-label export.
+not by a global mean or the 35-image FL score alone. The external-data rules question is now read as
+settled: public/free/equally accessible external data and models are allowed if declared and
+reproducible; private sharing and hand-labeling target records are not. Current next work: inventory
+the public reference assets and prepare a controlled external/ensemble branch, while keeping
+temporal-only and 4-row bar-only as isolated small-probe options.

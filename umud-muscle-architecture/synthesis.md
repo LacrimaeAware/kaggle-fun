@@ -358,9 +358,11 @@ assignments; keep their method names visible.
    precision candidate, not a stacked submission.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
-5. Resolve the external-data/rules question before planning a larger training run.
-6. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
-7. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
+5. Treat public/free/equally accessible external data and models as rules-clean if declared and
+   reproducible; do not use private assets or hand-labeled target records.
+6. Inventory the public reference assets and prepare a controlled external/ensemble branch.
+7. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
+8. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.
 ```
 
