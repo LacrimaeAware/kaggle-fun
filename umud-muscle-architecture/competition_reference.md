@@ -169,6 +169,14 @@ results/calibration_qa/).
 
 ## 9. Test-set leakage discussion and our stance
 
+- This is not a purely theoretical concern. Public discussion/reference notes include a participant
+  manually analyzing the test set and reaching **0.45871** public LB, and host/forum clarifications
+  make clear that labels, manual analysis, and the final architecture estimates are distinct things.
+  This matters scientifically: a human-in-the-loop oracle can be a strong diagnostic, and it explains
+  why the "can we supervise this?" question keeps coming back.
+- The compliance question is separate from the diagnostic question. Kaggle foundational rule 3.4.b is
+  the hard written constraint; forum/social reality does not erase it for a prize-eligible
+  submission.
 - Kaggle foundational rule 3.4.b says submissions may not use or incorporate information from
   **hand labeling or human prediction of validation/test data records**. Therefore: do not manually
   annotate the 309 target images and use those annotations in any submission path.
@@ -176,6 +184,10 @@ results/calibration_qa/).
   competition-specific external-data rule, provided they are declared and reproducible. This covers
   the downloaded public DL-Track/OSF-style image/mask assets and pretrained weights; it does **not**
   convert hand-labeled target records into a safe training set.
+- Visual inspection remains allowed as engineering QA only if it does not become row-level labels,
+  filters, corrections, or model-selection decisions for the target records. The moment a human
+  right/wrong judgment changes training data, row acceptance, or submitted values, we should treat it
+  as human prediction of test records.
 - Code-generated pseudo-labels are the safe bridge: deterministic detectors can produce reproducible
   weak labels from target images, but those labels must not be hand-corrected before use in a
   submission.

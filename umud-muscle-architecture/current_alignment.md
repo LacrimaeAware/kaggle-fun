@@ -20,6 +20,26 @@ candidate?
 - The user cares about the score first. A method can be intellectually satisfying and still not be
   the next score-moving bet.
 
+## Oracle / Creator-Discussion Correction
+
+The earlier alignment note underweighted the creator/forum context. The actual situation is more
+nuanced than "oracle bad":
+
+- Human-in-the-loop target analysis is a powerful diagnostic. Public notes include a participant
+  manually analyzing the test records and scoring around 0.459, so an oracle-style process can
+  absolutely expose what the automated system is missing.
+- The host/forum context also makes clear that masks, manual analysis, and final measurements are
+  not identical. A human label still needs a reproducible measurement pipeline, and expert variation
+  remains.
+- But for our own submission path, the written Kaggle rule still matters: submissions may not
+  incorporate information from hand labeling or human prediction of validation/test records.
+
+Operational stance: the user may look at overlays to understand the method, but we should not turn
+their per-image right/wrong judgments into training labels, row filters, corrections, thresholds, or
+submitted values for the 309 target records. If a human judgment changes the target-row output path,
+we treat it as unsafe. If public/external training records are labeled, or code generates target
+pseudo-labels reproducibly, that remains in-bounds if declared.
+
 ## What Is Stale Or Superseded
 
 - "Run the error budget" is done. `exp25_reference_error_budget_adapter.py` built the adapter. With

@@ -225,7 +225,8 @@ whether to spend a submission.
 - No manual labeling or human prediction of the validation/test records for any submission path.
   Public/free/equally accessible external data and models are allowed if declared and reproducible.
   Code-generated pseudo-labels on target images must remain reproducible and must not be
-  hand-corrected.
+  hand-corrected. Visual/oracle review can be used to understand failures, but not to create
+  target-row labels, filters, corrections, or submitted values.
 - Public GitHub repo (github.com/LacrimaeAware/kaggle-fun): no secrets, no personal data, no
   Co-Authored-By trailer. Do not submit without explicit say-so. Local AMD 5700 XT cannot train on
   Py3.13 (no torch-directml); CPU training works but is slow; Kaggle GPU is the training path.
