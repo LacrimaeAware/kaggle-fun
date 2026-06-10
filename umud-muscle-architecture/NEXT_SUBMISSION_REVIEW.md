@@ -2,7 +2,8 @@
 
 Date: 2026-06-10
 
-This is the current handoff after the MT vertical-3 Kaggle submission.
+This is the current handoff after the MT vertical-3 and bar-only scale-tail Kaggle submissions.
+For the concise current state, read `STATE_RESET_2026-06-10.md`.
 
 ## Public Result
 
@@ -15,6 +16,15 @@ Public score: **0.62561**
 Known better anchor: **0.61918** from `results/submission_local.csv`
 
 Decision: **reject MT vertical-3**. Do not resubmit it and do not stack anything on top of it.
+
+Second submitted file after this note:
+
+`results/submission_scale_tail_bar_only.csv`
+
+Public score: **0.66711**
+
+Decision: **reject bar-only scale tail**. Do not resubmit bar-only, shape-only, or all-tail without a
+new verified reason.
 
 ## What It Tested
 
@@ -58,7 +68,7 @@ Read: the reference-set MT improvement did not transfer. The hidden labels are c
 center/perpendicular MT path, or this vertical-3 implementation does not match the host procedure
 well enough to help. Either way, revert to `results/submission_local.csv` as the anchor.
 
-## Scale Tail Is Still Separate
+## Scale Tail Is Rejected As A Probe
 
 The tail idea is real scale work, but it is not a harmless add-on. It recovers scale for the 14 rows
 left unscaled by the production router, split into:
@@ -75,22 +85,25 @@ Movement versus the restored 0.619 baseline:
 | `submission_scale_tail.csv` | 0 | 307 | 14 | 1.2693 mm | 42.991 mm | 0.1900 mm | 10.949 mm |
 
 The direct scale corrections are only on 4, 10, or 14 rows, but FL recentering causes 307 FL rows to
-move. That makes the candidate much harder to interpret than MT vertical-3. If it scores worse, we
-would not know whether the problem was the bar rows, borrowed shape scale, or FL recenter ripple.
+move. That makes the candidate much harder to interpret than MT vertical-3. The bar-only public
+failure cannot distinguish whether the problem was the bar rows, borrowed scale assumptions, or FL
+recenter ripple.
+
+The bar-only file was submitted after this analysis and scored **0.66711**, much worse than 0.61918.
+So the tail path is no longer the next probe. Treat it as rejected unless a future audit finds a real
+bug in how it was generated.
 
 Reviewer read:
 
 - Do not stack any scale-tail file with the rejected MT vertical-3 candidate.
 - Revert to `results/submission_local.csv` as the anchor.
-- If spending another clean submission, use `results/submission_scale_tail_bar_only.csv` as a separate
-  scale probe. The bar-only path has visible per-image scale evidence. Shape-neighbor scale is weaker
-  and should remain later.
+- Do not submit bar-only, shape-only, or all-tail again without new evidence.
 
 ## Current Remaining Paths
 
 1. Treat `submission_host_mt_vertical3_no_subpixel.csv` as rejected.
 2. Keep `results/submission_local.csv` / public **0.61918** as the anchor.
-3. If submitting another isolated probe, use `submission_scale_tail_bar_only.csv`.
-4. Keep `submission_scale_tail_shape_only.csv` and all-tail as later/riskier probes.
+3. Treat `submission_scale_tail_bar_only.csv` as rejected.
+4. Stop isolated CSV probes until there is a new validation signal or verified bug fix.
 5. Continue no-oracle model work through public-asset retraining/ensembling or ROI/crop cue
    detection, but do not confuse those with the immediate submission.

@@ -1,7 +1,10 @@
 # UMUD handoff brief (for a collaborating model)
 
 Current-state briefing so another model can get caught up and extend or cross-check this work.
-Read it with the canonical docs at the end. Last substantive update: 2026-06-09.
+Read it with the canonical docs at the end. Last substantive update: 2026-06-10.
+
+**Read first:** `STATE_RESET_2026-06-10.md`. Best public score remains 0.61918. Post-best probes
+failed: FL blend 0.63905, MT vertical-3 0.62561, and bar-only scale-tail 0.66711.
 
 ## The competition
 
@@ -20,7 +23,8 @@ angle PA (deg), fascicle length FL (mm), muscle thickness MT (mm). One row per i
 ## Where we stand (2026-06-09)
 
 - Best **submitted** public LB: **0.61918** (rank #7 at the time). A later FL-blend probe
-  worsened to about **0.64**. The downloaded `0P61918_submission_local.csv` has been restored on
+  worsened to about **0.64**. Later MT vertical-3 and bar-only scale-tail probes worsened to
+  **0.62561** and **0.66711**. The downloaded `0P61918_submission_local.csv` has been restored on
   disk as `results/submission_local.csv` and is byte/data-identical to that known better file.
   Older docs that say `1.09194` are pre-scale-router history.
 - Leaderboard leader **0.378**; provided DL-Track benchmark **0.679**; a careful BY-HAND human
@@ -255,16 +259,17 @@ public/free/equally accessible external data and models are allowed if declared 
 host also permits target-record labeling/fine-tuning as declared external data, but that is a separate
 human-in-loop strategy, not the current default.
 
-Rejected no-oracle submission candidate: `results/submission_host_mt_vertical3_no_subpixel.csv`.
-It changed only MT versus the restored 0.619 baseline (PA 0 rows, FL 0 rows, MT 285 rows; mean abs
-MT movement 0.0646 mm, max 1.471 mm). It improved the 35-reference score 0.2274 -> 0.2192, but the
-public LB worsened **0.61918 -> 0.62561**, so reject it and return to `results/submission_local.csv`
-as the anchor. Do **not** submit the FL low-extrapolation top-3 candidate: it worsened the local FL
-term 0.3528 -> 0.3668. Also do **not** stack scale-tail into the rejected MT submission. Tail is a
-separate scale probe: all-tail moves FL on 307 rows through recentering and has max FL movement
-~43 mm, so it would confound the clean MT test. If spending another isolated submission, the next
-tail probe should be the four-row `results/submission_scale_tail_bar_only.csv`; shape-only and
-all-tail are riskier later probes.
+Rejected no-oracle submission candidates:
+
+- `results/submission_host_mt_vertical3_no_subpixel.csv`: changed only MT and worsened public LB
+  **0.61918 -> 0.62561**.
+- `results/submission_scale_tail_bar_only.csv`: changed four direct scale rows plus FL recenter
+  ripple and worsened public LB **0.61918 -> 0.66711**.
+- FL low-extrapolation top-3: local negative; do not submit.
+
+Return to `results/submission_local.csv` as the anchor. Do not submit bar-only, shape-only, all-tail,
+MT vertical-3, or FL blend again without new evidence. Stop isolated CSV probes until there is a
+verified bug fix, a declared human-in-loop validation/tuning path, or a substantial model branch.
 
 Reviewer handoff with the public result: `NEXT_SUBMISSION_REVIEW.md`.
 

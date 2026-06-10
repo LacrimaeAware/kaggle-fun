@@ -171,6 +171,9 @@ results/calibration_qa/).
   the host's straight-line left/middle/right description, but worsened public LB **0.61918 ->
   0.62561** while PA/FL were unchanged. So the old center/perpendicular MT path remains the
   submission anchor.
+- The rejected bar-only scale-tail probe worsened public LB **0.61918 -> 0.66711**. It directly
+  rescaled four fallback rows and also moved FL broadly through recentering. Do not treat remaining
+  tail-scale visual plausibility as submission evidence.
 - Read: our measurement, given clean true scale, is strong. The remaining hidden-LB gap needs
   target-set error attribution (scale disagreement, prior/recentering sensitivity, temporal
   consistency, and FL/orientation correctness), not another guessed bottleneck.

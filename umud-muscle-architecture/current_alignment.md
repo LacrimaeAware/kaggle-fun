@@ -2,6 +2,10 @@
 
 Date: 2026-06-10
 
+**Current front door:** `STATE_RESET_2026-06-10.md`. It records the post-0.619 submission failures:
+FL blend 0.63905, MT vertical-3 0.62561, and bar-only scale-tail 0.66711. The best anchor remains
+`results/submission_local.csv` at 0.61918.
+
 This note reconciles the pasted cross-model review with the work now in the repo. It is meant to
 answer: what are we doing next, what is stale, and what should not be confused for a submission
 candidate?
@@ -103,11 +107,11 @@ The score-first path is no longer more scale polishing. The current ranking is:
 3. Do not submit the FL low-extrapolation top-3 candidate. It was a good structural hypothesis but
    worsened the local FL term (0.3528 -> 0.3668).
 4. Do not stack scale-tail into the rejected MT candidate. The tail files are real scale probes, but
-   they move FL on 307 rows through recentering and should be tested separately.
+   they move FL on 307 rows through recentering. The bar-only split was submitted and worsened public
+   LB 0.61918 -> **0.66711**, so tail is rejected as the next-probe path.
 5. Read `NEXT_SUBMISSION_REVIEW.md` before asking another model to verify the current submission.
-6. If spending another isolated submission, use `results/submission_scale_tail_bar_only.csv` as a
-   scale-tail probe. It is riskier than the MT probe but narrower than all-tail and has visible
-   per-image scale evidence on the four direct rows.
+6. Stop isolated CSV probes until there is either a verified bug fix, a declared human-in-loop
+   validation/tuning path, or a substantial model branch.
 7. Use exp29 only as a disagreement audit for the router, not as production logic.
 8. Move the main score effort to measurement/model quality:
    - controlled public-asset retraining or fold/seed ensembling,
@@ -122,6 +126,7 @@ The score-first path is no longer more scale polishing. The current ranking is:
   run is no-oracle. If we choose that route, call it declared human-in-loop external data and document
   it.
 - Do not submit MT vertical-3 again.
+- Do not submit bar-only, shape-only, or all-tail scale-tail again without new evidence.
 - Do not submit cue-model output.
 - Do not submit FL low-extrapolation top-3.
 - Do not submit another reference-mean or local-FL win without structural evidence.

@@ -1,7 +1,8 @@
 # UMUD synthesis: goals, intuitions, problems, and the plan
 
 This is the single canonical document for the UMUD work as of the `0.61918` baseline and the failed
-`~0.64` blend probe plus the failed `0.62561` MT vertical-3 probe. It folds in
+post-best probes: `~0.64` FL blend, `0.62561` MT vertical-3, and `0.66711` bar-only scale tail. It
+folds in
 the scattered planning notes (Codex's `codex_review.md`, `forward_plan.md`,
 `ranked_research_directions.md`) and the conversation that produced them. It is written to keep
 the original intuitions intact rather than reduce them to standard method names. The document
@@ -11,9 +12,10 @@ map at the end says what every other file is for.
 > Current best submitted public LB is **0.61918**. A later 50/50 FL blend worsened to about **0.64**
 > while leaving PA and MT identical, so the blend is rejected as a submission default. A later MT
 > vertical-3 probe improved the local benchmark but worsened public LB to **0.62561**, so the old
-> MT path remains the anchor. The current scale router reads **295/309** target images; the default
-> full 35-expert local harness is **0.2274** with fragment-only FL (`UMUD_FL_IDENTITY_BLEND=0`). The
-> domain-gap/augmentation-first
+> MT path remains the anchor. A later bar-only scale-tail probe worsened public LB to **0.66711**,
+> so tail probes are rejected without new evidence. The current scale router reads **295/309** target
+> images; the default full 35-expert local harness is **0.2274** with fragment-only FL
+> (`UMUD_FL_IDENTITY_BLEND=0`). The domain-gap/augmentation-first
 > hypothesis was tested on real train-vs-target frames and demoted. Read **`handoff_brief.md`** first
 > for the tight operational state. The intuitions here (scene-reading, path geometry, the fascicle
 > bottleneck) still matter.
@@ -59,6 +61,7 @@ image -> segment aponeuroses + fascicles -> fit geometry -> compute PA/FL/MT -> 
 | Current best submitted public LB | **0.61918** | restored safe baseline; scale router + real FL/MT moved us past DL-Track benchmark |
 | Rejected blend probe | ~0.64 | changed FL only; PA/MT identical to 0.61918 file |
 | Rejected MT vertical-3 probe | **0.62561** | changed MT only; local MT improvement did not transfer |
+| Rejected bar-only scale-tail probe | **0.66711** | four direct scale rows plus FL recenter ripple; visual tail cue did not transfer |
 | Provided DL-Track benchmark | 0.679 | public reference pipeline on the hidden test |
 | Public leader (sugopoko/sugupoko) | 0.378 | UMUD solution not published |
 | By-hand human public baseline | 0.459 | third-party manual test-set analysis, declared external/manual |
@@ -384,8 +387,8 @@ score-moving path unless it exposes a concrete router failure.
 2. Compare every candidate row-by-row against that baseline before any submission.
 3. Keep sub-pixel scale refinement isolated: `results/submission_subpixel_scale.csv` is a tiny
    precision candidate, not a stacked submission.
-4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
-   not stack it with sub-pixel or temporal smoothing for a probe.
+4. Treat exp21 scale-tail submission variants as rejected unless a new audit finds a real bug. The
+   bar-only split worsened public LB to 0.66711; do not stack it with anything.
 5. Treat public/free/equally accessible external data and models as rules-clean if declared and
    reproducible. Treat hand-labeled target records as a host-sanctioned declared-external-data option,
    but keep it separate from the automated/no-oracle track unless the user explicitly chooses it.

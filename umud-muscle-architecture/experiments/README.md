@@ -475,7 +475,7 @@ candidate CSV against the restored 0.61918 baseline. It should be treated as an 
 0.61918 submission. The next scale work is still the single-cue/fallback audit: right-ruler QA,
 14 `none` rows, and possibly tail-detector recovery.
 
-## exp21 - scale-tail recovery (`exp21_scale_tail_recovery.py`)  [diagnostic candidate only]
+## exp21 - scale-tail recovery (`exp21_scale_tail_recovery.py`)  [rejected candidate]
 
 Question: can we resolve the 14 remaining unscaled rows without target labels or global output means?
 
@@ -506,14 +506,16 @@ Result:
 | All-tail candidate MT mean abs / max delta | 0.190 / 10.949 mm |
 | All-tail candidate FL mean abs / p95 / max delta | 1.269 / 1.038 / 42.991 mm |
 
-Read: this is the first genuinely non-trivial post-0.619 candidate found after the failed blend.
-It is not a mean trick: 10 rows borrow from stable same-shape neighbors (five matching reads in each
-shape group; spread 0.0% for the 853-high family and 0.59% for the small-crop family), and four
+Read before submission: this looked like the first genuinely non-trivial post-0.619 candidate after
+the failed blend. It was not a mean trick: 10 rows borrow from stable same-shape neighbors, and four
 800x1200 fallback rows expose a visible lower-right `3 cm` bar measured at 296 px = 98.667 px/cm.
-Risk is concentrated in the shape-neighbor rows that have no per-image tick cue; keep the overlay
-evidence visible and treat `submission_scale_tail.csv` as an isolated candidate, not a stacked
-submission. For cleaner probes, the script also writes split candidates for shape-only and bar-only
-recovery.
+The script wrote split candidates for shape-only and bar-only recovery so the assumptions did not
+have to be stacked.
+
+Public result: the narrow `submission_scale_tail_bar_only.csv` split was submitted and worsened
+public LB **0.61918 -> 0.66711**. Reject bar-only and do not submit shape-only or all-tail without a
+new verified bug fix. The lesson is that visually plausible fallback scale recovery is not enough;
+the baseline fallback/prior can be less wrong than a bad tail scale.
 
 ## exp22 - raw-support orientation audit (`exp22_orientation_raw_support.py`)  [diagnostic]
 
@@ -874,13 +876,12 @@ evidence.
   classes, especially left/right rulers, but not good enough to replace the deterministic router.
 - `exp30` tests host-protocol measurement alignment. FL low-extrapolation top-3 is rejected locally;
   MT vertical-3 is now rejected publicly (0.61918 -> 0.62561).
-- Tail recovery should not be stacked into the rejected MT vertical-3 submission.
-  `submission_scale_tail.csv` moves FL on 307 rows via recentering, so it confounds the clean MT
-  test. If spending another isolated submission, the next tail probe should be
-  `submission_scale_tail_bar_only.csv`; keep shape-only and all-tail later/riskier.
+- Tail recovery is now rejected as a submission probe: `submission_scale_tail_bar_only.csv` worsened
+  public LB 0.61918 -> 0.66711. Do not submit bar-only, shape-only, or all-tail without new evidence.
 - Reviewer handoff with public result: `NEXT_SUBMISSION_REVIEW.md`.
-- Remaining no-submission work: choose between controlled public-asset retraining/ensembling,
-  scale-cue detector training from exp26 weak labels, temporal-only, or isolated bar-only probing.
+- Remaining work: stop isolated CSV probes and choose between controlled public-asset
+  retraining/ensembling, declared human-in-loop validation/tuning, or scale-cue/ROI models used for
+  QA rather than direct submission.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points

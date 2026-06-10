@@ -3,7 +3,8 @@
 > **Archive note (2026-06-09):** this brief predates the scale-router and real-domain-probe pivot.
 > Current state: public LB 0.61918 restored baseline, scale router 295/309, rejected FL blend
 > regressed to ~0.64, rejected MT vertical-3 regressed to 0.62561, and augmentation/domain-adaptation
-> retraining demoted. Read `handoff_brief.md` first.
+> retraining demoted. Rejected bar-only scale-tail regressed to 0.66711. Read
+> `STATE_RESET_2026-06-10.md` first.
 
 Public-safe working brief for the UMUD Challenge: Muscle Architecture in Ultrasound Data.
 
