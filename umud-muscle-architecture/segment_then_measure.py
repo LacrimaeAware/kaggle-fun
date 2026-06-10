@@ -82,10 +82,13 @@ USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated 
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), fallback when no fragment
 USE_FRAGMENT_FL = os.environ.get("UMUD_FRAGMENT_FL", "1") != "0"  # FL from fascicle fragment extrapolated to apo lines; beats identity once apo inner-edge is fixed (0.481->0.353 on the 35 experts)
 FL_IDENTITY_BLEND = float(os.environ.get("UMUD_FL_IDENTITY_BLEND", "0"))  # keep fragment-only FL by default; blend=.5 looked better locally but regressed public LB 0.61918->~0.64
+FL_FRAGMENT_MODE = os.environ.get("UMUD_FL_FRAGMENT_MODE", "median").lower()  # median | min_extrap_top3 | visibility_weighted
+FL_FRAGMENT_TOPK = int(os.environ.get("UMUD_FL_FRAGMENT_TOPK", "3"))  # host protocol uses 3 manually selected low-extrapolation structures
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT between bands' muscle-facing INNER edges, not centroids (exp14: MT-term 0.49->0.18)
+MT_MODE = os.environ.get("UMUD_MT_MODE", "perp_center").lower()    # perp_center | vertical_3 (host straight-line left/mid/right approximation)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
@@ -405,6 +408,48 @@ def line_intersection(a, b):
     return float(x), float(line_y(a, x))
 
 
+def fragment_visible_length(xs, ys, slope):
+    """Length of the observed component projected onto its fitted axis."""
+    xs = np.asarray(xs, dtype=float)
+    ys = np.asarray(ys, dtype=float)
+    ux = 1.0 / np.sqrt(1.0 + slope * slope)
+    uy = slope * ux
+    proj = xs * ux + ys * uy
+    return float(np.ptp(proj)) if len(proj) else 0.0
+
+
+def aggregate_fragment_fl(fragment_rows):
+    """Aggregate extrapolated spans from accepted fragments."""
+    valid = [r for r in fragment_rows if r.get("fl") is not None and 10.0 <= r["fl"] <= 4000.0]
+    if not valid:
+        return None, None, 0
+
+    median_fl = float(np.median([r["fl"] for r in valid]))
+    mode = FL_FRAGMENT_MODE
+    if mode == "median":
+        return median_fl, median_fl, len(valid)
+
+    if mode in {"min_extrap_top3", "host_top3", "top3_min_extrap"}:
+        topk = max(1, FL_FRAGMENT_TOPK)
+        ranked = sorted(
+            valid,
+            key=lambda r: (r["visible_frac"], r["visible_len"], r["area"]),
+            reverse=True,
+        )
+        chosen = ranked[:min(topk, len(ranked))]
+        return float(np.median([r["fl"] for r in chosen])), median_fl, len(chosen)
+
+    if mode == "visibility_weighted":
+        vals = np.asarray([r["fl"] for r in valid], dtype=float)
+        wts = np.asarray(
+            [max(1.0, r["area"]) * max(0.05, r["visible_frac"]) ** 2 for r in valid],
+            dtype=float,
+        )
+        return float(weighted_median(vals, wts)), median_fl, len(valid)
+
+    return median_fl, median_fl, len(valid)
+
+
 def measure(apo_mask, fasc_mask):
     """Return PA plus pixel-space FL/MT geometry, or None if aponeurosis geometry fails."""
     apo_mask = np.ascontiguousarray(apo_mask, np.uint8)
@@ -435,12 +480,24 @@ def measure(apo_mask, fasc_mask):
     deep = fit[1]  # bands were ordered superficial-then-deep above
     deep_s = deep[0]
     x_center = apo_mask.shape[1] / 2.0
-    mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
+    if MT_MODE in {"vertical_3", "host_vertical_3"}:
+        sup_xs = band_info[0][1]
+        deep_xs = band_info[1][1]
+        x_min = max(float(np.min(sup_xs)), float(np.min(deep_xs)))
+        x_max = min(float(np.max(sup_xs)), float(np.max(deep_xs)))
+        if x_max - x_min >= 12:
+            xs_mt = np.linspace(x_min, x_max, 5)[1:4]
+        else:
+            xs_mt = np.asarray([x_center])
+        mt_px = float(np.mean([abs(line_y(deep, x) - line_y(superficial, x)) for x in xs_mt]))
+    else:
+        mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
 
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
-    angs, fls, wts = [], [], []
+    angs, wts, fragment_rows = [], [], []
     for i in range(1, nf):
-        if statsf[i, 4] < FASC_MIN_AREA:
+        area = int(statsf[i, 4])
+        if area < FASC_MIN_AREA:
             continue
         ys, xs = np.where(labf == i)
         if len(xs) < 8:
@@ -457,11 +514,17 @@ def measure(apo_mask, fasc_mask):
             fl = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
         if FASC_MIN_ANG <= a <= 75:
             angs.append(a)
-            wts.append(int(statsf[i, 4]))  # weight by fragment size (exp05: sharpens PA)
+            wts.append(area)  # weight by fragment size (exp05: sharpens PA)
             if fl is not None and 10.0 <= fl <= 4000.0:
-                fls.append(fl)
+                visible_len = fragment_visible_length(xs, ys, fs)
+                fragment_rows.append({
+                    "fl": fl,
+                    "area": area,
+                    "visible_len": visible_len,
+                    "visible_frac": float(np.clip(visible_len / (fl + 1e-9), 0.0, 1.0)),
+                })
     pa_deg = weighted_median(angs, wts) if angs else None
-    fl_fragment_px = float(np.median(fls)) if fls else None
+    fl_fragment_px, fl_fragment_median_px, fl_fragment_n = aggregate_fragment_fl(fragment_rows)
     fl_identity_px = None
     if angs:
         pa_gated = mad_gated_weighted_mean(angs, wts)
@@ -477,6 +540,8 @@ def measure(apo_mask, fasc_mask):
         "pa_deg": pa_deg,
         "fl_px": fl_px,
         "fl_fragment_px": fl_fragment_px,
+        "fl_fragment_median_px": fl_fragment_median_px,
+        "fl_fragment_n": fl_fragment_n,
         "fl_identity_px": fl_identity_px,
         "mt_px": float(mt_px),
         "n_fascicles": len(angs),
@@ -557,7 +622,8 @@ def main():
     if (USE_CALIBRATED_MT or USE_CALIBRATED_FL) and not CALIBRATION_AVAILABLE:
         print(f"calibration unavailable: {CALIBRATION_IMPORT_ERROR}", flush=True)
     print(f"calibrated MT: {USE_CALIBRATED_MT}, calibrated FL: {USE_CALIBRATED_FL}, "
-          f"min calibration confidence: {CALIBRATION_MIN_CONF}", flush=True)
+          f"min calibration confidence: {CALIBRATION_MIN_CONF}, "
+          f"fl_mode: {FL_FRAGMENT_MODE}, mt_mode: {MT_MODE}", flush=True)
 
     rows, calib_rows, ok, mt_ok, fl_ok = [], [], 0, 0, 0
     fps = []
@@ -616,6 +682,9 @@ def main():
             "pa_deg": pa,
             "fl_px": geom["fl_px"] if geom else None,
             "mt_px": geom["mt_px"] if geom else None,
+            "fl_fragment_mode": FL_FRAGMENT_MODE,
+            "fl_fragment_median_px": geom.get("fl_fragment_median_px") if geom else None,
+            "fl_fragment_n": geom.get("fl_fragment_n") if geom else None,
             "fl_mm": fl_mm,
             "mt_mm": mt_mm,
         })

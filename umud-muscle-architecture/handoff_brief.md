@@ -222,11 +222,14 @@ whether to spend a submission.
 
 - The artifact that matters is the thinking and writeup, not the rank. Claims proportional to
   evidence; label hypotheses; cite or drop.
-- No manual labeling or human prediction of the validation/test records for any submission path.
-  Public/free/equally accessible external data and models are allowed if declared and reproducible.
-  Code-generated pseudo-labels on target images must remain reproducible and must not be
-  hand-corrected. Visual/oracle review can be used to understand failures, but not to create
-  target-row labels, filters, corrections, or submitted values.
+- Corrected oracle policy from host discussion: human-created labels or right/wrong judgments on the
+  309 test records are not automatically forbidden in this competition; the host describes that as
+  external data that must be declared, with the whole code pipeline evaluated for reproducibility.
+  Therefore there are two valid modes. In automated/no-oracle mode, use public assets, public
+  benchmark data, and code-generated pseudo-labels only, with no hand correction. In declared
+  human-in-loop mode, log the labeling protocol and every target-record judgment, save the resulting
+  labels, declare them as external data, and make the final repo/notebook honest about how they were
+  used. Do not mix the two modes silently.
 - Public GitHub repo (github.com/LacrimaeAware/kaggle-fun): no secrets, no personal data, no
   Co-Authored-By trailer. Do not submit without explicit say-so. Local AMD 5700 XT cannot train on
   Py3.13 (no torch-directml); CPU training works but is slow; Kaggle GPU is the training path.
@@ -247,12 +250,22 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. The external-data rules question is now read as
-settled: public/free/equally accessible external data and models are allowed if declared and
-reproducible; private sharing and hand-labeling target records are not. Current next work: use exp29
-to find learned-vs-router disagreements and decide whether an ROI/crop cue model is worth building,
-and/or prepare a controlled public-asset segmentation ensemble branch, while keeping temporal-only
-and 4-row bar-only as isolated small-probe options.
+not by a global mean or the 35-image FL score alone. The external-data rules question is now read as:
+public/free/equally accessible external data and models are allowed if declared and reproducible; the
+host also permits target-record labeling/fine-tuning as declared external data, but that is a separate
+human-in-loop strategy, not the current default.
+
+Current no-oracle submission candidate: `results/submission_host_mt_vertical3_no_subpixel.csv`.
+It changes only MT versus the restored 0.619 baseline (PA 0 rows, FL 0 rows, MT 285 rows; mean abs
+MT movement 0.0646 mm, max 1.471 mm). It is grounded in the host's public straight-line
+left/middle/right MT procedure and improved the 35-reference score 0.2274 -> 0.2192 by moving MT
+0.1795 -> 0.1550. This is a small, principled candidate, not a leader-jump guarantee. Do **not**
+submit the FL low-extrapolation top-3 candidate: it worsened the local FL term 0.3528 -> 0.3668.
+
+After that, current next work is: use exp29 to find learned-vs-router disagreements and decide
+whether an ROI/crop cue model is worth building, and/or prepare a controlled public-asset
+segmentation ensemble branch, while keeping temporal-only and 4-row bar-only as isolated small-probe
+options.
 
 Latest alignment note: `current_alignment.md`. It explicitly records that the learned scale-cue path
 is useful as QA/disagreement machinery but is not the score-first submission path unless it exposes a

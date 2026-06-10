@@ -23,15 +23,19 @@ threads (captured 2026-06-09). Where a fact changes what we should DO, it is fla
   fitting, length-weighted PA median, TTA, MT/sin(PA) identity, tick calibration, recall-bias+CLAHE
   retrain) is our development. **We have not failed this rule.**
 - **External data must be declared.** Using the published 35-image expert benchmark for local
-  validation counts as external data and should be declared in the writeup. We do **not** label the
-  309 test images. **ACTION:** if we submit, declare "published UMUD expert benchmark used for local
-  validation only; test set not labeled."
+  validation counts as external data and should be declared in the writeup. The host also clarified
+  in public discussion that labeling or fine-tuning on the 309 test images is treated as external
+  data, not as an automatic disqualification, provided it is declared and the overall pipeline is
+  reproducible. **ACTION:** if we submit, declare every external source used, including the benchmark,
+  public weights/assets, target pseudo-labels, and any human-created target labels if that path is
+  chosen.
 - **Public external data and pretrained models are allowed if equally accessible.** The rules allow
   external data/models unless the host specifically prohibits them, provided they are public,
   reasonably accessible, minimal/no cost for all participants, and declared/reproducible. This means
   rules-clean public UMUD/OSF benchmark data, public training data, and public pretrained reference
-  weights can be used in a controlled branch. The real prohibitions are private sharing, private or
-  costly/non-reproducible assets, and hand-labeling/predicting the hidden validation/test records.
+  weights can be used in a controlled branch. Human-created labels on the 309 test records are a
+  special host-discussed case: allowed as declared external data in the host's interpretation, but
+  they must not be hidden and they raise a reproducibility obligation.
 - **Reproducibility:** a runnable notebook/repo must be shared; the *whole pipeline* is evaluated, not
   just the leaderboard number. A high score from a non-reproducible pipeline does not win.
 - Classic CV and DL are both allowed. The provided training labels may or may not be used.
@@ -167,33 +171,39 @@ results/calibration_qa/).
   target-set error attribution (scale disagreement, prior/recentering sensitivity, temporal
   consistency, and FL/orientation correctness), not another guessed bottleneck.
 
-## 9. Test-set leakage discussion and our stance
+## 9. Test-set labeling / oracle discussion and our stance
 
 - This is not a purely theoretical concern. Public discussion/reference notes include a participant
   manually analyzing the test set and reaching **0.45871** public LB, and host/forum clarifications
   make clear that labels, manual analysis, and the final architecture estimates are distinct things.
   This matters scientifically: a human-in-the-loop oracle can be a strong diagnostic, and it explains
   why the "can we supervise this?" question keeps coming back.
-- The compliance question is separate from the diagnostic question. Kaggle foundational rule 3.4.b is
-  the hard written constraint; forum/social reality does not erase it for a prize-eligible
-  submission.
-- Kaggle foundational rule 3.4.b says submissions may not use or incorporate information from
-  **hand labeling or human prediction of validation/test data records**. Therefore: do not manually
-  annotate the 309 target images and use those annotations in any submission path.
-- Public/free/equally accessible external data and external models are separately allowed by the
-  competition-specific external-data rule, provided they are declared and reproducible. This covers
-  the downloaded public DL-Track/OSF-style image/mask assets and pretrained weights; it does **not**
-  convert hand-labeled target records into a safe training set.
-- Visual inspection remains allowed as engineering QA only if it does not become row-level labels,
-  filters, corrections, or model-selection decisions for the target records. The moment a human
-  right/wrong judgment changes training data, row acceptance, or submitted values, we should treat it
-  as human prediction of test records.
-- Code-generated pseudo-labels are the safe bridge: deterministic detectors can produce reproducible
-  weak labels from target images, but those labels must not be hand-corrected before use in a
-  submission.
-- **Our stance (per the user):** we do NOT hand-label the 309 test images. We validate on the
-  published 35-image expert benchmark and use public training assets or reproducible pseudo-labels
-  only.
+- **Correction to the earlier Codex stance:** the host explicitly allowed the theoretical path of
+  labeling the 309 test images and fine-tuning on them. The host's condition was that this is a use of
+  external data and must be declared; the whole code pipeline is also evaluated. So the correct
+  project reading is **not** "manual/oracle target labels are automatically forbidden." It is
+  "manual/oracle target labels are a declared-external-data strategy with a reproducibility burden."
+- This creates a tension with the broad Kaggle foundational wording about hand labeling test records.
+  For this specific competition, the host's public clarification is the most relevant practical
+  interpretation, but the safe version is disclosure-heavy: log the labeling protocol, save labels or
+  interaction outputs, declare them as external data, and make clear how the final notebook/repo uses
+  them.
+- There are now two legitimate project modes:
+  1. **Automated/no-oracle mode:** use public assets, benchmark data, deterministic pseudo-labels, and
+     reproducible training only. This is cleaner scientifically and matches the "no hand labelling"
+     leaderboard ethos.
+  2. **Declared human-in-loop mode:** ask the user or another annotator to label/verify target
+     records, then use those labels for validation, tuning, or fine-tuning. This is competition-
+     plausible per the host, but it must be declared and preserved as external data.
+- A limited "model asks human right/wrong" loop is still human-created target information. It is not
+  magically different from hand labeling just because the model proposes the case. It is allowed only
+  under the declared human-in-loop mode.
+- Code-generated pseudo-labels remain the cleaner bridge: deterministic detectors can produce
+  reproducible weak labels from target images, and they stay in automated/no-oracle mode as long as
+  they are not hand-corrected.
+- **Current preference unless the user chooses otherwise:** continue automated/no-oracle development
+  first, because it is easier to reproduce and compare, but do not tell future collaborators that
+  declared target labeling is forbidden. It is an available strategy, not the default one.
 
 ## 10. Immediate implications (ranked)
 

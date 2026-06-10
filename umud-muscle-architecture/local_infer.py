@@ -38,7 +38,8 @@ def main():
     if limit:
         files = files[:limit]
     print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} fragment_FL={M.USE_FRAGMENT_FL} "
-          f"fl_identity_blend={M.FL_IDENTITY_BLEND} calib_MT={M.USE_CALIBRATED_MT} "
+          f"fl_identity_blend={M.FL_IDENTITY_BLEND} fl_mode={M.FL_FRAGMENT_MODE} "
+          f"mt_mode={M.MT_MODE} calib_MT={M.USE_CALIBRATED_MT} "
           f"conf>={M.CALIBRATION_MIN_CONF}", flush=True)
     rows, calib_rows, mt_ok, fl_ok, t0 = [], [], 0, 0, time.time()
     fps = []
@@ -82,6 +83,9 @@ def main():
             "pa_deg": pa,
             "fl_px": geom.get("fl_px") if geom else None,
             "fl_fragment_px": geom.get("fl_fragment_px") if geom else None,
+            "fl_fragment_median_px": geom.get("fl_fragment_median_px") if geom else None,
+            "fl_fragment_n": geom.get("fl_fragment_n") if geom else None,
+            "fl_fragment_mode": M.FL_FRAGMENT_MODE,
             "fl_identity_px": geom.get("fl_identity_px") if geom else None,
             "mt_px": geom.get("mt_px") if geom else None,
             "fl_mm": fl_mm,
@@ -94,9 +98,12 @@ def main():
         sub["fl_mm"] = (sub["fl_mm"] * (M.PRIOR["fl_mm"] / sub["fl_mm"].mean())).clip(M.FL_MIN, M.FL_MAX).round(3)
     if M.USE_TEMPORAL_SMOOTH:
         sub = M.temporal_smooth(sub, fps)
-    out = ROOT / "results" / "submission_local.csv"
+    out = Path(os.environ.get("UMUD_LOCAL_OUT", str(ROOT / "results" / "submission_local.csv")))
+    out.parent.mkdir(parents=True, exist_ok=True)
     sub.to_csv(out, index=False)
-    pd.DataFrame(calib_rows).to_csv(ROOT / "results" / "calibration_measurement_debug.csv", index=False)
+    debug_out = Path(os.environ.get("UMUD_LOCAL_DEBUG_OUT", str(ROOT / "results" / "calibration_measurement_debug.csv")))
+    debug_out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(calib_rows).to_csv(debug_out, index=False)
     print(f"\nwrote {out} ({len(sub)} rows) in {time.time()-t0:.0f}s; "
           f"calibrated MT on {mt_ok}, per-image FL on {fl_ok}", flush=True)
     print("FL mm: mean %.1f std %.1f min %.1f max %.1f (was a flat 74.424 before)"

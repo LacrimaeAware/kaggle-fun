@@ -106,7 +106,7 @@ def main():
             "competition_target_images",
             "inference_only",
             True,
-            "Competition target records. Do not hand-label these for submissions.",
+            "Competition target records. Human-created labels are a declared-external-data path, not part of the automated/no-oracle branch.",
         ),
     ]
 

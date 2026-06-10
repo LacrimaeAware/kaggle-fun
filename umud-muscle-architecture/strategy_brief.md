@@ -226,9 +226,12 @@ Ideas:
 
 ## Integrity constraints
 
-Avoid manual labeling of the 309 test images as a shortcut. There is public discussion about manual labeling, but the defensible route is an algorithmic pipeline. Use only competition data, allowed public external data, public pretrained models, and documented code.
+Default to the automated/no-oracle route: competition data, allowed public external data, public
+pretrained models, and documented code. The host discussion also makes a declared human-in-loop route
+possible: target-image labels or fine-tuning are external data and must be declared, logged, and made
+reproducible. Do not mix those two modes silently.
 
-If public external data or pretrained models are used, document them.
+If public external data, pretrained models, or human-created target labels are used, document them.
 
 ## Suggested next experiments
 

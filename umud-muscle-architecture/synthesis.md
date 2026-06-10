@@ -362,8 +362,10 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
 
 Do not spend the next GPU run on augmentation just because synthetic probes suggested a domain
 gap. Do not assume mask-presence means orientation correctness. Do not treat the clean local
-score as hidden-test truth. Do not hand-label test images. Do not hide family-signature scale
-assignments; keep their method names visible.
+score as hidden-test truth. Do not silently mix target human judgments into a no-oracle run. Host
+discussion treats target labeling/fine-tuning as declared external data, so it is a separate
+human-in-loop strategy, not something to hide. Do not hide family-signature scale assignments; keep
+their method names visible.
 
 ---
 
@@ -382,7 +384,8 @@ score-moving path unless it exposes a concrete router failure.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
 5. Treat public/free/equally accessible external data and models as rules-clean if declared and
-   reproducible; do not use private assets or hand-labeled target records.
+   reproducible. Treat hand-labeled target records as a host-sanctioned declared-external-data option,
+   but keep it separate from the automated/no-oracle track unless the user explicitly chooses it.
 6. Use the now-inventoried public assets for a controlled segmentation retrain/ensemble branch, or
    turn the exp28/29 learned scale-cue detector into a disagreement audit and possibly an ROI/crop
    cue model.
