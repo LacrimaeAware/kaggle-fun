@@ -484,11 +484,13 @@ def measure(apo_mask, fasc_mask):
 
 
 class _Cal:  # lightweight calibration result, matches the attrs main() reads off a Candidate
-    def __init__(self, px_per_mm, confidence, method, edge=""):
+    def __init__(self, px_per_mm, confidence, method, edge="", **extra):
         self.px_per_mm = px_per_mm
         self.confidence = confidence
         self.method = method
         self.edge = edge
+        for k, v in extra.items():
+            setattr(self, k, v)
 
 
 def calibrate_image(path):
@@ -496,10 +498,16 @@ def calibrate_image(path):
         return None
     gray = read_calibration_gray(path)
     if USE_SCALE_ROUTER and scale_ticks is not None:  # validated per-family router (PNG/644/Telemed/cropped)
-        scale, method, conf = scale_ticks.recover_for_image(gray, path.name)
+        if hasattr(scale_ticks, "recover_for_image_detail"):
+            det = scale_ticks.recover_for_image_detail(gray, path.name)
+            scale, method, conf = det["scale_px_per_cm"], det["method"], det["conf"]
+            extra = {k: v for k, v in det.items() if k not in ("scale_px_per_cm", "method", "conf")}
+        else:
+            scale, method, conf = scale_ticks.recover_for_image(gray, path.name)
+            extra = {}
         if scale is None:
             return None
-        return _Cal(px_per_mm=scale / 10.0, confidence=float(conf), method=method)
+        return _Cal(px_per_mm=scale / 10.0, confidence=float(conf), method=method, **extra)
     return choose_calibration_candidate(gray, side_tick_mm=5.0, bottom_tick_mm=10.0, image_name=path.name)
 
 
@@ -599,6 +607,12 @@ def main():
             "px_per_mm": px_per_mm,
             "calibration_confidence": calib_conf,
             "calibration_method": calib_method,
+            "scale_spacing_px": getattr(cand, "spacing_px", None) if cand is not None else None,
+            "scale_spacing_raw_px": getattr(cand, "spacing_raw_px", None) if cand is not None else None,
+            "scale_subpx_resid_rms_px": getattr(cand, "subpx_resid_rms_px", None) if cand is not None else None,
+            "scale_subpx_spacing_se": getattr(cand, "subpx_spacing_se", None) if cand is not None else None,
+            "scale_subpx_n_ticks": getattr(cand, "subpx_n_ticks", None) if cand is not None else None,
+            "scale_subpx_score": getattr(cand, "subpx_score", None) if cand is not None else None,
             "pa_deg": pa,
             "fl_px": geom["fl_px"] if geom else None,
             "mt_px": geom["mt_px"] if geom else None,

@@ -178,8 +178,9 @@ results/calibration_qa/).
 1. **Bound scale error on the real 309 target images** using two-cue ruler families. Coverage is high,
    but the remaining score gap should be measured, not attributed by assumption. Started with
    `experiments/exp19_scale_crosscheck.py`: 114 images expose two strict cues; bottom/signature and
-   bottom/left pairs agree exactly where available, and PNG cross-checks stay within 2.6% max. This
-   weakens a broad scale-router-error hypothesis but leaves single-cue/fallback rows to audit.
+   bottom/left pairs agree within 0.3% after sub-pixel refinement, and PNG cross-checks stay within
+   2.6% max. This weakens a broad scale-router-error hypothesis but leaves single-cue/fallback rows
+   to audit.
 2. **Audit recentering/prior sensitivity.** The clean benchmark can use its known mean; the hidden
    target mean is unknown. The failed blend proves pinning/mean-stabilized local wins can hurt.
 3. **Attack FL/orientation geometry.** FL is `MT / sin(PA)` in disguise, so small PA errors amplify.

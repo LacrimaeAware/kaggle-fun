@@ -1,20 +1,28 @@
-"""Recover pixels-per-cm from the bottom-edge tick marks.
+"""Recover pixels-per-cm from target-image ruler/tick cues.
 
 Host facts (competition_reference.md): pixels are always square, and the bottom tick marks are spaced
 1 cm apart. Structure (seen in the strips): a bright near-horizontal BASELINE at the very bottom with
 short vertical TICKS rising from it at regular intervals. Detector: locate the baseline row, read the
-bright tick peaks in the band just above it, take the robust peak-to-peak spacing = px per cm.
+bright tick peaks in the band just above it, take the robust peak-to-peak spacing, then optionally
+refine accepted bottom/right-ruler reads with a sub-pixel comb fit.
 
 Validated against the 35 benchmark images (true Scale_pixel_per_cm) - run `python scale_ticks.py`.
 """
 
+import os
 import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
 
+try:
+    import subpixel_spacing as SPS
+except Exception:
+    SPS = None
+
 ROOT = Path(__file__).resolve().parent
+USE_SUBPIXEL_REFINEMENT = os.environ.get("UMUD_SCALE_SUBPIXEL", "1") != "0"
 
 
 def _peaks(p, min_sep, thr):
@@ -28,6 +36,27 @@ def _peaks(p, min_sep, thr):
             else:
                 peaks.append(i)
     return np.array(peaks)
+
+
+def _rel_pct(a, b):
+    return 100.0 * abs(float(a) - float(b)) / ((float(a) + float(b)) / 2.0)
+
+
+def _subpixel_refine(prof, raw_spacing, smin, smax, max_pct=2.0):
+    """Refine an existing accepted spacing only when the sub-pixel comb agrees.
+
+    This makes sub-pixel estimation a precision pass, not a new detector that can
+    silently reroute an image. If it disagrees with the old trusted cue, keep the
+    old spacing and expose no refined fields.
+    """
+    if not USE_SUBPIXEL_REFINEMENT or SPS is None:
+        return None
+    r = SPS.estimate_spacing(prof, smin=smin, smax=smax)
+    if r is None:
+        return None
+    if _rel_pct(r["spacing"], raw_spacing) > max_pct:
+        return None
+    return r
 
 
 def recover_scale(gray, tick_cm=1.0):
@@ -63,9 +92,20 @@ def recover_scale(gray, tick_cm=1.0):
     if len(good) < 3:
         return None
     spacing = float(np.median(good))
+    raw_spacing = spacing
+    refined = _subpixel_refine(col, spacing, smin=40.0, smax=220.0)
+    if refined is not None and 50 <= refined["spacing"] / tick_cm <= 220:
+        spacing = float(refined["spacing"])
     conf = float(len(good) / len(gaps) * (1.0 - min(1.0, np.std(good) / (np.mean(good) + 1e-9))))
-    return dict(scale_px_per_cm=spacing / tick_cm, spacing_px=spacing, conf=conf,
-                n_ticks=int(len(peaks)), baseline_y=int(yb), peaks=peaks.tolist())
+    out = dict(scale_px_per_cm=spacing / tick_cm, spacing_px=spacing, conf=conf,
+               n_ticks=int(len(peaks)), baseline_y=int(yb), peaks=peaks.tolist(),
+               spacing_raw_px=raw_spacing)
+    if refined is not None and spacing != raw_spacing:
+        out.update(subpx_resid_rms_px=float(refined["resid_rms_px"]),
+                   subpx_spacing_se=float(refined["spacing_se"]),
+                   subpx_n_ticks=int(refined["n_ticks"]),
+                   subpx_score=float(refined["score"]))
+    return out
 
 
 def recover_scale_left_ruler(gray, x_max=30, tick_cm=1.0):
@@ -130,8 +170,22 @@ def recover_scale_right_ruler(gray, tick_cm=0.5, thr=90, min_spacing=40):
             continue
         conf = float(len(good) / len(g) * (1.0 - min(1.0, np.std(good) / (np.mean(good) + 1e-9))))
         if best is None or conf > best["conf"]:
-            best = dict(scale_px_per_cm=float(np.median(good)) / tick_cm, spacing_px=float(np.median(good)),
-                        conf=conf, n_ticks=len(peaks), peaks=peaks, edge="right")
+            spacing = float(np.median(good))
+            best = dict(scale_px_per_cm=spacing / tick_cm, spacing_px=spacing,
+                        conf=conf, n_ticks=len(peaks), peaks=peaks, edge="right", x=int(x),
+                        spacing_raw_px=spacing)
+    if best is not None and USE_SUBPIXEL_REFINEMENT:
+        prof = (gray[:, best["x"]].astype(np.int32) > thr).astype(float)
+        refined = _subpixel_refine(prof, best["spacing_px"], smin=25.0, smax=120.0)
+        if refined is not None:
+            scale = refined["spacing"] / tick_cm
+            if 80 <= scale <= 220:
+                best["spacing_px"] = float(refined["spacing"])
+                best["scale_px_per_cm"] = float(scale)
+                best["subpx_resid_rms_px"] = float(refined["resid_rms_px"])
+                best["subpx_spacing_se"] = float(refined["spacing_se"])
+                best["subpx_n_ticks"] = int(refined["n_ticks"])
+                best["subpx_score"] = float(refined["score"])
     return best
 
 
@@ -198,35 +252,56 @@ def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=
     return None
 
 
-def recover_for_image(gray, name=""):
-    """Per-family router. Returns (scale_px_per_cm, method, conf) or (None, 'none', 0).
+def _detail(method, d):
+    out = {"scale_px_per_cm": d["scale_px_per_cm"], "method": method, "conf": d["conf"]}
+    for k in ("spacing_px", "spacing_raw_px", "subpx_resid_rms_px", "subpx_spacing_se",
+              "subpx_n_ticks", "subpx_score", "n_ticks", "edge", "x"):
+        if k in d:
+            out[k] = d[k]
+    return out
 
-    Families (competition_reference.md 3a): PNG -> left numbered ruler (5 mm minor ticks);
-    644x1088 -> left depth ruler (1 cm ticks); cropped/other -> bottom ticks (1 cm). Siemens 800x1200
-    (scale-bar bracket) is not handled here -> falls back to None (constant prior).
+
+def recover_for_image_detail(gray, name=""):
+    """Per-family router with diagnostics.
+
+    Returns a dict with at least scale_px_per_cm/method/conf, or a none dict.
+    `recover_for_image` below preserves the historical tuple API.
     """
     h, w = gray.shape
     if name.lower().endswith(".png"):           # PNG: proven left numbered ruler (5 mm minor ticks)
         import tick_calibration as TC
         c = TC.png_left_ruler_candidate(gray, 5.0)
         if c is not None and c.confidence >= 0.5:
-            return c.px_per_mm * 10.0, "png_left_ruler", float(c.confidence)
+            return {
+                "scale_px_per_cm": c.px_per_mm * 10.0,
+                "method": "png_left_ruler",
+                "conf": float(c.confidence),
+                "spacing_px": float(c.spacing_px),
+                "n_ticks": int(c.n_peaks),
+                "edge": c.edge,
+            }
     if (h, w) == (644, 1088):                   # 644 family: left depth ruler, 1 cm ticks (~126 px/cm)
         d = recover_scale_left_ruler(gray, x_max=30, tick_cm=1.0)
         if d and d["conf"] >= 0.5 and 50 <= d["scale_px_per_cm"] <= 200:
-            return d["scale_px_per_cm"], "left_ruler_1cm", d["conf"]
+            return _detail("left_ruler_1cm", d)
     # bottom ticks: only trust HIGH confidence (Telemed 800x1200 + clean cropped).
     d = recover_scale(gray, tick_cm=1.0)
     if d and d["conf"] >= 0.9 and 50 <= d["scale_px_per_cm"] <= 200:
-        return d["scale_px_per_cm"], "bottom_ticks", d["conf"]
+        return _detail("bottom_ticks", d)
     if (h, w) == (800, 1200):  # German Siemens: faint right-edge 5 mm depth ruler (-> ~136 px/cm)
         d = recover_scale_right_ruler(gray, tick_cm=0.5)
         if d and d["conf"] >= 0.5 and 80 <= d["scale_px_per_cm"] <= 200:
-            return d["scale_px_per_cm"], "right_ruler_5mm", d["conf"]
+            return _detail("right_ruler_5mm", d)
         d = recover_scale_family_b_signature(gray)  # instrument recognition -> validated fixed scale 134
         if d:
-            return d["scale_px_per_cm"], "family_b_signature", d["conf"]
-    return None, "none", 0.0
+            return _detail("family_b_signature", d)
+    return {"scale_px_per_cm": None, "method": "none", "conf": 0.0}
+
+
+def recover_for_image(gray, name=""):
+    """Per-family router. Returns (scale_px_per_cm, method, conf) or (None, 'none', 0)."""
+    d = recover_for_image_detail(gray, name)
+    return d["scale_px_per_cm"], d["method"], d["conf"]
 
 
 def _validate():

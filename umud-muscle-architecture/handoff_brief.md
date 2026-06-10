@@ -117,6 +117,10 @@ each family's scale was validated by reading its actual ruler (no test labels ex
 - `scale_ticks.py` - `recover_scale` (bottom ticks), `recover_scale_left_ruler`,
   `recover_scale_right_ruler` (German Siemens), `recover_scale_family_b_signature`, and
   `recover_for_image(gray, name)` the per-family ROUTER. Wired into `calibrate_image`.
+- `subpixel_spacing.py` - harmonic-validated sub-pixel spacing estimator. Now wired as a **gated
+  precision pass** for accepted bottom/right-ruler cues only (`UMUD_SCALE_SUBPIXEL=1`, default on):
+  it replaces an integer/median spacing only if it agrees within 2%, and exposes residual/SE fields
+  via `recover_for_image_detail()` and the calibration debug CSVs.
 - Coverage from the current router: **295/309 = 95 % scaled**. Method counts from a direct run:
   right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58, left_ruler_1cm 50,
   family_b_signature 41, none 14.
@@ -137,10 +141,16 @@ whether to spend a submission.
    measure disagreement on the real 309 images. This sizes how much of the remaining public gap is
    scale versus measurement.
    - Started in `experiments/exp19_scale_crosscheck.py`: 114/309 images have two strict scale cues.
-     Multi-cue families agree well (signature vs bottom ticks: 49 images, 0% disagreement; bottom
-     vs left ruler: 29 images, 0%; PNG left-ruler cross-check: median 0.9%, max 2.5%, no >5% rows).
+     Multi-cue families agree well after sub-pixel refinement (signature vs bottom ticks: 49 images,
+     median 0.22%, max 0.29%; bottom vs left ruler: 29 images, 0.14%; PNG left-ruler cross-check:
+     median 0.9%, max 2.5%, no >5% rows).
      This narrows remaining scale risk to the single-cue `right_ruler_5mm` family and the 14 `none`
      rows, not a broad 2x router failure.
+   - Done in `experiments/exp20_subpixel_scale_refine.py`: REVIEW3's main integration request is
+     started. Coverage stays 295/309; 144 accepted scale changes are all small (max 0.64% versus the
+     integer router). The diagnostic sub-pixel candidate changes FL by mean 0.094 mm and MT by mean
+     0.024 mm versus the restored 0.61918 baseline. Treat it as an isolated precision candidate, not
+     a stacked submission.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -187,4 +197,5 @@ from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/d
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
 not by a global mean or the 35-image FL score alone. Current next work: finish scale-risk narrowing
-on the single-cue/fallback rows, then build an independent orientation-correctness audit.
+on the single-cue/fallback rows, especially right-ruler QA and the 14 `none` rows, then build an
+independent orientation-correctness audit.

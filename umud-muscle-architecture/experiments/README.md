@@ -430,19 +430,50 @@ Result:
 
 | pair | n | median abs % disagreement | p95 | max | rows >2% | rows >5% |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| bottom_ticks vs family_b_signature | 49 | 0.000 | 0.000 | 0.000 | 0 | 0 |
-| bottom_ticks vs left_ruler_1cm | 29 | 0.000 | 0.000 | 0.000 | 0 | 0 |
+| bottom_ticks vs family_b_signature | 49 | 0.222 | 0.264 | 0.293 | 0 | 0 |
+| bottom_ticks vs left_ruler_1cm | 29 | 0.142 | 0.142 | 0.142 | 0 | 0 |
 | left_ruler_1cm vs png_left_ruler | 36 | 0.921 | 2.532 | 2.532 | 4 | 0 |
 
 Strict cue multiplicity: 14 images with zero strict cues, 181 with one strict cue, and 114 with two
 strict cues. Router counts are unchanged: right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58,
 left_ruler_1cm 50, family_b_signature 41, none 14.
 
-Read: this is a strong label-free sanity check for the multi-cue scale families. It specifically
-validates the risky `family_b_signature` assignment against bottom ticks on 49 images, with exact
-agreement. It does **not** prove the single-cue `right_ruler_5mm` family is correct, and it leaves
+Read: this is a strong label-free sanity check for the multi-cue scale families. After sub-pixel
+refinement, the risky `family_b_signature` assignment still agrees with bottom ticks within 0.3% on
+49 images. It does **not** prove the single-cue `right_ruler_5mm` family is correct, and it leaves
 the 14 `none` rows unresolved. Of those 14, five have weak/non-strict cues in the audit output and
 may be recoverable; nine have no current cue.
+
+## exp20 - wire sub-pixel scale refinement (`exp20_subpixel_scale_refine.py`)  [WIRED, diagnostic candidate only]
+
+Question: REVIEW3 found that the validated sub-pixel spacing estimator was not in production. Can we
+wire it safely without letting it become a new silent router?
+
+Implementation: added repo-local `subpixel_spacing.py` and wired `scale_ticks.py` so sub-pixel
+spacing is a precision pass for accepted bottom/right-ruler cues only. It replaces the existing
+spacing only if it agrees with the accepted integer/median read within 2%. PNG and left-ruler paths
+are not changed by this pass. `recover_for_image_detail()` preserves the old tuple API but exposes
+`subpx_resid_rms_px`, `subpx_spacing_se`, and related diagnostics for debug CSVs.
+
+Result:
+
+| item | value |
+| --- | ---: |
+| Coverage | unchanged, 295/309 |
+| Accepted sub-pixel right-ruler rows | 87 |
+| Accepted sub-pixel bottom-tick rows | 58 |
+| Accepted scale changes vs integer router | 144 |
+| Mean abs FL delta vs 0.61918 | 0.094 mm |
+| p95 / max FL delta | 0.264 / 0.673 mm |
+| Mean abs MT delta vs 0.61918 | 0.024 mm |
+| p95 / max MT delta | 0.084 / 0.195 mm |
+
+Read: this is a tiny, structural precision update, not a new modelling idea and not a mean trick.
+`exp20` compares the integer router against the gated sub-pixel router, then separately compares the
+candidate CSV against the restored 0.61918 baseline. It should be treated as an isolated candidate
+(`results/submission_subpixel_scale.csv`, gitignored) rather than silently replacing the restored
+0.61918 submission. The next scale work is still the single-cue/fallback audit: right-ruler QA,
+14 `none` rows, and possibly tail-detector recovery.
 
 ## Fair-test correction (important)
 
@@ -458,8 +489,10 @@ evidence.
 
 - Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline. Compare any new
   candidate row-by-row against it before submitting.
-- Scale cross-check is now partly done: multi-cue families agree well; focus remaining scale work on
-  the single-cue `right_ruler_5mm` family and the 14 `none` rows.
+- Sub-pixel refinement is now wired as a gated precision pass and produces a tiny diagnostic
+  candidate; do not stack it with other changes for a submission.
+- Scale cross-check is partly done: multi-cue families agree well; focus remaining scale work on the
+  single-cue `right_ruler_5mm` family and the 14 `none` rows.
 - The blend is rejected as a submission default despite its local win.
 - Remaining no-submission work: two-cue scale-error bound, a visual audit of the 14 `none` scale rows,
   and a classical orientation-correctness audit.
