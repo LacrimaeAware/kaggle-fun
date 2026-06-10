@@ -332,6 +332,12 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    Cached debug recentering reconstructs the protected 0.61918 baseline, so this is a meaningful
    ablation. Temporal-only smoothing is much smaller (28 clips, 140 frames, mean normalized movement
    0.020) and should be treated as an isolated probe candidate, not a proven fix.
+6. **Reference error-budget adapter.** `experiments/exp25_reference_error_budget_adapter.py` builds
+   the missing input table. The target scale router detects 0/35 reference rows, so this is
+   oracle-scale attribution only. With perfect scale, recentered FL is still the largest local term
+   (0.3528 normalized), MT is 0.1795, and PA is 0.1498. The result argues for measurement quality,
+   legal external/reference data, ensembling, or carefully isolated target-structure probes over
+   more broad scale polishing.
 
 ### What not to do
 
@@ -352,7 +358,7 @@ assignments; keep their method names visible.
    precision candidate, not a stacked submission.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
-5. Run the reference error-budget adapter before pseudo-label export.
+5. Resolve the external-data/rules question before planning a larger training run.
 6. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
 7. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.

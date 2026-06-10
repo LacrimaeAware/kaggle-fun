@@ -625,6 +625,43 @@ argument to remove it blindly. It is an argument to keep every future FL candida
 report whether its apparent effect is direct or recenter-ripple. Temporal smoothing is much smaller,
 cleanly isolated, and plausible as a low-risk probe only after deciding to spend a submission.
 
+## exp25 - reference error-budget adapter (`exp25_reference_error_budget_adapter.py`)  [diagnostic]
+
+Question: can the 35-expert reference set decompose remaining error into scale versus measurement
+core, without treating it as a hidden-LB submission oracle?
+
+Implementation: build the `error_budget.py` input table from the current saved weights on the 35
+reference images. Important caveat: the target-set scale router detects 0/35 reference images, so
+the adapter runs in explicit oracle-scale mode (`scale_pred = scale_true`). This means `E_scale` is
+zero by construction; the useful result is the measurement/core error left when scale is perfect.
+
+Outputs:
+
+- `results/reference_error_budget/reference_error_budget_input.csv`
+- `results/reference_error_budget/error_budget_summary.csv`
+- `results/reference_error_budget/predictions.csv`
+
+Result:
+
+| item | value |
+| --- | ---: |
+| Reference rows | 35 |
+| Target scale-router detections on reference | 0/35 |
+| FL recenter factor on reference | 0.9108 |
+| Raw FL MAPE with true scale | 10.365% |
+| Recentered FL MAPE with true scale | 6.833% |
+| MT MAPE with true scale | 2.396% |
+| Raw no-recenter normalized score | 0.2877 |
+| Current recentered normalized score | 0.2274 |
+| Current terms PA / FL / MT | 0.1498 / 0.3528 / 0.1795 |
+
+Read: this confirms the local reference score is measurement-core limited under perfect scale, but
+it does **not** prove target scale is solved or that recentering transfers. Recentered FL is still
+the largest local term even after its mean is pinned to the reference set. The next robust work
+should therefore focus on measurement quality, rules-legal external/reference data or ensembling,
+and target-safe isolated probes; more broad scale polishing is unlikely to explain the remaining
+gap by itself.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -652,8 +689,10 @@ evidence.
 - Recenter/temporal audit is now tested in `exp24`: removing FL recentering would move 308/309 rows
   by mean 17.147 mm, while temporal-only smoothing moves much less (mean normalized row movement
   0.020).
-- Remaining no-submission work: build the reference error-budget adapter, then use the exp23
-  manifest only after recentering and term-level ownership are understood.
+- Reference error-budget adapter is now tested in `exp25`: with oracle scale on the 35-expert set,
+  recentered FL remains the largest local term (0.3528 normalized), and MT is smaller (0.1795).
+- Remaining no-submission work: resolve the external-data/rules question and only then choose
+  between temporal-only, bar-only, ensemble/external-data training, or exp23 pseudo-label export.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points

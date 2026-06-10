@@ -175,6 +175,11 @@ whether to spend a submission.
      baseline almost exactly (mean abs FL delta 0.00019 mm), so the no-recenter audit is meaningful:
      removing recentering moves 308/309 rows by mean 17.147 mm. Temporal-only smoothing at 0.92 finds
      28 clips covering 140 frames and has much smaller row movement (mean normalized movement 0.020).
+   - Done in `experiments/exp25_reference_error_budget_adapter.py`: reference error-budget input
+     table and summary. The target scale router detects 0/35 reference rows, so this is an explicit
+     oracle-scale attribution, not production-scale validation. With true scale, raw FL MAPE is
+     10.365%, recentered FL MAPE is 6.833%, MT MAPE is 2.396%, and the current recentered reference
+     score is 0.2274 (PA 0.1498, FL 0.3528, MT 0.1795).
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -220,7 +225,7 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: build the reference
-error-budget adapter and decide whether temporal-only smoothing or the 4-row bar-only scale-tail
-probe is worth an isolated submission. Keep pseudo-label export behind recentering and error-budget
-attribution.
+not by a global mean or the 35-image FL score alone. Current next work: resolve the external
+data/rules question, then decide whether the next action is a rules-legal ensemble/external-data
+training run, a temporal-only probe, a 4-row bar-only scale-tail probe, or continued offline
+pseudo-label export.
