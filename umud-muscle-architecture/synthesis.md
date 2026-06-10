@@ -1,7 +1,7 @@
 # UMUD synthesis: goals, intuitions, problems, and the plan
 
 This is the single canonical document for the UMUD work as of the `0.61918` baseline and the failed
-`~0.64` blend probe. It folds in
+`~0.64` blend probe plus the failed `0.62561` MT vertical-3 probe. It folds in
 the scattered planning notes (Codex's `codex_review.md`, `forward_plan.md`,
 `ranked_research_directions.md`) and the conversation that produced them. It is written to keep
 the original intuitions intact rather than reduce them to standard method names. The document
@@ -9,9 +9,11 @@ map at the end says what every other file is for.
 
 > **Status note (2026-06-09):** the project has moved materially since the older `1.09194` text.
 > Current best submitted public LB is **0.61918**. A later 50/50 FL blend worsened to about **0.64**
-> while leaving PA and MT identical, so the blend is rejected as a submission default. The current
-> scale router reads **295/309** target images; the default full 35-expert local harness is back to
-> **0.2274** with fragment-only FL (`UMUD_FL_IDENTITY_BLEND=0`). The domain-gap/augmentation-first
+> while leaving PA and MT identical, so the blend is rejected as a submission default. A later MT
+> vertical-3 probe improved the local benchmark but worsened public LB to **0.62561**, so the old
+> MT path remains the anchor. The current scale router reads **295/309** target images; the default
+> full 35-expert local harness is **0.2274** with fragment-only FL (`UMUD_FL_IDENTITY_BLEND=0`). The
+> domain-gap/augmentation-first
 > hypothesis was tested on real train-vs-target frames and demoted. Read **`handoff_brief.md`** first
 > for the tight operational state. The intuitions here (scene-reading, path geometry, the fascicle
 > bottleneck) still matter.
@@ -56,6 +58,7 @@ image -> segment aponeuroses + fascicles -> fit geometry -> compute PA/FL/MT -> 
 | --- | ---: | --- |
 | Current best submitted public LB | **0.61918** | restored safe baseline; scale router + real FL/MT moved us past DL-Track benchmark |
 | Rejected blend probe | ~0.64 | changed FL only; PA/MT identical to 0.61918 file |
+| Rejected MT vertical-3 probe | **0.62561** | changed MT only; local MT improvement did not transfer |
 | Provided DL-Track benchmark | 0.679 | public reference pipeline on the hidden test |
 | Public leader (sugopoko/sugupoko) | 0.378 | UMUD solution not published |
 | By-hand human public baseline | 0.459 | third-party manual test-set analysis, declared external/manual |

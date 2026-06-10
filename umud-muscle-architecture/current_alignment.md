@@ -93,33 +93,35 @@ against future combiners, not the next obvious production bug.
 The score-first path is no longer more scale polishing. The current ranking is:
 
 1. Preserve the downloaded 0.61918 baseline as the comparison anchor.
-2. If spending one submission now, use the isolated host-protocol MT candidate:
+2. Reject the isolated host-protocol MT candidate:
    `results/submission_host_mt_vertical3_no_subpixel.csv`.
-   - Evidence for: benchmark improved 0.2274 -> 0.2192 entirely through MT (0.1795 -> 0.1550),
-     it matches the host's public straight-line left/middle/right measurement description, and it
-     changes PA/FL on 0 rows versus the restored 0.619 baseline.
-   - Evidence against: public effect is necessarily small because mean MT movement is only
-     0.0646 mm, and protocol alignment can still fail if the target images differ from the reference.
+   - It improved the 35-reference score 0.2274 -> 0.2192 locally, but the public LB worsened
+     0.61918 -> **0.62561**.
+   - PA/FL changed on 0 rows, so the regression is attributable to MT only. The hidden labels are
+     closer to the old center/perpendicular MT path, or our vertical-3 approximation does not match
+     the target labeling well enough to help.
 3. Do not submit the FL low-extrapolation top-3 candidate. It was a good structural hypothesis but
    worsened the local FL term (0.3528 -> 0.3668).
-4. Do not stack scale-tail into this MT candidate. The tail files are real scale probes, but they
-   move FL on 307 rows through recentering and should be tested separately. If the MT candidate
-   improves or is neutral, the next tail probe should be `results/submission_scale_tail_bar_only.csv`,
-   not all-tail or shape-only.
+4. Do not stack scale-tail into the rejected MT candidate. The tail files are real scale probes, but
+   they move FL on 307 rows through recentering and should be tested separately.
 5. Read `NEXT_SUBMISSION_REVIEW.md` before asking another model to verify the current submission.
-6. Use exp29 only as a disagreement audit for the router, not as production logic.
-7. Move the main score effort to measurement/model quality:
+6. If spending another isolated submission, use `results/submission_scale_tail_bar_only.csv` as a
+   scale-tail probe. It is riskier than the MT probe but narrower than all-tail and has visible
+   per-image scale evidence on the four direct rows.
+7. Use exp29 only as a disagreement audit for the router, not as production logic.
+8. Move the main score effort to measurement/model quality:
    - controlled public-asset retraining or fold/seed ensembling,
    - denser/cleaner structure supervision on public training images,
    - conservative self-training only through exp23-style gates,
    - temporal-only as a small isolated probe, not a presumed margin-closer.
-8. Keep all FL changes isolated from recentering effects and report direct row movement.
+9. Keep all FL changes isolated from recentering effects and report direct row movement.
 
 ## What We Should Not Do
 
 - Do not ask the user to mark target images right/wrong and then use those marks while pretending the
   run is no-oracle. If we choose that route, call it declared human-in-loop external data and document
   it.
+- Do not submit MT vertical-3 again.
 - Do not submit cue-model output.
 - Do not submit FL low-extrapolation top-3.
 - Do not submit another reference-mean or local-FL win without structural evidence.

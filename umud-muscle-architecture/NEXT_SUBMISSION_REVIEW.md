@@ -1,18 +1,22 @@
-# Next Submission Review
+# Submission Review Result
 
 Date: 2026-06-10
 
-This is the current handoff for a reviewer before the next Kaggle submission.
+This is the current handoff after the MT vertical-3 Kaggle submission.
 
-## Recommendation
+## Public Result
 
-Submit:
+Submitted file:
 
 `results/submission_host_mt_vertical3_no_subpixel.csv`
 
-Do **not** stack the scale-tail candidate into this submission.
+Public score: **0.62561**
 
-## Why This Candidate
+Known better anchor: **0.61918** from `results/submission_local.csv`
+
+Decision: **reject MT vertical-3**. Do not resubmit it and do not stack anything on top of it.
+
+## What It Tested
 
 The host described MT as three straight global-image lines from upper to lower aponeurosis at
 left/middle/right, averaged. The old production code measured the center gap perpendicular to the
@@ -45,10 +49,16 @@ Row-level diff versus `results/submission_local.csv`:
 | `fl_mm` | 0 | 0.0000 | 0.000 |
 | `mt_mm` | 285 | 0.0646 mm | 1.471 mm |
 
-This is a small, principled candidate. It is not expected to close the whole leaderboard gap, but it
-is the cleanest no-oracle submission currently available.
+Because PA and FL were unchanged, the public loss is attributable to MT only. The score moved
+0.61918 -> 0.62561, a +0.00643 overall regression. With equal target weighting, that is about
++0.0193 normalized MT error, or roughly +0.058 mm mean-absolute MT error equivalent under the 3 mm
+MT tolerance.
 
-## Why Not Stack Scale Tail
+Read: the reference-set MT improvement did not transfer. The hidden labels are closer to the old
+center/perpendicular MT path, or this vertical-3 implementation does not match the host procedure
+well enough to help. Either way, revert to `results/submission_local.csv` as the anchor.
+
+## Scale Tail Is Still Separate
 
 The tail idea is real scale work, but it is not a harmless add-on. It recovers scale for the 14 rows
 left unscaled by the production router, split into:
@@ -70,17 +80,17 @@ would not know whether the problem was the bar rows, borrowed shape scale, or FL
 
 Reviewer read:
 
-- Do not stack any scale-tail file with the MT vertical-3 candidate for this next submission.
-- If the MT vertical-3 submission improves or is neutral, the next scale-tail probe should be
-  `submission_scale_tail_bar_only.csv`, not all-tail. The bar-only path has visible per-image scale
-  evidence; shape-neighbor scale is weaker and should remain third.
-- If the MT vertical-3 submission worsens, revert to `results/submission_local.csv` as the anchor
-  before testing tail.
+- Do not stack any scale-tail file with the rejected MT vertical-3 candidate.
+- Revert to `results/submission_local.csv` as the anchor.
+- If spending another clean submission, use `results/submission_scale_tail_bar_only.csv` as a separate
+  scale probe. The bar-only path has visible per-image scale evidence. Shape-neighbor scale is weaker
+  and should remain later.
 
 ## Current Remaining Paths
 
-1. Submit/review `submission_host_mt_vertical3_no_subpixel.csv`.
-2. Depending on result, consider `submission_scale_tail_bar_only.csv` as a separate scale probe.
-3. Keep `submission_scale_tail_shape_only.csv` and all-tail as later/riskier probes.
-4. Continue no-oracle model work through public-asset retraining/ensembling or ROI/crop cue
+1. Treat `submission_host_mt_vertical3_no_subpixel.csv` as rejected.
+2. Keep `results/submission_local.csv` / public **0.61918** as the anchor.
+3. If submitting another isolated probe, use `submission_scale_tail_bar_only.csv`.
+4. Keep `submission_scale_tail_shape_only.csv` and all-tail as later/riskier probes.
+5. Continue no-oracle model work through public-asset retraining/ensembling or ROI/crop cue
    detection, but do not confuse those with the immediate submission.

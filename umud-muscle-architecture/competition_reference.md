@@ -167,6 +167,10 @@ results/calibration_qa/).
   (pa .1498, fl .3528, mt .1795) via `experiments/score_weights.py` with
   `UMUD_FL_IDENTITY_BLEND=0`. The rejected blend scored 0.1873 locally but worsened public LB
   0.61918 -> ~0.64, so do not treat local FL gains as submission proof.
+- The rejected MT vertical-3 probe improved the local benchmark 0.2274 -> 0.2192 by aligning MT with
+  the host's straight-line left/middle/right description, but worsened public LB **0.61918 ->
+  0.62561** while PA/FL were unchanged. So the old center/perpendicular MT path remains the
+  submission anchor.
 - Read: our measurement, given clean true scale, is strong. The remaining hidden-LB gap needs
   target-set error attribution (scale disagreement, prior/recentering sensitivity, temporal
   consistency, and FL/orientation correctness), not another guessed bottleneck.

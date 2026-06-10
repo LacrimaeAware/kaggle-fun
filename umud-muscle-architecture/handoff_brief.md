@@ -255,18 +255,18 @@ public/free/equally accessible external data and models are allowed if declared 
 host also permits target-record labeling/fine-tuning as declared external data, but that is a separate
 human-in-loop strategy, not the current default.
 
-Current no-oracle submission candidate: `results/submission_host_mt_vertical3_no_subpixel.csv`.
-It changes only MT versus the restored 0.619 baseline (PA 0 rows, FL 0 rows, MT 285 rows; mean abs
-MT movement 0.0646 mm, max 1.471 mm). It is grounded in the host's public straight-line
-left/middle/right MT procedure and improved the 35-reference score 0.2274 -> 0.2192 by moving MT
-0.1795 -> 0.1550. This is a small, principled candidate, not a leader-jump guarantee. Do **not**
-submit the FL low-extrapolation top-3 candidate: it worsened the local FL term 0.3528 -> 0.3668.
-Also do **not** stack scale-tail into this submission. Tail is a separate scale probe: all-tail moves
-FL on 307 rows through recentering and has max FL movement ~43 mm, so it would confound the clean MT
-test. If MT vertical-3 improves or is neutral, the next tail probe should be the four-row
-`results/submission_scale_tail_bar_only.csv`; shape-only and all-tail are riskier later probes.
+Rejected no-oracle submission candidate: `results/submission_host_mt_vertical3_no_subpixel.csv`.
+It changed only MT versus the restored 0.619 baseline (PA 0 rows, FL 0 rows, MT 285 rows; mean abs
+MT movement 0.0646 mm, max 1.471 mm). It improved the 35-reference score 0.2274 -> 0.2192, but the
+public LB worsened **0.61918 -> 0.62561**, so reject it and return to `results/submission_local.csv`
+as the anchor. Do **not** submit the FL low-extrapolation top-3 candidate: it worsened the local FL
+term 0.3528 -> 0.3668. Also do **not** stack scale-tail into the rejected MT submission. Tail is a
+separate scale probe: all-tail moves FL on 307 rows through recentering and has max FL movement
+~43 mm, so it would confound the clean MT test. If spending another isolated submission, the next
+tail probe should be the four-row `results/submission_scale_tail_bar_only.csv`; shape-only and
+all-tail are riskier later probes.
 
-Reviewer handoff for the immediate submission: `NEXT_SUBMISSION_REVIEW.md`.
+Reviewer handoff with the public result: `NEXT_SUBMISSION_REVIEW.md`.
 
 After that, current next work is: use exp29 to find learned-vs-router disagreements and decide
 whether an ROI/crop cue model is worth building, and/or prepare a controlled public-asset

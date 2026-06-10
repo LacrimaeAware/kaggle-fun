@@ -819,10 +819,10 @@ Benchmark sanity check on the 35 expert-reference images, with true scale and `U
 | both | 0.2239 | 0.1498 | 0.3668 | 0.1550 |
 | FL visibility-weighted | 0.2532 | 0.1498 | 0.4304 | 0.1795 |
 
-Read: the intuitive FL top-3 idea is a clean negative. It matches the host protocol in spirit but
-hurts the reference FL term, so do not spend a submission on it now. The MT vertical-3 change is the
-current clean positive: it improves the reference MT term, is directly grounded in the host's stated
-procedure, and does not touch PA or FL when generated with `UMUD_SCALE_SUBPIXEL=0`.
+Read before submission: the intuitive FL top-3 idea is a clean negative. It matches the host protocol
+in spirit but hurts the reference FL term, so do not spend a submission on it now. The MT vertical-3
+change was a local positive: it improves the reference MT term, is directly grounded in the host's
+stated procedure, and does not touch PA or FL when generated with `UMUD_SCALE_SUBPIXEL=0`.
 
 Generated candidate:
 
@@ -830,9 +830,9 @@ Generated candidate:
 - Compared with restored `results/submission_local.csv`: PA changed 0 rows, FL changed 0 rows, MT
   changed 285 rows; mean absolute MT movement 0.0646 mm, max 1.471 mm, mean MT shift +0.0518 mm.
 
-Submission read: this is not a leader-jump candidate. It is a small, principled, isolated correction
-that could plausibly improve a few thousandths to about a hundredth if the host-protocol alignment
-transfers. It is the next best no-oracle submission candidate after the restored 0.619 baseline.
+Public result: submitted as `submission_host_mt_vertical3_no_subpixel.csv` and worsened the public LB
+from **0.61918** to **0.62561**. Because PA and FL were unchanged, the regression is attributable to
+MT only. Reject MT vertical-3 and return to `results/submission_local.csv` as the anchor.
 
 ## Fair-test correction (important)
 
@@ -872,13 +872,13 @@ evidence.
   weak-label val Dice 0.1644.
 - `exp29` audits the learned cue model. It is useful as a presence/disagreement signal for some
   classes, especially left/right rulers, but not good enough to replace the deterministic router.
-- `exp30` tests host-protocol measurement alignment. FL low-extrapolation top-3 is rejected for now;
-  MT vertical-3 is the current isolated no-oracle submission candidate.
-- Tail recovery should not be stacked into the MT vertical-3 submission. `submission_scale_tail.csv`
-  moves FL on 307 rows via recentering, so it confounds the clean MT test. If the MT candidate
-  improves or is neutral, the next tail probe should be `submission_scale_tail_bar_only.csv` as a
-  separate submission; keep shape-only and all-tail later/riskier.
-- Immediate reviewer handoff: `NEXT_SUBMISSION_REVIEW.md`.
+- `exp30` tests host-protocol measurement alignment. FL low-extrapolation top-3 is rejected locally;
+  MT vertical-3 is now rejected publicly (0.61918 -> 0.62561).
+- Tail recovery should not be stacked into the rejected MT vertical-3 submission.
+  `submission_scale_tail.csv` moves FL on 307 rows via recentering, so it confounds the clean MT
+  test. If spending another isolated submission, the next tail probe should be
+  `submission_scale_tail_bar_only.csv`; keep shape-only and all-tail later/riskier.
+- Reviewer handoff with public result: `NEXT_SUBMISSION_REVIEW.md`.
 - Remaining no-submission work: choose between controlled public-asset retraining/ensembling,
   scale-cue detector training from exp26 weak labels, temporal-only, or isolated bar-only probing.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
