@@ -159,6 +159,12 @@ whether to spend a submission.
      1.269 mm, max 42.991 mm). Right-ruler QA flags five rows for review but shows low residual
      fractions overall (p95 0.0065). The script also writes split bar-only and shape-only candidate
      CSVs so these two recovery ideas do not have to be probed together.
+   - Done in `experiments/exp22_orientation_raw_support.py`: raw-image support audit for predicted
+     fragment orientation, calibrated on the 35-expert benchmark. Benchmark current PA MAE is
+     0.899 deg; benchmark raw-support median disagreement q50/q95 is 5.110/7.264 deg. All 309
+     target rows audit successfully; 23 are flagged for visual review. Crucially, right-ruler rows
+     are 0/87 flagged and former `none` rows are 0/14 flagged, so this does not argue against the
+     scale-tail work. It is a triage list, not a submission change.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -204,5 +210,6 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: inspect/decide on the
-isolated exp21 scale-tail candidate, then build an independent orientation-correctness audit.
+not by a global mean or the 35-image FL score alone. Current next work: inspect the exp21/exp22
+overlay evidence and decide whether a single isolated scale-tail probe is worth spending; otherwise
+keep working offline on raw-support-gated robustness/pseudo-labeling.

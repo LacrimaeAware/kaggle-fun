@@ -319,9 +319,10 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    around a robust orientation center is a label-free signal/noise test. `exp18_orientation_coherence.py`
    found high target coherence by family (~0.992-0.998 means), so extra target fragments look mostly
    like aligned signal rather than random texture.
-3. **Classical oriented-structure cross-check.** A structure-tensor/Gabor/Radon estimate should not
-   replace the U-Net blindly, but it can audit orientation correctness and provide dense label
-   candidates if the sparse-mask ceiling remains.
+3. **Raw-support orientation cross-check.** `experiments/exp22_orientation_raw_support.py` now checks
+   whether predicted fragments align with local raw-image line orientation. It does not find broad
+   target collapse: 23/309 rows flag for review; right-ruler and former `none` rows flag 0 times.
+   This is a pseudo-label gate candidate, not a replacement PA estimator.
 
 ### What not to do
 
@@ -342,8 +343,7 @@ assignments; keep their method names visible.
    precision candidate, not a stacked submission.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
-5. Visual audit of the weakest-coherence rows.
-6. Build a classical orientation-correctness audit before another FL-method submission.
+5. Review exp22 raw-support overlays and use them as gates for any future self-training/ensembling.
 6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.
 ```

@@ -515,6 +515,45 @@ evidence visible and treat `submission_scale_tail.csv` as an isolated candidate,
 submission. For cleaner probes, the script also writes split candidates for shape-only and bar-only
 recovery.
 
+## exp22 - raw-support orientation audit (`exp22_orientation_raw_support.py`)  [diagnostic]
+
+Question: exp18 showed predicted fragments are mutually coherent. Are they also supported by
+line-like structure in the raw image, or are they only internally coherent masks?
+
+Implementation: for each predicted fascicle component, compute its PCA orientation, then compare it
+with a local raw-image structure-tensor line-orientation field around that component. This is not a
+replacement PA estimator and does not generate a submission. It calibrates its normal disagreement
+band on the 35 labeled benchmark, then applies that band to the 309 target images.
+
+Outputs:
+
+- `results/orientation_raw_support.csv`
+- `results/orientation_raw_support_summary.csv`
+- `results/orientation_raw_support/worst/*.jpg`
+
+Result:
+
+| item | value |
+| --- | ---: |
+| Benchmark images audited | 35/35 |
+| Benchmark current PA MAE | 0.899 deg |
+| Benchmark raw-support median disagreement q50/q95 | 5.110 / 7.264 deg |
+| Benchmark raw-support p75 disagreement q50/q95 | 8.356 / 12.510 deg |
+| Target images audited | 309/309 |
+| Target review flags | 23 |
+| Right-ruler flags | 0/87 |
+| Former `none` family flags | 0/14 |
+| Bottom-tick flags | 8/59 |
+| Family-B signature flags | 7/41 |
+| PNG left-ruler flags | 5/58 |
+| 644 left-ruler flags | 3/50 |
+
+Read: this does **not** find a broad target orientation collapse. In fact, the two families most tied
+to the recent scale-tail work (`right_ruler_5mm` and former `none`) look clean under this audit. The
+23 flagged rows are a triage list for visual review or future robust aggregation, not evidence for a
+new CSV. This also explains why self-training by raw confidence alone is risky: the interesting
+failure signal is local raw-support mismatch, not mask presence.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -535,8 +574,10 @@ evidence.
   (10 shape-neighbor, four visible 3 cm scale-bar), and right-ruler QA has five review rows but no
   broad failure signal.
 - The blend is rejected as a submission default despite its local win.
-- Remaining no-submission work: review the exp21 overlays, decide whether to wire/probe the isolated
-  scale-tail candidate, and build a classical orientation-correctness audit.
+- Orientation raw-support audit is now tested in `exp22`: no broad collapse, 23 target review rows,
+  and no flags in right-ruler or former `none` rows.
+- Remaining no-submission work: review exp21/exp22 overlays, decide whether there is one isolated
+  scale-tail probe worth spending, and design any future pseudo-labeling around raw-support gates.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points
