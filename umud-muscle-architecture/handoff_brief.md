@@ -165,6 +165,11 @@ whether to spend a submission.
      target rows audit successfully; 23 are flagged for visual review. Crucially, right-ruler rows
      are 0/87 flagged and former `none` rows are 0/14 flagged, so this does not argue against the
      scale-tail work. It is a triage list, not a submission change.
+   - Done in `experiments/exp23_pseudolabel_gate.py`: target-row manifest for future self-training
+     or robust aggregation. It combines raw-support agreement, fragment coherence, fragment
+     support/count, and scale tier. Results: 273/309 rows pass mask-level gates; 263/309 pass strict
+     metric pseudo-label gates; 267/309 pass if the visible-bar scale-tail policy is allowed. This
+     is not a submission CSV.
 2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
    on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
    or recentered local wins are not submission evidence by themselves.
@@ -210,6 +215,6 @@ Do **not** submit the blend. The current on-disk `results/submission_local.csv` 
 from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
 the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
 should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. Current next work: inspect the exp21/exp22
-overlay evidence and decide whether a single isolated scale-tail probe is worth spending; otherwise
-keep working offline on raw-support-gated robustness/pseudo-labeling.
+not by a global mean or the 35-image FL score alone. Current next work: decide whether the 4-row
+bar-only scale-tail probe is worth one isolated submission; otherwise keep working offline from the
+exp23 pseudo-label manifest.

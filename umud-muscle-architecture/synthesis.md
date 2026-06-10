@@ -323,6 +323,10 @@ are coherent signal or texture noise, not whether the segmenter simply collapses
    whether predicted fragments align with local raw-image line orientation. It does not find broad
    target collapse: 23/309 rows flag for review; right-ruler and former `none` rows flag 0 times.
    This is a pseudo-label gate candidate, not a replacement PA estimator.
+4. **Gated pseudo-label manifest.** `experiments/exp23_pseudolabel_gate.py` now turns the audits into
+   a target-row manifest: 273/309 rows pass mask-level gates, 263/309 pass strict metric pseudo-label
+   gates, and 267/309 pass if the visible-bar scale-tail policy is allowed. This is the right input
+   for self-training or conservative ensembling; it is not a submission by itself.
 
 ### What not to do
 
@@ -343,7 +347,7 @@ assignments; keep their method names visible.
    precision candidate, not a stacked submission.
 4. Review the exp21 scale-tail candidate (`results/submission_scale_tail.csv`) and its overlays; do
    not stack it with sub-pixel or temporal smoothing for a probe.
-5. Review exp22 raw-support overlays and use them as gates for any future self-training/ensembling.
+5. Use exp23's gated manifest for any future self-training/ensembling instead of raw confidence.
 6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
    dense classical pseudo-labels.
 ```

@@ -554,6 +554,38 @@ to the recent scale-tail work (`right_ruler_5mm` and former `none`) look clean u
 new CSV. This also explains why self-training by raw confidence alone is risky: the interesting
 failure signal is local raw-support mismatch, not mask presence.
 
+## exp23 - gated target pseudo-label manifest (`exp23_pseudolabel_gate.py`)  [diagnostic]
+
+Question: if we eventually self-train or ensemble on target rows, which rows are actually safe
+enough to trust without using target labels or output means?
+
+Implementation: combine the independent target audits instead of relying on raw segmentation
+confidence alone. The gate uses raw-support orientation agreement from exp22, fragment coherence
+from exp18, fragment support/count thresholds calibrated from the 35 labeled benchmark, and the
+current scale tier for each target row. It writes:
+
+- `results/pseudolabel_gate.csv`
+- `results/pseudolabel_gate_summary.csv`
+
+Result:
+
+| item | value |
+| --- | ---: |
+| Target rows audited | 309/309 |
+| Mask-level pseudo-label rows | 273 |
+| Strict metric pseudo-label rows | 263 |
+| Metric rows if visible-bar scale is allowed | 267 |
+| Direct-scale rows passing strict metric gate | 229/254 |
+| Signature-scale rows passing strict metric gate | 34/41 |
+| Visible-bar rows passing with-bar policy | 4/4 |
+| Shape-neighbor rows passing mask gate only | 6/10 |
+
+Read: this is the clean next offline lever after the failed FL blend. It is not a submission
+candidate and it is not a mean trick; it is a manifest for future self-training, robust aggregation,
+or row-weighted ensembling where the target row is accepted only when multiple independent checks
+agree. The 4 visible-bar scale-tail rows remain policy-gated, and the 10 shape-neighbor rows are not
+accepted for metric pseudo-labeling even when their masks look usable.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
@@ -576,8 +608,11 @@ evidence.
 - The blend is rejected as a submission default despite its local win.
 - Orientation raw-support audit is now tested in `exp22`: no broad collapse, 23 target review rows,
   and no flags in right-ruler or former `none` rows.
-- Remaining no-submission work: review exp21/exp22 overlays, decide whether there is one isolated
-  scale-tail probe worth spending, and design any future pseudo-labeling around raw-support gates.
+- Gated pseudo-labeling is now tested in `exp23`: 273/309 rows pass mask-level gates, 263/309 pass
+  strict metric pseudo-label gates, and 267/309 pass if the visible-bar scale policy is allowed.
+- Remaining no-submission work: use the exp23 manifest to build a conservative self-training or
+  robust-ensemble experiment, and separately decide whether the 4-row bar-only scale-tail probe is
+  worth one isolated submission.
 - Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points
