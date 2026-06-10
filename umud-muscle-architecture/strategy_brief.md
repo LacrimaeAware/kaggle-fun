@@ -1,5 +1,10 @@
 # UMUD Strategy Brief
 
+> **Archive note (2026-06-09):** this brief predates the scale-router and real-domain-probe pivot.
+> Current state: public LB 0.61918 restored baseline, scale router 295/309, rejected FL blend
+> regressed to ~0.64, and augmentation/domain-adaptation retraining demoted. Read `handoff_brief.md`
+> first.
+
 Public-safe working brief for the UMUD Challenge: Muscle Architecture in Ultrasound Data.
 
 Companion docs: [rundown.md](rundown.md) explains the problem in plain language; [leader_playbook.md](leader_playbook.md) distills the reusable method of the current leader (suguuuuu) and maps it onto UMUD; [codex_review.md](codex_review.md) gives a second-pass hypothesis map and next-experiment order.

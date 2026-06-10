@@ -87,22 +87,22 @@ a per-family router. Each scale below is cross-checked, not assumed:
 | 644x1088 left ruler | 50 | 126 px/cm | left depth ruler 0->50 mm, 1 cm ticks ~126 px; all 50 identical |
 | Telemed 800x1200 (English "De 50 mm", right text panel) | 49 | 134 px/cm | bottom ticks AND left 0->50 mm ruler independently agree (~134-140) |
 | clean cropped/other | ~10 | bottom ticks | e.g. IMG_00040 -> 78 px/cm conf 0.99, green ticks land on real marks |
-| German Siemens 800x1200 ("12L3 Quadriceps", left text panel) | 87 of ~132 | 136 px/cm | SOLVED: faint RIGHT-edge 5 mm depth ruler (not the bottom bracket). Interval pinned 3 ways: MT physiology (1cm->49mm absurd, 0.5cm->24.7mm), the "4.5 cm" depth label (ruler span ~141 vs detected 136), 4.5cm/9ticks=5mm. ~45 fainter ones stay on constant. |
+| German Siemens 800x1200 ("12L3 Quadriceps", left text panel) | 87 | ~136 px/cm | SOLVED: faint RIGHT-edge 5 mm depth ruler (not the bottom bracket). Interval pinned 3 ways: MT physiology (1cm->49mm absurd, 0.5cm->24.7mm), the "4.5 cm" depth label (ruler span ~141 vs detected 136), 4.5cm/9ticks=5mm. |
+| Family-B signature 800x1200 | 41 | 134.5 px/cm | fixed left-margin UI marks identify a family whose bottom-tick scale was validated at 134.5 px/cm; this is an assigned instrument scale, not per-image ruler reading. |
 
-**Coverage: 254/309 = 82% scaled with validated detectors** (was 58 PNG = 19%). The German Siemens
-"bracket" was a red herring - the real scale is a faint right-edge DEPTH RULER (dim gray, thr 90,
-x~1150), read by `recover_scale_right_ruler` (tick_cm=0.5). NOTE the 800x1200 size hides TWO devices
-(Telemed bottom-ticks vs German Siemens right-ruler) - route by detector, not by shape.
+**Coverage: 295/309 = 95% scaled with the current router** (was 58 PNG = 19%). Current method counts
+from a direct router run: right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58, left_ruler_1cm 50,
+family_b_signature 41, none 14. The German Siemens "bracket" was a red herring - the real scale is a
+faint right-edge DEPTH RULER (dim gray, thr 90, x~1150), read by `recover_scale_right_ruler`
+(tick_cm=0.5). NOTE the 800x1200 size hides multiple devices; route by detector/signature, not by
+shape alone.
 
-Remaining unscaled ~55 (18%): ~45 German Siemens whose right ruler is below the 90 threshold (would
-need a lower threshold + false-positive guards, or OCR of the depth label) and a few cropped/other
-stragglers. These fall safely to the constant prior.
+Remaining unscaled **14**: mostly cropped/awkward stragglers and a few failed ruler reads. These fall
+back to the constant prior.
 
 **Status: wired** into `segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on).
-Regenerated `submission_local.csv`: calibrated MT on **254/309**, MT mean 21.9 mm range 12-35 with ZERO
-clipping (scales sane), FL per-image (std 24, range 30-151). Per-family scales vary per-image (German
-Siemens 94-136-174, PNG 120-150-201) = each image's own ruler is read, so it generalizes to unseen
-images (not hand-labeling). Submission-ready; Kaggle gain unmeasurable locally (no test labels). Tools:
+The latest handoff/context public score after the scale work is **0.619**. Submission-ready changes
+are locally auditable but hidden-test gain is not locally decomposable (no test labels). Tools:
 scale_ticks.py, experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py (overlays in
 results/calibration_qa/).
 
@@ -153,10 +153,13 @@ results/calibration_qa/).
   models by eye) => public LB **0.45871**. A careful by-hand human baseline on the real LB is ~0.46.
 - Leader ~**0.378** (prior research notes) - beats the by-hand human baseline.
 - Provided DL-Track baseline ~**0.679**.
-- Our **local** benchmark (35 expert images, true scale): **0.368** overall (pa .164, fl .449, mt .490)
-  - but that is a different image set evaluated with TRUE scale; our actual LB is gated by TIFF scale.
-- Read: our measurement, given scale, already matches/beats DL-Track and approaches the by-hand human
-  number. **Solving TIFF scale is what would convert that into a real LB position.**
+- Our **local** default full benchmark (35 expert images, true scale): **0.2274** overall
+  (pa .1498, fl .3528, mt .1795) via `experiments/score_weights.py` with
+  `UMUD_FL_IDENTITY_BLEND=0`. The rejected blend scored 0.1873 locally but worsened public LB
+  0.61918 -> ~0.64, so do not treat local FL gains as submission proof.
+- Read: our measurement, given clean true scale, is strong. The remaining hidden-LB gap needs
+  target-set error attribution (scale disagreement, prior/recentering sensitivity, temporal
+  consistency, and FL/orientation correctness), not another guessed bottleneck.
 
 ## 9. Test-set leakage discussion and our stance
 
@@ -172,9 +175,12 @@ results/calibration_qa/).
 
 ## 10. Immediate implications (ranked)
 
-1. **Bottom-tick scale recovery for the test TIFFs.** The ticks are there (verified). Square pixels
-   mean one scale fixes MT too. This is the real leaderboard unlock - bigger than the FL retrain.
-2. **GPU retrain (recall bias + CLAHE)** - the fascicle-mask / FL lever, orthogonal to scale, evaluated
-   locally on the 35-expert board with zero submissions.
-3. **Declare external data** (the benchmark) and keep the notebook reproducible.
-4. Cheap sanity check: confirm resized image/mask pairs align despite the aspect-ratio mismatch.
+1. **Bound scale error on the real 309 target images** using two-cue ruler families. Coverage is high,
+   but the remaining score gap should be measured, not attributed by assumption.
+2. **Audit recentering/prior sensitivity.** The clean benchmark can use its known mean; the hidden
+   target mean is unknown. The failed blend proves pinning/mean-stabilized local wins can hurt.
+3. **Attack FL/orientation geometry.** FL is `MT / sin(PA)` in disguise, so small PA errors amplify.
+   Use robust orientation aggregation and coherence checks before a blind retrain.
+4. **Demote augmentation/self-training-for-domain** unless correctness checks point back at
+   segmentation. Real train-vs-target image stats do not show a large discrete domain gap.
+5. **Declare external data** (the benchmark) and keep the notebook reproducible.

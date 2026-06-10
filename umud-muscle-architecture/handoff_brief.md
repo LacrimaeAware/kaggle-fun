@@ -19,13 +19,23 @@ angle PA (deg), fascicle length FL (mm), muscle thickness MT (mm). One row per i
 
 ## Where we stand (2026-06-09)
 
-- Best **submitted** public LB: **1.09194** (U-Net PA + tick-calibrated MT on the 58 PNGs, prior FL/MT
-  elsewhere). Nothing newer has been submitted yet.
+- Best **submitted** public LB: **0.61918** (rank #7 at the time). A later FL-blend probe
+  worsened to about **0.64**. The downloaded `0P61918_submission_local.csv` has been restored on
+  disk as `results/submission_local.csv` and is byte/data-identical to that known better file.
+  Older docs that say `1.09194` are pre-scale-router history.
 - Leaderboard leader **0.378**; provided DL-Track benchmark **0.679**; a careful BY-HAND human
   labeling of the test set scored **0.459** on the public LB (forum, "PatrickAIForFun").
-- The big lever turned out NOT to be a secret method. DL-Track uses MANUAL scaling; the gap from our
-  constants to a real score is automated per-image pixels-to-mm calibration + real FL/MT measurement.
-  Do not speculate about the leader's private method.
+- Current default local expert-benchmark score using the full wired scoring harness
+  (`experiments/score_weights.py`, true scale + TTA + inner-edge MT + fragment FL + recentered FL):
+  **0.2274** (PA 0.1498, FL 0.3528, MT 0.1795) with `UMUD_FL_IDENTITY_BLEND=0`.
+  The experimental blend scored **0.1873** locally but worsened the public LB from `0.61918` to
+  about `0.64`; treat the blend result as a transfer failure, not a current improvement.
+  The reference set is cleaner/easier than the hidden LB and should not be compared literally to
+  the public score.
+  `score_on_benchmark.py` is a simpler raw scorer and does not apply the same FL recentering.
+- The big lever was not a secret method. DL-Track uses manual scaling; our score jump came from
+  automated per-image pixels-to-mm calibration plus real per-image FL/MT measurement. Do not
+  speculate about the leader's private method.
 
 ## How we iterate WITHOUT submitting (the most important tool)
 
@@ -42,22 +52,24 @@ outputs. This is our **local scoreboard**:
   TTA), VERIFIED to reproduce the Kaggle PA/MT exactly. **Test changes here; never submit to test.**
 
 Caveat: the benchmark is different devices than the Kaggle test set, so FL/MT *magnitudes* don't
-transfer, but the *rankings* and the measurement-logic conclusions do.
+transfer. The 0.619 -> 0.64 failed blend proves that FL-method rankings can also fail to transfer
+when they rely on the small clean benchmark or on recentering assumptions.
 
 ## Per-target status (measured on the 35 experts, with TRUE scale)
 
-Current end-state geometry: **overall 0.368** (PA 0.164, FL 0.449, MT 0.490) vs human 0.307,
-DL-Track 0.331. So the MEASUREMENT is DL-Track-competitive given scale.
+Current default full-harness geometry: **overall 0.2274** (PA 0.1498, FL 0.3528, MT 0.1795) vs
+human 0.307, DL-Track 0.331. This is strong on the cleaner benchmark when true scale is known, but
+it is also a small benchmark with FL recentering, so do not transfer the number literally to the
+hidden LB.
 
-- **PA - effectively solved (0.164, beats DL-Track's 0.242).** Total-least-squares (PCA) fragment
-  orientation + length-weighted median + a min-6-deg filter that rejects aponeurosis-parallel
-  fragments. Wired. Leave it.
-- **MT - good given scale (0.490), ~+1 mm high.** Apo-gap geometry works; the only lever is scale.
-- **FL - the bottleneck (0.449), scatter-limited.** It is NOT bend or systematic bias (correcting
-  bias did not help). The fascicle TRAINING masks are sparse dashes by design (~14 fragments/image,
-  median 59 px, ~6 % of image width - host confirmed they label only clear-contrast fascicles), so
-  per-image FL is noisy. FL = MT/sin(PA), recentered to the trusted mean, is the wired estimator.
-  Every bend/curve/tracking attempt failed (parabola, streamlines, banded - see experiments log).
+- **PA - effectively solved (0.150).** Total-least-squares (PCA) fragment orientation +
+  length-weighted median + a min-6-deg filter that rejects aponeurosis-parallel fragments. Wired.
+- **MT - strong with true scale (0.180).** The inner-edge aponeurosis fix (`UMUD_APO_INNER=1`) moved
+  MT from a thick-band centroid problem to near-human. Remaining target-set MT error is mostly scale.
+- **FL - public-transfer failure for the blend.** Pure fragment-extrapolated FL is the current
+  default. Exp16 found that a 50/50 blend of fragment FL and `MT / sin(MAD-gated PA)` reduced FL
+  to 0.233 locally, but the resulting public score worsened from `0.61918` to about `0.64` while
+  PA and MT stayed identical. The blend remains as an experimental toggle only.
 
 ## The pipeline and its switches (`segment_then_measure.py`)
 
@@ -69,14 +81,23 @@ weights `results/seg_apo.pt` / `seg_fasc.pt` let everything else run on CPU.
 Env switches (defaults in parens):
 - `UMUD_TTA` (on) - mirror+scale test-time aug, averages sigmoids then thresholds; denoises the sparse
   masks (benchmark 0.383 -> 0.370). The only FL gain that is not a mean-fit.
-- `UMUD_USE_IDENTITY_FL` (on) - FL = MT/sin(PA), recentered to the prior mean.
+- `UMUD_FRAGMENT_FL` (on) - prefer fragment-extrapolated FL when scale and a valid fragment exist.
+- `UMUD_USE_IDENTITY_FL` (on) - fallback FL = MT/sin(PA), then FL values are recentered.
+- `UMUD_FL_IDENTITY_BLEND` (0) - keep fragment-only FL by default. Setting `0.5` blends fragment
+  FL with `MT/sin(MAD-gated PA)` before mm conversion; Exp16 local improved 0.2274 -> 0.1873, but
+  the public LB worsened 0.61918 -> ~0.64, so do not use the blend as a submission default.
 - `UMUD_USE_CALIBRATED_MT` (on) - MT_px / px_per_mm where scale is found.
-- `UMUD_SCALE_ROUTER` (on) - the validated per-family scale router (below). `CALIBRATION_MIN_CONF` 0.5.
+- `UMUD_SCALE_ROUTER` (on) - the validated per-family scale router (below). `CALIBRATION_MIN_CONF` 0.3.
 - `FASC_MIN_AREA` 40, `FASC_MIN_ANG` 6 - the PA-polish post-processing (wired constants).
+- `UMUD_APO_INNER` (on) - fit muscle-facing inner edges of the two aponeuroses for MT.
+- `UMUD_TEMPORAL_SMOOTH` (off) - median-smooth PA/FL/MT within detected sequence clips; built as a
+  free side-bet, not part of the clean scale submission.
 - `UMUD_FASC_POS_WEIGHT` (0) - >0 adds a pos_weight to the FASCICLE BCE to push recall (the user's
-  idea to make the model draw more of each dash). Kaggle-GPU retrain only. UNTESTED.
+  idea to make the model draw more of each dash). Kaggle-GPU retrain only. Demoted unless a later
+  correctness audit points back at segmentation.
 - `UMUD_CLAHE` (0) - CLAHE contrast-normalize input in read_rgb; surfaces more fragments but MUST
-  retrain BOTH models with it on (inference-only hurts, train/test mismatch). UNTESTED on GPU.
+  retrain BOTH models with it on (inference-only hurts, train/test mismatch). Demoted with the
+  domain-gap retrain.
 
 ## Scale calibration - the leaderboard lever (NEW, the main 2026-06-09 work)
 
@@ -90,16 +111,18 @@ each family's scale was validated by reading its actual ruler (no test labels ex
 | 644x1088 left depth ruler | 50 | 126 px/cm | left ruler 0-50 mm, 1 cm ticks |
 | Telemed 800x1200 ("De 50 mm") | 49 | 134 px/cm | bottom ticks AND left 0-50 mm ruler agree |
 | clean cropped/other | ~10 | varies | bottom ticks (IMG_00040 -> 78 px/cm) |
-| German Siemens 800x1200 ("12L3 Quadriceps") | 87 of ~132 | 136 px/cm | faint RIGHT-edge 5 mm depth ruler; interval pinned by MT physiology + the "4.5 cm" depth label. ~45 fainter ones stay on constant |
+| German Siemens 800x1200 ("12L3 Quadriceps") | 87 | ~136 px/cm | faint RIGHT-edge 5 mm depth ruler; interval pinned by MT physiology + the "4.5 cm" depth label |
+| Family-B signature 800x1200 | 41 | 134.5 px/cm | fixed left-margin UI signature, assigned from the validated family-B bottom-tick scale |
 
 - `scale_ticks.py` - `recover_scale` (bottom ticks), `recover_scale_left_ruler`,
-  `recover_scale_right_ruler` (German Siemens), and `recover_for_image(gray, name)` the per-family
-  ROUTER. Wired into `calibrate_image`.
-- Coverage: **254/309 = 82 % scaled** with validated detectors (was 58 PNG = 19 %). Regenerated
-  `submission_local.csv`: calibrated MT on 254, FL now per-image (std 24, range 30-151, was flat 74.4),
-  MT mean 21.9 mm range 12-35 with ZERO clipping (the tell that scales are sane). Per-family scales
-  vary per-image (German Siemens 94-136-174, PNG 120-150-201), i.e. each image's own ruler is read -
-  it generalizes to unseen images, it is NOT hand-labeling.
+  `recover_scale_right_ruler` (German Siemens), `recover_scale_family_b_signature`, and
+  `recover_for_image(gray, name)` the per-family ROUTER. Wired into `calibrate_image`.
+- Coverage from the current router: **295/309 = 95 % scaled**. Method counts from a direct run:
+  right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58, left_ruler_1cm 50,
+  family_b_signature 41, none 14.
+- The 41 `family_b_signature` rows are the only explicit assignment path: it recognizes a fixed
+  instrument UI signature and assigns the validated 134.5 px/cm scale. This is not hand-labeling,
+  but it is not per-image ruler reading either; keep its method name visible in debug outputs.
 - Harness: `experiments/scale_coverage.py`, `experiments/scale_qa.py` (overlays in
   `results/calibration_qa/`), `experiments/check_submission.py`. Full map: `competition_reference.md`
   sections 3, 3a, 3b.
@@ -110,17 +133,27 @@ whether to spend a submission.
 
 ## Open fronts
 
-1. **Scale stragglers (~55 imgs, 18 %).** German Siemens is largely solved (right-edge ruler); ~45
-   fainter German Siemens rulers fall below the threshold, plus a few cropped/other. Catching them
-   needs a lower threshold + false-positive guards or OCR of the "X.X cm" depth label. They safely use
-   the constant prior now. Lower priority than submitting once to learn the value of the 82 % we have.
-2. **Temporal smoothing** (`UMUD_TEMPORAL_SMOOTH`, built, OFF by default) - median-smooth PA/FL/MT
-   within sequence clips (~28 clips, ~140 images). Modest positive-EV variance reduction; flip on for
-   the submission after the clean scale one (one-change-at-a-time discipline, since neither can be
-   scored locally).
-3. **Kaggle-GPU fascicle retrain** with `UMUD_FASC_POS_WEIGHT` (recall) +/- `UMUD_CLAHE` (contrast),
-   to fill out the sparse masks and reduce FL scatter. Evaluate the downloaded `seg_fasc.pt` locally
-   on the 35-expert board; zero submissions to test. FL payoff uncertain (it is scatter-limited).
+1. **Bound target-set scale error, do not guess it.** Use families with two independent scale cues to
+   measure disagreement on the real 309 images. This sizes how much of the remaining public gap is
+   scale versus measurement.
+2. **Audit recentering/prior effects.** The full local score relies on recentering FL to a known mean;
+   on the hidden target set the true mean may differ. The failed blend is proof that mean-stabilized
+   or recentered local wins are not submission evidence by themselves.
+3. **FL/term2 geometry.** Fragment-only FL is the current default. The 50/50 blend is now a negative
+   control: it looked good locally and failed publicly. The remaining cheap work is target-family
+   orientation coherence and a classical oriented-structure cross-check, not another mean-pinned CSV.
+   - Done next: `exp17_blend_sensitivity.py` shows blend 0.50 is not a target-distribution outlier;
+     this did **not** predict leaderboard transfer. Centering dominates: no-center mean FL jumps to
+     92.4 mm.
+   - Done next: `exp18_orientation_coherence.py` shows target fragments are highly coherent by family
+     (coherence means ~0.992-0.998), so the extra target fragments look mostly like aligned signal,
+     not random texture scatter.
+4. **Temporal smoothing** (`UMUD_TEMPORAL_SMOOTH`, built, OFF by default). The test set contains
+   sequence-like clips; smoothing is a modest free side-bet that cannot be scored locally.
+5. **GPU retrain/domain adaptation is demoted.** `experiments/domain_gap_real.py` shows only modest
+   real train-vs-target appearance shift (mean |SMD| 0.44), no test-only cluster, and no normalization
+   fix. `experiments/seg_quality_test.py` exists to check mask-presence proxies; presence is not
+   correctness, but the old "Lumify/domain collapse" premise is not supported.
 
 ## Constraints and values
 
@@ -135,9 +168,17 @@ whether to spend a submission.
 ## Canonical docs to cross-check
 
 - `competition_reference.md` - official rules + host clarifications + the full scale family map (3a/3b). **Most current.**
-- `synthesis.md` - the canonical methods synthesis (folds in the older codex_review / forward_plan / ranked_research_directions).
-- `experiments/README.md` - the experiment log (exp01-11 + scale tools), with method/result/read each.
+- `synthesis.md` - methods synthesis and current strategy framing.
+- `experiments/README.md` - the experiment log (exp01+), with method/result/read each.
 - `benchmark_findings.md` - the 35-expert benchmark analysis.
 - `segment_then_measure.py` + `kaggle_segment_notebook.ipynb` - the pipeline and its Kaggle runner.
 - `scale_ticks.py`, `benchmark_validate.py`, `score_on_benchmark.py`, `local_infer.py` - the calibration router and the local scoreboard.
 - Older/partly-superseded: `leader_playbook.md`, `forward_plan.md`, `ranked_research_directions.md`, `codex_review.md`, `strategy_brief.md`, `plan.md`, `rundown.md`, `writeup.md`.
+
+## Current submission recommendation
+
+Do **not** submit the blend. The current on-disk `results/submission_local.csv` has been restored
+from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
+the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
+should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
+not by a global mean or the 35-image FL score alone.

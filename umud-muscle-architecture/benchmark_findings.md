@@ -24,7 +24,9 @@ the archive came down empty, so we did not get DL-Track's pretrained segmenters 
 | SMA tool | 0.409 | PA 2.39 deg, FL 7.01 mm, MT 0.74 mm |
 | Kaggle DL-Track benchmark (reference) | 0.679 | different images/devices/hidden labels - NOT directly comparable to 0.331 |
 | Public leader (reference) | 0.378 | |
-| Us (reference) | 1.092 | |
+| Us public LB, best known | **0.61918** | hidden test, not locally decomposable |
+| Us public LB, rejected blend probe | ~0.64 | changed FL only; PA/MT identical to 0.61918 file |
+| Us public LB, old run | 1.092 | pre-scale-router history |
 | Our constant-prior, scored on these 35 | 0.923 | pa 0.573, fl 1.172, mt 1.023 (within-set baseline) |
 
 Inter-expert spread (the noise): PA SD ~1.6 deg, FL SD ~5.4 mm, MT SD ~1.0 mm. FL is the noisiest
@@ -58,7 +60,26 @@ even for experts; MT the most reliable. This matches the reliability literature,
    about 2x off (it assumes 5 mm side ticks; these devices use 1 cm ticks), at low confidence. The
    value is that we now have the true scale to fix it against - but per device (see the caveat).
 
-## First measured result: where our pipeline actually fails (with TRUE scale)
+## Current measured result: where our pipeline is now (with TRUE scale)
+
+The current default full local harness is `experiments/score_weights.py`, which applies the wired
+choices that matter now: TTA, min-area/min-angle filtering, inner-edge MT, fragment-extrapolated FL,
+and FL recentering to the benchmark mean. Current default result:
+
+| target | our term | read |
+| --- | ---: | --- |
+| PA | **0.1498** | effectively solved; orientation is strong on the clean set |
+| MT | **0.1795** | inner-edge aponeurosis measurement fixed the old thick-band bias |
+| FL | **0.3528** | fragment-only FL is the current default after the blend failed publicly |
+| Overall | **0.2274** | strong on this small/clean set, but do not transfer literally to hidden LB |
+
+The rejected blend harness was **0.1873** (PA 0.1498, FL 0.2326, MT 0.1795), but it worsened the
+public LB from `0.61918` to about `0.64`. This is now the clearest warning that FL-method changes
+validated on the 35-image benchmark can fail on hidden target data. The simpler `score_on_benchmark.py`
+is a raw sanity check and does not apply the same FL recentering as the full harness. Use
+`experiments/score_weights.py` for the current local diagnostic, not as a submission oracle.
+
+## Historical first measured result: where the pipeline initially failed (with TRUE scale)
 
 Ran our trained U-Nets on the 35 images and converted pixels to mm with the TRUE per-image scale,
 to isolate measurement quality from calibration (`score_on_benchmark.py`). Overall **0.634**, but

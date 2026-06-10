@@ -259,14 +259,17 @@ bottom ticks = 1 cm). The 251 "unscaled" TIFFs ARE scalable. Findings:
 
 Built `scale_ticks.py` (`recover_scale` bottom ticks, `recover_scale_left_ruler`,
 `recover_scale_right_ruler`, and `recover_for_image` the per-family router). WIRED into
-`segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on; `CALIBRATION_MIN_CONF` 0.5).
-Regenerated `submission_local.csv`: **calibrated MT on 254/309 (was 58), 82% coverage**, FL per-image
-(std 24, range 30-151, was flat 74.4), MT mean 21.9 mm range 12-35 with ZERO clipping (scales sane).
-Per-family scales vary per-image (German Siemens 94-136-174, PNG 120-150-201) = each image's own ruler
-read (generalizes, not hand-labeling). First change targeting the actual LEADERBOARD; Kaggle gain
-unmeasurable locally. Harness: `experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py`
-(overlays `results/calibration_qa/`). Full map: `competition_reference.md` 3a/3b. Remaining unscaled
-~55 (45 fainter German Siemens + cropped stragglers) fall safely to the constant prior.
+`segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on; `CALIBRATION_MIN_CONF` 0.3).
+Current router check: **295/309 scaled (95% coverage)**, with method counts:
+right_ruler_5mm 87, bottom_ticks 59, png_left_ruler 58, left_ruler_1cm 50,
+family_b_signature 41, none 14. The `family_b_signature` path is instrument recognition plus an
+assigned validated family scale, not per-image ruler reading; keep that method visible in outputs.
+Harness: `experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py`
+(overlays `results/calibration_qa/`). Full map: `competition_reference.md` 3a/3b.
+
+Latest handoff/context public score after the scale work: **0.619** (#7 at the time), now better than
+the provided DL-Track benchmark (0.679). That leaderboard value is not locally decomposable because
+the 309 target labels are hidden.
 
 ## exp12 - temporal smoothing within sequence clips (`temporal_check.py`)  [built, OFF by default]
 
@@ -282,25 +285,158 @@ safe amount vs the tolerances: PA 0.16/6, FL 1.28/12, MT 0.21/3 mm on ~140 image
 positive-EV lever, NOT a big mover. Cannot score it locally (the 35-expert benchmark is not
 sequences). Kept OFF for the first scale submission to isolate the scale value; flip on for the next.
 
+## exp13 - real train-vs-target domain gap (`domain_gap_real.py`)  [diagnostic]
+
+Question: was the remaining gap caused by an unseen-device segmentation domain shift, and should the
+next expensive run be augmentation/CLAHE/self-training?
+
+Result on real frames (400 sampled train, 309 target):
+
+- Global appearance gap is modest: mean |standardized-mean-diff| = **0.44**.
+- No global feature crosses the |SMD| > 1 "real domain axis" line.
+- k=5 clusters are mixed train/test; there is no clean test-only cluster.
+- Normalization does not close the gap: raw 0.44, CLAHE 0.44, z-score 0.60, minmax 0.57.
+- The 1069x853 cropped family is bright/far from train, but it is only 11 images.
+
+Read: the synthetic "unseen instrument isolates into its own class" result did **not** reproduce on
+real data. The augmentation/domain-adaptation retrain is therefore demoted. Do not spend a GPU slot
+on that premise unless a later correctness check points back at segmentation.
+
+## exp14 - target mask-presence quality (`seg_quality_test.py`)  [diagnostic]
+
+Question: even if global appearance is not far OOD, do the real trained masks collapse on target
+families?
+
+Result from the CPU probe (sampled families, no labels needed):
+
+| group | n | apo_bands | frags | geom_ok | pa_mean |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| TRAIN-fasc | 40 | 3.42 | 14.55 | 100% | 19.42 |
+| BENCHMARK | 35 | 2.37 | 14.14 | 100% | 18.02 |
+| TEST-1200x800 | 40 | 2.50 | 18.35 | 100% | 14.34 |
+| TEST-1088x644 | 40 | 2.67 | 23.25 | 100% | 11.75 |
+| TEST-1069x853 | 11 | 3.27 | 20.55 | 100% | 17.17 |
+
+Smaller cropped singleton/two-image families also returned 100% geometry success in this probe, but
+their n is too small to over-interpret.
+
+Read: segmentation **presence** does not collapse on target. Target fragments are comparable or
+higher than controls. Caveat: this is not correctness; extra fragments may be coherent signal or
+texture/noise. That becomes an FL/orientation coherence question, not a generic domain-gap question.
+
+## exp15 - term2/FL geometry (`term2_geometry.py`)  [synthetic diagnostic]
+
+Question: why is FL the largest term, and is there a trivial combiner bug?
+
+Result: FL is a geometric amplifier:
+
+```text
+FL = MT / sin(PA)
+```
+
+A one-degree PA error becomes ~9.9% FL error at 10 deg, 6.5% at 15 deg, 4.8% at 20 deg, and 3.7% at
+25 deg. A naive **mean** of per-fragment lengths is Jensen-biased high in simulation (+7.7% clean
+fragments). A median or aggregate-orientation combiner avoids the large bias; MAD-gated aggregate
+orientation is most robust under 30% texture outliers (4.62% abs error vs 8.85% for the mean combiner).
+
+Read: current production code already uses **median** per-fragment FL, not a mean, so this is not a
+confirmed one-line live bug. The useful next experiment is to test MAD-gated aggregate orientation
+and orientation coherence on the 35-expert harness and target families. This directly answers whether
+the higher target fragment count is signal or texture pickup.
+
+## exp16 - live FL combiner test (`exp16_fl_combiner.py`)  [WIRED, PUBLIC TRANSFER FAILED]
+
+Question: does the synthetic term2 idea help the actual 35-expert benchmark?
+
+Result, with the same TTA/inner-edge/current weights and true scale:
+
+| variant | overall | PA | FL | MT |
+| --- | ---: | ---: | ---: | ---: |
+| current fragment median | 0.2274 | 0.1498 | 0.3528 | 0.1795 |
+| identity, weighted-median PA | 0.2701 | 0.1498 | 0.4811 | 0.1795 |
+| identity, MAD-gated PA | 0.2772 | 0.1678 | 0.4843 | 0.1795 |
+| 25% fragment / 75% gated identity | 0.2228 | 0.1498 | 0.3390 | 0.1795 |
+| **50% fragment / 50% gated identity** | **0.1873** | **0.1498** | **0.2326** | **0.1795** |
+| 75% fragment / 25% gated identity | 0.1962 | 0.1498 | 0.2594 | 0.1795 |
+
+No-recenter sanity also improves: current fragment median 0.2877 vs 50/50 blend 0.1998.
+
+Read after public test: this was a real local score improvement and a bad leaderboard proxy. The
+50/50 blend worsened public LB from `0.61918` to about `0.64` while PA and MT stayed identical to
+the `0.61918` file. The blend remains in `segment_then_measure.py`, but the default is now
+`UMUD_FL_IDENTITY_BLEND=0` to recover fragment-only FL.
+
+Caveat turned into evidence: this 35-image clean benchmark, even with the no-recenter sanity check,
+is not a reliable submission oracle for FL-method changes. Do not submit future FL changes because
+they improve this table alone.
+
+## exp17 - target blend/centering sensitivity (`exp17_blend_sensitivity.py`)  [diagnostic]
+
+Question: after wiring the 50/50 FL blend, does the target-set CSV look stable under nearby blend and
+centering choices?
+
+Result from cached local inference, no U-Net rerun:
+
+| variant | mean | std | min | p50 | p95 | max | at_min | mean abs delta vs current |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **blend 0.00, center 74.424** | **74.45** | **21.94** | **30.00** | **74.45** | **113.69** | **130.91** | **2** | **0.00** |
+| blend 0.25, center 74.424 | 74.45 | 22.71 | 30.00 | 74.50 | 113.42 | 134.39 | 2 | 1.77 |
+| blend 0.50, center 74.424 | 74.45 | 23.66 | 30.00 | 73.74 | 115.06 | 138.30 | 2 | 3.53 |
+| blend 0.75, center 74.424 | 74.46 | 24.78 | 30.00 | 72.28 | 118.95 | 142.21 | 2 | 5.26 |
+| blend 1.00, center 74.424 | 74.46 | 26.03 | 30.00 | 70.14 | 121.36 | 146.08 | 3 | 6.98 |
+| blend 0.50, no center | 92.44 | 29.47 | 30.00 | 91.59 | 142.91 | 171.77 | 1 | 17.99 |
+| blend 0.50, center 70.000 | 70.04 | 22.24 | 30.00 | 69.36 | 108.22 | 130.07 | 3 | 4.79 |
+| blend 0.50, center 78.000 | 78.02 | 24.82 | 30.00 | 77.28 | 120.58 | 144.94 | 2 | 4.91 |
+| blend 0.50, center 82.000 | 82.01 | 26.11 | 30.00 | 81.25 | 126.77 | 152.37 | 2 | 7.88 |
+
+Read after public test: blend 0.50 was not a distribution outlier, but that still did not predict
+leaderboard transfer. Nearby blends move rows modestly; centering dominates much more than blend
+choice: without FL centering the target mean jumps to 92.4 mm. The current production centering is
+therefore an important assumption, not decoration. Variant CSVs and `summary.csv` are written under
+`results/blend_sensitivity/` (gitignored result artifacts).
+
+## exp18 - orientation coherence by target family (`exp18_orientation_coherence.py`)  [diagnostic]
+
+Question: target images produce more fascicle fragments than controls; are those fragments coherent
+signal or texture/noise?
+
+Result: all target groups have 100% geometry success and high orientation coherence. Selected rows:
+
+| group/family | n | frag_mean | coherence mean | coherence p10 | coherence min | PA mean | identity/fragment FL ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| BENCHMARK mixed | 35 | ~16.7 | ~0.998 | >=0.994 | 0.992 | ~17-19 | ~0.82-0.97 |
+| TEST bottom_ticks | 59 | 17.36 | 0.997 | 0.995 | 0.982 | 13.96 | 1.023 |
+| TEST family_b_signature | 41 | 22.76 | 0.997 | 0.996 | 0.995 | 11.79 | 1.093 |
+| TEST left_ruler_1cm | 50 | 25.94 | 0.998 | 0.997 | 0.995 | 11.70 | 1.071 |
+| TEST none | 14 | 19.93 | 0.992 | 0.978 | 0.976 | 16.86 | 0.856 |
+| TEST png_left_ruler | 58 | 15.14 | 0.996 | 0.991 | 0.989 | 19.11 | 0.941 |
+| TEST right_ruler_5mm | 87 | 22.33 | 0.997 | 0.995 | 0.990 | 14.75 | 0.971 |
+
+Read after public test: the higher target fragment counts look mostly coherent, not random texture
+scatter, but coherence did not guarantee the blend would transfer. The `none` family has the weakest
+coherence (still high: p10 0.978), so it is the obvious visual-audit candidate. Use this diagnostic
+for orientation/texture audit, not as approval for the rejected blend.
+
 ## Fair-test correction (important)
 
 The exp01 "MT/sin(PA) halves FL (1.188 -> 0.680)" was misleading: it beat a *mean-mismatched* constant
 (74.4 on a set whose mean is 61). Against a constant centered at the RIGHT mean (0.682), raw MT/sin(PA)
-(0.680) only TIES. The per-image shape helps **only after recentering the mean** (0.528 < 0.682). So the
-wired FL is the recentered identity, and the realized gain is ~0.05 on the benchmark, not a halving.
+(0.680) only TIES. The per-image shape helps **only after recentering the mean** (0.528 < 0.682).
+Current production FL prefers fragment-extrapolated FL when a scaled fragment exists, falls back to
+identity only when needed, and then recenters. The rejected blend reinforces the enduring lesson:
+recentering is a major part of the clean local score and therefore cannot be treated as hidden-test
+evidence.
 
 ## Next
 
-- Score FL ideas against the 35 experts locally - never submit to "test". The recentered identity is
-  wired (UMUD_USE_IDENTITY_FL); its Kaggle transfer is unmeasured and small.
-- Real FL beyond the straight floor needs DL-Track's trained fascicle models (re-download the OSF
-  architecture-model folders) or a serious tracking pipeline. Quick heuristics (parabola, texture,
-  streamlines) all failed.
-
-- **exp03 (frontier): measure the curved fascicle path.** Fit a polynomial/spline to the fascicle
-  fragment pixels (capturing bend), integrate arc length between the two aponeuroses, and compare to
-  the straight identity. This is the only thing that can push FL below the ~0.54 straight-model floor
-  toward DL-Track's 0.31. It is the practical form of the path-geometry / "level of bend" idea.
-- Wire the chosen FL estimator (MT/sin(PA) first) into `segment_then_measure.py` for a Kaggle test,
-  gated to images with trustworthy scale (PNG family first).
-- Tune sequence grouping, then test within-clip median smoothing.
+- Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline. Compare any new
+  candidate row-by-row against it before submitting.
+- Bound target-set scale error using two-cue ruler families; do not keep guessing the scale-vs-method
+  split.
+- The blend is rejected as a submission default despite its local win.
+- Remaining no-submission work: two-cue scale-error bound, a visual audit of the 14 `none` scale rows,
+  and a classical orientation-correctness audit.
+- Generate a temporal-smoothing variant only after it can be compared cleanly against the restored
+  baseline, not stacked with another experimental change.
+- Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points
+  back at segmentation.

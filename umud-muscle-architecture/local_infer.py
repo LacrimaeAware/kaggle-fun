@@ -37,9 +37,10 @@ def main():
     limit = int(os.environ.get("UMUD_INFER_LIMIT", "0"))
     if limit:
         files = files[:limit]
-    print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} calib_MT={M.USE_CALIBRATED_MT} "
+    print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} fragment_FL={M.USE_FRAGMENT_FL} "
+          f"fl_identity_blend={M.FL_IDENTITY_BLEND} calib_MT={M.USE_CALIBRATED_MT} "
           f"conf>={M.CALIBRATION_MIN_CONF}", flush=True)
-    rows, mt_ok, fl_ok, t0 = [], 0, 0, time.time()
+    rows, calib_rows, mt_ok, fl_ok, t0 = [], [], 0, 0, time.time()
     fps = []
     for i, p in enumerate(files):
         img = M.read_rgb(p)
@@ -54,6 +55,8 @@ def main():
         fl_mm, mt_mm = M.PRIOR["fl_mm"], M.PRIOR["mt_mm"]
         cand = M.calibrate_image(p) if (M.USE_CALIBRATED_MT or M.USE_CALIBRATED_FL) else None
         px_per_mm = cand.px_per_mm if (cand is not None and cand.confidence >= M.CALIBRATION_MIN_CONF) else None
+        calib_conf = cand.confidence if cand is not None else 0.0
+        calib_method = f"{cand.method}/{getattr(cand, 'edge', '')}" if cand is not None else "none"
         if px_per_mm and M.USE_CALIBRATED_MT and geom is not None and geom["mt_px"] is not None:
             mt_mm = float(np.clip(geom["mt_px"] / px_per_mm, M.MT_MIN, M.MT_MAX))
             mt_ok += 1
@@ -65,6 +68,19 @@ def main():
             fl_ok += 1
         rows.append({"image_id": p.name, "pa_deg": round(pa, 3),
                      "fl_mm": round(fl_mm, 3), "mt_mm": round(mt_mm, 3)})
+        calib_rows.append({
+            "image_id": p.name,
+            "px_per_mm": px_per_mm,
+            "calibration_confidence": calib_conf,
+            "calibration_method": calib_method if px_per_mm else "none",
+            "pa_deg": pa,
+            "fl_px": geom.get("fl_px") if geom else None,
+            "fl_fragment_px": geom.get("fl_fragment_px") if geom else None,
+            "fl_identity_px": geom.get("fl_identity_px") if geom else None,
+            "mt_px": geom.get("mt_px") if geom else None,
+            "fl_mm": fl_mm,
+            "mt_mm": mt_mm,
+        })
         if (i + 1) % 50 == 0:
             print(f"  {i+1}/{len(files)} ({time.time()-t0:.0f}s)", flush=True)
     sub = pd.DataFrame(rows)
@@ -74,8 +90,9 @@ def main():
         sub = M.temporal_smooth(sub, fps)
     out = ROOT / "results" / "submission_local.csv"
     sub.to_csv(out, index=False)
+    pd.DataFrame(calib_rows).to_csv(ROOT / "results" / "calibration_measurement_debug.csv", index=False)
     print(f"\nwrote {out} ({len(sub)} rows) in {time.time()-t0:.0f}s; "
-          f"calibrated MT on {mt_ok}, FL=MT/sin(PA) on {fl_ok}", flush=True)
+          f"calibrated MT on {mt_ok}, per-image FL on {fl_ok}", flush=True)
     print("FL mm: mean %.1f std %.1f min %.1f max %.1f (was a flat 74.424 before)"
           % (sub.fl_mm.mean(), sub.fl_mm.std(), sub.fl_mm.min(), sub.fl_mm.max()))
 

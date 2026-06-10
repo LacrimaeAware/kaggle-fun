@@ -1,17 +1,20 @@
 # UMUD synthesis: goals, intuitions, problems, and the plan
 
-This is the single canonical document for the UMUD work as of the `1.09194` run. It folds in
+This is the single canonical document for the UMUD work as of the `0.61918` baseline and the failed
+`~0.64` blend probe. It folds in
 the scattered planning notes (Codex's `codex_review.md`, `forward_plan.md`,
 `ranked_research_directions.md`) and the conversation that produced them. It is written to keep
 the original intuitions intact rather than reduce them to standard method names. The document
 map at the end says what every other file is for.
 
-> **Status note (2026-06-09):** the framing and intuitions below are current and intact, but the
-> "Where we are" numbers (section 2) reflect the older `1.09194` run. For the CURRENT state - PA
-> effectively solved (0.164), the local 35-expert scoreboard we now iterate on, TTA wired, and the
-> validated scale router that scales 167/309 test images - read **`handoff_brief.md`** and
-> **`competition_reference.md`** first. The intuitions here (scene-reading, path geometry, the
-> fascicle bottleneck) all held up; the scale work confirmed the per-image-scale intuition.
+> **Status note (2026-06-09):** the project has moved materially since the older `1.09194` text.
+> Current best submitted public LB is **0.61918**. A later 50/50 FL blend worsened to about **0.64**
+> while leaving PA and MT identical, so the blend is rejected as a submission default. The current
+> scale router reads **295/309** target images; the default full 35-expert local harness is back to
+> **0.2274** with fragment-only FL (`UMUD_FL_IDENTITY_BLEND=0`). The domain-gap/augmentation-first
+> hypothesis was tested on real train-vs-target frames and demoted. Read **`handoff_brief.md`** first
+> for the tight operational state. The intuitions here (scene-reading, path geometry, the fascicle
+> bottleneck) still matter.
 
 A note on voice: the sections marked "(your framing)" are deliberately stated as the intuition,
 with tool names kept secondary, because the recurring failure in earlier summaries was
@@ -49,30 +52,46 @@ image -> segment aponeuroses + fascicles -> fit geometry -> compute PA/FL/MT -> 
 
 ## 2. Where we are
 
-| System | Public score | Meaning |
+| System | Score | Meaning |
 | --- | ---: | --- |
-| Current best | **1.09194** | U-Net pennation, calibrated MT on 68 images, FL constant |
-| Previous best | 1.11066 | ExtraTrees pennation, FL/MT constant |
-| U-Net PA, no calibrated MT | 1.12324 | same PA path, all FL/MT constant |
-| DL-Track 0.3.1 benchmark | 0.67944 | public benchmark output, not hidden labels |
-| Public leader (sugupoko) | 0.37766 | UMUD solution not published |
+| Current best submitted public LB | **0.61918** | restored safe baseline; scale router + real FL/MT moved us past DL-Track benchmark |
+| Rejected blend probe | ~0.64 | changed FL only; PA/MT identical to 0.61918 file |
+| Provided DL-Track benchmark | 0.679 | public reference pipeline on the hidden test |
+| Public leader (sugopoko/sugupoko) | 0.378 | UMUD solution not published |
+| By-hand human public baseline | 0.459 | third-party manual test-set analysis, declared external/manual |
+| Our default 35-expert local harness | **0.2274** | true scale, clean benchmark, recentered fragment-only FL; not directly comparable to hidden LB |
+| Rejected blend local harness | 0.1873 | looked better locally but regressed public LB, proving this is not a reliable FL submission oracle |
 
-What is built: a two-U-Net segment-then-measure pipeline (`segment_then_measure.py`), a
-standalone ruler/scale detector (`tick_calibration.py`), pennation from geometry, and calibrated
-muscle thickness on the 58 PNGs plus 10 (suspicious) TIFFs. Apo segmentation reaches roughly
-0.6-0.8 Dice; fascicle segmentation is weak (~0.15-0.3 Dice).
+What is built: a two-U-Net segment-then-measure pipeline (`segment_then_measure.py`), TTA,
+inner-edge MT, fragment-extrapolated FL, temporal smoothing toggle, and a per-family scale router
+that currently reads **295/309** target images. Current clean-data local terms are PA 0.1498,
+FL 0.3528, MT 0.1795 via `experiments/score_weights.py`. The rejected blend local terms were
+PA 0.1498, FL 0.2326, MT 0.1795.
 
-What is **not** built: fascicle length is a flat constant on all 309 rows, and thickness is a
-flat constant on 251 of 309. So we are measuring about one of the three targets per image.
+What is **not** solved: the hidden target gap to the leader remains. The older hypothesis was
+"segmentation domain gap"; real-data checks now weaken that. The remaining gap is more likely a
+mix of target-set scale error, prior/mean mismatch, and FL/orientation geometry. The failed blend
+made one rule non-negotiable: do not treat global mean matching or benchmark recentering as hidden
+test evidence.
 
 ---
 
 ## 3. The core problem, stated plainly
 
-We are far from the benchmark **because we have not built the benchmark's method**, not because
-of a secret. The benchmark measures all three numbers in millimetres on every image; we measure
-pennation (roughly) and hard-code the other two on almost every row. The gap from 1.09 to 0.68 is
-mostly the unbuilt two-thirds.
+The old core problem was that we were far from the benchmark **because we had not built the
+benchmark's method**: PA was measured, FL/MT were mostly constants. That is no longer the current
+state. We now measure all three targets on most rows and beat the provided DL-Track benchmark on
+the public LB.
+
+The current core problem is narrower and harder:
+
+```text
+target score 0.619  ->  leader 0.378
+```
+
+No test labels exist, so the next work is not to declare a new bottleneck from vibes. It is to
+bound error sources with label-free checks: two-cue scale disagreement, prior/recentering
+sensitivity, sequence consistency, and classical-vs-network orientation agreement.
 
 Two clarifications that caused confusion and should stay settled:
 
@@ -86,7 +105,8 @@ Two clarifications that caused confusion and should stay settled:
   calibration - which is exactly the unsolved piece. "The method is public" carries a giant
   asterisk: "now solve the scale problem yourself."
 
-So knowing the recipe is not the same as having cooked it. We have cooked about a third.
+So knowing the recipe is not the same as having cooked it. We have cooked the standard pipeline;
+the remaining work is disciplined error attribution and small, testable improvements.
 
 ---
 
@@ -99,13 +119,22 @@ measurement is ~0.33 (human-level), and our constant-prior baseline is ~0.92. So
 is that replacing constants with real per-image measurement is worth ~0.59 *within this set*.
 Correction: do NOT compare the Kaggle 0.68 benchmark with the 0.33 here and call the gap "scale" -
 they are different evaluations (different images, devices, hidden labels), and an earlier draft wrongly
-did this. Scale is a *necessary part* of real measurement (per-image scale varies 74-126 px/cm, and a
-fixed-scale upper bound is ~0.6), but its standalone value to our Kaggle score is unmeasured - the one
-real scale fix we ran moved 0.03. The ceiling (~0.3) is human reproducibility, which the leader (0.378)
-sits near. Caveat: benchmark images are different devices than the Kaggle test set, so their tick
-convention (1 cm) does NOT transfer - the Kaggle PNG family is ~5 mm, verified against its depth text.
-This set is also our local scoreboard (`benchmark_validate.py`: real measured PA/FL/MT, CPU, instant),
-which is what makes the oracle/visual loop possible without fast training.
+did this. Scale is a *necessary part* of real measurement, and current target coverage is high
+(295/309), but its standalone value to the current Kaggle score is still something to measure, not
+assume. The ceiling (~0.3) is human reproducibility, which the leader (0.378) sits near. Caveat:
+benchmark images are different devices than the Kaggle test set, so their tick convention does NOT
+transfer. This set is also our local scoreboard (`benchmark_validate.py` plus the fuller
+`experiments/score_weights.py` harness), which makes the oracle/visual loop possible without fast
+training.
+
+Latest local score distinction:
+
+- `experiments/score_weights.py`: **0.2274** with the current default `UMUD_FL_IDENTITY_BLEND=0`,
+  and FL recentered to the benchmark mean.
+- `UMUD_FL_IDENTITY_BLEND=0.5`: **0.1873** locally, but publicly regressed `0.61918 -> ~0.64`.
+  This is now recorded as a failed transfer test, not a current improvement.
+- `score_on_benchmark.py`: **0.288** raw/simple scoring; useful sanity check, not the headline
+  current local number.
 
 ## 4. The intuitions driving the "clever" path (your framing)
 
@@ -249,85 +278,70 @@ labeled data, temporal smoothing, or anything else in particular.
 
 ## 6. The plan
 
-Two tracks run in parallel. Track A is the standard measurement pipeline and is the most likely
-near-term score mover. Track B is where your intuitions and a possible novel contribution live;
-it is *instrumented* by the same validation harness Track A needs first.
+Two tracks still run in parallel, but their priorities changed. Track A is now error attribution
+on the real target distribution. Track B is FL/orientation geometry, where your path-geometry
+intuition still has the most room.
 
-### The harness comes before both tracks
+### Current correction: domain-gap retraining is demoted
 
-Build the visual + numeric validation harness first, because it is the control panel for
-everything and it settles the 4d fork. Render, per image: the grayscale background, the predicted
-apo and fascicle masks, the fitted lines, the measured MT gap and FL line, the detected scale
-ticks, and the final PA/FL/MT with confidence/fallback reasons. Then, on held-out training masks,
-report derived **PA error in degrees** and FL/MT in pixels by comparing geometry-from-predicted-
-masks against geometry-from-true-masks. This is the first time we get a local number that tracks
-the real targets instead of Dice. The UMUD organizers also publish an expert-analyzed benchmark
-(35 vastus/gastroc/tibialis/soleus images measured by seven experts, on the platform's Benchmarks
-page) - that is a small but real set of *measured* values to validate against; grab it if the
-download works.
+`experiments/domain_gap_real.py` tested the train-vs-target appearance gap on real frames:
+mean |SMD| = 0.44, no feature crosses |SMD| > 1 globally, test frames mix into train clusters,
+and CLAHE/z-score/min-max normalization does not close a hidden global-intensity gap. The older
+"Lumify/unseen-device segmentation collapse" hypothesis is not supported by this check.
 
-### Track A: make the measurement real
+`experiments/seg_quality_test.py` is the companion mask-presence probe. Its outputs should be read
+carefully: presence is not correctness. The unresolved question is whether extra target fragments
+are coherent signal or texture noise, not whether the segmenter simply collapses.
 
-1. **Validation harness** (above) - settles "do we need more geometry," catches scale bugs by eye.
-2. **Scale, family by family.** PNG left-ruler works; the 251 TIFFs are the gap, and the 10
-   calibrated TIFFs sharing `13.45 px/mm` are suspect. Build per-family detectors (right ticks,
-   bottom ticks, depth-text readout, metadata, sequence borrowing) and a confidence model that
-   punishes a constant scale across different depths and ticks found inside text panels.
-3. **Fascicle length.** Once scale is trusted, test direct line-intersection FL versus
-   `MT / sin(PA)` versus curved arc length on the held-out masks, and gate FL per row.
-4. **DL-Track reproduction** as a *reference*, not a worship target: run the public tool headless
-   on a subset to see what its masks, geometry, and scale choices do, then on all 309.
-5. **Craft** once the base is real: folds, TTA (with correct inverse transforms), self-training on
-   confident test masks, simple ensembling, sequence smoothing, outlier fallback.
+### Track A: bound the public-gap causes
 
-### Track B: the geometry and factor ideas
+1. **Scale bound on the target set.** Use two-cue families to measure disagreement between
+   independent rulers. This is label-free and directly sizes the remaining scale risk.
+2. **Prior/recentering audit.** The full clean score benefits from recentering FL to a known
+   benchmark mean. The failed blend proves that this kind of local FL win can point in the wrong
+   direction publicly. Mean matching is now an audit risk, not evidence.
+3. **Temporal smoothing side-bet.** Sequence-like clips exist. `UMUD_TEMPORAL_SMOOTH` is built and
+   off by default; it is a modest variance reducer that needs a leaderboard probe to value.
 
-1. **Postprocess before re-architecting.** On the existing probability maps, try threshold sweeps,
-   skeletonization/centerlines, component filtering, RANSAC/Hough line fits, structure-tensor
-   orientation, and rejecting thick near-horizontal (apo-like) ridges when fitting fascicles. Ask
-   whether centerline postprocessing fixes the visible failures before building anything new.
-2. **Orientation head** (4b): derive `(cos 2theta, sin 2theta)` orientation labels from fascicle
-   masks, add the auxiliary head, and judge it by **derived PA error, not Dice**.
-3. **Failure-subclass discovery + oracle** (4e): cluster the harness's failures into interpretable
-   subclasses, have the human verify/name them, and feed that back into augmentation, sampling,
-   loss weighting, or per-subclass postprocessing - as a diagnostic instrument, with the plain
-   baseline kept visible.
+### Track B: FL/orientation geometry
+
+1. **Robust FL combiner.** `experiments/term2_geometry.py` shows why FL amplifies PA error and why
+   mean per-fragment FL is biased. `experiments/exp16_fl_combiner.py` found a 50/50 blend that
+   beats fragment-only on the 35-expert harness (0.2274 -> 0.1873), but the public LB worsened
+   0.61918 -> ~0.64. The blend remains available for experiments, but the default is fragment-only.
+2. **Orientation coherence.** Extra fragments on target frames can be signal or texture. Coherence
+   around a robust orientation center is a label-free signal/noise test. `exp18_orientation_coherence.py`
+   found high target coherence by family (~0.992-0.998 means), so extra target fragments look mostly
+   like aligned signal rather than random texture.
+3. **Classical oriented-structure cross-check.** A structure-tensor/Gabor/Radon estimate should not
+   replace the U-Net blindly, but it can audit orientation correctness and provide dense label
+   candidates if the sparse-mask ceiling remains.
 
 ### What not to do
 
-Do not make tiny CSV column swaps the main plan (they move hundredths; fine only as cheap probes).
-Do not train bigger U-Nets before the harness exists. Do not assume better Dice means a better
-score. Do not assume the leader's method is known. Do not commit keys, external weights/datasets,
-or generated result folders. Do not hand-label test images.
-
-### One cheap probe worth spending a submission on
-
-`best PA + PNG-only calibrated MT` (the `submission_best_pa_calibrated_mt_png_only.csv` variant):
-it pairs the stronger ExtraTrees pennation with the safe PNG MT and drops the 10 suspicious TIFFs,
-and should land near ~1.08. It tells us whether the MT signal stacks with the better PA. Then stop
-polishing variants.
+Do not spend the next GPU run on augmentation just because synthetic probes suggested a domain
+gap. Do not assume mask-presence means orientation correctness. Do not treat the clean local
+score as hidden-test truth. Do not hand-label test images. Do not hide family-signature scale
+assignments; keep their method names visible.
 
 ---
 
 ## 7. Concrete next implementation order
 
 ```text
-1. Validation harness: overlays + held-out PA-in-degrees / FL-MT-in-pixels error.
-   -> answers: when fascicle Dice is low, is the angle also wrong?
-2. (one probe) best PA + PNG-only calibrated MT submission.
-3. Scale for TIFFs, per family, behind a depth-aware confidence model.
-4. Fascicle length estimators on held-out masks, gated per row.
-5. DL-Track headless reproduction on a subset, then all 309, as a reference.
-6. Geometry-aware fascicle work: centerline postprocess, then orientation head.
-7. Failure-subclass discovery + oracle guidance (Track B instrument).
-8. Craft: folds, TTA, self-training, ensembling, sequence smoothing, outlier fallback.
+1. Keep `results/submission_local.csv` restored to the downloaded `0.61918` baseline and use it as
+   the comparison anchor.
+2. Compare every candidate row-by-row against that baseline before any submission.
+3. Two-cue scale-error bound on the current 295/309 router.
+4. Visual audit of the 14 `none` scale rows and weakest-coherence rows.
+5. Build a classical orientation-correctness audit before another FL-method submission.
+6. Only then reconsider fold/seed ensembling, conservative self-training, external DL-Track data, or
+   dense classical pseudo-labels.
 ```
 
 The thesis in one sentence: this is a geometry-reading problem where masks are only intermediate
-supervision and Dice is misaligned with the metric; the near-term score lives in per-image scale
-and non-constant FL/MT, and the interesting, possibly-novel route is to make the model care about
-fascicle path geometry and to discover and correct its failures at the subclass level - with the
-plain baseline always kept visible as the thing that actually scores.
+supervision and Dice is misaligned with the metric; the remaining score lives in measured
+target-set error attribution plus FL/orientation geometry, not in another blind augmentation pass.
 
 ---
 

@@ -1,9 +1,12 @@
-"""Run our trained U-Nets on the 35 expert-benchmark images and score PA/FL/MT vs the experts.
+"""Run our trained U-Nets on the 35 expert-benchmark images and score raw PA/FL/MT vs the experts.
 
 Uses the TRUE per-image scale (from the xlsx) to convert pixels->mm. That isolates our
 segmentation + geometry quality from calibration: if we are far from DL-Track's 0.331 even with
 perfect scale, the bottleneck is masks/geometry; if we are close, calibration is the remaining gap.
 CPU only. Needs results/seg_apo.pt and results/seg_fasc.pt.
+
+This is a raw sanity scorer. For the current headline local number, use
+`experiments/score_weights.py`, which mirrors the fuller wired pipeline and recentered FL.
 
 Caveat: these images are different devices than our training data, so a poor score may reflect
 cross-device domain shift rather than the approach itself.

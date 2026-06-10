@@ -1,5 +1,10 @@
 # UMUD forward plan after 1.09194
 
+> **Archive note (2026-06-09):** this plan is historical. The current repo state is the `0.61918`
+> restored baseline with 295/309 scale reads; the later FL blend regressed to ~0.64 and is off by
+> default. Domain-gap retraining remains demoted.
+> Read `handoff_brief.md`, `synthesis.md`, and `experiments/README.md` before using this file.
+
 Public-safe plan after the confidence-gated MT run scored `1.09194`.
 
 ## What the score means

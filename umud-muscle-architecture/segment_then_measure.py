@@ -81,6 +81,7 @@ USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
 USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated per-family scale (54% coverage)
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), fallback when no fragment
 USE_FRAGMENT_FL = os.environ.get("UMUD_FRAGMENT_FL", "1") != "0"  # FL from fascicle fragment extrapolated to apo lines; beats identity once apo inner-edge is fixed (0.481->0.353 on the 35 experts)
+FL_IDENTITY_BLEND = float(os.environ.get("UMUD_FL_IDENTITY_BLEND", "0"))  # keep fragment-only FL by default; blend=.5 looked better locally but regressed public LB 0.61918->~0.64
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
@@ -88,7 +89,7 @@ USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT b
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-09.9"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-09.11"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -375,6 +376,20 @@ def weighted_median(vals, wts):
     return float(v[np.searchsorted(c, c[-1] / 2.0)])
 
 
+def mad_gated_weighted_mean(vals, wts, k=2.5):
+    """Robust aggregate for fragment PA: median seed, MAD inlier gate, weighted mean on inliers."""
+    vals = np.asarray(vals, float)
+    wts = np.asarray(wts, float)
+    if len(vals) == 0:
+        return None
+    center = weighted_median(vals, wts)
+    mad = np.median(np.abs(vals - center)) + 1e-9
+    inlier = np.abs(vals - center) <= k * 1.4826 * mad
+    if int(inlier.sum()) < 3:
+        return float(center)
+    return float(np.sum(vals[inlier] * wts[inlier]) / (np.sum(wts[inlier]) + 1e-9))
+
+
 def line_y(line, x):
     s, b = line
     return s * x + b
@@ -445,9 +460,24 @@ def measure(apo_mask, fasc_mask):
             wts.append(int(statsf[i, 4]))  # weight by fragment size (exp05: sharpens PA)
             if fl is not None and 10.0 <= fl <= 4000.0:
                 fls.append(fl)
+    pa_deg = weighted_median(angs, wts) if angs else None
+    fl_fragment_px = float(np.median(fls)) if fls else None
+    fl_identity_px = None
+    if angs:
+        pa_gated = mad_gated_weighted_mean(angs, wts)
+        if pa_gated is not None and pa_gated > 0:
+            fl_identity_px = float(mt_px / np.sin(np.radians(pa_gated)))
+    fl_px = fl_fragment_px
+    blend = float(np.clip(FL_IDENTITY_BLEND, 0.0, 1.0))
+    if fl_fragment_px is not None and fl_identity_px is not None and blend > 0:
+        fl_px = (1.0 - blend) * fl_fragment_px + blend * fl_identity_px
+    elif fl_px is None and fl_identity_px is not None:
+        fl_px = fl_identity_px
     return {
-        "pa_deg": weighted_median(angs, wts) if angs else None,
-        "fl_px": float(np.median(fls)) if fls else None,
+        "pa_deg": pa_deg,
+        "fl_px": fl_px,
+        "fl_fragment_px": fl_fragment_px,
+        "fl_identity_px": fl_identity_px,
         "mt_px": float(mt_px),
         "n_fascicles": len(angs),
     }
@@ -503,7 +533,8 @@ def temporal_smooth(sub, fps, thresh=0.92, max_len=12):
 def main():
     print(f"\n##### UMUD pipeline VERSION {PIPELINE_VERSION} #####", flush=True)
     print(f"      scale_router={USE_SCALE_ROUTER}  TTA={USE_TTA}  fasc_pos_weight={FASC_POS_WEIGHT}  "
-          f"clahe={USE_CLAHE}  temporal={USE_TEMPORAL_SMOOTH}  epochs={EPOCHS}  min_conf={CALIBRATION_MIN_CONF}",
+          f"clahe={USE_CLAHE}  temporal={USE_TEMPORAL_SMOOTH}  epochs={EPOCHS}  min_conf={CALIBRATION_MIN_CONF}  "
+          f"fl_identity_blend={FL_IDENTITY_BLEND}",
           flush=True)
     print("      (old code would NOT print this line - if you don't see VERSION, re-run the wget cell)\n", flush=True)
     test_dir = DIRS["test"]
@@ -585,7 +616,7 @@ def main():
     sub.to_csv(out_csv, index=False)
     pd.DataFrame(calib_rows).to_csv(OUT / "calibration_measurement_debug.csv", index=False)
     print(f"geometry succeeded on {ok}/{len(test_files)} images", flush=True)
-    print(f"calibrated MT on {mt_ok}/{len(test_files)}; FL=MT/sin(PA) on {fl_ok}/{len(test_files)}", flush=True)
+    print(f"calibrated MT on {mt_ok}/{len(test_files)}; per-image FL on {fl_ok}/{len(test_files)}", flush=True)
     print(f"wrote {out_csv} ({len(sub)} rows)", flush=True)
     print(sub["pa_deg"].describe().to_string(), flush=True)
 

@@ -1,5 +1,5 @@
 """Score a given pair of seg weights on the 35-expert benchmark with the FULL wired pipeline
-(TTA + measure + identity FL recentered + true-scale MT). Usage:
+(TTA + measure + configured FL path + recentered FL + true-scale MT). Usage:
     python score_weights.py [apo.pt] [fasc.pt]   (defaults to results/seg_apo.pt, seg_fasc.pt)
 """
 import sys
@@ -27,7 +27,8 @@ def load(path):
 
 
 def main():
-    print(f"apo  = {apo_path}\nfasc = {fasc_path}\n(TTA={M.USE_TTA} min_area={M.FASC_MIN_AREA} min_ang={M.FASC_MIN_ANG})")
+    print(f"apo  = {apo_path}\nfasc = {fasc_path}\n(TTA={M.USE_TTA} min_area={M.FASC_MIN_AREA} "
+          f"min_ang={M.FASC_MIN_ANG} fl_identity_blend={M.FL_IDENTITY_BLEND})")
     truth, _ = BV.load_truth()
     bench = next((p.parent for p in ROOT.glob("data/**/im_01_arch.tif")), None)
     apo, fasc = load(apo_path), load(fasc_path)
@@ -56,7 +57,7 @@ def main():
     mt_t = np.abs(a[:, 5] - a[:, 2]).mean() / TOL["mt_mm"]
     print(f"\noverall {(pa_t + fl_t + mt_t) / 3:.4f}   pa {pa_t:.4f}   fl {fl_t:.4f}   mt {mt_t:.4f}   "
           f"| mean fragments/img {np.mean(nfrag):.1f}")
-    print("refs: current weights ~0.368 (pa .164 fl .449 mt .490) | human 0.307 | DL-Track 0.331")
+    print("refs: default blend=0 ~0.227 (pa .150 fl .353 mt .180) | blend=.5 local ~0.187 but public regressed 0.61918->~0.64 | human 0.307 | DL-Track 0.331")
 
 
 if __name__ == "__main__":

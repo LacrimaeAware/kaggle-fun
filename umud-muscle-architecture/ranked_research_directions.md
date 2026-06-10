@@ -1,5 +1,9 @@
 # UMUD ranked research directions
 
+> **Archive note (2026-06-09):** this was written after the `1.09194` run and is no longer the next
+> work plan. The current plan is target-set scale error bounding, prior/recentering sensitivity, and
+> FL/orientation geometry. Read `handoff_brief.md` and `experiments/README.md`.
+
 Public-safe strategy note, written after the `1.09194` run. This is meant to be
 copy-pasted into another model or used as the next work plan for this repo. It
 does not assume that the leader's private solution is known.
