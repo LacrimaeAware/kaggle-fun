@@ -3,8 +3,18 @@
 Current-state briefing so another model can get caught up and extend or cross-check this work.
 Read it with the canonical docs at the end. Last substantive update: 2026-06-10.
 
-**Read first:** `STATE_RESET_2026-06-10.md`. Best public score remains 0.61918. Post-best probes
-failed: FL blend 0.63905, MT vertical-3 0.62561, and bar-only scale-tail 0.66711.
+**Read first:** `MASTER_REVIEW.md` (canonical state as of 2026-06-10/11). Then `STATE_RESET_2026-06-10.md` for pre-history. Best SUBMITTED public score is **0.61918** (#7 at time of submission). Five post-best tweaks have all regressed:
+
+| submitted | LB | status |
+|---|---:|---|
+| FL identity blend | 0.63905 | rejected |
+| MT vertical-3 | 0.62561 | rejected |
+| bar-only scale tail | 0.66711 | rejected |
+| **facing-geometry FL** (`UMUD_FL_FACING=1`) | **0.66459** | **rejected** — multi-muscle outliers + gate wrong 41% |
+
+The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrapolation) **was submitted and regressed** 0.619→0.665. The geometry is zero-bias on the 35-expert benchmark (+0.7mm bias) but fails on ~13 multi-muscle test images where 3 apo bands exist, the wrong pair is selected, and fascicles from both muscles mix into one garbage consensus.
+
+`results/submission_local.csv` is the **0.61918 baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The production code still defaults `UMUD_FL_FACING=1` — always set `UMUD_FL_FACING=0 UMUD_FL_IDENTITY_BLEND=0` to reproduce the baseline.
 
 ## The competition
 
@@ -139,6 +149,15 @@ This is the first change that targets the actual LEADERBOARD (the test set) vs t
 The Kaggle gain is UNMEASURABLE locally (no test labels); it is submission-ready and the user decides
 whether to spend a submission.
 
+## New findings since exp30 (2026-06-10/11)
+
+- **OCR scale partition DONE**: verified 48, text-confirmed 99, tick-only 147, flag 1, mean 14. 147/148 cross-check agreement where two reads exist. IMG_00275 caught as 2x error (tick 201 vs OCR 101 px/cm), quarantined.
+- **FL recenter proven NO-OP**: `UMUD_FL_RECENTER=0` changes 0/309 rows — per-image FL already averages 74.4 before the pin. Not a hidden confounder.
+- **FL methods benchmark** (`bench_fl_methods.py`): facing = zero bias (+0.7mm, term 0.26). Straight all-frags = +24mm overshoot. Per-gap wave/bend = +25mm (same overshoot — it dropped minimize-extrapolation). Facing's minimize-extrapolation is the fix; the bend/wave is NOT.
+- **Fascicle bend is real but wrong convention** (`bench_fl_bend.py`, FALLMUD `fallmud_fl_test.py`): parabola fits apo edges 44% better on FALLMUD GT; wave FL is median 1.09x longer than reference straight FL. The competition scores straight-line extrapolation convention, not anatomy. Do not chase bend.
+- **PA geometry validated** (`compare_lines.py`, `draw_tool.py`): user drew fascicles on 8 test images; our fitted angle is off by mean 1.8°, within the 6° PA tolerance.
+- **Per-gap prototype built** (`per_gap_viewer.py`): `apo_bands()` now merges depth-overlapping fragments into one aponeurosis; hard guards reject crossing gaps and fascicles that cross an apo. Prototyped on 16 images. NOT wired to production. The wave FL overshoots — the wired version must use `compute_facing_fl()` per gap, not the wave.
+
 ## Open fronts
 
 1. **Bound target-set scale error, do not guess it.** Use families with two independent scale cues to
@@ -250,34 +269,21 @@ whether to spend a submission.
 
 ## Current submission recommendation
 
-Do **not** submit the blend. The current on-disk `results/submission_local.csv` has been restored
-from `C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv` and is byte/data-identical to
-the known `0.61918` file. Use it as the safe baseline for row-by-row comparisons. The next candidate
-should be justified by scale correctness, orientation correctness, or a conservative ensemble audit,
-not by a global mean or the 35-image FL score alone. The external-data rules question is now read as:
-public/free/equally accessible external data and models are allowed if declared and reproducible; the
-host also permits target-record labeling/fine-tuning as declared external data, but that is a separate
-human-in-loop strategy, not the current default.
+`results/submission_local.csv` IS the 0.61918 baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). Safe anchor.
 
-Rejected no-oracle submission candidates:
+**The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` — NOT the wave trace. Test on `bench_fl_methods.py` first (must hold ~zero bias), eyeball the ~13 multi-muscle images in the viewer, then only if both pass: submit. This is the highest-value next probe.
 
-- `results/submission_host_mt_vertical3_no_subpixel.csv`: changed only MT and worsened public LB
-  **0.61918 -> 0.62561**.
-- `results/submission_scale_tail_bar_only.csv`: changed four direct scale rows plus FL recenter
-  ripple and worsened public LB **0.61918 -> 0.66711**.
-- FL low-extrapolation top-3: local negative; do not submit.
+**Do NOT submit** based on:
+- Local benchmark improvement alone (mispredicted LB direction 4 times)
+- Any change that hasn't been isolated to a single dimension
+- The wave/bend FL (it overshoots +25mm, same as straight; the per-gap wave dropped minimize-extrapolation)
 
-Return to `results/submission_local.csv` as the anchor. Do not submit bar-only, shape-only, all-tail,
-MT vertical-3, or FL blend again without new evidence. Stop isolated CSV probes until there is a
-verified bug fix, a declared human-in-loop validation/tuning path, or a substantial model branch.
+**Rejected candidates** (all regressed from 0.61918):
+- Facing FL as-is (0.66459): multi-muscle gate wrong
+- FL identity blend (0.63905)
+- MT vertical-3 (0.62561)
+- Bar-only scale tail (0.66711)
 
-Reviewer handoff with the public result: `NEXT_SUBMISSION_REVIEW.md`.
+**Do not run**: `UMUD_FL_FACING=1` (default) without also setting `UMUD_FL_IDENTITY_BLEND=0`. A fresh `local_infer.py` run without those flags ships the rejected facing candidate and overwrites the safe submission file.
 
-After that, current next work is: use exp29 to find learned-vs-router disagreements and decide
-whether an ROI/crop cue model is worth building, and/or prepare a controlled public-asset
-segmentation ensemble branch, while keeping temporal-only and 4-row bar-only as isolated small-probe
-options.
-
-Latest alignment note: `current_alignment.md`. It explicitly records that the learned scale-cue path
-is useful as QA/disagreement machinery but is not the score-first submission path unless it exposes a
-concrete router failure.
+Canonical current-state doc: `MASTER_REVIEW.md`.

@@ -886,3 +886,37 @@ evidence.
   baseline, not stacked with another experimental change.
 - Keep augmentation/self-training demoted unless a correctness audit, not a presence audit, points
   back at segmentation.
+
+## exp23-25: human-in-the-loop visual review -> FACING-GEOMETRY FL (2026-06-10, the real FL win)
+
+**Question.** After every isolated post-0.619 tweak regressed on the LB, where is the FL error
+*actually* coming from - and can we see it instead of guessing against the recentered benchmark?
+
+**Method.** Built `experiments/visual_review_export.py`: an interactive layer-toggle viewer
+(`results/visual_review/index.html`) drawing the predicted apo lines/parabolas, fascicle mask, the
+fits we use vs exclude, and every method's extrapolated length, next to expert truth, sorted
+worst-FL-first. The user reviewed by eye and diagnosed the bugs; each fix was measured as RAW FL
+error (no recenter) on the 35 experts.
+
+**Result (raw FL error vs expert).**
+| FL method | mean err | bias |
+| --- | ---: | ---: |
+| current (per-fragment, own angle, straight apo) | 6.4mm | +6.0mm |
+| + consensus angle (one parallel wave) | 5.8mm | +5.2mm |
+| + facing-parabola apo (curve toward muscle) | 3.5mm | +1.9mm |
+| **+ minimize-extrapolation (stacked)** | **2.5mm** | **~0mm** |
+
+Through production `measure()` + recenter: overall **0.227 -> 0.196**, PA 0.1498 / MT 0.1795
+unchanged, FL term 0.353 -> 0.259. Port verified bit-exact vs the viewer geometry (0.00mm).
+
+**Generalization (`generalization_check.py`).** Ran the final geometry on 220 diverse TRAINING
+muscles: facing/straight ratio distribution identical to the benchmark, 0 haywire, 99% success - a
+general geometric fix with no baked-in muscle constants, not a 35-image artifact.
+
+**Read.** Fragment FL was systematically too long because we extrapolated short fragments along their
+own angle to straight apo lines running off-frame. The user's three eye-diagnosed fixes - parallel
+consensus, apo that curves toward the muscle, and keep only low-extrapolation fragments (the host's
+own rule) - eliminate the overshoot. Wired as `UMUD_FL_FACING` (default on), `compute_facing_fl()`.
+Candidate submission regenerated with `UMUD_SCALE_SUBPIXEL=0` so MT stays byte-identical to the
+0.61918 baseline (clean isolated FL probe). Remaining eye-diagnosed levers: fascicle bend (residual
+~+1mm) and apo-bottom-edge image-guided refinement (im_12-type under-segmented apo mask).

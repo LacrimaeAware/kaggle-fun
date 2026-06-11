@@ -3,22 +3,70 @@
 Read this first. It supersedes the scattered "next candidate" notes written before the latest
 leaderboard results.
 
-## Bottom Line
+## WHERE THINGS STAND (2026-06-10, AFTER the facing submission)
 
-Best known submission remains:
+The facing-geometry FL candidate (described at the bottom of this section) **WAS submitted and
+REGRESSED**: public LB **0.61918 -> 0.66459**. The safe baseline is therefore still the 0.61918 file,
+preserved at `Downloads/0P61918_submission_local.csv` (results/ is gitignored). Do NOT resubmit facing
+as-is. The rest of this section is the diagnosis of *why* it regressed, from independent ground truth.
 
-`results/submission_local.csv` -> public LB **0.61918**
+### Why facing regressed - diagnosed on independent ground truth (FALLMUD)
 
-Everything submitted after that has been worse:
+The user downloaded FALLMUD (`data/dropoff/FALLMUD/`), two independent annotated ultrasound
+collections, to test our geometry against masks we never trained on. **NeilCronin** (309 imgs, same
+format as the competition: horizontal apos + sparse fascicle dashes) is directly usable.
+**RyanCunningham** (504 imgs, dense fibre-orientation field, rotated/vertical apo convention) is a
+different format and is set aside for now.
+
+Independent findings on NeilCronin GT masks:
+- **Segmentation transfers.** Our apo/fascicle U-Nets on images we never trained on: apo IoU 0.56
+  (training 0.69), fascicle coverage 52% (training 49%). Modest drop; the segmentation half holds up.
+- **The apo bend is REAL.** A parabola fits the GT aponeurosis edges **44% better** than a line
+  (residual 1.73px -> 0.96px, over 156 apo edges). The user's bend intuition is confirmed on untouched
+  data - facing was catching a real phenomenon, not noise-fitting the 35-benchmark.
+- **But facing's gate is wrong 41% of the time.** Facing only keeps the parabola if it bows *toward*
+  the muscle (`A_sup>=0, A_deep<=0`). On independent apos that condition holds only **59%** of the
+  time; the other 41% the apo genuinely bends the opposite way and facing throws the bend away and
+  forces a straight line.
+- **And the FL effect sits under the tolerance floor, with harmful outliers.** Median FL change from
+  facing is **3.6%** (~2.7mm, well under the 12mm FL tolerance), but the signed mean is **-6.6%**: a
+  few images get large erroneous shortenings (mean << median = outlier skew). Production recenters FL
+  to the prior mean, absorbing the systematic part - so what reaches the leaderboard is the outlier
+  *spread*, and it transfers as harm.
+
+Synthesis: **the bend is real; facing is a real phenomenon caught with a flawed rule.** The
+"bow-toward-muscle-only" gate is half-wrong, and the gain on FL is below the tolerance floor while the
+outliers poke above it. That fully explains why facing improved the 35-benchmark yet sank the
+leaderboard - and it matches the standing lesson that the 35-image set is a sanity tool, not an oracle.
+
+### The per-gap multi-level fix (BUILT, NOT wired, NOT submitted)
+
+Separately, the user diagnosed a "two levels" bug on multi-muscle test images: 3 apo bands, band-
+selection picks the wrong pair, and fascicles from BOTH muscles get mixed into one consensus ->
+orthogonal/garbage extrapolations (worst on the ~13 extreme images that drove most of the facing
+regression). Prototype: `experiments/per_gap_prototype.py`; interactive viewer
+`experiments/per_gap_viewer.py`. It fits every apo band, forms a gap per consecutive pair, assigns
+each fascicle to its gap, runs the geometry PER GAP, then fragment-count-weighted averages the gaps.
+This is the honest next lever (it fixes a *verified* bug, satisfying the submission policy below). It
+is NOT wired into production and NOT submitted. Note it inherits the facing geometry, so the gate fix
+above should land first.
+
+The facing FL code is still in `segment_then_measure.py` behind `UMUD_FL_FACING` (default on); set
+`UMUD_FL_FACING=0` to reproduce the 0.61918 FL path.
+
+## Prior baseline + the rejected probes (history)
+
+Best submitted, and the current safe baseline: `0P61918_submission_local.csv` (preserved in Downloads)
+-> public LB **0.61918** (fragment-only FL, perp/center MT, scale router, no sub-pixel). The facing
+candidate regressed, so this is what to fall back to. Everything else submitted was worse and must NOT
+be resubmitted:
 
 | submitted file | public score | changed surface | decision |
 | --- | ---: | --- | --- |
+| facing-geometry FL (`UMUD_FL_FACING=1`) | 0.66459 | FL only | rejected (bend real, gate half-wrong - see top) |
 | `submission_local.csv` with FL identity blend | 0.63905 | FL only | rejected |
 | `submission_host_mt_vertical3_no_subpixel.csv` | 0.62561 | MT only | rejected |
-| `submission_scale_tail_bar_only.csv` | 0.66711 | 4 direct scale rows plus FL recenter ripple | rejected |
-
-Do not submit any of those rejected variants again. For Kaggle auto-selection, select the **0.61918**
-`submission_local.csv`.
+| `submission_scale_tail_bar_only.csv` | 0.66711 | 4 scale rows + FL recenter ripple | rejected |
 
 ## What Actually Worked
 
@@ -92,7 +140,7 @@ Submit only if one of these is true:
 
 ## Practical Next Directions
 
-1. Preserve `results/submission_local.csv` as the safe baseline.
+1. Treat `Downloads/0P61918_submission_local.csv` as the safe baseline (0.61918). `results/submission_local.csv` has been regenerated back to the 0.61918 baseline and is byte-identical to the Downloads file.
 2. Stop treating `results/submission_scale_tail_bar_only.csv`, shape-only, all-tail, MT vertical-3,
    and FL blend as live candidates.
 3. Decide explicitly whether to use a declared human-in-loop target-labeling path. The host's public
@@ -105,7 +153,9 @@ Submit only if one of these is true:
 
 ## File Map
 
-- `results/submission_local.csv`: best known public score, **0.61918**.
+- `Downloads/0P61918_submission_local.csv`: best known public score, **0.61918** (the safe baseline).
+- `results/submission_local.csv`: regenerated to the 0.61918 baseline (byte-identical to the Downloads file). Safe to use as-is.
+- `data/dropoff/FALLMUD/`: independent annotated ultrasound sets (NeilCronin usable, RyanCunningham different format) used for the bend diagnosis above.
 - `NEXT_SUBMISSION_REVIEW.md`: post-submission audit notes; now records the rejected MT and bar-only
   tail probes.
 - `current_alignment.md`: active strategy alignment.
