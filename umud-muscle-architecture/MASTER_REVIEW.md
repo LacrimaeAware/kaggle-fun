@@ -56,7 +56,7 @@ The 0.331 and 0.679 are the same tool on different exams. Never subtract across 
 | **Scale** | per-family tick/ruler router, 295/309 coverage | the score-mover, 1.09→0.619 |
 | **MT** | inner-edge aponeurosis gap (not band centroids) | bench MT 0.49→0.18 |
 | **PA** | weighted-PCA/TLS orientation + min-6°/min-40px filters + length-weighted median | bench PA 0.225→0.164, near human floor; hand-drawn lines confirm fit within **1.8°** |
-| **FL** | fragment extrapolation + facing's minimize-extrapolation gate | bench FL 0.48→0.35 |
+| **FL** | fragment extrapolation (safe 0.619 baseline; facing/minimize-extrapolation is opt-in and rejected as-is) | bench FL 0.48→0.35 |
 | **Seg** | two ResNet34 U-Nets + TTA (mirror+multiscale) | bench 0.383→0.370 |
 
 PA and MT are effectively solved on geometry. Scale is solved and now *verifiable* (§5).
@@ -104,14 +104,14 @@ Side-by-side on the 35 experts (true scale), `bench_fl_methods.py`:
 
 ## 8. VERDICT: what helps, what harms, what's neutral
 
-- **HELPS (banked in 0.619):** scale router, inner-edge MT, weighted-PCA PA + filters, TTA, fragment-FL + minimize-extrapolation.
+- **HELPS (banked in 0.619):** scale router, inner-edge MT, weighted-PCA PA + filters, TTA, fragment-FL baseline.
 - **HARMS (rejected):** facing-FL submission, FL blend, MT vertical-3, bar-only scale tail, recall-bias retrain, CLAHE inference.
 - **NEUTRAL / no-op:** FL-mean recenter (no-op on shipped pipeline), mean-drop (no-op), per-gap wave/bend FL (worse than facing — the bend is real but diverges from the scored convention and is below tolerance).
 - **UNTESTED with real potential:** facing + per-gap multi-muscle fix (could recover facing's zero-bias gain *without* the multi-muscle regression); a better fascicle segmentation model (the real bottleneck).
 
 ## 9. FORWARD PLAN
 
-1. **Floor:** `Downloads/0P61918_submission_local.csv` (LB 0.619) is the safe fallback. (Caution: production code default is `UMUD_FL_FACING=1`; always set `UMUD_FL_FACING=0 UMUD_FL_IDENTITY_BLEND=0` to reproduce the baseline, or it ships the rejected facing candidate.)
+1. **Floor:** `Downloads/0P61918_submission_local.csv` (LB 0.619) is the safe fallback. The production code now defaults to `UMUD_FL_FACING=0` and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run keeps the safe fragment-FL baseline unless a rejected probe is explicitly enabled.
 2. **The one geometry shot left:** wire **facing-FL per gap** (per-gap = multi-muscle separation only; FL = the facing method, NOT the wave trace). This targets exactly the ~13 multi-muscle images that regressed facing. Test on the benchmark (must hold zero bias) AND eyeball those 13 images, THEN submit. If it keeps facing's gain and kills the outliers, it can beat 0.619. This is the highest-value next submission.
 3. **The real lever (bigger, harder):** better fascicle segmentation. FL is mask-limited, not geometry-limited. This needs model work (more/better fascicle training data, a stronger fascicle model), not more post-processing.
 4. **Stop:** chasing the fascicle bend (real but diverges from the scored convention, below tolerance); submitting on benchmark improvement alone (the benchmark is a sanity tool, mispredicts the LB).

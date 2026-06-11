@@ -12,7 +12,7 @@ Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-ex
 | date | method | LB | changed | how to reproduce / roll back | status |
 |------|--------|----|---------| -----------------------------|--------|
 | 2026-06-09 | scale router + inner-edge MT + fragment-extrapolation FL | **0.61918** | full pipeline | `Downloads/0P61918_submission_local.csv`; flags: FL_FACING=0, identity_blend=0, MT=perp_center, subpixel=0 | **BEST / baseline** |
-| 2026-06-10 | facing-geometry FL (`UMUD_FL_FACING=1`) | 0.66459 | FL only | set `UMUD_FL_FACING=0` to undo | rejected (bend real, gate wrong 41% - see diagnosis) |
+| 2026-06-10 | facing-geometry FL (`UMUD_FL_FACING=1`) | 0.66459 | FL only | now default-off; use `UMUD_FL_FACING=1` only to reproduce/test repairs | rejected (bend real, gate wrong 41% - see diagnosis) |
 | 2026-06-?? | FL identity blend | 0.63905 | FL only | `FL_IDENTITY_BLEND=0` to undo | rejected |
 | 2026-06-?? | MT vertical-3 | 0.62561 | MT only | reverted | rejected |
 | 2026-06-?? | bar-only scale tail | 0.66711 | 4 scale rows + FL recenter ripple | reverted | rejected |
@@ -21,7 +21,7 @@ Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-ex
 
 | finding | verified how | implication |
 |---------|--------------|-------------|
-| **FL recenter is a crutch for bad scale.** Production multiplies every FL by `74.424/mean` (segment_then_measure.py:762), pinning the submission FL mean to 74.424 regardless of the images. | read the code; confirmed it is a single global scalar keyed to `.mean()` | per-image absolute FL cannot survive it; a giant's fascicle is shrunk to the prior. Fix = reliable per-image scale, then `FL_mm = FL_px/scale`, no mean. |
+| **FL recenter is a latent global mean device, but a no-op on the shipped 0.619 pipeline.** The code can multiply every FL by `74.424/mean` (segment_then_measure.py:762); on the current baseline the pre-recenter mean is already 74.4, so the multiplier is effectively 1. | read the code; confirmed with `UMUD_FL_RECENTER=0`: 0/309 rows changed | not a hidden confounder for the current baseline; any new FL method that changes the mean must report with/without this step. |
 | **The mean and the scale problem are the same root.** | algebra: ratio-anchoring `FL=(FL_px/MT_px)*MT_mm` reduces to `FL_px/scale` | fixing scale deletes the mean. |
 | **Bench 0.227 is NOT leakage/overfit-inflated.** 21/35 bench images are in the U-Net training set (im_07 = image_0512 at corr 1.000), but leaked images score WORSE (0.253) than novel (0.189). | content-correlation leak scan + per-image split, score_weights pipeline | 12 epochs did not memorize; bench is honest on that axis. |
 | **Bench FL term IS flattered by recentering.** score_weights.py:54 rescales predicted FL to the bench TRUE mean before scoring: FL term 0.534 raw -> 0.353. Raw FL bias is +6.0mm (66.8 vs 60.8). | ran pipeline on 35, computed with/without recenter | bench FL can never reveal a wrong mean; honest bench is ~0.288 not 0.227. |

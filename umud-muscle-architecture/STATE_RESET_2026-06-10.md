@@ -51,8 +51,8 @@ This is the honest next lever (it fixes a *verified* bug, satisfying the submiss
 is NOT wired into production and NOT submitted. Note it inherits the facing geometry, so the gate fix
 above should land first.
 
-The facing FL code is still in `segment_then_measure.py` behind `UMUD_FL_FACING` (default on); set
-`UMUD_FL_FACING=0` to reproduce the 0.61918 FL path.
+The facing FL code is still in `segment_then_measure.py` behind explicit opt-in `UMUD_FL_FACING=1`;
+the default is off so fresh runs reproduce the 0.61918 FL path unless a rejected probe is enabled.
 
 ## Prior baseline + the rejected probes (history)
 

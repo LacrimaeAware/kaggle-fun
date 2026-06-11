@@ -916,7 +916,8 @@ general geometric fix with no baked-in muscle constants, not a 35-image artifact
 **Read.** Fragment FL was systematically too long because we extrapolated short fragments along their
 own angle to straight apo lines running off-frame. The user's three eye-diagnosed fixes - parallel
 consensus, apo that curves toward the muscle, and keep only low-extrapolation fragments (the host's
-own rule) - eliminate the overshoot. Wired as `UMUD_FL_FACING` (default on), `compute_facing_fl()`.
+own rule) - eliminate the overshoot. Wired as `UMUD_FL_FACING=1` opt-in only, `compute_facing_fl()`;
+the default remains the safe fragment-FL baseline because the submitted facing variant regressed.
 Candidate submission regenerated with `UMUD_SCALE_SUBPIXEL=0` so MT stays byte-identical to the
 0.61918 baseline (clean isolated FL probe). Remaining eye-diagnosed levers: fascicle bend (residual
 ~+1mm) and apo-bottom-edge image-guided refinement (im_12-type under-segmented apo mask).

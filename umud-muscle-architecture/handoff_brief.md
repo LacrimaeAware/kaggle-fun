@@ -14,7 +14,7 @@ Read it with the canonical docs at the end. Last substantive update: 2026-06-10.
 
 The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrapolation) **was submitted and regressed** 0.619→0.665. The geometry is zero-bias on the 35-expert benchmark (+0.7mm bias) but fails on ~13 multi-muscle test images where 3 apo bands exist, the wrong pair is selected, and fascicles from both muscles mix into one garbage consensus.
 
-`results/submission_local.csv` is the **0.61918 baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The production code still defaults `UMUD_FL_FACING=1` — always set `UMUD_FL_FACING=0 UMUD_FL_IDENTITY_BLEND=0` to reproduce the baseline.
+`results/submission_local.csv` is the **0.61918 baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The production code now defaults `UMUD_FL_FACING=0` and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the safe baseline unless a rejected probe is explicitly enabled.
 
 ## The competition
 
@@ -284,6 +284,6 @@ whether to spend a submission.
 - MT vertical-3 (0.62561)
 - Bar-only scale tail (0.66711)
 
-**Do not run**: `UMUD_FL_FACING=1` (default) without also setting `UMUD_FL_IDENTITY_BLEND=0`. A fresh `local_infer.py` run without those flags ships the rejected facing candidate and overwrites the safe submission file.
+**Do not run**: `UMUD_FL_FACING=1` unless intentionally testing a repaired facing/per-gap variant. A fresh `local_infer.py` run now defaults to the safe 0.619 fragment-FL baseline.
 
 Canonical current-state doc: `MASTER_REVIEW.md`.
