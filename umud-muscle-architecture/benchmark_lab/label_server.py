@@ -226,6 +226,8 @@ const state = {
   last: null,
   pathPoint: null,
   curvePoints: [],
+  curveBase: null,
+  curveStyle: null,
   undo: [],
   brush: 5,
   scale: 1,
@@ -267,6 +269,8 @@ function setTool(tool) {
 function resetPath() {
   state.pathPoint = null;
   state.curvePoints = [];
+  state.curveBase = null;
+  state.curveStyle = null;
   clearPreview();
   setPathHint();
 }
@@ -279,7 +283,7 @@ function setPathHint(text) {
   } else if (state.tool === 'line') {
     hint.textContent = 'dot line: click points; each click connects from the previous point.';
   } else if (state.tool === 'curve') {
-    hint.textContent = 'curve chain: click start, bend/control, end; the end becomes the next start.';
+    hint.textContent = 'curve chain: click anchors along the visible path; new points smooth the previous segment.';
   } else {
     hint.textContent = 'brush: draw normally with pen or mouse.';
   }
@@ -326,8 +330,11 @@ function renderPreview() {
   }
   if (state.tool === 'curve' && state.curvePoints.length) {
     previewGuide(state.curvePoints);
-    const labels = ['start', 'bend'];
-    state.curvePoints.forEach((p, i) => previewDot(p, labels[i] || 'end', i === 0 ? '#7ab7ff' : '#ffd36f'));
+    state.curvePoints.forEach((p, i) => {
+      const isLast = i === state.curvePoints.length - 1;
+      const label = isLast ? `p${i + 1} last` : `p${i + 1}`;
+      previewDot(p, label, isLast ? '#ffd36f' : '#7ab7ff');
+    });
   }
 }
 
@@ -438,13 +445,51 @@ function drawLine(a, b) {
   c.restore();
 }
 
-function drawCurve(a, control, b) {
-  const c = prepareStroke();
+function ensureCurveBase() {
+  if (state.curveBase && state.curveStyle && state.curveStyle.layer === state.layer) return;
+  pushUndo();
+  state.curveBase = ctx[state.layer].getImageData(0, 0, canvases[state.layer].width, canvases[state.layer].height);
+  state.curveStyle = {layer: state.layer, width: state.brush, erasing: state.erasing};
+}
+
+function restoreCurveBase() {
+  if (!state.curveBase || !state.curveStyle) return;
+  ctx[state.curveStyle.layer].putImageData(state.curveBase, 0, 0);
+}
+
+function drawSmoothChain(points) {
+  if (!state.curveStyle || points.length < 2) return;
+  const c = ctx[state.curveStyle.layer];
+  const style = state.curveStyle;
+  c.save();
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  c.lineWidth = style.width;
+  c.globalCompositeOperation = style.erasing ? 'destination-out' : 'source-over';
+  c.strokeStyle = colors[style.layer];
   c.beginPath();
-  c.moveTo(a.x, a.y);
-  c.quadraticCurveTo(control.x, control.y, b.x, b.y);
+  c.moveTo(points[0].x, points[0].y);
+  if (points.length === 2) {
+    c.lineTo(points[1].x, points[1].y);
+  } else {
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(0, i - 1)];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[Math.min(points.length - 1, i + 2)];
+      const cp1 = {x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6};
+      const cp2 = {x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6};
+      c.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
+    }
+  }
   c.stroke();
   c.restore();
+}
+
+function redrawCurveChain() {
+  if (!state.curveBase || !state.curveStyle) return;
+  restoreCurveBase();
+  drawSmoothChain(state.curvePoints);
 }
 
 function drawTo(p) {
@@ -469,16 +514,13 @@ function handlePointTool(p) {
   }
 
   if (state.tool === 'curve') {
+    ensureCurveBase();
     state.curvePoints.push(p);
     if (state.curvePoints.length === 1) {
-      setPathHint('curve start set; click the bend/control point.');
-    } else if (state.curvePoints.length === 2) {
-      setPathHint('curve bend set; click the end point to draw.');
+      setPathHint('curve start set; click the next visible point.');
     } else {
-      pushUndo();
-      drawCurve(state.curvePoints[0], state.curvePoints[1], state.curvePoints[2]);
-      state.curvePoints = [state.curvePoints[2]];
-      setPathHint('curve drawn; endpoint is now the next start. Click bend, then end.');
+      redrawCurveChain();
+      setPathHint('curve smoothed; keep clicking anchors along the visible path.');
     }
     renderPreview();
   }
@@ -555,9 +597,10 @@ function renderList() {
 
 document.querySelectorAll('button.layer').forEach(b => b.onclick = () => setLayer(b.dataset.layer));
 document.querySelectorAll('button.tool').forEach(b => b.onclick = () => setTool(b.dataset.tool));
-qs('eraser').onclick = () => { state.erasing = !state.erasing; qs('eraser').classList.toggle('active', state.erasing); };
-qs('brush').oninput = ev => { state.brush = Number(ev.target.value); qs('brushVal').textContent = state.brush; };
+qs('eraser').onclick = () => { resetPath(); state.erasing = !state.erasing; qs('eraser').classList.toggle('active', state.erasing); };
+qs('brush').oninput = ev => { resetPath(); state.brush = Number(ev.target.value); qs('brushVal').textContent = state.brush; };
 qs('undo').onclick = async () => {
+  resetPath();
   const u = state.undo.pop();
   if (u) await restoreDataUrl(u.layer, u.data);
 };
