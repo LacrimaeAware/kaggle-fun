@@ -73,16 +73,32 @@ Use the same convention every time:
 
 3. Use **ignore** for ambiguity.
    Mark overlay text, unresolvable shadow, or regions where the correct structure is genuinely unclear.
-   The first scorer records ignore coverage but does not yet mask it out of every metric.
+   The first scorer records ignore coverage but does not yet mask it out of every metric. Ignore is
+   optional; use it only when you want to warn later tools not to trust a region.
 
-4. Save notes.
+4. Leave manual measurement boxes blank unless you intentionally measured them.
+   PA = angle, FL = length, MT = thickness. The scorer derives these from your masks. The optional
+   boxes are only for rare overrides or notes from another measurement tool.
+
+5. Save notes.
    Put uncertainty, multi-gap cases, scale oddities, or anything you want a later model to know in the
    notes field. This matters more than it feels like in the moment.
 
-5. Keep target labels separate.
+6. Keep target labels separate.
    If an image comes from `test_images_v2`, keep the manifest and saved label folder separate from
    public/external packs. We should be able to delete or ignore the target-human branch and still have
    a clean automated/no-oracle project state.
+
+## Drawing Tools
+
+- **brush**: freehand drawing with pen or mouse.
+- **dot line**: click a point, then click the next point; each click connects to the previous point.
+  This is usually the cleanest tool for straight visible fragments.
+- **3-point curve**: click start, click the bend/control point, then click the end point. Use this
+  sparingly for visibly curved boundaries or fragments.
+- **eraser**: removes pixels from the active layer only.
+- **save**: writes the current masks and notes to the selected labels folder. It does not submit
+  anything to Kaggle. Reloading the page restores saved masks.
 
 ## What This Enables
 

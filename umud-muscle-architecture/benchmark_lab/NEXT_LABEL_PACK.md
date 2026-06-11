@@ -33,6 +33,11 @@ Minimum useful pack:
 - at least 4 public/FALLMUD rows to verify that the label convention and scorer behave sensibly
   against existing public masks.
 
+Draw only visible structures. Do not extrapolate off-screen or across missing regions. Use `dot line`
+for straight fragments, `brush` for filled boundary bands, and `3-point curve` only when a visible
+structure is genuinely curved. Leave scale/PA/FL/MT boxes blank unless you intentionally measured them
+elsewhere; the scorer derives those from the masks.
+
 Decision threshold:
 
 - The pack is useful once `score_labels.py` can measure human masks on at least 8 target rows.
@@ -49,6 +54,8 @@ python umud-muscle-architecture\benchmark_lab\label_server.py `
   --out-dir umud-muscle-architecture\results\human_benchmark\target_labels `
   --port 8765
 ```
+
+If `8765` is already occupied, use `8766` or another free port.
 
 Start public/FALLMUD labeling:
 

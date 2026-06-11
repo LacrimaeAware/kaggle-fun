@@ -261,6 +261,8 @@ def main() -> None:
         apo = load_mask(label_dir / "apo.png")
         fasc = load_mask(label_dir / "fasc.png")
         ignore = load_mask(label_dir / "ignore.png")
+        apo_pixels = 0 if apo is None else int(apo.sum())
+        fasc_pixels = 0 if fasc is None else int(fasc.sum())
 
         out = {
             "label_id": label_id,
@@ -268,8 +270,10 @@ def main() -> None:
             "source": src.get("source", ""),
             "label_mode": src.get("label_mode", ""),
             "quality": meta.get("quality", ""),
-            "has_apo": str(apo is not None).lower(),
-            "has_fasc": str(fasc is not None).lower(),
+            "has_apo": str(apo_pixels > 0).lower(),
+            "has_fasc": str(fasc_pixels > 0).lower(),
+            "apo_pixels": str(apo_pixels),
+            "fasc_pixels": str(fasc_pixels),
             "ignore_pixels": "" if ignore is None else str(int(ignore.sum())),
             "notes": meta.get("notes", ""),
         }
@@ -289,7 +293,7 @@ def main() -> None:
             out[f"{layer}_pred_shape"] = pred_ov["shape"]
 
         measured = {}
-        if apo is None or fasc is None:
+        if apo_pixels == 0 or fasc_pixels == 0:
             out["measure_error"] = "missing human apo/fasc mask"
         else:
             try:
@@ -316,6 +320,7 @@ def main() -> None:
     fields = sorted({k for row in scored for k in row})
     preferred = [
         "label_id", "image_id", "source", "label_mode", "quality", "has_apo", "has_fasc",
+        "apo_pixels", "fasc_pixels",
         "measure_error", "pa_deg_manual", "pa_deg_measured", "pa_deg_delta",
         "fl_mm_manual", "fl_mm_measured", "fl_mm_delta", "mt_mm_manual", "mt_mm_measured",
         "mt_mm_delta", "fl_px_measured", "mt_px_measured", "n_fascicles",

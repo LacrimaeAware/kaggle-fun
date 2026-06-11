@@ -105,6 +105,12 @@ HTML = r"""<!doctype html>
     .kv { font-size: 12px; color: #bbb; line-height: 1.45; word-break: break-word; }
     .kv b { color: #f5f5f5; }
     .section { border-top: 1px solid #333; margin-top: 12px; padding-top: 12px; }
+    .legend { display: grid; gap: 6px; margin-top: 8px; }
+    .legend div { display: flex; gap: 8px; align-items: flex-start; }
+    .swatch { width: 13px; height: 13px; border-radius: 3px; flex: 0 0 auto; margin-top: 2px; }
+    .swatch.apo { background: rgb(0,220,255); }
+    .swatch.fasc { background: rgb(255,65,65); }
+    .swatch.ignore { background: rgb(255,210,0); }
     textarea { width: 100%; height: 82px; resize: vertical; }
     input[type="range"] { width: 150px; }
     input.short { width: 88px; }
@@ -152,10 +158,22 @@ HTML = r"""<!doctype html>
           <button class="layer" data-layer="ignore">ignore</button>
           <button id="eraser">eraser</button>
         </div>
+        <div class="legend kv">
+          <div><span class="swatch apo"></span><span><b>apo</b>: visible upper/lower boundary bands.</span></div>
+          <div><span class="swatch fasc"></span><span><b>fasc</b>: visible slanted fiber fragments only.</span></div>
+          <div><span class="swatch ignore"></span><span><b>ignore</b>: text, shadows, or areas too ambiguous to trust.</span></div>
+        </div>
         <div class="row">
-          <label>brush <input id="brush" type="range" min="1" max="32" value="5"></label>
+          <button class="tool active" data-tool="brush">brush</button>
+          <button class="tool" data-tool="line">dot line</button>
+          <button class="tool" data-tool="curve">3-point curve</button>
+          <button id="resetPath">reset dots</button>
+        </div>
+        <div class="row">
+          <label>width <input id="brush" type="range" min="1" max="32" value="5"></label>
           <span id="brushVal">5</span>
         </div>
+        <div class="kv" id="pathHint"></div>
         <div class="row">
           <button id="undo">Undo</button>
           <button id="clear" class="danger">Clear active</button>
@@ -172,20 +190,23 @@ HTML = r"""<!doctype html>
             </select>
           </label>
         </div>
+        <div class="kv"><b>Optional manual measurements.</b> Leave these blank unless you intentionally
+          measured them somewhere else. The scorer derives PA/FL/MT from your masks.</div>
         <div class="row">
-          <label>scale px/mm <input id="scale" class="short" type="text"></label>
-          <label>PA <input id="pa" class="short" type="text"></label>
+          <label>scale optional <input id="scale" class="short" type="text"></label>
+          <label>PA optional <input id="pa" class="short" type="text"></label>
         </div>
         <div class="row">
-          <label>FL mm <input id="fl" class="short" type="text"></label>
-          <label>MT mm <input id="mt" class="short" type="text"></label>
+          <label>FL optional <input id="fl" class="short" type="text"></label>
+          <label>MT optional <input id="mt" class="short" type="text"></label>
         </div>
         <label>notes</label>
         <textarea id="notes"></textarea>
       </div>
       <div class="section">
         <div class="kv">
-          Shortcuts: A/F/I layer, E eraser, S save, arrows navigate, [ and ] brush size.
+          Shortcuts: A/F/I layer, B brush, L dot line, C curve, E eraser, Esc reset dots,
+          S save, arrows navigate, [ and ] width. Save writes local mask files only.
           Draw visible structures only. Do not hand-extrapolate fascicles.
         </div>
       </div>
@@ -199,9 +220,12 @@ const state = {
   rows: [],
   idx: 0,
   layer: 'apo',
+  tool: 'brush',
   erasing: false,
   drawing: false,
   last: null,
+  pathPoint: null,
+  curvePoints: [],
   undo: [],
   brush: 5,
   scale: 1,
@@ -229,7 +253,35 @@ function clearLayer(layer) {
 
 function setLayer(layer) {
   state.layer = layer;
+  resetPath();
   document.querySelectorAll('button.layer').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
+}
+
+function setTool(tool) {
+  state.tool = tool;
+  resetPath();
+  document.querySelectorAll('button.tool').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+  setPathHint();
+}
+
+function resetPath() {
+  state.pathPoint = null;
+  state.curvePoints = [];
+  setPathHint();
+}
+
+function setPathHint(text) {
+  const hint = qs('pathHint');
+  if (!hint) return;
+  if (text) {
+    hint.textContent = text;
+  } else if (state.tool === 'line') {
+    hint.textContent = 'dot line: click points; each click connects from the previous point.';
+  } else if (state.tool === 'curve') {
+    hint.textContent = '3-point curve: click start, bend/control, then end.';
+  } else {
+    hint.textContent = 'brush: draw normally with pen or mouse.';
+  }
 }
 
 function pushUndo() {
@@ -295,6 +347,7 @@ async function loadImage() {
     for (const layer of ['apo','fasc','ignore']) await loadExistingLayer(layer);
     await loadMeta();
     state.undo = [];
+    resetPath();
     renderList();
   };
   im.onerror = () => setWarn('could not load image');
@@ -309,7 +362,7 @@ function pointerPos(ev) {
   };
 }
 
-function drawTo(p) {
+function prepareStroke() {
   const c = ctx[state.layer];
   c.save();
   c.lineCap = 'round';
@@ -317,24 +370,90 @@ function drawTo(p) {
   c.lineWidth = state.brush;
   c.globalCompositeOperation = state.erasing ? 'destination-out' : 'source-over';
   c.strokeStyle = colors[state.layer];
+  c.fillStyle = colors[state.layer];
+  return c;
+}
+
+function drawDot(p) {
+  const c = prepareStroke();
   c.beginPath();
-  c.moveTo(state.last.x, state.last.y);
-  c.lineTo(p.x, p.y);
+  c.arc(p.x, p.y, Math.max(1, state.brush / 2), 0, Math.PI * 2);
+  c.fill();
+  c.restore();
+}
+
+function drawLine(a, b) {
+  const c = prepareStroke();
+  c.beginPath();
+  c.moveTo(a.x, a.y);
+  c.lineTo(b.x, b.y);
   c.stroke();
   c.restore();
+}
+
+function drawCurve(a, control, b) {
+  const c = prepareStroke();
+  c.beginPath();
+  c.moveTo(a.x, a.y);
+  c.quadraticCurveTo(control.x, control.y, b.x, b.y);
+  c.stroke();
+  c.restore();
+}
+
+function drawTo(p) {
+  drawLine(state.last, p);
   state.last = p;
+}
+
+function handlePointTool(p) {
+  if (state.tool === 'line') {
+    pushUndo();
+    if (!state.pathPoint) {
+      drawDot(p);
+      state.pathPoint = p;
+      setPathHint('line start set; click the next point to connect.');
+    } else {
+      drawLine(state.pathPoint, p);
+      state.pathPoint = p;
+      setPathHint('connected; keep clicking points or reset dots.');
+    }
+    return;
+  }
+
+  if (state.tool === 'curve') {
+    state.curvePoints.push(p);
+    if (state.curvePoints.length === 1) {
+      setPathHint('curve start set; click the bend/control point.');
+    } else if (state.curvePoints.length === 2) {
+      setPathHint('curve bend set; click the end point to draw.');
+    } else {
+      pushUndo();
+      drawCurve(state.curvePoints[0], state.curvePoints[1], state.curvePoints[2]);
+      state.curvePoints = [];
+      setPathHint('curve drawn; click start, bend, end for another.');
+    }
+  }
+}
+
+function startBrush(p) {
+  state.drawing = true;
+  state.last = p;
+  pushUndo();
+  drawDot(p);
 }
 
 canvases.drawShield.addEventListener('pointerdown', ev => {
   ev.preventDefault();
   canvases.drawShield.setPointerCapture(ev.pointerId);
-  state.drawing = true;
-  state.last = pointerPos(ev);
-  pushUndo();
-  drawTo(state.last);
+  const p = pointerPos(ev);
+  if (state.tool === 'brush') {
+    startBrush(p);
+  } else {
+    handlePointTool(p);
+  }
 });
 canvases.drawShield.addEventListener('pointermove', ev => {
-  if (!state.drawing) return;
+  if (!state.drawing || state.tool !== 'brush') return;
   ev.preventDefault();
   drawTo(pointerPos(ev));
 });
@@ -343,6 +462,15 @@ for (const name of ['pointerup','pointercancel','pointerleave']) {
 }
 
 async function save() {
+  function layerHasPixels(layer) {
+    const data = ctx[layer].getImageData(0, 0, canvases[layer].width, canvases[layer].height).data;
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 0) return true;
+    return false;
+  }
+  const hasAnyPixels = ['apo','fasc','ignore'].some(layerHasPixels);
+  if (!hasAnyPixels && !qs('notes').value.trim()) {
+    if (!confirm('No drawn pixels or notes on this image. Save a blank label anyway?')) return;
+  }
   const payload = {
     index: state.idx,
     quality: qs('quality').value,
@@ -377,13 +505,15 @@ function renderList() {
 }
 
 document.querySelectorAll('button.layer').forEach(b => b.onclick = () => setLayer(b.dataset.layer));
+document.querySelectorAll('button.tool').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 qs('eraser').onclick = () => { state.erasing = !state.erasing; qs('eraser').classList.toggle('active', state.erasing); };
 qs('brush').oninput = ev => { state.brush = Number(ev.target.value); qs('brushVal').textContent = state.brush; };
 qs('undo').onclick = async () => {
   const u = state.undo.pop();
   if (u) await restoreDataUrl(u.layer, u.data);
 };
-qs('clear').onclick = () => { pushUndo(); clearLayer(state.layer); };
+qs('clear').onclick = () => { pushUndo(); clearLayer(state.layer); resetPath(); };
+qs('resetPath').onclick = () => { resetPath(); setStatus('dots reset'); };
 qs('save').onclick = save;
 qs('prev').onclick = () => { if (state.idx > 0) { state.idx--; loadImage(); } };
 qs('next').onclick = () => { if (state.idx + 1 < state.rows.length) { state.idx++; loadImage(); } };
@@ -393,7 +523,11 @@ window.addEventListener('keydown', ev => {
   if (ev.key === 'a' || ev.key === 'A') setLayer('apo');
   if (ev.key === 'f' || ev.key === 'F') setLayer('fasc');
   if (ev.key === 'i' || ev.key === 'I') setLayer('ignore');
+  if (ev.key === 'b' || ev.key === 'B') setTool('brush');
+  if (ev.key === 'l' || ev.key === 'L') setTool('line');
+  if (ev.key === 'c' || ev.key === 'C') setTool('curve');
   if (ev.key === 'e' || ev.key === 'E') qs('eraser').click();
+  if (ev.key === 'Escape') { resetPath(); setStatus('dots reset'); }
   if (ev.key === 's' || ev.key === 'S') save();
   if (ev.key === 'ArrowLeft') qs('prev').click();
   if (ev.key === 'ArrowRight') qs('next').click();
