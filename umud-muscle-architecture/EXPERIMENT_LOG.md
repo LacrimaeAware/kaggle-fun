@@ -32,6 +32,7 @@ Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-ex
 
 | build | file | state | next |
 |-------|------|-------|------|
+| **Human benchmark lab** | `benchmark_lab/` | BUILT 2026-06-11. Includes `make_manifest.py`, `label_server.py`, `score_labels.py`, and protocol docs. Generated seed manifests under `results/human_benchmark/`: `public_seed_manifest.csv` (24 public/FALLMUD rows) and `target_seed_manifest.csv` (24 declared human-in-loop target rows, with IMG_00275 forced first). Scorer has a light cv2/numpy geometry fallback, so labels can be measured locally without importing the full training stack. | use the Cintiq labeler to create enough masks that the 0.619 baseline and rejected 0.665 facing-FL variant can be separated locally before the next submission |
 | **OCR scale** (read printed depth/ruler -> px/mm, cross-check vs ticks) | `scale_ocr.py` | cm-ruler family DONE: ruler-number regression (>=3 collinear pts, R^2-validated) reads 3.5/4.0/4.5cm AND agrees with the tick detector within 1-2% (verified). De-50mm family: depth text reads reliably; text-confirmed via geometry (printed depth x tick-scale must place depth-zero near the image top). Full verified/text-confirmed/tick-only/flag/mean partition over 309 = the deliverable (running). | drop the FL mean on verified+text-confirmed rows; mean only on the genuine blanks |
 
 ### Benchmark validation of the scale reader (2026-06-10)

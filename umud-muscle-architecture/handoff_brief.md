@@ -271,7 +271,9 @@ whether to spend a submission.
 
 `results/submission_local.csv` IS the 0.61918 baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). Safe anchor.
 
-**The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` — NOT the wave trace. Test on `bench_fl_methods.py` first (must hold ~zero bias), eyeball the ~13 multi-muscle images in the viewer, then only if both pass: submit. This is the highest-value next probe.
+**Immediate next action**: build a bigger local benchmark with `benchmark_lab/`, not another blind submission. The new folder has a manifest builder, browser/Cintiq labeler, scorer, and protocol doc. Seed manifests live in `results/human_benchmark/`: `public_seed_manifest.csv` for public/FALLMUD labels and `target_seed_manifest.csv` for declared human-in-loop target labels.
+
+**The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` - NOT the wave trace. Do not submit it until the new human benchmark can distinguish the 0.619 baseline from the rejected 0.665 facing variant.
 
 **Do NOT submit** based on:
 - Local benchmark improvement alone (mispredicted LB direction 4 times)
