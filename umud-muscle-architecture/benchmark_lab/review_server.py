@@ -13,10 +13,12 @@ import csv
 import json
 import mimetypes
 import re
+import zipfile
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
+from xml.etree import ElementTree as ET
 
 try:
     import cv2
@@ -175,10 +177,12 @@ HTML = r"""<!doctype html>
       </div>
       <div class="section">
         <div class="help"><b>Measurement scratch pad</b><br>
-          Straight ruler: click two points. Trial FL: click two endpoints on a visible fascicle; the viewer extends that line to the two apo boundaries and updates the median.
+          Straight ruler: click two points. Trial FL: click two endpoints for a trial line; the viewer extends that line to the two apo boundaries and updates the median.
         </div>
         <div class="row">
           <button class="tool active" data-tool="off">inspect</button>
+          <button class="tool" data-tool="sup">upper boundary</button>
+          <button class="tool" data-tool="deep">lower boundary</button>
           <button class="tool" data-tool="ruler">straight ruler</button>
           <button class="tool" data-tool="trial">trial FL</button>
           <button id="undoTool">undo</button>
@@ -239,7 +243,10 @@ const state = {
   tool: 'off',
   pending: [],
   ruler: null,
-  trialLines: []
+  trialLines: [],
+  manualApo: {superficial: null, deep: null},
+  drag: null,
+  dragMoved: false
 };
 const imgs = {base: document.getElementById('base'), apo: document.getElementById('apo'), fasc: document.getElementById('fasc'), ignore: document.getElementById('ignore')};
 const toolCanvas = document.getElementById('toolCanvas');
@@ -297,7 +304,8 @@ function resizeToolCanvas(){
 
 function updateLayerVisibility(){
   for (const layer of ['apo','fasc','ignore']) {
-    imgs[layer].style.display = state.visible[layer] ? 'block' : 'none';
+    const hasLabel = row()?.label_available !== false;
+    imgs[layer].style.display = hasLabel && state.visible[layer] ? 'block' : 'none';
     document.querySelector(`button[data-layer="${layer}"]`).classList.toggle('active', state.visible[layer]);
   }
   const op = Number(qs('opacity').value) / 100;
@@ -329,6 +337,19 @@ function lineFromPoints(p1, p2){
   const slope = (p2.y - p1.y) / dx;
   return {vertical: false, slope, intercept: p1.y - slope * p1.x};
 }
+function boundaryFromEndpoints(p1, p2){
+  const line = lineFromPoints(p1, p2);
+  if (line.vertical) return null;
+  return {...line, p1, p2, manual: true};
+}
+function currentApoLines(){
+  const r = row() || {};
+  const base = r.apo_lines || {};
+  return {
+    superficial: state.manualApo.superficial || base.superficial || null,
+    deep: state.manualApo.deep || base.deep || null
+  };
+}
 function intersectLineWithApo(testLine, apoLine){
   if (!apoLine) return null;
   if (testLine.vertical) return {x: testLine.x, y: lineY(apoLine, testLine.x)};
@@ -338,9 +359,9 @@ function intersectLineWithApo(testLine, apoLine){
   return {x, y: testLine.slope * x + testLine.intercept};
 }
 function trialFromEndpoints(p1, p2){
-  const r = row();
-  const sup = r.apo_lines?.superficial;
-  const deep = r.apo_lines?.deep;
+  const apo = currentApoLines();
+  const sup = apo.superficial;
+  const deep = apo.deep;
   const testLine = lineFromPoints(p1, p2);
   const upper = intersectLineWithApo(testLine, sup);
   const lower = intersectLineWithApo(testLine, deep);
@@ -382,6 +403,11 @@ function drawSegment(a, b, color, width=3, dashed=false){
 function drawApoFit(line, color){
   if (!line || !toolCanvas.width) return;
   drawSegment({x: 0, y: lineY(line, 0)}, {x: toolCanvas.width, y: lineY(line, toolCanvas.width)}, color, 2, true);
+  if (line.manual && line.p1 && line.p2) {
+    drawSegment(line.p1, line.p2, color, 5, false);
+    drawPoint(line.p1, color);
+    drawPoint(line.p2, color);
+  }
 }
 function scratchStats(){
   const pa = median(state.trialLines.map(t => t.angle_deg));
@@ -404,8 +430,9 @@ function drawTools(){
   toolCtx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
   const r = row();
   if (!r) return;
-  drawApoFit(r.apo_lines?.superficial, 'rgba(111, 199, 255, 0.75)');
-  drawApoFit(r.apo_lines?.deep, 'rgba(255, 214, 102, 0.75)');
+  const apo = currentApoLines();
+  drawApoFit(apo.superficial, 'rgba(111, 199, 255, 0.85)');
+  drawApoFit(apo.deep, 'rgba(255, 214, 102, 0.85)');
   if (state.ruler) {
     drawSegment(state.ruler.p1, state.ruler.p2, '#6fffd2', 4);
     drawPoint(state.ruler.p1, '#6fffd2');
@@ -435,6 +462,12 @@ function renderScaleBox(){
 }
 function renderToolReadout(){
   const parts = [];
+  const apo = currentApoLines();
+  if (!apo.superficial || !apo.deep) {
+    parts.push('<b>boundary needed:</b> set upper and lower boundary before trial FL can extrapolate.');
+  }
+  if (state.tool === 'sup') parts.push(state.pending.length ? 'upper boundary: click the second point' : 'upper boundary: click two points along the upper line');
+  if (state.tool === 'deep') parts.push(state.pending.length ? 'lower boundary: click the second point' : 'lower boundary: click two points along the lower line');
   if (state.tool === 'ruler') parts.push(state.pending.length ? 'ruler: click the second point' : 'ruler: click two points');
   if (state.tool === 'trial') parts.push(state.pending.length ? 'trial FL: click the second endpoint' : 'trial FL: click two endpoints for each segment');
   if (state.ruler) parts.push(`<b>ruler:</b> ${lengthText(dist(state.ruler.p1, state.ruler.p2))}`);
@@ -443,15 +476,27 @@ function renderToolReadout(){
     parts.push(`<b>scratch trial median:</b> PA ${fmt(s.pa_deg,1)} deg, FL ${fmt(s.fl_mm,2)} mm (${fmt(s.fl_px,1)} px), disagreement ${fmt(s.overall_norm,2)}`);
     parts.push(state.trialLines.map((t, i) => {
       const err = t.error ? ` <span class="bad">${t.error}</span>` : '';
-      return `${i + 1}. full ${lengthText(t.extrapolated_px)}, visible ${lengthText(t.visible_px)}, support ${fmt(t.support_ratio,2)}, angle ${fmt(t.angle_deg,1)}${err}`;
+      return `${i + 1}. full ${lengthText(t.extrapolated_px)}, clicked segment ${lengthText(t.visible_px)}, clicked/full ${fmt(t.support_ratio,2)}, angle ${fmt(t.angle_deg,1)}${err}`;
     }).join('<br>'));
   }
   qs('toolReadout').innerHTML = parts.length ? parts.join('<br>') : '<span class="muted">Select a tool above to measure without changing the saved label.</span>';
 }
 function handleToolClick(ev){
+  if (state.dragMoved) {
+    state.dragMoved = false;
+    return;
+  }
   if (state.tool === 'off') return;
   const p = canvasPoint(ev);
-  if (state.tool === 'ruler') {
+  if (state.tool === 'sup' || state.tool === 'deep') {
+    if (!state.pending.length) {
+      state.pending = [p];
+    } else {
+      const line = boundaryFromEndpoints(state.pending[0], p);
+      if (line) state.manualApo[state.tool === 'sup' ? 'superficial' : 'deep'] = line;
+      state.pending = [];
+    }
+  } else if (state.tool === 'ruler') {
     if (!state.pending.length) state.pending = [p];
     else { state.ruler = {p1: state.pending[0], p2: p}; state.pending = []; }
   } else if (state.tool === 'trial') {
@@ -459,6 +504,45 @@ function handleToolClick(ev){
     else { state.trialLines.push(trialFromEndpoints(state.pending[0], p)); state.pending = []; }
   }
   drawTools();
+}
+
+function handleAt(p, target){
+  if (!target) return false;
+  return dist(p, target) <= Math.max(8 / state.zoom, 4);
+}
+function findHandle(p){
+  if (state.ruler) {
+    if (handleAt(p, state.ruler.p1)) return {kind: 'ruler', point: 'p1'};
+    if (handleAt(p, state.ruler.p2)) return {kind: 'ruler', point: 'p2'};
+  }
+  for (let i = state.trialLines.length - 1; i >= 0; i--) {
+    const t = state.trialLines[i];
+    if (handleAt(p, t.p1)) return {kind: 'trial', index: i, point: 'p1'};
+    if (handleAt(p, t.p2)) return {kind: 'trial', index: i, point: 'p2'};
+  }
+  for (const role of ['superficial', 'deep']) {
+    const line = state.manualApo[role];
+    if (!line) continue;
+    if (handleAt(p, line.p1)) return {kind: 'apo', role, point: 'p1'};
+    if (handleAt(p, line.p2)) return {kind: 'apo', role, point: 'p2'};
+  }
+  return null;
+}
+function applyDrag(handle, p){
+  if (handle.kind === 'ruler') {
+    state.ruler[handle.point] = p;
+  } else if (handle.kind === 'trial') {
+    const old = state.trialLines[handle.index];
+    const p1 = handle.point === 'p1' ? p : old.p1;
+    const p2 = handle.point === 'p2' ? p : old.p2;
+    state.trialLines[handle.index] = trialFromEndpoints(p1, p2);
+  } else if (handle.kind === 'apo') {
+    const old = state.manualApo[handle.role];
+    const p1 = handle.point === 'p1' ? p : old.p1;
+    const p2 = handle.point === 'p2' ? p : old.p2;
+    state.manualApo[handle.role] = boundaryFromEndpoints(p1, p2) || old;
+    state.trialLines = state.trialLines.map(t => trialFromEndpoints(t.p1, t.p2));
+  }
 }
 
 function renderList(){
@@ -488,7 +572,7 @@ function renderSummary(){
 function renderCandidateTable(){
   const r = row();
   let html = '<table><tr><th>source</th><th>PA deg</th><th>FL mm</th><th>MT mm</th><th>tol units</th></tr>';
-  html += `<tr><td>human mask</td><td>${fmt(r.human.pa_deg)}</td><td>${fmt(r.human.fl_mm)}</td><td>${fmt(r.human.mt_mm)}</td><td></td></tr>`;
+  html += `<tr><td>${r.truth_label || 'human mask'}</td><td>${fmt(r.human.pa_deg)}</td><td>${fmt(r.human.fl_mm)}</td><td>${fmt(r.human.mt_mm)}</td><td></td></tr>`;
   if (state.trialLines.length) {
     const s = scratchStats();
     html += `<tr><td>scratch trial median<br><span class="muted">live, not saved</span></td>` +
@@ -511,14 +595,24 @@ function loadCurrent(){
   state.pending = [];
   state.ruler = null;
   state.trialLines = [];
+  state.manualApo = {superficial: null, deep: null};
+  state.drag = null;
+  state.dragMoved = false;
   qs('counter').textContent = `${state.idx + 1}/${state.rows.length}`;
   qs('meta').innerHTML = `<b>${r.label_id}</b><br>image: ${r.image_id}<br>quality: ${r.quality || ''}<br>` +
     `pixels: apo ${r.apo_pixels}, fasc ${r.fasc_pixels}<br>measured fragments: ${r.n_fascicles || ''}<br>` +
     `sort disagreement: ${fmt(r.sort_score,2)}<br>` +
-    `<span class="muted">FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.</span>`;
+    `<span class="muted">${r.truth_note || 'FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.'}</span>`;
   imgs.base.onload = resizeToolCanvas;
   imgs.base.src = `/image/${state.idx}?t=${Date.now()}`;
-  for (const layer of ['apo','fasc','ignore']) imgs[layer].src = `/label/${state.idx}/${layer}.png?t=${Date.now()}`;
+  if (r.label_available === false) {
+    for (const layer of ['apo','fasc','ignore']) {
+      imgs[layer].removeAttribute('src');
+      imgs[layer].style.display = 'none';
+    }
+  } else {
+    for (const layer of ['apo','fasc','ignore']) imgs[layer].src = `/label/${state.idx}/${layer}.png?t=${Date.now()}`;
+  }
   qs('labelQuality').value = r.review?.label_quality || '';
   qs('failureKind').value = r.review?.failure_kind || '';
   qs('notes').value = r.review?.notes || '';
@@ -547,9 +641,31 @@ async function saveReview(){
 document.querySelectorAll('button.layer').forEach(b => b.onclick = () => { state.visible[b.dataset.layer] = !state.visible[b.dataset.layer]; updateLayerVisibility(); });
 document.querySelectorAll('button.tool').forEach(b => b.onclick = () => setTool(b.dataset.tool));
 toolCanvas.addEventListener('click', handleToolClick);
+toolCanvas.addEventListener('pointerdown', ev => {
+  const p = canvasPoint(ev);
+  const handle = findHandle(p);
+  if (!handle) return;
+  state.drag = handle;
+  state.dragMoved = false;
+  toolCanvas.setPointerCapture(ev.pointerId);
+  ev.preventDefault();
+});
+toolCanvas.addEventListener('pointermove', ev => {
+  if (!state.drag) return;
+  applyDrag(state.drag, canvasPoint(ev));
+  state.dragMoved = true;
+  drawTools();
+});
+toolCanvas.addEventListener('pointerup', ev => {
+  if (!state.drag) return;
+  try { toolCanvas.releasePointerCapture(ev.pointerId); } catch {}
+  state.drag = null;
+});
 qs('undoTool').onclick = () => {
   if (state.pending.length) state.pending = [];
   else if (state.trialLines.length) state.trialLines.pop();
+  else if (state.manualApo.deep) state.manualApo.deep = null;
+  else if (state.manualApo.superficial) state.manualApo.superficial = null;
   else state.ruler = null;
   drawTools();
 };
@@ -557,6 +673,7 @@ qs('clearTools').onclick = () => {
   state.pending = [];
   state.ruler = null;
   state.trialLines = [];
+  state.manualApo = {superficial: null, deep: null};
   drawTools();
 };
 qs('opacity').oninput = updateLayerVisibility;
@@ -612,6 +729,50 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 def read_keyed(path: Path) -> dict[str, dict[str, str]]:
     return {stem(r.get("image_id", "")): r for r in read_csv(path)}
+
+
+def xlsx_col_index(ref: str) -> int:
+    m = re.match(r"([A-Z]+)", ref)
+    if not m:
+        return 0
+    out = 0
+    for ch in m.group(1):
+        out = out * 26 + ord(ch) - ord("A") + 1
+    return out - 1
+
+
+def read_xlsx_first_sheet(path: Path) -> list[dict[str, str]]:
+    ns = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+    with zipfile.ZipFile(path) as z:
+        shared: list[str] = []
+        if "xl/sharedStrings.xml" in z.namelist():
+            root = ET.fromstring(z.read("xl/sharedStrings.xml"))
+            for si in root.findall("m:si", ns):
+                shared.append("".join(t.text or "" for t in si.findall(".//m:t", ns)))
+        sheet = ET.fromstring(z.read("xl/worksheets/sheet1.xml"))
+        rows: list[list[str]] = []
+        for row in sheet.findall(".//m:sheetData/m:row", ns):
+            vals: list[str] = []
+            for cell in row.findall("m:c", ns):
+                idx = xlsx_col_index(cell.attrib.get("r", "A"))
+                while len(vals) <= idx:
+                    vals.append("")
+                kind = cell.attrib.get("t", "")
+                value_el = cell.find("m:v", ns)
+                if kind == "inlineStr":
+                    vals[idx] = "".join(t.text or "" for t in cell.findall(".//m:t", ns))
+                elif value_el is None:
+                    vals[idx] = ""
+                elif kind == "s":
+                    vals[idx] = shared[int(value_el.text or "0")]
+                else:
+                    vals[idx] = value_el.text or ""
+            if vals:
+                rows.append(vals)
+        if not rows:
+            return []
+        headers = rows[0]
+        return [{headers[i]: (vals[i] if i < len(vals) else "") for i in range(len(headers))} for vals in rows[1:]]
 
 
 def parse_float(value) -> float | None:
@@ -757,6 +918,30 @@ def norm_delta(human: dict[str, float | None], pred: dict[str, float | None]) ->
     return deltas, (sum(vals) / len(vals) if vals else None)
 
 
+def mean_float(row: dict[str, str], names: list[str]) -> float | None:
+    vals = [parse_float(row.get(name)) for name in names]
+    vals = [v for v in vals if v is not None]
+    return None if not vals else sum(vals) / len(vals)
+
+
+def summarize_candidates(summary_acc: dict[str, dict[str, list[float]]]) -> list[dict]:
+    def mean(xs: list[float]) -> float | None:
+        return sum(xs) / len(xs) if xs else None
+
+    summary = []
+    for name, acc in summary_acc.items():
+        summary.append({
+            "name": name,
+            "overall_norm": mean(acc["overall"]),
+            "pa_norm": mean(acc["pa"]),
+            "fl_norm": mean(acc["fl"]),
+            "mt_norm": mean(acc["mt"]),
+            "n": len(acc["overall"]),
+        })
+    summary.sort(key=lambda s: 999 if s["overall_norm"] is None else s["overall_norm"])
+    return summary
+
+
 def load_review(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -835,6 +1020,9 @@ def build_rows(
             "calibration_method": cal_row.get("method", "") or cal_row.get("calibration_method", ""),
             "calibration_confidence": parse_float(cal_row.get("confidence") or cal_row.get("calibration_confidence")),
             "apo_lines": apo_line_fits(labels_dir, label_id),
+            "label_available": True,
+            "truth_label": "human mask",
+            "truth_note": "Target-image human mask measurement; useful for triage, not official ground truth.",
             "human": human,
             "candidates": candidates,
             "sort_score": sort_score,
@@ -857,6 +1045,98 @@ def build_rows(
     rows.sort(key=lambda r: (-1 if r["sort_score"] is None else -r["sort_score"], r["image_id"]))
     summary.sort(key=lambda s: 999 if s["overall_norm"] is None else s["overall_norm"])
     return rows, summary
+
+
+def find_expert_benchmark_dir() -> Path:
+    hits = list((ROOT / "data").glob("**/Results_benchmark_architecture*.xlsx"))
+    if not hits:
+        raise FileNotFoundError("Results_benchmark_architecture*.xlsx not found under data/")
+    return hits[0].parent
+
+
+def benchmark_candidate_data(truth_rows: list[dict[str, str]]) -> list[tuple[str, dict[str, dict[str, str]]]]:
+    out: list[tuple[str, dict[str, dict[str, str]]]] = []
+    pred_path = ROOT / "results" / "benchmark_pred_truescale.csv"
+    if pred_path.exists():
+        out.append(("our_pipeline_true_scale", read_keyed(pred_path)))
+    for name, prefix in (("DLTrack", "DLTrack"), ("SMA", "SMA")):
+        data: dict[str, dict[str, str]] = {}
+        for row in truth_rows:
+            image_id = stem(row.get("ImageID", ""))
+            data[image_id] = {
+                "image_id": image_id,
+                "pa_deg": row.get(f"{prefix}_PA", ""),
+                "fl_mm": row.get(f"{prefix}_FL", ""),
+                "mt_mm": row.get(f"{prefix}_MT", ""),
+            }
+        out.append((name, data))
+    return out
+
+
+def build_expert_benchmark_rows(
+    extra_candidate_csvs: list[tuple[str, Path]],
+    review_dir: Path,
+) -> tuple[list[dict], list[dict]]:
+    bench_dir = find_expert_benchmark_dir()
+    truth_rows = read_xlsx_first_sheet(next(bench_dir.glob("Results_benchmark_architecture*.xlsx")))
+    candidate_data = benchmark_candidate_data(truth_rows) + [(name, read_keyed(path)) for name, path in extra_candidate_csvs]
+    summary_acc: dict[str, dict[str, list[float]]] = {
+        name: {"pa": [], "fl": [], "mt": [], "overall": []} for name, _ in candidate_data
+    }
+    rows = []
+    raters = [f"R{i}" for i in range(1, 8)]
+    for src in truth_rows:
+        image_id = stem(src.get("ImageID", ""))
+        label_id = f"benchmark_{safe_id(image_id)}"
+        scale_cm = parse_float(src.get("Scale_pixel_per_cm"))
+        human = {
+            "pa_deg": mean_float(src, [f"{r}_PA" for r in raters]),
+            "fl_mm": mean_float(src, [f"{r}_FL" for r in raters]),
+            "mt_mm": mean_float(src, [f"{r}_MT" for r in raters]),
+        }
+        candidates = []
+        for name, data in candidate_data:
+            pred_row = data.get(image_id, {})
+            pred = {
+                "pa_deg": parse_float(pred_row.get("pa_deg")),
+                "fl_mm": parse_float(pred_row.get("fl_mm")),
+                "mt_mm": parse_float(pred_row.get("mt_mm")),
+            }
+            deltas, overall = norm_delta(human, pred)
+            candidates.append({"name": name, **pred, **deltas, "overall_norm": overall})
+            if overall is not None:
+                summary_acc[name]["overall"].append(overall)
+            if deltas["delta_pa"] is not None:
+                summary_acc[name]["pa"].append(abs(deltas["delta_pa"]) / TOL["pa_deg"])
+            if deltas["delta_fl"] is not None:
+                summary_acc[name]["fl"].append(abs(deltas["delta_fl"]) / TOL["fl_mm"])
+            if deltas["delta_mt"] is not None:
+                summary_acc[name]["mt"].append(abs(deltas["delta_mt"]) / TOL["mt_mm"])
+        sort_score = candidates[0]["overall_norm"] if candidates else None
+        rows.append({
+            "label_id": label_id,
+            "image_id": image_id,
+            "image_path": str(bench_dir / f"{image_id}.tif"),
+            "source": "osf_expert_benchmark",
+            "quality": "expert consensus",
+            "apo_pixels": "",
+            "fasc_pixels": "",
+            "n_fascicles": "3 expert fascicle measurements averaged",
+            "scale_px_per_mm": None if scale_cm is None else scale_cm / 10.0,
+            "scale_px_per_cm": scale_cm,
+            "calibration_method": "expert_xlsx_true_scale",
+            "calibration_confidence": 1.0,
+            "apo_lines": None,
+            "label_available": False,
+            "truth_label": "expert consensus",
+            "truth_note": "35-image benchmark: seven expert raters, true scale, final PA/FL/MT only.",
+            "human": human,
+            "candidates": candidates,
+            "sort_score": sort_score,
+            "review": load_review(review_dir / f"{label_id}.json"),
+        })
+    rows.sort(key=lambda r: (-1 if r["sort_score"] is None else -r["sort_score"], r["image_id"]))
+    return rows, summarize_candidates(summary_acc)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -962,21 +1242,27 @@ def main() -> None:
                     help="candidate as name=path or just path; can be repeated")
     ap.add_argument("--include-rejected", action="store_true",
                     help="also show rejected historical candidates such as tail-bar and old segmentation")
+    ap.add_argument("--expert-benchmark", action="store_true",
+                    help="show the 35-image OSF expert benchmark instead of target human labels")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8767)
     args = ap.parse_args()
 
-    candidate_csvs = parse_candidate_arg(args.pred_csv) if args.pred_csv else default_candidate_csvs()
-    if args.include_rejected:
-        candidate_csvs.extend(rejected_candidate_csvs())
-    rows, summary = build_rows(
-        Path(args.manifest),
-        Path(args.labels_dir),
-        Path(args.scores),
-        Path(args.calibration),
-        candidate_csvs,
-        Path(args.review_dir),
-    )
+    if args.expert_benchmark:
+        candidate_csvs = parse_candidate_arg(args.pred_csv)
+        rows, summary = build_expert_benchmark_rows(candidate_csvs, Path(args.review_dir))
+    else:
+        candidate_csvs = parse_candidate_arg(args.pred_csv) if args.pred_csv else default_candidate_csvs()
+        if args.include_rejected:
+            candidate_csvs.extend(rejected_candidate_csvs())
+        rows, summary = build_rows(
+            Path(args.manifest),
+            Path(args.labels_dir),
+            Path(args.scores),
+            Path(args.calibration),
+            candidate_csvs,
+            Path(args.review_dir),
+        )
     Handler.rows = rows
     Handler.summary = summary
     Handler.labels_dir = Path(args.labels_dir)
@@ -987,8 +1273,13 @@ def main() -> None:
     print(f"UMUD label review: http://{args.host}:{args.port}")
     print(f"labeled rows: {len(rows)}")
     print("candidates:")
-    for name, path in candidate_csvs:
-        print(f"  {name}: {path}")
+    if args.expert_benchmark:
+        print("  built-in: our_pipeline_true_scale, DLTrack, SMA")
+        for name, path in candidate_csvs:
+            print(f"  {name}: {path}")
+    else:
+        for name, path in candidate_csvs:
+            print(f"  {name}: {path}")
     server.serve_forever()
 
 

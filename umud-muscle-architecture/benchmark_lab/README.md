@@ -83,10 +83,27 @@ on average; lower is closer to the human mask.
 The review app also has a measurement scratch pad:
 
 - **straight ruler**: click two points to see the distance in pixels and, when scale exists, mm.
+- **upper boundary / lower boundary**: click two points to override or provide aponeurosis boundary
+  lines for scratch measurements. This is required on expert-benchmark images because the benchmark
+  gives final PA/FL/MT numbers, not the exact boundary masks.
 - **trial FL**: click two endpoints for each trial fascicle segment. The app extends each trial line
   to the fitted aponeurosis boundaries, reports each full length, and adds a live scratch-median row
   to the current-image table so you can compare your trial set against the human-mask measurement
   and the baseline submission.
+
+Scratch points and manual boundary endpoints can be dragged after creation. `undo` removes the
+pending point or the most recent scratch item; `clear` removes all scratch items for the current image.
+
+Run the same viewer against the 35-image expert benchmark:
+
+```powershell
+python umud-muscle-architecture\benchmark_lab\review_server.py --expert-benchmark --port 8768
+```
+
+That mode uses the OSF expert spreadsheet as the reference row (`expert consensus`) and shows
+`our_pipeline_true_scale`, `DLTrack`, and `SMA` as comparison candidates. The benchmark has true scale
+and final expert PA/FL/MT values, but it does not include the exact clicked expert lines, so use the
+manual boundary tools before trial-FL scratch measurements.
 
 ## Labeling Protocol
 
