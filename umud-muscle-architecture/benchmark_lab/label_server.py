@@ -166,7 +166,7 @@ HTML = r"""<!doctype html>
         <div class="row">
           <button class="tool active" data-tool="brush">brush</button>
           <button class="tool" data-tool="line">dot line</button>
-          <button class="tool" data-tool="curve">3-point curve</button>
+          <button class="tool" data-tool="curve">curve chain</button>
           <button id="resetPath">reset dots</button>
         </div>
         <div class="row">
@@ -205,7 +205,7 @@ HTML = r"""<!doctype html>
       </div>
       <div class="section">
         <div class="kv">
-          Shortcuts: A/F/I layer, B brush, L dot line, C curve, E eraser, Esc reset dots,
+          Shortcuts: A/F/I layer, B brush, L dot line, C curve chain, E eraser, Esc reset dots,
           S save, arrows navigate, [ and ] width. Save writes local mask files only.
           Draw visible structures only. Do not hand-extrapolate fascicles.
         </div>
@@ -267,6 +267,7 @@ function setTool(tool) {
 function resetPath() {
   state.pathPoint = null;
   state.curvePoints = [];
+  clearPreview();
   setPathHint();
 }
 
@@ -278,9 +279,55 @@ function setPathHint(text) {
   } else if (state.tool === 'line') {
     hint.textContent = 'dot line: click points; each click connects from the previous point.';
   } else if (state.tool === 'curve') {
-    hint.textContent = '3-point curve: click start, bend/control, then end.';
+    hint.textContent = 'curve chain: click start, bend/control, end; the end becomes the next start.';
   } else {
     hint.textContent = 'brush: draw normally with pen or mouse.';
+  }
+}
+
+function clearPreview() {
+  ctx.drawShield.clearRect(0, 0, canvases.drawShield.width, canvases.drawShield.height);
+}
+
+function previewDot(p, label, color) {
+  const c = ctx.drawShield;
+  c.save();
+  c.lineWidth = 2;
+  c.strokeStyle = color;
+  c.fillStyle = 'rgba(0,0,0,0.72)';
+  c.beginPath();
+  c.arc(p.x, p.y, 6, 0, Math.PI * 2);
+  c.fill();
+  c.stroke();
+  c.fillStyle = color;
+  c.font = '12px system-ui, sans-serif';
+  c.fillText(label, p.x + 9, p.y - 8);
+  c.restore();
+}
+
+function previewGuide(points) {
+  if (points.length < 2) return;
+  const c = ctx.drawShield;
+  c.save();
+  c.lineWidth = 1;
+  c.setLineDash([6, 5]);
+  c.strokeStyle = 'rgba(255,255,255,0.72)';
+  c.beginPath();
+  c.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) c.lineTo(points[i].x, points[i].y);
+  c.stroke();
+  c.restore();
+}
+
+function renderPreview() {
+  clearPreview();
+  if (state.tool === 'line' && state.pathPoint) {
+    previewDot(state.pathPoint, 'last', '#7ab7ff');
+  }
+  if (state.tool === 'curve' && state.curvePoints.length) {
+    previewGuide(state.curvePoints);
+    const labels = ['start', 'bend'];
+    state.curvePoints.forEach((p, i) => previewDot(p, labels[i] || 'end', i === 0 ? '#7ab7ff' : '#ffd36f'));
   }
 }
 
@@ -417,6 +464,7 @@ function handlePointTool(p) {
       state.pathPoint = p;
       setPathHint('connected; keep clicking points or reset dots.');
     }
+    renderPreview();
     return;
   }
 
@@ -429,9 +477,10 @@ function handlePointTool(p) {
     } else {
       pushUndo();
       drawCurve(state.curvePoints[0], state.curvePoints[1], state.curvePoints[2]);
-      state.curvePoints = [];
-      setPathHint('curve drawn; click start, bend, end for another.');
+      state.curvePoints = [state.curvePoints[2]];
+      setPathHint('curve drawn; endpoint is now the next start. Click bend, then end.');
     }
+    renderPreview();
   }
 }
 

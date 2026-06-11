@@ -34,7 +34,7 @@ Minimum useful pack:
   against existing public masks.
 
 Draw only visible structures. Do not extrapolate off-screen or across missing regions. Use `dot line`
-for straight fragments, `brush` for filled boundary bands, and `3-point curve` only when a visible
+for straight fragments, `brush` for filled boundary bands, and `curve chain` only when a visible
 structure is genuinely curved. Leave scale/PA/FL/MT boxes blank unless you intentionally measured them
 elsewhere; the scorer derives those from the masks.
 

@@ -94,8 +94,9 @@ Use the same convention every time:
 - **brush**: freehand drawing with pen or mouse.
 - **dot line**: click a point, then click the next point; each click connects to the previous point.
   This is usually the cleanest tool for straight visible fragments.
-- **3-point curve**: click start, click the bend/control point, then click the end point. Use this
-  sparingly for visibly curved boundaries or fragments.
+- **curve chain**: click start, click the bend/control point, then click the end point. The endpoint
+  becomes the start of the next curve, so you can keep tracing with bend, end, bend, end. Pending
+  curve anchors are preview markers only; they are not saved into the mask.
 - **eraser**: removes pixels from the active layer only.
 - **save**: writes the current masks and notes to the selected labels folder. It does not submit
   anything to Kaggle. Reloading the page restores saved masks.
