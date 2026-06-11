@@ -66,6 +66,11 @@ Use the same convention every time:
    structure is a band rather than a one-pixel line, fill the visible band. The measurement code will
    use the muscle-facing inner edge.
 
+   Practical shortcut: drawing the gap-facing boundary line is fine. You do not need a perfect fill of
+   the whole band. Multiple strokes are acceptable; the scorer groups split strokes into upper/lower
+   boundaries by height. The main thing to avoid is accidentally connecting the upper and lower
+   boundaries into one blob, or drawing extra unrelated boundary pieces.
+
 2. Draw **fascicles** on the `fasc` layer.
    Trace only visible fascicle fragments. Do not extrapolate them to the aponeuroses by hand; the
    geometry code should do that. If there are many fragments, trace the clearest low-extrapolation
@@ -100,6 +105,7 @@ Use the same convention every time:
 - **eraser**: removes pixels from the active layer only.
 - **save**: writes the current masks and notes to the selected labels folder. It does not submit
   anything to Kaggle. Reloading the page restores saved masks.
+- **zoom**: use the top-bar `-`, `100%`, and `+` controls, or Ctrl/Cmd plus, minus, and zero.
 
 ## What This Enables
 

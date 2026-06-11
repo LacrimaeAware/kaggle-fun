@@ -145,6 +145,42 @@ def visible_length(xs: np.ndarray, ys: np.ndarray, slope: float) -> float:
     return float(proj.max() - proj.min())
 
 
+def apo_boundary_groups(apo_mask: np.ndarray) -> list[tuple[float, np.ndarray, np.ndarray]] | None:
+    """Group hand-drawn apo fragments into upper/lower boundaries.
+
+    Human labels are often made of several strokes. Treating connected components literally would
+    mistake two pieces of the same boundary for two separate boundaries, so split components at the
+    largest vertical gap between component centroids.
+    """
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
+    comps = []
+    for i in range(1, n):
+        area = int(stats[i, 4])
+        if area < 5:
+            continue
+        ys, xs = np.where(lab == i)
+        if len(xs) < 2:
+            continue
+        comps.append({"mean_y": float(np.mean(ys)), "xs": xs, "ys": ys, "area": area})
+    if len(comps) < 2:
+        return None
+    comps.sort(key=lambda c: c["mean_y"])
+    if len(comps) == 2:
+        split = 1
+    else:
+        gaps = [comps[i + 1]["mean_y"] - comps[i]["mean_y"] for i in range(len(comps) - 1)]
+        split = int(np.argmax(gaps)) + 1
+    groups = [comps[:split], comps[split:]]
+    if not groups[0] or not groups[1]:
+        return None
+    out = []
+    for group in groups:
+        xs = np.concatenate([g["xs"] for g in group])
+        ys = np.concatenate([g["ys"] for g in group])
+        out.append((float(np.average([g["mean_y"] for g in group], weights=[g["area"] for g in group])), xs, ys))
+    return out
+
+
 def measure_light(apo_mask: np.ndarray, fasc_mask: np.ndarray) -> dict[str, float] | None:
     """Production-shaped mask geometry using only cv2/numpy.
 
@@ -153,19 +189,14 @@ def measure_light(apo_mask: np.ndarray, fasc_mask: np.ndarray) -> dict[str, floa
     """
     apo_mask = np.ascontiguousarray(apo_mask, np.uint8)
     fasc_mask = np.ascontiguousarray(fasc_mask, np.uint8)
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
-    bands = sorted([(int(stats[i, 4]), i) for i in range(1, n)], reverse=True)[:2]
-    if len(bands) < 2:
+    band_info = apo_boundary_groups(apo_mask)
+    if band_info is None:
         return None
-    band_info = []
-    for _, i in bands:
-        ys, xs = np.where(lab == i)
-        if len(xs) < 10:
-            return None
-        band_info.append((float(np.mean(ys)), xs, ys))
-    band_info.sort()
+    band_info.sort(key=lambda item: item[0])
     fit = []
     for role, (_, xs, ys) in zip(("sup", "deep"), band_info):
+        if len(xs) < 10:
+            return None
         ux, inv = np.unique(xs, return_inverse=True)
         if role == "sup":
             ey = np.full(len(ux), -1.0)
@@ -243,6 +274,8 @@ def main() -> None:
     ap.add_argument("--labels-dir", default=str(ROOT / "results" / "human_benchmark" / "labels"))
     ap.add_argument("--pred-dir", default="", help="optional predicted masks to compare against human labels")
     ap.add_argument("--out", default=str(ROOT / "results" / "human_benchmark" / "scores.csv"))
+    ap.add_argument("--production-measure", action="store_true",
+                    help="use segment_then_measure.measure instead of the split-stroke-tolerant label scorer")
     args = ap.parse_args()
 
     manifest = Path(args.manifest)
@@ -250,7 +283,7 @@ def main() -> None:
     pred_dir = Path(args.pred_dir) if args.pred_dir else None
     out_path = Path(args.out)
     rows = read_csv(manifest)
-    M, import_error = import_measure()
+    M, import_error = import_measure() if args.production_measure else (None, "")
     scored = []
 
     for src in rows:
@@ -297,11 +330,11 @@ def main() -> None:
             out["measure_error"] = "missing human apo/fasc mask"
         else:
             try:
-                geom = M.measure(apo, fasc) if M is not None else measure_light(apo, fasc)
+                geom = M.measure(apo, fasc) if args.production_measure and M is not None else measure_light(apo, fasc)
                 if geom is None:
                     out["measure_error"] = "measure returned None"
                 else:
-                    out["measure_engine"] = "production" if M is not None else "light_cv2_numpy"
+                    out["measure_engine"] = "production" if args.production_measure and M is not None else "light_cv2_numpy"
                     scale = parse_float(meta.get("scale_px_per_mm")) or parse_float(src.get("scale_px_per_mm"))
                     measured["pa_deg"] = geom.get("pa_deg")
                     if scale:
@@ -338,7 +371,7 @@ def main() -> None:
     labeled = sum(1 for row in scored if row["has_apo"] == "true" or row["has_fasc"] == "true")
     print(f"wrote {len(scored)} rows -> {out_path}")
     print(f"labeled rows with any mask: {labeled}/{len(scored)}")
-    if import_error:
+    if args.production_measure and import_error:
         print(f"production geometry import unavailable; used light cv2/numpy fallback where masks exist: {import_error}")
 
 

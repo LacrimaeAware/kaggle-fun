@@ -33,10 +33,13 @@ Minimum useful pack:
 - at least 4 public/FALLMUD rows to verify that the label convention and scorer behave sensibly
   against existing public masks.
 
-Draw only visible structures. Do not extrapolate off-screen or across missing regions. Use `dot line`
-for straight fragments, `brush` for filled boundary bands, and `curve chain` only when a visible
-structure is genuinely curved. Leave scale/PA/FL/MT boxes blank unless you intentionally measured them
-elsewhere; the scorer derives those from the masks.
+Draw only visible structures. Do not extrapolate off-screen or across missing regions. For `apo`,
+drawing the gap-facing boundary line is acceptable; it does not need to be a perfect full-band fill.
+Multiple strokes are okay, but avoid connecting the upper and lower boundaries into one blob. Use
+`dot line` for straight fragments, `brush` for filled boundary bands, and `curve chain` only when a
+visible structure is genuinely curved. Leave scale/PA/FL/MT boxes blank unless you intentionally
+measured them elsewhere; the scorer derives those from the masks. Use the top-bar zoom controls when
+the frame is too small.
 
 Decision threshold:
 

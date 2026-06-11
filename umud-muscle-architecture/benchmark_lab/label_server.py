@@ -137,6 +137,9 @@ HTML = r"""<!doctype html>
     <button id="prev">Prev</button>
     <button id="next">Next</button>
     <span id="counter"></span>
+    <button id="zoomOut">-</button>
+    <button id="zoomReset">100%</button>
+    <button id="zoomIn">+</button>
     <button id="save">Save</button>
     <span id="status"></span>
     <span id="warn"></span>
@@ -231,6 +234,7 @@ const state = {
   undo: [],
   brush: 5,
   scale: 1,
+  zoom: 1,
 };
 const colors = {apo: 'rgba(0,220,255,1)', fasc: 'rgba(255,65,65,1)', ignore: 'rgba(255,210,0,1)'};
 const canvases = {};
@@ -244,9 +248,28 @@ function setStatus(txt){ qs('status').textContent = txt; setTimeout(()=>{ if(qs(
 function setWarn(txt){ qs('warn').textContent = txt || ''; }
 
 function resizeAll(w, h) {
-  for (const c of Object.values(canvases)) { c.width = w; c.height = h; c.style.width = w + 'px'; c.style.height = h + 'px'; }
-  qs('stack').style.width = w + 'px';
-  qs('stack').style.height = h + 'px';
+  for (const c of Object.values(canvases)) { c.width = w; c.height = h; }
+  applyZoom();
+}
+
+function applyZoom() {
+  const w = canvases.base.width;
+  const h = canvases.base.height;
+  const sw = Math.round(w * state.zoom);
+  const sh = Math.round(h * state.zoom);
+  for (const c of Object.values(canvases)) {
+    c.style.width = sw + 'px';
+    c.style.height = sh + 'px';
+  }
+  qs('stack').style.width = sw + 'px';
+  qs('stack').style.height = sh + 'px';
+  qs('zoomReset').textContent = Math.round(state.zoom * 100) + '%';
+}
+
+function setZoom(nextZoom) {
+  state.zoom = Math.min(4, Math.max(0.35, nextZoom));
+  applyZoom();
+  renderPreview();
 }
 
 function clearLayer(layer) {
@@ -609,9 +632,15 @@ qs('resetPath').onclick = () => { resetPath(); setStatus('dots reset'); };
 qs('save').onclick = save;
 qs('prev').onclick = () => { if (state.idx > 0) { state.idx--; loadImage(); } };
 qs('next').onclick = () => { if (state.idx + 1 < state.rows.length) { state.idx++; loadImage(); } };
+qs('zoomOut').onclick = () => setZoom(state.zoom / 1.25);
+qs('zoomIn').onclick = () => setZoom(state.zoom * 1.25);
+qs('zoomReset').onclick = () => setZoom(1);
 
 window.addEventListener('keydown', ev => {
   if (ev.target && ['TEXTAREA','INPUT','SELECT'].includes(ev.target.tagName)) return;
+  if ((ev.ctrlKey || ev.metaKey) && ['+','='].includes(ev.key)) { ev.preventDefault(); setZoom(state.zoom * 1.25); return; }
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === '-') { ev.preventDefault(); setZoom(state.zoom / 1.25); return; }
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === '0') { ev.preventDefault(); setZoom(1); return; }
   if (ev.key === 'a' || ev.key === 'A') setLayer('apo');
   if (ev.key === 'f' || ev.key === 'F') setLayer('fasc');
   if (ev.key === 'i' || ev.key === 'I') setLayer('ignore');
