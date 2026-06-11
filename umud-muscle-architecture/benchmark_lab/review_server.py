@@ -560,7 +560,7 @@ function renderList(){
 }
 
 function renderSummary(){
-  let html = '<table class="summaryTable"><tr><th>candidate</th><th>overall tol</th><th>PA tol</th><th>FL tol</th><th>MT tol</th><th>n</th></tr>';
+  let html = '<table class="summaryTable"><tr><th>candidate</th><th>overall err</th><th>PA err</th><th>FL err</th><th>MT err</th><th>n</th></tr>';
   for (const s of state.summary) {
     html += `<tr><td>${s.name}</td><td class="${clsNorm(s.overall_norm)}">${fmt(s.overall_norm,2)}</td>` +
       `<td>${fmt(s.pa_norm,2)}</td><td>${fmt(s.fl_norm,2)}</td><td>${fmt(s.mt_norm,2)}</td><td>${s.n}</td></tr>`;
@@ -571,7 +571,7 @@ function renderSummary(){
 
 function renderCandidateTable(){
   const r = row();
-  let html = '<table><tr><th>source</th><th>PA deg</th><th>FL mm</th><th>MT mm</th><th>tol units</th></tr>';
+  let html = '<table><tr><th>source</th><th>PA deg</th><th>FL mm</th><th>MT mm</th><th>error units</th></tr>';
   html += `<tr><td>${r.truth_label || 'human mask'}</td><td>${fmt(r.human.pa_deg)}</td><td>${fmt(r.human.fl_mm)}</td><td>${fmt(r.human.mt_mm)}</td><td></td></tr>`;
   if (state.trialLines.length) {
     const s = scratchStats();
