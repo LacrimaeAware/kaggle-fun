@@ -20,6 +20,10 @@ Human-mask vs 0.619 submission comparison:
 
 `results/human_benchmark/target_human_vs_submission.csv`
 
+Interactive review:
+
+`python umud-muscle-architecture\benchmark_lab\review_server.py --port 8767`
+
 ## Status
 
 - 19 of 24 target manifest rows have saved label folders.
@@ -107,6 +111,7 @@ Important labeling convention confirmed during the session:
 ## Next Use
 
 1. Build an overlay/report comparing production predictions to these 19 human masks.
-2. Compare the safe 0.619 baseline geometry to human-mask geometry on the same rows.
+2. Use `review_server.py` to compare the safe 0.619 baseline and other candidate CSVs against
+   human-mask geometry on the same rows, with notes saved per image.
 3. Use disagreements to choose the next small label/refinement batch, preferably only a few images at
    a time with more deliberate review.

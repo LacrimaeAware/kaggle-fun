@@ -57,6 +57,18 @@ python umud-muscle-architecture\benchmark_lab\score_labels.py `
   --out umud-muscle-architecture\results\human_benchmark\scores.csv
 ```
 
+Review labels against candidate submissions:
+
+```powershell
+python umud-muscle-architecture\benchmark_lab\review_server.py --port 8767
+```
+
+Open:
+
+```text
+http://127.0.0.1:8767
+```
+
 ## Labeling Protocol
 
 Use the same convention every time:
