@@ -69,6 +69,25 @@ Open:
 http://127.0.0.1:8767
 ```
 
+By default the review app compares only against `results\submission_local.csv`, the known 0.619
+baseline. Add rejected historical candidates only when you explicitly want audit context:
+
+```powershell
+python umud-muscle-architecture\benchmark_lab\review_server.py --port 8767 --include-rejected
+```
+
+The review app's disagreement numbers are not out of 10. They are competition-tolerance units:
+PA uses 6 degrees, FL uses 12 mm, and MT uses 3 mm. A disagreement of 1.0 means one tolerance off
+on average; lower is closer to the human mask.
+
+The review app also has a measurement scratch pad:
+
+- **straight ruler**: click two points to see the distance in pixels and, when scale exists, mm.
+- **trial FL**: click two endpoints for each trial fascicle segment. The app extends each trial line
+  to the fitted aponeurosis boundaries, reports each full length, and adds a live scratch-median row
+  to the current-image table so you can compare your trial set against the human-mask measurement
+  and the baseline submission.
+
 ## Labeling Protocol
 
 Use the same convention every time:
@@ -87,6 +106,11 @@ Use the same convention every time:
    Trace only visible fascicle fragments. Do not extrapolate them to the aponeuroses by hand; the
    geometry code should do that. If there are many fragments, trace the clearest low-extrapolation
    ones first.
+
+   In the current scorer, FL is not the visible fragment length and not the longest visible segment.
+   The scorer fits a straight line through each drawn fascicle component, extrapolates it until it
+   intersects the upper and lower aponeurosis boundary fits, and uses the median of those extrapolated
+   lengths. The review app's trial-FL scratch tool uses the same convention for quick inspection.
 
 3. Use **ignore** for ambiguity.
    Mark overlay text, unresolvable shadow, or regions where the correct structure is genuinely unclear.

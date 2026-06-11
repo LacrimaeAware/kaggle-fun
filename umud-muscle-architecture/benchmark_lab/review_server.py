@@ -102,6 +102,13 @@ HTML = r"""<!doctype html>
     #apo { z-index: 2; opacity: 0.75; }
     #fasc { z-index: 3; opacity: 0.75; }
     #ignore { z-index: 4; opacity: 0.45; }
+    #toolCanvas {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      transform-origin: top left;
+      cursor: crosshair;
+    }
     .item {
       border-bottom: 1px solid #333;
       padding: 7px 6px;
@@ -113,6 +120,8 @@ HTML = r"""<!doctype html>
     .item .score { color: #ffcf7a; }
     .item.reviewed::before { content: "reviewed "; color: #9fe59f; }
     .kv { font-size: 12px; color: #bbbbbb; line-height: 1.45; word-break: break-word; }
+    .help { font-size: 12px; color: #d4d4d4; line-height: 1.4; }
+    .muted { color: #999; }
     .kv b { color: #f5f5f5; }
     .section { border-top: 1px solid #333; margin-top: 12px; padding-top: 12px; }
     .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
@@ -148,6 +157,7 @@ HTML = r"""<!doctype html>
         <img id="apo">
         <img id="fasc">
         <img id="ignore">
+        <canvas id="toolCanvas"></canvas>
       </div>
     </main>
     <aside id="side">
@@ -164,11 +174,26 @@ HTML = r"""<!doctype html>
         </div>
       </div>
       <div class="section">
-        <div class="kv"><b>Candidate summary on labeled rows</b></div>
+        <div class="help"><b>Measurement scratch pad</b><br>
+          Straight ruler: click two points. Trial FL: click two endpoints on a visible fascicle; the viewer extends that line to the two apo boundaries and updates the median.
+        </div>
+        <div class="row">
+          <button class="tool active" data-tool="off">inspect</button>
+          <button class="tool" data-tool="ruler">straight ruler</button>
+          <button class="tool" data-tool="trial">trial FL</button>
+          <button id="undoTool">undo</button>
+          <button id="clearTools">clear</button>
+        </div>
+        <div id="scaleBox" class="kv"></div>
+        <div id="toolReadout" class="kv"></div>
+      </div>
+      <div class="section">
+        <div class="help"><b>Disagreement is not out of 10.</b> 1.0 means one competition tolerance on average: PA 6 deg, FL 12 mm, MT 3 mm. Lower is closer to your mask.</div>
+        <div class="kv" style="margin-top:8px;"><b>Candidate disagreement on labeled rows</b></div>
         <div id="summary"></div>
       </div>
       <div class="section">
-        <div class="kv"><b>Current image benchmark</b></div>
+        <div class="kv"><b>Current image: human mask vs candidate</b></div>
         <div id="candidateTable"></div>
       </div>
       <div class="section">
@@ -205,13 +230,42 @@ HTML = r"""<!doctype html>
     </aside>
   </div>
 <script>
-const state = { rows: [], summary: [], idx: 0, zoom: 1, visible: {apo: true, fasc: true, ignore: false} };
+const state = {
+  rows: [],
+  summary: [],
+  idx: 0,
+  zoom: 1,
+  visible: {apo: true, fasc: true, ignore: false},
+  tool: 'off',
+  pending: [],
+  ruler: null,
+  trialLines: []
+};
 const imgs = {base: document.getElementById('base'), apo: document.getElementById('apo'), fasc: document.getElementById('fasc'), ignore: document.getElementById('ignore')};
+const toolCanvas = document.getElementById('toolCanvas');
+const toolCtx = toolCanvas.getContext('2d');
 function qs(id){ return document.getElementById(id); }
 function row(){ return state.rows[state.idx]; }
 function fmt(v, digits=2){ if(v===null || v===undefined || v==='') return ''; const n=Number(v); return Number.isFinite(n) ? n.toFixed(digits) : ''; }
+function signed(v, digits=2){ if(v===null || v===undefined || v==='') return ''; const n=Number(v); return Number.isFinite(n) ? (n >= 0 ? '+' : '') + n.toFixed(digits) : ''; }
 function clsNorm(n){ if(n === null || n === undefined || n === '') return 'ok'; n=Number(n); if(n >= 1) return 'bad'; if(n <= 0.35) return 'good'; return 'ok'; }
 function setStatus(txt){ qs('status').textContent = txt; setTimeout(()=>{ if(qs('status').textContent===txt) qs('status').textContent=''; }, 2500); }
+function dist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y); }
+function median(vals){
+  const xs = vals.filter(v => Number.isFinite(v)).slice().sort((a,b)=>a-b);
+  if (!xs.length) return null;
+  const mid = Math.floor(xs.length / 2);
+  return xs.length % 2 ? xs[mid] : (xs[mid - 1] + xs[mid]) / 2;
+}
+function pxToMm(px){
+  const scale = Number(row()?.scale_px_per_mm);
+  return Number.isFinite(px) && Number.isFinite(scale) && scale > 0 ? px / scale : null;
+}
+function lengthText(px){
+  if (!Number.isFinite(px)) return '';
+  const mm = pxToMm(px);
+  return `${fmt(px,1)} px` + (mm === null ? '' : ` / ${fmt(mm,2)} mm`);
+}
 
 function applyZoom(){
   const w = imgs.base.naturalWidth || 1;
@@ -222,11 +276,24 @@ function applyZoom(){
     im.style.width = sw + 'px';
     im.style.height = sh + 'px';
   }
+  toolCanvas.style.width = sw + 'px';
+  toolCanvas.style.height = sh + 'px';
   qs('stack').style.width = sw + 'px';
   qs('stack').style.height = sh + 'px';
   qs('zoomReset').textContent = Math.round(state.zoom * 100) + '%';
+  drawTools();
 }
 function setZoom(z){ state.zoom = Math.min(4, Math.max(0.35, z)); applyZoom(); }
+
+function resizeToolCanvas(){
+  const w = imgs.base.naturalWidth || 1;
+  const h = imgs.base.naturalHeight || 1;
+  if (toolCanvas.width !== w || toolCanvas.height !== h) {
+    toolCanvas.width = w;
+    toolCanvas.height = h;
+  }
+  applyZoom();
+}
 
 function updateLayerVisibility(){
   for (const layer of ['apo','fasc','ignore']) {
@@ -240,13 +307,167 @@ function updateLayerVisibility(){
   imgs.ignore.style.opacity = Math.min(op, 0.55);
 }
 
+function setTool(tool){
+  state.tool = tool;
+  state.pending = [];
+  document.querySelectorAll('.tool').forEach(btn => btn.classList.toggle('active', btn.dataset.tool === tool));
+  drawTools();
+}
+
+function canvasPoint(ev){
+  const rect = toolCanvas.getBoundingClientRect();
+  return {
+    x: (ev.clientX - rect.left) * toolCanvas.width / Math.max(rect.width, 1),
+    y: (ev.clientY - rect.top) * toolCanvas.height / Math.max(rect.height, 1)
+  };
+}
+
+function lineY(line, x){ return line.slope * x + line.intercept; }
+function lineFromPoints(p1, p2){
+  const dx = p2.x - p1.x;
+  if (Math.abs(dx) < 1e-6) return {vertical: true, x: p1.x};
+  const slope = (p2.y - p1.y) / dx;
+  return {vertical: false, slope, intercept: p1.y - slope * p1.x};
+}
+function intersectLineWithApo(testLine, apoLine){
+  if (!apoLine) return null;
+  if (testLine.vertical) return {x: testLine.x, y: lineY(apoLine, testLine.x)};
+  const denom = testLine.slope - apoLine.slope;
+  if (Math.abs(denom) < 1e-6) return null;
+  const x = (apoLine.intercept - testLine.intercept) / denom;
+  return {x, y: testLine.slope * x + testLine.intercept};
+}
+function trialFromEndpoints(p1, p2){
+  const r = row();
+  const sup = r.apo_lines?.superficial;
+  const deep = r.apo_lines?.deep;
+  const testLine = lineFromPoints(p1, p2);
+  const upper = intersectLineWithApo(testLine, sup);
+  const lower = intersectLineWithApo(testLine, deep);
+  if (!upper || !lower) return {p1, p2, visible_px: dist(p1, p2), error: 'no boundary intersection'};
+  const visiblePx = dist(p1, p2);
+  const fullPx = dist(upper, lower);
+  let angleDeg = null;
+  if (!testLine.vertical && deep) {
+    angleDeg = Math.abs((Math.atan(testLine.slope) - Math.atan(deep.slope)) * 180 / Math.PI);
+    if (angleDeg > 90) angleDeg = 180 - angleDeg;
+  }
+  return {
+    p1, p2, upper, lower,
+    visible_px: visiblePx,
+    extrapolated_px: fullPx,
+    support_ratio: fullPx > 0 ? visiblePx / fullPx : null,
+    angle_deg: angleDeg,
+    error: fullPx < 10 || fullPx > 4000 ? 'outside scorer length range' : ''
+  };
+}
+
+function drawPoint(p, color){
+  toolCtx.fillStyle = color;
+  toolCtx.beginPath();
+  toolCtx.arc(p.x, p.y, Math.max(2, 4 / state.zoom), 0, Math.PI * 2);
+  toolCtx.fill();
+}
+function drawSegment(a, b, color, width=3, dashed=false){
+  toolCtx.save();
+  toolCtx.strokeStyle = color;
+  toolCtx.lineWidth = Math.max(1, width / state.zoom);
+  if (dashed) toolCtx.setLineDash([9 / state.zoom, 7 / state.zoom]);
+  toolCtx.beginPath();
+  toolCtx.moveTo(a.x, a.y);
+  toolCtx.lineTo(b.x, b.y);
+  toolCtx.stroke();
+  toolCtx.restore();
+}
+function drawApoFit(line, color){
+  if (!line || !toolCanvas.width) return;
+  drawSegment({x: 0, y: lineY(line, 0)}, {x: toolCanvas.width, y: lineY(line, toolCanvas.width)}, color, 2, true);
+}
+function scratchStats(){
+  const pa = median(state.trialLines.map(t => t.angle_deg));
+  const flPx = median(state.trialLines.map(t => t.extrapolated_px));
+  const flMm = pxToMm(flPx);
+  const vals = [];
+  const h = row()?.human || {};
+  if (pa !== null && Number.isFinite(h.pa_deg)) vals.push(Math.abs(pa - h.pa_deg) / 6);
+  if (flMm !== null && Number.isFinite(h.fl_mm)) vals.push(Math.abs(flMm - h.fl_mm) / 12);
+  return {
+    pa_deg: pa,
+    fl_px: flPx,
+    fl_mm: flMm,
+    delta_pa: pa === null || !Number.isFinite(h.pa_deg) ? null : pa - h.pa_deg,
+    delta_fl: flMm === null || !Number.isFinite(h.fl_mm) ? null : flMm - h.fl_mm,
+    overall_norm: vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : null
+  };
+}
+function drawTools(){
+  toolCtx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+  const r = row();
+  if (!r) return;
+  drawApoFit(r.apo_lines?.superficial, 'rgba(111, 199, 255, 0.75)');
+  drawApoFit(r.apo_lines?.deep, 'rgba(255, 214, 102, 0.75)');
+  if (state.ruler) {
+    drawSegment(state.ruler.p1, state.ruler.p2, '#6fffd2', 4);
+    drawPoint(state.ruler.p1, '#6fffd2');
+    drawPoint(state.ruler.p2, '#6fffd2');
+  }
+  for (const t of state.trialLines) {
+    if (t.upper && t.lower) drawSegment(t.upper, t.lower, '#ffd966', 3, true);
+    drawSegment(t.p1, t.p2, '#7aff8a', 4);
+    drawPoint(t.p1, '#7aff8a');
+    drawPoint(t.p2, '#7aff8a');
+    if (t.upper) drawPoint(t.upper, '#ffd966');
+    if (t.lower) drawPoint(t.lower, '#ffd966');
+  }
+  for (const p of state.pending) drawPoint(p, '#ff7ab7');
+  renderToolReadout();
+  renderCandidateTable();
+}
+function renderScaleBox(){
+  const r = row();
+  const scale = Number(r.scale_px_per_mm);
+  if (Number.isFinite(scale) && scale > 0) {
+    qs('scaleBox').innerHTML = `<b>scale used here:</b> ${fmt(scale,3)} px/mm (${fmt(scale * 10,1)} px/cm)` +
+      (r.calibration_method ? `<br><span class="muted">method: ${r.calibration_method}</span>` : '');
+  } else {
+    qs('scaleBox').innerHTML = '<b>scale used here:</b> missing, so scratch lengths are pixels only';
+  }
+}
+function renderToolReadout(){
+  const parts = [];
+  if (state.tool === 'ruler') parts.push(state.pending.length ? 'ruler: click the second point' : 'ruler: click two points');
+  if (state.tool === 'trial') parts.push(state.pending.length ? 'trial FL: click the second endpoint' : 'trial FL: click two endpoints for each segment');
+  if (state.ruler) parts.push(`<b>ruler:</b> ${lengthText(dist(state.ruler.p1, state.ruler.p2))}`);
+  if (state.trialLines.length) {
+    const s = scratchStats();
+    parts.push(`<b>scratch trial median:</b> PA ${fmt(s.pa_deg,1)} deg, FL ${fmt(s.fl_mm,2)} mm (${fmt(s.fl_px,1)} px), disagreement ${fmt(s.overall_norm,2)}`);
+    parts.push(state.trialLines.map((t, i) => {
+      const err = t.error ? ` <span class="bad">${t.error}</span>` : '';
+      return `${i + 1}. full ${lengthText(t.extrapolated_px)}, visible ${lengthText(t.visible_px)}, support ${fmt(t.support_ratio,2)}, angle ${fmt(t.angle_deg,1)}${err}`;
+    }).join('<br>'));
+  }
+  qs('toolReadout').innerHTML = parts.length ? parts.join('<br>') : '<span class="muted">Select a tool above to measure without changing the saved label.</span>';
+}
+function handleToolClick(ev){
+  if (state.tool === 'off') return;
+  const p = canvasPoint(ev);
+  if (state.tool === 'ruler') {
+    if (!state.pending.length) state.pending = [p];
+    else { state.ruler = {p1: state.pending[0], p2: p}; state.pending = []; }
+  } else if (state.tool === 'trial') {
+    if (!state.pending.length) state.pending = [p];
+    else { state.trialLines.push(trialFromEndpoints(state.pending[0], p)); state.pending = []; }
+  }
+  drawTools();
+}
+
 function renderList(){
   const box = qs('list');
   box.innerHTML = '';
   state.rows.forEach((r, i) => {
     const d = document.createElement('div');
     d.className = 'item' + (i === state.idx ? ' current' : '') + (r.review && r.review.updated_at ? ' reviewed' : '');
-    d.innerHTML = `<b>${i+1}. ${r.image_id}</b><br><span class="score">score ${fmt(r.sort_score,2)}</span> ` +
+    d.innerHTML = `<b>${i+1}. ${r.image_id}</b><br><span class="score">disagree ${fmt(r.sort_score,2)}</span> ` +
       `<span class="kv">fasc ${r.n_fascicles || ''}</span><br>` +
       `<span class="kv">${r.review?.label_quality || ''} ${r.review?.failure_kind || ''}</span>`;
     d.onclick = () => { state.idx = i; loadCurrent(); };
@@ -255,7 +476,7 @@ function renderList(){
 }
 
 function renderSummary(){
-  let html = '<table class="summaryTable"><tr><th>candidate</th><th>overall</th><th>PA</th><th>FL</th><th>MT</th><th>n</th></tr>';
+  let html = '<table class="summaryTable"><tr><th>candidate</th><th>overall tol</th><th>PA tol</th><th>FL tol</th><th>MT tol</th><th>n</th></tr>';
   for (const s of state.summary) {
     html += `<tr><td>${s.name}</td><td class="${clsNorm(s.overall_norm)}">${fmt(s.overall_norm,2)}</td>` +
       `<td>${fmt(s.pa_norm,2)}</td><td>${fmt(s.fl_norm,2)}</td><td>${fmt(s.mt_norm,2)}</td><td>${s.n}</td></tr>`;
@@ -266,13 +487,20 @@ function renderSummary(){
 
 function renderCandidateTable(){
   const r = row();
-  let html = '<table><tr><th>source</th><th>PA</th><th>FL</th><th>MT</th><th>norm</th></tr>';
+  let html = '<table><tr><th>source</th><th>PA deg</th><th>FL mm</th><th>MT mm</th><th>tol units</th></tr>';
   html += `<tr><td>human mask</td><td>${fmt(r.human.pa_deg)}</td><td>${fmt(r.human.fl_mm)}</td><td>${fmt(r.human.mt_mm)}</td><td></td></tr>`;
+  if (state.trialLines.length) {
+    const s = scratchStats();
+    html += `<tr><td>scratch trial median<br><span class="muted">live, not saved</span></td>` +
+      `<td>${fmt(s.pa_deg)}<br><span class="muted">${signed(s.delta_pa)}</span></td>` +
+      `<td>${fmt(s.fl_mm)}<br><span class="muted">${signed(s.delta_fl)}</span></td>` +
+      `<td></td><td class="${clsNorm(s.overall_norm)}">${fmt(s.overall_norm,2)}</td></tr>`;
+  }
   for (const c of r.candidates) {
     html += `<tr><td>${c.name}</td><td>${fmt(c.pa_deg)}</td><td>${fmt(c.fl_mm)}</td><td>${fmt(c.mt_mm)}</td><td class="${clsNorm(c.overall_norm)}">${fmt(c.overall_norm,2)}</td></tr>`;
-    html += `<tr><td class="kv">delta</td><td class="${clsNorm(Math.abs(c.delta_pa)/6)}">${fmt(c.delta_pa)}</td>` +
-      `<td class="${clsNorm(Math.abs(c.delta_fl)/12)}">${fmt(c.delta_fl)}</td>` +
-      `<td class="${clsNorm(Math.abs(c.delta_mt)/3)}">${fmt(c.delta_mt)}</td><td></td></tr>`;
+    html += `<tr><td class="kv">candidate - human</td><td class="${clsNorm(Math.abs(c.delta_pa)/6)}">${signed(c.delta_pa)}</td>` +
+      `<td class="${clsNorm(Math.abs(c.delta_fl)/12)}">${signed(c.delta_fl)}</td>` +
+      `<td class="${clsNorm(Math.abs(c.delta_mt)/3)}">${signed(c.delta_mt)}</td><td></td></tr>`;
   }
   html += '</table>';
   qs('candidateTable').innerHTML = html;
@@ -280,18 +508,24 @@ function renderCandidateTable(){
 
 function loadCurrent(){
   const r = row();
+  state.pending = [];
+  state.ruler = null;
+  state.trialLines = [];
   qs('counter').textContent = `${state.idx + 1}/${state.rows.length}`;
   qs('meta').innerHTML = `<b>${r.label_id}</b><br>image: ${r.image_id}<br>quality: ${r.quality || ''}<br>` +
     `pixels: apo ${r.apo_pixels}, fasc ${r.fasc_pixels}<br>measured fragments: ${r.n_fascicles || ''}<br>` +
-    `sort disagreement: ${fmt(r.sort_score,2)}`;
-  imgs.base.onload = applyZoom;
+    `sort disagreement: ${fmt(r.sort_score,2)}<br>` +
+    `<span class="muted">FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.</span>`;
+  imgs.base.onload = resizeToolCanvas;
   imgs.base.src = `/image/${state.idx}?t=${Date.now()}`;
   for (const layer of ['apo','fasc','ignore']) imgs[layer].src = `/label/${state.idx}/${layer}.png?t=${Date.now()}`;
   qs('labelQuality').value = r.review?.label_quality || '';
   qs('failureKind').value = r.review?.failure_kind || '';
   qs('notes').value = r.review?.notes || '';
+  renderScaleBox();
   renderList();
   renderCandidateTable();
+  renderToolReadout();
   updateLayerVisibility();
 }
 
@@ -311,6 +545,20 @@ async function saveReview(){
 }
 
 document.querySelectorAll('button.layer').forEach(b => b.onclick = () => { state.visible[b.dataset.layer] = !state.visible[b.dataset.layer]; updateLayerVisibility(); });
+document.querySelectorAll('button.tool').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+toolCanvas.addEventListener('click', handleToolClick);
+qs('undoTool').onclick = () => {
+  if (state.pending.length) state.pending = [];
+  else if (state.trialLines.length) state.trialLines.pop();
+  else state.ruler = null;
+  drawTools();
+};
+qs('clearTools').onclick = () => {
+  state.pending = [];
+  state.ruler = null;
+  state.trialLines = [];
+  drawTools();
+};
 qs('opacity').oninput = updateLayerVisibility;
 qs('saveReview').onclick = saveReview;
 qs('prev').onclick = () => { if(state.idx > 0){ state.idx--; loadCurrent(); } };
@@ -375,6 +623,78 @@ def parse_float(value) -> float | None:
         return None
 
 
+def load_mask(path: Path) -> np.ndarray | None:
+    if cv2 is None or np is None or not path.exists():
+        return None
+    arr = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+    if arr is None:
+        return None
+    if arr.ndim == 3 and arr.shape[2] == 4:
+        return (arr[:, :, 3] > 0).astype(np.uint8)
+    if arr.ndim == 3:
+        arr = cv2.cvtColor(arr, cv2.COLOR_BGR2GRAY)
+    return (arr > 0).astype(np.uint8)
+
+
+def fit_line(xs: np.ndarray, ys: np.ndarray) -> tuple[float, float]:
+    m = np.polyfit(xs.astype(float), ys.astype(float), 1)
+    return float(m[0]), float(m[1])
+
+
+def apo_boundary_groups(apo_mask: np.ndarray) -> list[tuple[float, np.ndarray, np.ndarray]] | None:
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
+    comps = []
+    for i in range(1, n):
+        area = int(stats[i, 4])
+        if area < 5:
+            continue
+        ys, xs = np.where(lab == i)
+        if len(xs) < 2:
+            continue
+        comps.append({"mean_y": float(np.mean(ys)), "xs": xs, "ys": ys, "area": area})
+    if len(comps) < 2:
+        return None
+    comps.sort(key=lambda c: c["mean_y"])
+    if len(comps) == 2:
+        split = 1
+    else:
+        gaps = [comps[i + 1]["mean_y"] - comps[i]["mean_y"] for i in range(len(comps) - 1)]
+        split = int(np.argmax(gaps)) + 1
+    groups = [comps[:split], comps[split:]]
+    if not groups[0] or not groups[1]:
+        return None
+    out = []
+    for group in groups:
+        xs = np.concatenate([g["xs"] for g in group])
+        ys = np.concatenate([g["ys"] for g in group])
+        out.append((float(np.average([g["mean_y"] for g in group], weights=[g["area"] for g in group])), xs, ys))
+    return out
+
+
+def apo_line_fits(labels_dir: Path, label_id: str) -> dict[str, dict[str, float]] | None:
+    apo = load_mask(labels_dir / label_id / "apo.png")
+    if apo is None:
+        return None
+    groups = apo_boundary_groups(np.ascontiguousarray(apo, np.uint8))
+    if groups is None:
+        return None
+    groups.sort(key=lambda item: item[0])
+    out: dict[str, dict[str, float]] = {}
+    for role, (_, xs, ys) in zip(("superficial", "deep"), groups):
+        ux, inv = np.unique(xs, return_inverse=True)
+        if len(ux) < 2:
+            return None
+        if role == "superficial":
+            edge_y = np.full(len(ux), -1.0)
+            np.maximum.at(edge_y, inv, ys.astype(float))
+        else:
+            edge_y = np.full(len(ux), 1e18)
+            np.minimum.at(edge_y, inv, ys.astype(float))
+        slope, intercept = fit_line(ux.astype(float), edge_y)
+        out[role] = {"slope": slope, "intercept": intercept}
+    return out
+
+
 def browser_image_bytes(path: Path) -> tuple[bytes, str]:
     suffix = path.suffix.lower()
     if suffix not in {".tif", ".tiff", ".bmp"}:
@@ -396,6 +716,12 @@ def browser_image_bytes(path: Path) -> tuple[bytes, str]:
 def default_candidate_csvs() -> list[tuple[str, Path]]:
     candidates = [
         ("baseline_0619", ROOT / "results" / "submission_local.csv"),
+    ]
+    return [(name, path) for name, path in candidates if path.exists()]
+
+
+def rejected_candidate_csvs() -> list[tuple[str, Path]]:
+    candidates = [
         ("mt_vertical3_0625", ROOT / "results" / "submission_host_mt_vertical3_no_subpixel.csv"),
         ("scale_tail_bar_0667", ROOT / "results" / "submission_scale_tail_bar_only.csv"),
         ("segmentation_old", ROOT / "results" / "submission_segmentation.csv"),
@@ -463,7 +789,8 @@ def build_rows(
         score = scores.get(image_id, {})
         if not (score.get("has_apo") == "true" and score.get("has_fasc") == "true"):
             continue
-        scale = parse_float(cal.get(image_id, {}).get("px_per_mm"))
+        cal_row = cal.get(image_id, {})
+        scale = parse_float(cal_row.get("px_per_mm"))
         human = {
             "pa_deg": parse_float(score.get("pa_deg_measured")),
             "fl_mm": None,
@@ -503,6 +830,11 @@ def build_rows(
             "apo_pixels": score.get("apo_pixels", ""),
             "fasc_pixels": score.get("fasc_pixels", ""),
             "n_fascicles": score.get("n_fascicles", ""),
+            "scale_px_per_mm": scale,
+            "scale_px_per_cm": None if scale is None else scale * 10.0,
+            "calibration_method": cal_row.get("method", "") or cal_row.get("calibration_method", ""),
+            "calibration_confidence": parse_float(cal_row.get("confidence") or cal_row.get("calibration_confidence")),
+            "apo_lines": apo_line_fits(labels_dir, label_id),
             "human": human,
             "candidates": candidates,
             "sort_score": sort_score,
@@ -628,11 +960,15 @@ def main() -> None:
     ap.add_argument("--review-dir", default=str(ROOT / "results" / "human_benchmark" / "review_notes"))
     ap.add_argument("--pred-csv", action="append", default=[],
                     help="candidate as name=path or just path; can be repeated")
+    ap.add_argument("--include-rejected", action="store_true",
+                    help="also show rejected historical candidates such as tail-bar and old segmentation")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8767)
     args = ap.parse_args()
 
     candidate_csvs = parse_candidate_arg(args.pred_csv) if args.pred_csv else default_candidate_csvs()
+    if args.include_rejected:
+        candidate_csvs.extend(rejected_candidate_csvs())
     rows, summary = build_rows(
         Path(args.manifest),
         Path(args.labels_dir),
