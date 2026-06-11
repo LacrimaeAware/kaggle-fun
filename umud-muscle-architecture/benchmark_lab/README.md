@@ -105,6 +105,36 @@ That mode uses the OSF expert spreadsheet as the reference row (`expert consensu
 and final expert PA/FL/MT values, but it does not include the exact clicked expert lines, so use the
 manual boundary tools before trial-FL scratch measurements.
 
+Generate a synthetic exact-geometry benchmark:
+
+```powershell
+python umud-muscle-architecture\benchmark_lab\generate_synthetic_geometry.py `
+  --n 32 `
+  --out-dir umud-muscle-architecture\results\synthetic_geometry
+```
+
+This creates abstract two-boundary images with internal strand curves, exact known PA/FL/MT-style
+targets, exact scale, masks, and a score table for the current straight-line scorer. It is useful for
+testing bend, fan, low-support, and curved-boundary cases where we know the right answer by
+construction.
+
+Open the synthetic benchmark in the same review app:
+
+```powershell
+python umud-muscle-architecture\benchmark_lab\review_server.py `
+  --synthetic-dir umud-muscle-architecture\results\synthetic_geometry `
+  --port 8769
+```
+
+Synthetic outputs:
+
+- `truth.csv`: generated exact target values.
+- `measure_light_scores.csv`: current straight-line scorer predictions and error units.
+- `summary_by_family.csv`: mean errors by synthetic family.
+- `manifest.csv`, `images/`, `labels/`: viewer/label-compatible assets.
+- `SYNTHETIC_ABSTRACT_BRIEF.md`: domain-neutral handoff text for models that should reason only
+  about generic geometry.
+
 ## Labeling Protocol
 
 Use the same convention every time:
