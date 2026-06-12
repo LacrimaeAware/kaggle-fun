@@ -7,6 +7,10 @@ Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-ex
 (local, CPU, NOT an oracle - see the leakage/recenter notes below). Safe baseline file:
 `Downloads/0P61918_submission_local.csv` (LB 0.61918). `results/` is gitignored.
 
+Long-term feature tracking now lives in `FEATURE_DATABASE.md` and `FEATURE_DATABASE.csv`. New ideas
+should be added there even before implementation, and every benchmark/public delta should name the
+baseline it was deltaed from.
+
 ## Submissions (what actually hit the leaderboard)
 
 | date | method | LB | changed | how to reproduce / roll back | status |
