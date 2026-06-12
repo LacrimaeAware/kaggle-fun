@@ -1,9 +1,9 @@
 # UMUD handoff brief (for a collaborating model)
 
 Current-state briefing so another model can get caught up and extend or cross-check this work.
-Read it with the canonical docs at the end. Last substantive update: 2026-06-10.
+Read it with the canonical docs at the end. Last substantive update: 2026-06-12.
 
-**Read first:** `MASTER_REVIEW.md` (canonical state as of 2026-06-10/11). Then `STATE_RESET_2026-06-10.md` for pre-history. Best SUBMITTED public score is **0.61918** (#7 at time of submission). Five post-best tweaks have all regressed:
+**Read first:** `MASTER_REVIEW.md` (canonical state as of 2026-06-12). Then `STATE_RESET_2026-06-10.md` for pre-history. Best SUBMITTED public score is **0.61918** (#7 at time of submission). Post-best leaderboard probes have all regressed:
 
 | submitted | LB | status |
 |---|---:|---|
@@ -15,6 +15,11 @@ Read it with the canonical docs at the end. Last substantive update: 2026-06-10.
 The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrapolation) **was submitted and regressed** 0.619→0.665. The geometry is zero-bias on the 35-expert benchmark (+0.7mm bias) but fails on ~13 multi-muscle test images where 3 apo bands exist, the wrong pair is selected, and fascicles from both muscles mix into one garbage consensus.
 
 `results/submission_local.csv` is the **0.61918 baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The production code now defaults `UMUD_FL_FACING=0` and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the safe baseline unless a rejected probe is explicitly enabled.
+
+Immediate 2026-06-12 submission stance: do **not** burn four slots from existing files. No new ready
+production CSV came out of the human-label/synthetic work. The only defensible quick one-slot probe is
+an isolated `IMG_00275` OCR-scale fix (verified 2x tick-vs-printed-ruler anomaly), after inspecting the
+one-row diff. Do not substitute old tail/bar/shape/facing files for that.
 
 ## The competition
 
@@ -68,6 +73,19 @@ outputs. This is our **local scoreboard**:
 Caveat: the benchmark is different devices than the Kaggle test set, so FL/MT *magnitudes* don't
 transfer. The 0.619 -> 0.64 failed blend proves that FL-method rankings can also fail to transfer
 when they rely on the small clean benchmark or on recentering assumptions.
+
+New 2026-06-12 local review surfaces:
+
+- `benchmark_lab/review_server.py --port 8767`: target human-in-loop viewer. 19/24 target rows have
+  rough local labels in ignored `results/human_benchmark/`. Use this to separate baseline from repaired
+  candidates before spending another slot.
+- `benchmark_lab/review_server.py --expert-benchmark --port 8768`: 35-image expert benchmark viewer
+  with expert consensus, our true-scale pipeline, DLTrack, SMA, and scratch rulers. Useful for
+  convention/outlier checks; do not treat it as an LB oracle.
+- `benchmark_lab/generate_synthetic_geometry.py` plus
+  `benchmark_lab/review_server.py --synthetic-dir results/synthetic_geometry --port 8769`: exact
+  abstract geometry unit tests for straight/steep/curved/fan-like cases. Useful for testing math, not
+  realistic enough to justify a submission by itself.
 
 ## Per-target status (measured on the 35 experts, with TRUE scale)
 
@@ -149,11 +167,15 @@ This is the first change that targets the actual LEADERBOARD (the test set) vs t
 The Kaggle gain is UNMEASURABLE locally (no test labels); it is submission-ready and the user decides
 whether to spend a submission.
 
-## New findings since exp30 (2026-06-10/11)
+## New findings since exp30 (2026-06-10/12)
 
 - **OCR scale partition DONE**: verified 48, text-confirmed 99, tick-only 147, flag 1, mean 14. 147/148 cross-check agreement where two reads exist. IMG_00275 caught as 2x error (tick 201 vs OCR 101 px/cm), quarantined.
-- **FL recenter proven NO-OP**: `UMUD_FL_RECENTER=0` changes 0/309 rows — per-image FL already averages 74.4 before the pin. Not a hidden confounder.
-- **FL methods benchmark** (`bench_fl_methods.py`): facing = zero bias (+0.7mm, term 0.26). Straight all-frags = +24mm overshoot. Per-gap wave/bend = +25mm (same overshoot — it dropped minimize-extrapolation). Facing's minimize-extrapolation is the fix; the bend/wave is NOT.
+- **Immediate submission audit**: no current file is a good four-slot burn. `submission_subpixel_scale.csv` is only a tiny precision pass (FL mean abs delta 0.094mm, max 0.673mm vs baseline), and MT vertical-3 / bar-only scale tail / facing-FL / identity blend are already rejected or audited worse. If spending one slot now, make it the isolated IMG_00275 OCR-scale fix only.
+- **Human target review now exists**: 19/24 target rows were roughly labeled locally using `benchmark_lab/`; the review viewer can compare human masks, baseline, candidates, scale, rulers, PA/FL/MT, and scratch trial FL. These labels are triage, not official truth, but they are the closest local proxy to the hidden board.
+- **Synthetic geometry benchmark built**: exact abstract cases now exist for straight, steep, curved, and fan-like assumptions. Use them as geometry unit tests before touching production math. They are not ultrasound-like enough to score the segmentation model or predict the leaderboard alone.
+- **Expert benchmark viewer built**: the 35-image expert benchmark is now inspectable visually. It helps explain measurement convention and outliers (e.g. expert means distorted by single raters), but it remains a different exam from the Kaggle test set.
+- **FL recenter proven NO-OP**: `UMUD_FL_RECENTER=0` changes 0/309 rows - per-image FL already averages 74.4 before the pin. Not a hidden confounder.
+- **FL methods benchmark** (`bench_fl_methods.py`): facing = zero bias (+0.7mm, term 0.26). Straight all-frags = +24mm overshoot. Per-gap wave/bend = +25mm (same overshoot - it dropped minimize-extrapolation). Facing's minimize-extrapolation is the fix; the bend/wave is NOT.
 - **Fascicle bend is real but wrong convention** (`bench_fl_bend.py`, FALLMUD `fallmud_fl_test.py`): parabola fits apo edges 44% better on FALLMUD GT; wave FL is median 1.09x longer than reference straight FL. The competition scores straight-line extrapolation convention, not anatomy. Do not chase bend.
 - **PA geometry validated** (`compare_lines.py`, `draw_tool.py`): user drew fascicles on 8 test images; our fitted angle is off by mean 1.8°, within the 6° PA tolerance.
 - **Per-gap prototype built** (`per_gap_viewer.py`): `apo_bands()` now merges depth-overlapping fragments into one aponeurosis; hard guards reject crossing gaps and fascicles that cross an apo. Prototyped on 16 images. NOT wired to production. The wave FL overshoots — the wired version must use `compute_facing_fl()` per gap, not the wave.
@@ -271,7 +293,9 @@ whether to spend a submission.
 
 `results/submission_local.csv` IS the 0.61918 baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). Safe anchor.
 
-**Immediate next action**: build a bigger local benchmark with `benchmark_lab/`, not another blind submission. The new folder has a manifest builder, browser/Cintiq labeler, scorer, and protocol doc. Seed manifests live in `results/human_benchmark/`: `public_seed_manifest.csv` for public/FALLMUD labels and `target_seed_manifest.csv` for declared human-in-loop target labels.
+**Immediate next action**: use the bigger local benchmark with `benchmark_lab/`, not another blind broad submission. The folder has a manifest builder, browser/Cintiq labeler, scorer, review viewer, expert benchmark mode, and synthetic geometry mode. Seed manifests live in `results/human_benchmark/`: `public_seed_manifest.csv` for public/FALLMUD labels and `target_seed_manifest.csv` for declared human-in-loop target labels. 19/24 target rows have rough local labels already.
+
+**If burning one slot before the break**: generate an isolated `IMG_00275` OCR-scale-fix CSV, inspect that only the intended row moves, then submit that single-purpose probe. Expected movement is small because it affects one image.
 
 **The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` - NOT the wave trace. Do not submit it until the new human benchmark can distinguish the 0.619 baseline from the rejected 0.665 facing variant.
 
@@ -285,6 +309,7 @@ whether to spend a submission.
 - FL identity blend (0.63905)
 - MT vertical-3 (0.62561)
 - Bar-only scale tail (0.66711)
+- Existing subpixel-scale CSV: not rejected on LB, but too tiny to be worth a slot by itself
 
 **Do not run**: `UMUD_FL_FACING=1` unless intentionally testing a repaired facing/per-gap variant. A fresh `local_infer.py` run now defaults to the safe 0.619 fragment-FL baseline.
 

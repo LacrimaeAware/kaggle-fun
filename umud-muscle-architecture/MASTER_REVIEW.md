@@ -5,6 +5,59 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 
 ---
 
+## RESUME HERE (latest 2026-06-12, before a multi-day break)
+
+**Best LB: 0.61918 (safe baseline, already your live score).** Production defaults are safe
+(`UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh run reproduces the baseline.
+
+**Immediate submission decision (2026-06-12): do not burn 4 slots now.** There is no new ready
+production CSV from the 2026-06-11/12 work. The human-label review tools and synthetic geometry tools
+are decision infrastructure, not submissions. Existing alternative CSVs are either already rejected
+or diagnostic/tiny:
+
+- `submission_host_mt_vertical3_no_subpixel.csv`: submitted, 0.62561, rejected.
+- FL identity blend / facing-FL / scale-tail variants: submitted or audited, all worse than 0.61918.
+- `submission_subpixel_scale.csv`: structural precision pass only; mean FL delta 0.094mm and max
+  0.673mm vs 12mm tolerance, so likely below leaderboard resolution.
+
+**Only defensible quick one-slot probe:** generate and inspect an **IMG_00275-only OCR scale fix**.
+That row has a verified 2x scale anomaly (tick 201 px/cm vs printed ruler about 101 px/cm) and the
+first rough human label disagrees with the shipped value. It affects one image, so expect a small move
+at most. Do not submit old tail/bar/shape files as substitutes for this.
+
+**What changed most recently:** built `benchmark_lab/` into three local review surfaces:
+
+- Target human-in-loop viewer: 19 of 24 target images hand-labeled roughly in gitignored
+  `results/human_benchmark/`; useful for triage, not official truth. Open with
+  `review_server.py --port 8767`.
+- 35-image expert benchmark viewer: `review_server.py --expert-benchmark --port 8768`; compares
+  expert mean targets, our true-scale benchmark run, DLTrack, and SMA. Beware expert outliers, e.g.
+  `im_19_arch` MT mean is distorted by one 80mm rater while the median is about 20mm.
+- Synthetic geometry viewer: `generate_synthetic_geometry.py` plus
+  `review_server.py --synthetic-dir results/synthetic_geometry --port 8769`; exact abstract
+  boundary/strand cases. This is a geometry unit test, not a realistic ultrasound/model benchmark.
+
+**Privacy/public-repo check (2026-06-12):** tracked files were searched for hardcoded personal
+Windows paths, obvious secrets, and generated `data/`/`results/` artifacts. No tracked hardcoded
+username paths or secrets were found outside ignored data/results. Keep `results/`,
+`data/`, human target labels, and generated synthetic images out of git.
+
+**#1 task when you return:**
+1. If you want one immediate LB probe, generate an isolated `IMG_00275` OCR-scale-fix CSV, inspect the
+   one-row diff, and submit only that.
+2. Otherwise score the 0.619 baseline and repaired facing/per-gap candidates against the 19 human
+   target rows (`benchmark_lab/score_labels.py` + `review_server.py`) before spending another slot.
+3. Wire **facing-FL per gap** only after the local target rows support it. Per-gap is for multi-gap
+   separation; FL should use `compute_facing_fl()` / minimize-extrapolation, NOT the wave trace.
+4. Use the synthetic benchmark to test geometry ideas (curve-aware measurement, mixed-angle
+   detection, low-support flags), then the expert benchmark, then target human rows.
+5. Bigger lever, harder: better fascicle segmentation / orientation modeling on GPU, validated by
+   the new local benchmark surfaces before submission.
+
+---
+
+## Archived resume from 2026-06-11 (superseded by the latest block above)
+
 ## RESUME HERE (last touched 2026-06-11, before a multi-day break)
 
 **Best LB: 0.61918 (safe baseline, already your live score).** Production defaults are safe
