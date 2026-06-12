@@ -90,6 +90,7 @@ USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; 
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT between bands' muscle-facing INNER edges, not centroids (exp14: MT-term 0.49->0.18)
+TOP_BOUNDARY_MODE = os.environ.get("UMUD_TOP_BOUNDARY_MODE", "line").lower()  # line | triangle | robust_triangle; opt-in upper-boundary shape candidate
 MT_MODE = os.environ.get("UMUD_MT_MODE", "perp_center").lower()    # perp_center | vertical_3 (host straight-line left/mid/right approximation)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
@@ -410,6 +411,75 @@ def line_intersection(a, b):
     return float(x), float(line_y(a, x))
 
 
+def line_from_points(p1, p2):
+    slope = (p2[1] - p1[1]) / max(p2[0] - p1[0], 1e-9)
+    return float(slope), float(p1[1] - slope * p1[0])
+
+
+def make_top_boundary(line, edge_x=None, edge_y=None, mode="line"):
+    """Return a line or a two-segment upper-boundary approximation."""
+    if mode not in {"triangle", "robust_triangle"} or edge_x is None or edge_y is None or len(edge_x) < 12:
+        return {"type": "line", "line": line, "mode": "line"}
+
+    edge_x = np.asarray(edge_x, dtype=float)
+    edge_y = np.asarray(edge_y, dtype=float)
+    q25, q75 = np.percentile(edge_x, [25, 75])
+    left = np.where(edge_x <= q25)[0]
+    center = np.where((edge_x >= q25) & (edge_x <= q75))[0]
+    right = np.where(edge_x >= q75)[0]
+    if len(left) == 0 or len(center) == 0 or len(right) == 0:
+        return {"type": "line", "line": line, "mode": "line"}
+
+    if mode == "robust_triangle":
+        def low(indices):
+            cutoff = np.percentile(edge_y[indices], 95)
+            keep = indices[edge_y[indices] >= cutoff]
+            return float(np.median(edge_x[keep])), float(np.median(edge_y[keep]))
+
+        def high(indices):
+            cutoff = np.percentile(edge_y[indices], 5)
+            keep = indices[edge_y[indices] <= cutoff]
+            return float(np.median(edge_x[keep])), float(np.median(edge_y[keep]))
+
+        pts = [low(left), high(center), low(right)]
+    else:
+        li = left[np.argmax(edge_y[left])]
+        ci = center[np.argmin(edge_y[center])]
+        ri = right[np.argmax(edge_y[right])]
+        pts = [
+            (float(edge_x[li]), float(edge_y[li])),
+            (float(edge_x[ci]), float(edge_y[ci])),
+            (float(edge_x[ri]), float(edge_y[ri])),
+        ]
+    return {"type": "piecewise", "points": pts, "lines": [line_from_points(pts[0], pts[1]), line_from_points(pts[1], pts[2])], "mode": mode}
+
+
+def top_boundary_y(boundary, x):
+    if boundary.get("type") != "piecewise":
+        return line_y(boundary["line"], x)
+    pts = boundary["points"]
+    line = boundary["lines"][0] if x <= pts[1][0] else boundary["lines"][1]
+    return line_y(line, x)
+
+
+def top_boundary_intersection(fasc_line, boundary, xref=None):
+    if boundary.get("type") != "piecewise":
+        return line_intersection(fasc_line, boundary["line"])
+    pts = boundary["points"]
+    candidates = []
+    for line, p1, p2 in ((boundary["lines"][0], pts[0], pts[1]), (boundary["lines"][1], pts[1], pts[2])):
+        hit = line_intersection(fasc_line, line)
+        if hit is None:
+            continue
+        lo, hi = sorted((p1[0], p2[0]))
+        on_segment = lo - 10.0 <= hit[0] <= hi + 10.0
+        ref = hit[0] if xref is None else xref
+        candidates.append((0 if on_segment else 1, abs(hit[0] - ref), hit))
+    if not candidates:
+        return None
+    return sorted(candidates, key=lambda item: (item[0], item[1]))[0][2]
+
+
 def fragment_visible_length(xs, ys, slope):
     """Length of the observed component projected onto its fitted axis."""
     xs = np.asarray(xs, dtype=float)
@@ -540,6 +610,12 @@ def measure(apo_mask, fasc_mask):
             fit.append(fit_line(ys, xs))
     superficial = fit[0]
     deep = fit[1]  # bands were ordered superficial-then-deep above
+    top_boundary = make_top_boundary(
+        superficial,
+        apo_edges[0][0] if apo_edges[0] is not None else None,
+        apo_edges[0][1] if apo_edges[0] is not None else None,
+        TOP_BOUNDARY_MODE,
+    )
     deep_s = deep[0]
     x_center = apo_mask.shape[1] / 2.0
     if MT_MODE in {"vertical_3", "host_vertical_3"}:
@@ -551,9 +627,9 @@ def measure(apo_mask, fasc_mask):
             xs_mt = np.linspace(x_min, x_max, 5)[1:4]
         else:
             xs_mt = np.asarray([x_center])
-        mt_px = float(np.mean([abs(line_y(deep, x) - line_y(superficial, x)) for x in xs_mt]))
+        mt_px = float(np.mean([abs(line_y(deep, x) - top_boundary_y(top_boundary, x)) for x in xs_mt]))
     else:
-        mt_px = abs(line_y(deep, x_center) - line_y(superficial, x_center)) / np.sqrt(1 + deep_s**2)
+        mt_px = abs(line_y(deep, x_center) - top_boundary_y(top_boundary, x_center)) / np.sqrt(1 + deep_s**2)
 
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
     angs, wts, fragment_rows, used_frags = [], [], [], []
@@ -569,7 +645,7 @@ def measure(apo_mask, fasc_mask):
         if a > 90:
             a = 180 - a
         fasc = (fs, fb)
-        upper = line_intersection(fasc, superficial)
+        upper = top_boundary_intersection(fasc, top_boundary, xref=float(np.mean(xs)))
         lower = line_intersection(fasc, deep)
         fl = None
         if upper is not None and lower is not None:
@@ -613,6 +689,7 @@ def measure(apo_mask, fasc_mask):
         "fl_identity_px": fl_identity_px,
         "mt_px": float(mt_px),
         "n_fascicles": len(angs),
+        "top_boundary_mode": top_boundary.get("mode", "line"),
     }
 
 
@@ -691,7 +768,7 @@ def main():
         print(f"calibration unavailable: {CALIBRATION_IMPORT_ERROR}", flush=True)
     print(f"calibrated MT: {USE_CALIBRATED_MT}, calibrated FL: {USE_CALIBRATED_FL}, "
           f"min calibration confidence: {CALIBRATION_MIN_CONF}, "
-          f"fl_mode: {FL_FRAGMENT_MODE}, mt_mode: {MT_MODE}", flush=True)
+          f"fl_mode: {FL_FRAGMENT_MODE}, top_boundary: {TOP_BOUNDARY_MODE}, mt_mode: {MT_MODE}", flush=True)
 
     rows, calib_rows, ok, mt_ok, fl_ok = [], [], 0, 0, 0
     fps = []
@@ -751,6 +828,7 @@ def main():
             "fl_px": geom["fl_px"] if geom else None,
             "mt_px": geom["mt_px"] if geom else None,
             "fl_fragment_mode": FL_FRAGMENT_MODE,
+            "top_boundary_mode": geom.get("top_boundary_mode") if geom else TOP_BOUNDARY_MODE,
             "fl_fragment_median_px": geom.get("fl_fragment_median_px") if geom else None,
             "fl_fragment_n": geom.get("fl_fragment_n") if geom else None,
             "fl_mm": fl_mm,

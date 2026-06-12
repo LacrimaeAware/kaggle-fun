@@ -11,7 +11,9 @@ Generated local outputs:
 - `results/benchmark_error_taxonomy.csv`
 - `results/benchmark_error_taxonomy.md`
 
-Those files are diagnostic artifacts; they are not submission files.
+Those files are diagnostic artifacts; they are not submission files. The robust-triangle finding from
+this pass was later wired into a controlled submission candidate; see
+`SUBMISSION_TRIANGLE_CANDIDATE_2026-06-12.md`.
 
 ## Naive Variant Scores
 
@@ -53,9 +55,9 @@ robust triangle `0.170` overall, FL `0.278`; exact triangle `0.182` overall, FL 
 
 The boundary-shape hypothesis is better supported locally. The naive upper-boundary chord and
 upper-parallel-to-lower variants both improve the raw true-scale reference score, mostly by reducing
-FL overestimation in extrapolation-heavy images. This does not make them submission-ready: previous
-FL/geometry ideas improved the clean benchmark and failed publicly, so any production change needs
-target-label or submission evidence.
+FL overestimation in extrapolation-heavy images. Robust triangle is now submission-worthy as a
+controlled one-slot candidate because it is an explicit boundary-geometry correction rather than a
+global mean trick. It is still not proven transferable until the public board scores it.
 
 The dominant pattern is coupled geometry:
 

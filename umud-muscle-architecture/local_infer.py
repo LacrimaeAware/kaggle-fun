@@ -39,7 +39,7 @@ def main():
         files = files[:limit]
     print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} fragment_FL={M.USE_FRAGMENT_FL} "
           f"fl_identity_blend={M.FL_IDENTITY_BLEND} fl_mode={M.FL_FRAGMENT_MODE} "
-          f"mt_mode={M.MT_MODE} calib_MT={M.USE_CALIBRATED_MT} "
+          f"top_boundary={M.TOP_BOUNDARY_MODE} mt_mode={M.MT_MODE} calib_MT={M.USE_CALIBRATED_MT} "
           f"conf>={M.CALIBRATION_MIN_CONF}", flush=True)
     rows, calib_rows, mt_ok, fl_ok, t0 = [], [], 0, 0, time.time()
     fps = []
@@ -86,6 +86,7 @@ def main():
             "fl_fragment_median_px": geom.get("fl_fragment_median_px") if geom else None,
             "fl_fragment_n": geom.get("fl_fragment_n") if geom else None,
             "fl_fragment_mode": M.FL_FRAGMENT_MODE,
+            "top_boundary_mode": geom.get("top_boundary_mode") if geom else M.TOP_BOUNDARY_MODE,
             "fl_identity_px": geom.get("fl_identity_px") if geom else None,
             "mt_px": geom.get("mt_px") if geom else None,
             "fl_mm": fl_mm,

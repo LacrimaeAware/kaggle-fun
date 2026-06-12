@@ -1220,13 +1220,18 @@ def benchmark_candidate_data(truth_rows: list[dict[str, str]]) -> list[tuple[str
 
 
 def build_expert_benchmark_rows(
+    primary_candidate_csvs: list[tuple[str, Path]],
     extra_candidate_csvs: list[tuple[str, Path]],
     review_dir: Path,
 ) -> tuple[list[dict], list[dict]]:
     bench_dir = find_expert_benchmark_dir()
     truth_rows = read_xlsx_first_sheet(next(bench_dir.glob("Results_benchmark_architecture*.xlsx")))
     taxonomy = read_keyed(ROOT / "results" / "benchmark_error_taxonomy.csv")
-    candidate_data = benchmark_candidate_data(truth_rows) + [(name, read_keyed(path)) for name, path in extra_candidate_csvs]
+    candidate_data = (
+        [(name, read_keyed(path)) for name, path in primary_candidate_csvs]
+        + benchmark_candidate_data(truth_rows)
+        + [(name, read_keyed(path)) for name, path in extra_candidate_csvs]
+    )
     summary_acc: dict[str, dict[str, list[float]]] = {
         name: {"pa": [], "fl": [], "mt": [], "overall": []} for name, _ in candidate_data
     }
@@ -1478,6 +1483,8 @@ def main() -> None:
     ap.add_argument("--review-dir", default=str(ROOT / "results" / "human_benchmark" / "review_notes"))
     ap.add_argument("--pred-csv", action="append", default=[],
                     help="candidate as name=path or just path; can be repeated")
+    ap.add_argument("--primary-pred-csv", action="append", default=[],
+                    help="expert-benchmark only: candidate(s) to prepend, making the first one control sorting/deltas")
     ap.add_argument("--include-rejected", action="store_true",
                     help="also show rejected historical candidates such as tail-bar and old segmentation")
     ap.add_argument("--expert-benchmark", action="store_true",
@@ -1493,8 +1500,9 @@ def main() -> None:
         rows, summary = build_synthetic_rows(Path(args.synthetic_dir), candidate_csvs, Path(args.review_dir))
         Handler.labels_dir = Path(args.synthetic_dir) / "labels"
     elif args.expert_benchmark:
+        primary_candidate_csvs = parse_candidate_arg(args.primary_pred_csv)
         candidate_csvs = parse_candidate_arg(args.pred_csv)
-        rows, summary = build_expert_benchmark_rows(candidate_csvs, Path(args.review_dir))
+        rows, summary = build_expert_benchmark_rows(primary_candidate_csvs, candidate_csvs, Path(args.review_dir))
         Handler.labels_dir = Path(args.labels_dir)
     else:
         candidate_csvs = parse_candidate_arg(args.pred_csv) if args.pred_csv else default_candidate_csvs()

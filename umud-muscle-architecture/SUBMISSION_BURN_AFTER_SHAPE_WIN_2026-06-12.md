@@ -9,6 +9,10 @@ The isolated IMG_00275 OCR correction is public-score neutral on top of burn #11
 Update: `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv` scored **0.62994**.
 The broad top-3/minimal-extrapolation FL combiner is rejected on the real board.
 
+Update: robust-triangle top-boundary geometry is now built as the next controlled candidate:
+`results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv`. See
+`SUBMISSION_TRIANGLE_CANDIDATE_2026-06-12.md`.
+
 ## Current Selection
 
 Best public score is **0.58910**, tied by:
@@ -19,6 +23,10 @@ Best public score is **0.58910**, tied by:
 Prefer selecting `13` over `11` for final/private if choosing only one, because it keeps the same public
 score while adding the structurally justified one-row OCR scale correction. Selecting both is also
 reasonable if the competition allows up to 3 final submissions.
+
+If spending another daily slot, the recommended next test is:
+
+- `results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv`
 
 ## Generation
 
@@ -36,5 +44,6 @@ Summary CSV:
   justified and does not cost public score.
 - #14 failed: do not wire top-3 minimal-extrapolation FL into production.
 - The current best path is temporal smoothing + subpixel scale precision + clean shape-neighbor fallback
-  scale. The next serious work is model/segmentation quality or a better scale fallback audit, not broad
-  FL aggregation.
+  scale. Robust triangle is the next serious geometry probe because it fixes a concrete upper-boundary
+  shape failure on the expert benchmark (`0.251 -> 0.170` overall), but it must be accepted or rejected
+  by public LB before promotion.

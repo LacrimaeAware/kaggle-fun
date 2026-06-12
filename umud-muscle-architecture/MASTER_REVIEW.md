@@ -14,12 +14,15 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 reproduces the 0.61918 baseline unless temporal smoothing is explicitly applied.
 
 **Immediate submission decision after the 2026-06-12 burn pack:** OCR-on-top (`13`) was public-score
-neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best remains 0.58910. Use
-`SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md` for selection details:
+neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best remains 0.58910. The next
+controlled candidate is the robust-triangle upper-boundary stack, documented in
+`SUBMISSION_TRIANGLE_CANDIDATE_2026-06-12.md`:
 
-- `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`: tied best; preferred if selecting one.
-- `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`: tied best.
-- Do not wire/submit broad top3 FL as a production default; it harmed the real board.
+- submit candidate, if spending one slot:
+  `results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv`.
+- current selected-safe files: `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`
+  and `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`, both 0.58910.
+- do not wire/submit broad top3 FL as a production default; it harmed the real board.
 
 **What changed most recently:** built `benchmark_lab/` into three local review surfaces:
 
@@ -38,7 +41,8 @@ neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best rema
   sit below our current median. The user's actual triangle top-boundary idea is stronger than the
   straight-line/chord substitutes: robust triangle `0.170` (FL `0.278`), exact triangle `0.182`
   (FL `0.314`), with `im_29_arch` exact triangle median FL `75.81mm` vs expert `75.30mm`.
-  Treat as diagnostic evidence, not a submission candidate.
+  Robust triangle is now wired as `UMUD_TOP_BOUNDARY_MODE=robust_triangle` and stacked onto the
+  current best public anchor as a one-slot candidate, not a default.
 - Synthetic geometry viewer: `generate_synthetic_geometry.py` plus
   `review_server.py --synthetic-dir results/synthetic_geometry --port 8769`; exact abstract
   boundary/strand cases. This is a geometry unit test, not a realistic ultrasound/model benchmark.
@@ -49,9 +53,10 @@ username paths or secrets were found outside ignored data/results. Keep `results
 `data/`, human target labels, and generated synthetic images out of git.
 
 **#1 task when you return:**
-1. Record public scores for the temporal-stacked burn pack and keep temporal smoothing if it remains
-   the best.
-2. Score the 0.619 baseline, the 0.609 temporal file, and repaired facing/per-gap candidates against the 19 human
+1. If spending a slot immediately, submit
+   `results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv` and record the public
+   score in `EXPERIMENT_LOG.md`.
+2. Score the 0.619 baseline, the 0.609 temporal file, robust triangle, and repaired facing/per-gap candidates against the 19 human
    target rows (`benchmark_lab/score_labels.py` + `review_server.py`) before spending another slot.
 3. Wire **facing-FL per gap** only after the local target rows support it. Per-gap is for multi-gap
    separation; FL should use `compute_facing_fl()` / minimize-extrapolation, NOT the wave trace.
