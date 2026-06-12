@@ -92,6 +92,111 @@ def deepest_percentile_line(
     return (float(slope), float(p1[1] - slope * p1[0])), p1, p2
 
 
+def triangle_points(
+    sup_x: np.ndarray,
+    sup_y: np.ndarray,
+    robust: bool = False,
+) -> list[tuple[float, float]]:
+    """User's triangle: low/deep left, high/shallow middle, low/deep right."""
+    q25, q75 = np.percentile(sup_x, [25, 75])
+    left = np.where(sup_x <= q25)[0]
+    center = np.where((sup_x >= q25) & (sup_x <= q75))[0]
+    right = np.where(sup_x >= q75)[0]
+
+    if robust:
+        def low(indices: np.ndarray) -> tuple[float, float]:
+            cutoff = np.percentile(sup_y[indices], 95)
+            keep = indices[sup_y[indices] >= cutoff]
+            return float(np.median(sup_x[keep])), float(np.median(sup_y[keep]))
+
+        def high(indices: np.ndarray) -> tuple[float, float]:
+            cutoff = np.percentile(sup_y[indices], 5)
+            keep = indices[sup_y[indices] <= cutoff]
+            return float(np.median(sup_x[keep])), float(np.median(sup_y[keep]))
+
+        return [low(left), high(center), low(right)]
+
+    li = left[np.argmax(sup_y[left])]
+    ci = center[np.argmin(sup_y[center])]
+    ri = right[np.argmax(sup_y[right])]
+    return [
+        (float(sup_x[li]), float(sup_y[li])),
+        (float(sup_x[ci]), float(sup_y[ci])),
+        (float(sup_x[ri]), float(sup_y[ri])),
+    ]
+
+
+def line_from_points(p1: tuple[float, float], p2: tuple[float, float]) -> tuple[float, float]:
+    slope = (p2[1] - p1[1]) / max(p2[0] - p1[0], 1e-9)
+    return float(slope), float(p1[1] - slope * p1[0])
+
+
+def segment_points(points: list[tuple[float, float]]) -> list[dict]:
+    return [
+        {"x1": points[i][0], "y1": points[i][1], "x2": points[i + 1][0], "y2": points[i + 1][1]}
+        for i in range(len(points) - 1)
+    ]
+
+
+def project_with_piecewise_top(
+    frags: list[dict],
+    points: list[tuple[float, float]],
+    deep_line: tuple[float, float],
+    px_per_mm: float,
+) -> dict:
+    lines = [line_from_points(points[0], points[1]), line_from_points(points[1], points[2])]
+    bounds = [
+        (min(points[0][0], points[1][0]), max(points[0][0], points[1][0])),
+        (min(points[1][0], points[2][0]), max(points[1][0], points[2][0])),
+    ]
+    rows = []
+    angs = []
+    wts = []
+    for frag in frags:
+        candidates = []
+        for line, (lo_x, hi_x) in zip(lines, bounds):
+            up = M.line_intersection((frag["fs"], frag["fb"]), line)
+            if up is None:
+                continue
+            on_segment = lo_x - 10.0 <= up[0] <= hi_x + 10.0
+            candidates.append((0 if on_segment else 1, abs(up[0] - frag["cx"]), up, line))
+        if not candidates:
+            continue
+        _, _, up, local_line = sorted(candidates, key=lambda item: (item[0], item[1]))[0]
+        lo = M.line_intersection((frag["fs"], frag["fb"]), deep_line)
+        if lo is None:
+            continue
+        fl_px = float(np.hypot(up[0] - lo[0], up[1] - lo[1]))
+        signed = np.degrees(np.arctan(frag["fs"]) - np.arctan(deep_line[0]))
+        while signed <= -90:
+            signed += 180
+        while signed > 90:
+            signed -= 180
+        absang = abs(signed)
+        if not (10.0 <= fl_px <= 4000.0 and M.FASC_MIN_ANG <= absang <= 75.0):
+            continue
+        rows.append({
+            "fl_px": fl_px,
+            "area": frag["area"],
+            "visible_frac": frag["visible_px"] / max(fl_px, 1e-9),
+            "fs": frag["fs"],
+            "local_top_slope": local_line[0],
+            "span": {"x1": up[0], "y1": up[1], "x2": lo[0], "y2": lo[1]},
+        })
+        angs.append(absang)
+        wts.append(frag["area"])
+    vals = np.asarray([row["fl_px"] / px_per_mm for row in rows], dtype=float)
+    areas = np.asarray([row["area"] for row in rows], dtype=float)
+    top_angles = np.asarray([angle_to_line(row["fs"], row["local_top_slope"]) for row in rows], dtype=float)
+    return {
+        "rows": rows,
+        "vals": vals,
+        "pa_deep": weighted_median(angs, wts) if len(angs) else None,
+        "pa_top": weighted_median(top_angles, areas) if len(vals) else None,
+        "support": float(np.median([row["visible_frac"] for row in rows])) if rows else None,
+    }
+
+
 def variant_stats(
     name: str,
     label: str,
@@ -143,6 +248,48 @@ def variant_stats(
     }
 
 
+def piecewise_variant_stats(
+    name: str,
+    label: str,
+    points: list[tuple[float, float]],
+    deep_line: tuple[float, float],
+    frags: list[dict],
+    px_per_mm: float,
+    truth: dict,
+) -> dict:
+    projected = project_with_piecewise_top(frags, points, deep_line, px_per_mm)
+    vals = projected["vals"]
+    if vals.size:
+        p10, p25, p50, p75, p90 = np.percentile(vals, [10, 25, 50, 75, 90])
+        mean = float(np.mean(vals))
+    else:
+        p10 = p25 = p50 = p75 = p90 = mean = None
+    return {
+        "name": name,
+        "label": label,
+        "topLine": None,
+        "line": None,
+        "polyline": segment_points(points),
+        "anchors": [{"x": p[0], "y": p[1]} for p in points],
+        "projectionSpans": [row["span"] for row in projected["rows"]],
+        "stats": {
+            "n": int(vals.size),
+            "paDeepDeg": projected["pa_deep"],
+            "paTopDeg": projected["pa_top"],
+            "flMeanMm": mean,
+            "flP10Mm": None if p10 is None else float(p10),
+            "flP25Mm": None if p25 is None else float(p25),
+            "flMedianMm": None if p50 is None else float(p50),
+            "flP75Mm": None if p75 is None else float(p75),
+            "flP90Mm": None if p90 is None else float(p90),
+            "medianSupport": projected["support"],
+            "meanDeltaMm": None if mean is None else mean - truth["flMm"],
+            "medianDeltaMm": None if p50 is None else float(p50) - truth["flMm"],
+            "p25DeltaMm": None if p25 is None else float(p25) - truth["flMm"],
+        },
+    }
+
+
 def build_data() -> dict:
     bench_img = next(ROOT.glob(f"data/**/{IMAGE_ID}.tif"))
     rgb = M.read_rgb(bench_img)
@@ -176,6 +323,8 @@ def build_data() -> dict:
     sup_x, sup_y, _, sup_meta = fit_inner_edge(top2[0], "sup")
     deepest_line, deepest_left, deepest_right = deepest_half_line(sup_x, sup_y)
     robust_line, robust_left, robust_right = deepest_percentile_line(sup_x, sup_y)
+    tri_points = triangle_points(sup_x, sup_y, robust=False)
+    tri_robust_points = triangle_points(sup_x, sup_y, robust=True)
     q_chord = geom["sup_chord_line"]
     q_left = (sup_meta["left_x"], sup_meta["left_y"])
     q_right = (sup_meta["right_x"], sup_meta["right_y"])
@@ -183,13 +332,16 @@ def build_data() -> dict:
     frags = fragments(fasc_mask, geom["sup_line"], deep_line)
 
     variants = [
+        piecewise_variant_stats("triangle", "Your triangle: low-left / high-middle / low-right", tri_points, deep_line, frags, px_per_mm, truth_vals),
+        piecewise_variant_stats("triangleRobust", "Robust triangle: deepest 5% / highest 5% / deepest 5%", tri_robust_points, deep_line, frags, px_per_mm, truth_vals),
         variant_stats("deepest", "Your exact deepest-left/right line", deepest_line, deep_line, frags, px_per_mm, truth_vals, [deepest_left, deepest_right]),
         variant_stats("baseline", "Current all-edge top fit", geom["sup_line"], deep_line, frags, px_per_mm, truth_vals),
         variant_stats("qchord", "My earlier q25/q75 median chord", q_chord, deep_line, frags, px_per_mm, truth_vals, [q_left, q_right]),
         variant_stats("robustdeep", "Robust deepest 5% left/right", robust_line, deep_line, frags, px_per_mm, truth_vals, [robust_left, robust_right]),
     ]
     for variant in variants:
-        variant["line"] = line_points(variant["topLine"], w)
+        if variant["topLine"] is not None:
+            variant["line"] = line_points(variant["topLine"], w)
     return {
         "imageId": IMAGE_ID,
         "width": w,
@@ -339,7 +491,7 @@ const base = new Image();
 const apo = new Image();
 const fasc = new Image();
 let zoom = 1;
-let selected = 'deepest';
+let selected = 'triangle';
 base.src = DATA.imageUrl;
 apo.src = DATA.apoMaskUrl;
 fasc.src = DATA.fascMaskUrl;
@@ -358,6 +510,7 @@ function variant() {
   return DATA.variants.find(v => v.name === selected) || DATA.variants[0];
 }
 function line(l, color, width=3) {
+  if (!l) return;
   ctx.save();
   ctx.strokeStyle = color;
   ctx.lineWidth = width / zoom;
@@ -366,6 +519,9 @@ function line(l, color, width=3) {
   ctx.lineTo(l.x2, l.y2);
   ctx.stroke();
   ctx.restore();
+}
+function polyline(segments, color, width=4) {
+  for (const s of segments || []) segment(s, color, width);
 }
 function segment(s, color, width=1.2) {
   ctx.save();
@@ -414,8 +570,8 @@ function renderStats() {
   const truth = DATA.truth;
   document.getElementById('stats').innerHTML = `
     <h2>${v.label}</h2>
-    <div class="warn">
-      Default candidate is the exact deepest-left/right line you specified.
+      <div class="warn">
+      Default candidate is your triangle: low/deep left, high/shallow middle, low/deep right.
       The q25/q75 chord is kept only as a comparison because it was my mistaken conservative version.
     </div>
     <div class="statGrid" style="margin-top:10px">
@@ -455,7 +611,10 @@ function draw() {
   if (document.getElementById('showBaseline').checked && baseline) line(baseline.line, '#bdbdbd', 2.5);
   if (document.getElementById('showDeep').checked) line(DATA.deepLine, '#2d8cff', 4);
   if (document.getElementById('showProj').checked) for (const s of v.projectionSpans) segment(s, '#00e7ff', 1.4);
-  if (document.getElementById('showCandidate').checked) line(v.line, '#63ff6c', 4);
+  if (document.getElementById('showCandidate').checked) {
+    if (v.polyline) polyline(v.polyline, '#63ff6c', 4);
+    else line(v.line, '#63ff6c', 4);
+  }
   if (document.getElementById('showAnchors').checked) for (const p of v.anchors) point(p, '#ff3b30');
   renderStats();
 }

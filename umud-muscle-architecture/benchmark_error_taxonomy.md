@@ -26,6 +26,8 @@ Lower is better.
 | projected-FL p10 | 0.233 | 0.150 | 0.465 | 0.084 | use the 10th percentile of projected FL spans |
 | projected-FL p25 | 0.172 | 0.150 | 0.281 | 0.084 | use the 25th percentile of projected FL spans |
 | projected-FL p35 | 0.182 | 0.150 | 0.312 | 0.084 | use the 35th percentile of projected FL spans |
+| user's robust triangle top boundary | 0.170 | 0.150 | 0.278 | 0.083 | upper boundary as low-left / high-middle / low-right, using robust 5% anchors |
+| user's exact triangle top boundary | 0.182 | 0.150 | 0.314 | 0.083 | upper boundary as lowest left quartile / highest middle / lowest right quartile |
 | top-boundary chord | 0.231 | 0.150 | 0.460 | 0.084 | replace upper-boundary fit with an outer-quartile chord |
 | top-boundary parallel-to-lower | 0.230 | 0.150 | 0.458 | 0.084 | make upper boundary parallel to the lower boundary at image center |
 
@@ -41,6 +43,13 @@ whole projected-FL distribution is broad and the expert value sits below the cur
 the 25th percentile of projected spans is the strongest local benchmark signal in this pass
 (`0.251 -> 0.172`, FL term `0.519 -> 0.281`). Treat this as a geometry/aggregation clue, not as a
 submission-ready rule yet.
+
+The user's earlier triangle idea was not tested before this pass; that was a miss. The actual idea is
+piecewise, not a straight chord: low/deep left anchor, high/shallow middle anchor, low/deep right
+anchor. On the 35-image expert benchmark it is the strongest local boundary-shape result so far:
+robust triangle `0.170` overall, FL `0.278`; exact triangle `0.182` overall, FL `0.314`. On
+`im_29_arch`, exact triangle changes median FL from `102.87mm` to `75.81mm` against expert
+`75.30mm`.
 
 The boundary-shape hypothesis is better supported locally. The naive upper-boundary chord and
 upper-parallel-to-lower variants both improve the raw true-scale reference score, mostly by reducing
