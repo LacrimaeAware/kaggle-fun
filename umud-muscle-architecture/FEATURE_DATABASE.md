@@ -48,8 +48,8 @@ Negative deltas are good. Positive deltas are bad.
 | `F016` | Identity FL blend | public-tested / rejected | FL | misleading local win | +0.01987 | public 0.61918 -> 0.63905 | Benchmark-specific; do not revive without a new structural reason. |
 | `F017` | Vertical three-position MT | public-tested / rejected | MT | n/a | +0.00643 | public 0.61918 -> 0.62561 | Host-style MT did not transfer as implemented. |
 | `F018` | Bar-only scale tail correction | public-tested / rejected | scale tail | n/a | +0.04793 | public 0.61918 -> 0.66711 | Bad transfer. Do not use broad tail scale patch. |
-| `F019` | On-screen vs off-screen projection support weighting using real image-region bounds | untested | FL aggregation / support | n/a | n/a | n/a | Not the same as local smoothing. Needs black-region or image-region detection and over/under matrix. |
-| `F020` | Lower robust boundary shape for MT/PA symmetry | untested | lower boundary -> MT/PA | n/a | n/a | n/a | Current exp39 lower-boundary tangent was not this. Need a real lower-boundary robust-shape harness, likely with MT first. |
+| `F019` | On-screen vs off-screen projection support weighting using real image-region bounds | bench-tested / candidate variant | FL aggregation / support | -0.011 | n/a | bench robust 0.170 -> 0.159 | Gentle strict scan-region linear weighting helps FL-only. Harsh visible+scan squared weighting is rejected. |
+| `F020` | Lower robust boundary shape for MT/PA symmetry | bench-tested / mixed-rejected for MT | lower boundary -> MT/PA | +0.009 MT-only; -0.003 FL-only | n/a | bench robust 0.170 -> 0.179 MT-only; 0.167 FL-only | Lower quartile median polyline helps FL slightly but worsens MT. Do not use as MT replacement yet. |
 | `F021` | Per-band geometry separation before FL measurement | partially built / unsubmitted | multi-band routing | n/a | n/a | n/a | Prototype exists in per-gap viewer. User prefers "per band" wording. Highest value if facing/FL failures are multi-band routing errors. |
 | `F022` | Synthetic geometry benchmark pack | infrastructure | benchmark tooling | n/a | n/a | n/a | Useful for unit-testing geometry logic, not direct public evidence. |
 | `F023` | Human-in-loop target benchmark labels | infrastructure | benchmark tooling | n/a | n/a | n/a | 19 rough target rows exist. Needs careful quality control and feature scoring protocol. |
@@ -68,7 +68,7 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 
 ## Next Tests To Add To This Database
 
-1. Real image-region on-screen/off-screen projection support weighting, with separate over/under/all deltas for PA, FL, and MT.
-2. Lower robust boundary shape for MT first, then PA only if the geometry is visually coherent.
-3. Per-band geometry separation with current best FL method, using "per band" naming in docs and code.
+1. Stack and inspect `strict_scan_region_linear_support_weighted_FL_only` with robust triangle. It is locally useful but hurts existing FL undershoots.
+2. Extract a clean per-band benchmark harness with current best FL method, using "per band" naming in docs and code.
+3. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
 4. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
