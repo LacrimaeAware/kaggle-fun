@@ -92,6 +92,51 @@ HTML = r"""<!doctype html>
       overflow: auto;
       background: #050505;
     }
+    #deltaStrip {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 58px;
+      padding: 9px 16px;
+      background: rgba(18, 18, 18, 0.96);
+      border-bottom: 1px solid #333;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+      white-space: nowrap;
+    }
+    .deltaTitle {
+      color: #d8d8d8;
+      font-size: 13px;
+      font-weight: 650;
+      margin-right: 2px;
+    }
+    .deltaChip {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      border: 1px solid #404040;
+      border-radius: 7px;
+      padding: 7px 10px;
+      background: #202020;
+      font-weight: 750;
+      font-size: 21px;
+      line-height: 1;
+    }
+    .deltaChip .label {
+      color: #f2f2f2;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+    .deltaChip .dir {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #d5d5d5;
+    }
+    .deltaChip.over { color: #ff8a7a; border-color: #7d3b34; }
+    .deltaChip.under { color: #79b7ff; border-color: #345176; }
+    .deltaChip.neutral { color: #b8f0bd; border-color: #426946; }
     #stack {
       position: relative;
       width: max-content;
@@ -159,6 +204,7 @@ HTML = r"""<!doctype html>
   <div id="wrap">
     <nav id="list"></nav>
     <main id="stage">
+      <div id="deltaStrip"></div>
       <div id="stack">
         <img id="base">
         <img id="apo">
@@ -608,6 +654,30 @@ function renderCandidateTable(){
   qs('candidateTable').innerHTML = html;
 }
 
+function deltaChip(label, value, unit){
+  if (!Number.isFinite(Number(value))) {
+    return `<span class="deltaChip neutral"><span class="label">${label}</span> n/a</span>`;
+  }
+  const n = Number(value);
+  const cls = Math.abs(n) < 0.005 ? 'neutral' : (n > 0 ? 'over' : 'under');
+  const dir = Math.abs(n) < 0.005 ? 'even' : (n > 0 ? 'over' : 'under');
+  return `<span class="deltaChip ${cls}"><span class="label">${label}</span>${signed(n,2)}${unit}<span class="dir">${dir}</span></span>`;
+}
+
+function renderDeltaStrip(){
+  const r = row();
+  const c = r?.candidates?.[0];
+  if (!c) {
+    qs('deltaStrip').innerHTML = '<span class="deltaTitle">No candidate deltas</span>';
+    return;
+  }
+  qs('deltaStrip').innerHTML =
+    `<span class="deltaTitle">${c.name} - ${r.truth_label || 'truth'}</span>` +
+    deltaChip('PA', c.delta_pa, ' deg') +
+    deltaChip('FL', c.delta_fl, ' mm') +
+    deltaChip('MT', c.delta_mt, ' mm');
+}
+
 function loadCurrent(){
   const r = row();
   state.pending = [];
@@ -635,6 +705,7 @@ function loadCurrent(){
   qs('notes').value = r.review?.notes || '';
   renderScaleBox();
   renderList();
+  renderDeltaStrip();
   renderCandidateTable();
   renderToolReadout();
   updateLayerVisibility();
