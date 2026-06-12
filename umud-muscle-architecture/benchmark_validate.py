@@ -22,10 +22,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from expert_consensus import RATERS, robust_mean
+
 HERE = Path(__file__).resolve().parent
 TOL = {"pa_deg": 6.0, "fl_mm": 12.0, "mt_mm": 3.0}
 PRIOR = {"pa_deg": 15.105, "fl_mm": 74.424, "mt_mm": 18.628}
-R = [f"R{i}" for i in range(1, 8)]
+R = RATERS
 TGT = {"pa_deg": "PA", "fl_mm": "FL", "mt_mm": "MT"}  # our column -> xlsx suffix
 
 
@@ -37,22 +39,58 @@ def find_xlsx():
     return hits[0]
 
 
-def load_truth():
+def load_truth(use_robust: bool = True):
     df = pd.read_excel(find_xlsx(), sheet_name="Manual_architecture")
     out = pd.DataFrame({"ImageID": df["ImageID"], "scale_px_per_cm": df["Scale_pixel_per_cm"]})
+    clean = {}
+    dropped_rows = []
     for col, suf in TGT.items():
-        out[col + "_true"] = df[[f"{r}_{suf}" for r in R]].mean(axis=1)  # expert consensus (nan-skip)
+        raw = df[[f"{r}_{suf}" for r in R]].astype(float)
+        clean[suf] = raw.copy()
+        means = []
+        raw_means = []
+        dropped_raters = []
+        dropped_values = []
+        for idx, row in raw.iterrows():
+            raw_mean = float(row.mean(skipna=True))
+            raw_means.append(raw_mean)
+            if use_robust:
+                val, dropped = robust_mean([(r, row[f"{r}_{suf}"]) for r in R], suf)
+            else:
+                val, dropped = raw_mean, None
+            means.append(val)
+            dropped_raters.append("" if dropped is None else dropped.rater)
+            dropped_values.append(np.nan if dropped is None else dropped.value)
+            if dropped is not None:
+                clean[suf].loc[idx, f"{dropped.rater}_{suf}"] = np.nan
+                dropped_rows.append({
+                    "ImageID": df.loc[idx, "ImageID"],
+                    "target": col,
+                    "suffix": suf,
+                    "rater": dropped.rater,
+                    "value": dropped.value,
+                    "raw_mean": dropped.raw_mean,
+                    "robust_mean": dropped.robust_mean,
+                    "other_range": dropped.other_range,
+                    "distance_to_other_mean": dropped.distance_to_other_mean,
+                })
+        out[col + "_true_raw_mean"] = raw_means
+        out[col + "_true"] = means
+        out[col + "_dropped_rater"] = dropped_raters
+        out[col + "_dropped_value"] = dropped_values
         out[col + "_dlt"] = df[f"DLTrack_{suf}"]
         out[col + "_sma"] = df[f"SMA_{suf}"]
     floor = {}
     for col, suf in TGT.items():  # human floor: each expert vs the mean of the rest, nan-robust
-        X = df[[f"{r}_{suf}" for r in R]].values
+        X = (clean[suf] if use_robust else df[[f"{r}_{suf}" for r in R]].astype(float)).values
         errs = []
         for j in range(len(R)):
             rest = np.nanmean(np.delete(X, j, axis=1), axis=1)
             e = np.abs(X[:, j] - rest)
             errs.append(e[~np.isnan(e)])
         floor[col] = float(np.concatenate(errs).mean())
+    out.attrs["robust_consensus"] = use_robust
+    out.attrs["dropped_expert_values"] = dropped_rows
     return out, floor
 
 
@@ -79,6 +117,12 @@ def main():
 
     print(f"benchmark: {len(truth)} images, true scale {truth.scale_px_per_cm.min():.0f}-"
           f"{truth.scale_px_per_cm.max():.0f} px/cm")
+    dropped = truth.attrs.get("dropped_expert_values", [])
+    if dropped:
+        print("robust expert consensus: dropped obvious single-rater tails:")
+        for item in dropped:
+            print(f"  {item['ImageID']} {item['suffix']} {item['rater']}={item['value']:.2f} "
+                  f"raw_mean {item['raw_mean']:.2f} -> {item['robust_mean']:.2f}")
     print("\nreferences (tol-normalized MAE vs expert consensus; lower is better):")
     print(f"  human floor (expert vs the rest): {np.mean([floor[c]/TOL[c] for c in TGT]):.3f}")
     print(f"  DL-Track (correct scale):         {_tool_score(truth, '_dlt'):.3f}")

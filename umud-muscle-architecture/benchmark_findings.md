@@ -15,37 +15,47 @@ the archive came down empty, so we did not get DL-Track's pretrained segmenters 
 - Methodology (Readme): ImageJ, 3 thickness lines + 3 fascicles + 3 angles per image, averaged;
   muscles GM/soleus/VL; four devices (Hitachi Aloka, Telemed EchoBlaster, Philips HD11, Telemed ArtUs).
 
-## The scored picture (tolerance-normalized error vs the expert consensus, on these 35)
+## The scored picture (tolerance-normalized error vs the robust expert consensus, on these 35)
+
+`benchmark_validate.py` now leaves the source spreadsheet untouched but drops a single rater only
+when that value is at least two competition tolerances from the other-rater mean and the remaining
+raters span no more than two tolerances. This currently removes exactly two obvious tails:
+
+- `im_19_arch` MT: drop `R7=80.13`; raw mean `30.03` -> robust mean `20.01`.
+- `im_26_arch` FL: drop `R7=33.88`; raw mean `64.11` -> robust mean `70.16`.
 
 | | UMUD-style score | per-target detail |
 | --- | ---: | --- |
-| Human floor (one careful expert vs the other six) | **0.307** | this is the irreducible noise |
-| DL-Track, correct scale | **0.331** | PA 1.45 deg, FL 3.74 mm, MT 1.31 mm |
-| SMA tool | 0.409 | PA 2.39 deg, FL 7.01 mm, MT 0.74 mm |
-| Kaggle DL-Track benchmark (reference) | 0.679 | different images/devices/hidden labels - NOT directly comparable to 0.331 |
+| Human floor (one careful expert vs the other six) | **0.243** | after removing the two clear single-rater tails |
+| DL-Track, correct scale | **0.299** | automated output on the same 35 rows |
+| SMA tool | 0.375 | automated output on the same 35 rows |
+| Kaggle DL-Track benchmark (reference) | 0.679 | different images/devices/hidden labels - NOT directly comparable to local 0.299 |
 | Public leader (reference) | 0.378 | |
 | Us public LB, best known | **0.61918** | hidden test, not locally decomposable |
 | Us public LB, rejected blend probe | ~0.64 | changed FL only; PA/MT identical to 0.61918 file |
 | Us public LB, old run | 1.092 | pre-scale-router history |
-| Our constant-prior, scored on these 35 | 0.923 | pa 0.573, fl 1.172, mt 1.023 (within-set baseline) |
+| Our constant-prior, scored on these 35 | 0.886 | pa 0.573, fl 1.158, mt 0.928 (within-set baseline) |
 
 Inter-expert spread (the noise): PA SD ~1.6 deg, FL SD ~5.4 mm, MT SD ~1.0 mm. FL is the noisiest
 even for experts; MT the most reliable. This matches the reliability literature, now measured.
 
 ## What this establishes (and what it does not)
 
-1. **The ceiling is about 0.3.** A careful human expert "scores" 0.307 against the other experts.
-   You essentially cannot beat ~0.3, because that is how much the human ground truth disagrees with
-   itself. The public leader at 0.378 is sitting right on this floor. (Caveat: the hidden test is
+1. **The ceiling is about 0.24 on this cleaned reference.** A careful human expert "scores" 0.243
+   against the other experts after the two clear tails are removed. You essentially cannot beat the
+   local human floor, because that is how much the human ground truth disagrees with
+   itself. The public leader at 0.378 is near the same order but is on a different hidden exam.
+   (Caveat: the hidden test is
    different images, same methodology, so these are strong estimates, not exact transfers.)
-2. **DL-Track with correct scale is already human-level (0.331) on this set.** A good
+2. **DL-Track with correct scale is already near human-level (0.299) on this set.** A good
    segment-then-measure pipeline reaches the floor; nothing exotic is required to be competitive.
 3. **What the scale claim actually rests on (corrected - the earlier version was wrong).** An
-   earlier draft compared 0.331 (DL-Track on these 35, vs these experts) with the Kaggle 0.679
+   earlier draft compared local DL-Track scores (DL-Track on these 35, vs these experts) with the
+   Kaggle 0.679
    (different images, devices, hidden labels) and blamed the whole gap on scale. That comparison is
    invalid - two different evaluations. What IS supported, all within this same set and truth:
    replacing constants with real per-image measurement is worth a lot here - our constant-prior
-   baseline scores **0.923**, DL-Track's real measurement **0.331**, a ~0.59 gap. Scale is a
+   baseline scores **0.886**, DL-Track's real measurement **0.299**, a ~0.59 gap. Scale is a
    *necessary part* of that, and per-image scale varies enough (74-126 px/cm) that, with otherwise
    perfect measurement, a single fixed scale would add ~0.6 to FL/MT error (an upper bound). What is
    NOT supported is a number for what scale ALONE is worth to our Kaggle score: our one real scale
@@ -69,11 +79,12 @@ and FL recentering to the benchmark mean. Current default result:
 | target | our term | read |
 | --- | ---: | --- |
 | PA | **0.1498** | effectively solved; orientation is strong on the clean set |
-| MT | **0.1795** | inner-edge aponeurosis measurement fixed the old thick-band bias |
-| FL | **0.3528** | fragment-only FL is the current default after the blend failed publicly |
-| Overall | **0.2274** | strong on this small/clean set, but do not transfer literally to hidden LB |
+| MT | **0.0840** | inner-edge aponeurosis measurement is stronger once the `im_19` MT typo is removed |
+| FL | **0.3390** | fragment-only FL is the current default after the blend failed publicly |
+| Overall | **0.1909** | strong on this small/clean set, but do not transfer literally to hidden LB |
 
-The rejected blend harness was **0.1873** (PA 0.1498, FL 0.2326, MT 0.1795), but it worsened the
+The rejected blend harness is **0.1507** under the robust reference (PA 0.1498, FL 0.2183, MT
+0.0840), but it worsened the
 public LB from `0.61918` to about `0.64`. This is now the clearest warning that FL-method changes
 validated on the 35-image benchmark can fail on hidden target data. The simpler `score_on_benchmark.py`
 is a raw sanity check and does not apply the same FL recentering as the full harness. Use

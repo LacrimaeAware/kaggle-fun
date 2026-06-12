@@ -100,8 +100,11 @@ Run the same viewer against the 35-image expert benchmark:
 python umud-muscle-architecture\benchmark_lab\review_server.py --expert-benchmark --port 8768
 ```
 
-That mode uses the OSF expert spreadsheet as the reference row (`expert consensus`) and shows
-`our_pipeline_true_scale`, `DLTrack`, and `SMA` as comparison candidates. The benchmark has true scale
+That mode uses the OSF expert spreadsheet as the reference row (`robust expert consensus`) and shows
+`our_pipeline_true_scale`, `DLTrack`, and `SMA` as comparison candidates. The source spreadsheet is
+not edited, but the viewer/scoreboard drop a single rater only when the value is an obvious tail
+against a tight cluster. Current dropped tails are `im_19_arch` MT (`R7=80.13`, raw mean `30.03` ->
+`20.01`) and `im_26_arch` FL (`R7=33.88`, raw mean `64.11` -> `70.16`). The benchmark has true scale
 and final expert PA/FL/MT values, but it does not include the exact clicked expert lines, so use the
 manual boundary tools before trial-FL scratch measurements.
 

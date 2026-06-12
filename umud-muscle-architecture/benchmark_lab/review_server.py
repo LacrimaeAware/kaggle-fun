@@ -13,6 +13,7 @@ import csv
 import json
 import mimetypes
 import re
+import sys
 import zipfile
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -29,8 +30,11 @@ except Exception:
 
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+from expert_consensus import robust_mean_for_row  # noqa: E402
+
 TOL = {"pa_deg": 6.0, "fl_mm": 12.0, "mt_mm": 3.0}
-LAYERS = ("apo", "fasc", "ignore")
+LAYERS = ("apo", "fasc", "ignore", "diag")
 
 
 HTML = r"""<!doctype html>
@@ -104,6 +108,7 @@ HTML = r"""<!doctype html>
     #apo { z-index: 2; opacity: 0.75; }
     #fasc { z-index: 3; opacity: 0.75; }
     #ignore { z-index: 4; opacity: 0.45; }
+    #diag { z-index: 1; opacity: 0.75; }
     #toolCanvas {
       position: absolute;
       inset: 0;
@@ -159,6 +164,7 @@ HTML = r"""<!doctype html>
         <img id="apo">
         <img id="fasc">
         <img id="ignore">
+        <img id="diag">
         <canvas id="toolCanvas"></canvas>
       </div>
     </main>
@@ -169,6 +175,7 @@ HTML = r"""<!doctype html>
           <button class="layer active" data-layer="apo">apo</button>
           <button class="layer active" data-layer="fasc">fasc</button>
           <button class="layer" data-layer="ignore">ignore</button>
+          <button class="layer active" data-layer="diag">lines</button>
         </div>
         <div class="row">
           <label>overlay <input id="opacity" type="range" min="0" max="100" value="75"></label>
@@ -229,7 +236,7 @@ HTML = r"""<!doctype html>
         <textarea id="notes" placeholder="Say what looks wrong: label was lazy, boundary wrong, fragment unclear, etc."></textarea>
       </div>
       <div class="section kv">
-        Shortcuts: arrows navigate, S saves review note, A/F/I toggle layers, Ctrl/Cmd +/-/0 zoom.
+        Shortcuts: arrows navigate, S saves review note, A/F/I/D toggle layers, Ctrl/Cmd +/-/0 zoom.
       </div>
     </aside>
   </div>
@@ -239,7 +246,7 @@ const state = {
   summary: [],
   idx: 0,
   zoom: 1,
-  visible: {apo: true, fasc: true, ignore: false},
+  visible: {apo: true, fasc: true, ignore: false, diag: true},
   tool: 'off',
   pending: [],
   ruler: null,
@@ -248,7 +255,7 @@ const state = {
   drag: null,
   dragMoved: false
 };
-const imgs = {base: document.getElementById('base'), apo: document.getElementById('apo'), fasc: document.getElementById('fasc'), ignore: document.getElementById('ignore')};
+const imgs = {base: document.getElementById('base'), apo: document.getElementById('apo'), fasc: document.getElementById('fasc'), ignore: document.getElementById('ignore'), diag: document.getElementById('diag')};
 const toolCanvas = document.getElementById('toolCanvas');
 const toolCtx = toolCanvas.getContext('2d');
 function qs(id){ return document.getElementById(id); }
@@ -302,10 +309,15 @@ function resizeToolCanvas(){
   applyZoom();
 }
 
+function hasLayer(layer){
+  const r = row();
+  if (!r) return false;
+  return r.label_available !== false || !!(r.overlay_paths && r.overlay_paths[layer]);
+}
+
 function updateLayerVisibility(){
-  for (const layer of ['apo','fasc','ignore']) {
-    const hasLabel = row()?.label_available !== false;
-    imgs[layer].style.display = hasLabel && state.visible[layer] ? 'block' : 'none';
+  for (const layer of ['apo','fasc','ignore','diag']) {
+    imgs[layer].style.display = hasLayer(layer) && state.visible[layer] ? 'block' : 'none';
     document.querySelector(`button[data-layer="${layer}"]`).classList.toggle('active', state.visible[layer]);
   }
   const op = Number(qs('opacity').value) / 100;
@@ -313,6 +325,7 @@ function updateLayerVisibility(){
   imgs.apo.style.opacity = op;
   imgs.fasc.style.opacity = op;
   imgs.ignore.style.opacity = Math.min(op, 0.55);
+  imgs.diag.style.opacity = op;
 }
 
 function setTool(tool){
@@ -548,6 +561,11 @@ function applyDrag(handle, p){
 function renderList(){
   const box = qs('list');
   box.innerHTML = '';
+  const intro = document.createElement('div');
+  intro.className = 'kv';
+  intro.style.padding = '0 6px 8px';
+  intro.innerHTML = '<b>Worst first</b><br><span class="muted">sorted by the first candidate error units</span>';
+  box.appendChild(intro);
   state.rows.forEach((r, i) => {
     const d = document.createElement('div');
     d.className = 'item' + (i === state.idx ? ' current' : '') + (r.review && r.review.updated_at ? ' reviewed' : '');
@@ -605,13 +623,12 @@ function loadCurrent(){
     `<span class="muted">${r.truth_note || 'FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.'}</span>`;
   imgs.base.onload = resizeToolCanvas;
   imgs.base.src = `/image/${state.idx}?t=${Date.now()}`;
-  if (r.label_available === false) {
-    for (const layer of ['apo','fasc','ignore']) {
+  for (const layer of ['apo','fasc','ignore','diag']) {
+    if (hasLayer(layer)) imgs[layer].src = `/label/${state.idx}/${layer}.png?t=${Date.now()}`;
+    else {
       imgs[layer].removeAttribute('src');
       imgs[layer].style.display = 'none';
     }
-  } else {
-    for (const layer of ['apo','fasc','ignore']) imgs[layer].src = `/label/${state.idx}/${layer}.png?t=${Date.now()}`;
   }
   qs('labelQuality').value = r.review?.label_quality || '';
   qs('failureKind').value = r.review?.failure_kind || '';
@@ -694,6 +711,7 @@ window.addEventListener('keydown', ev => {
   if (ev.key === 'a' || ev.key === 'A') { state.visible.apo = !state.visible.apo; updateLayerVisibility(); }
   if (ev.key === 'f' || ev.key === 'F') { state.visible.fasc = !state.visible.fasc; updateLayerVisibility(); }
   if (ev.key === 'i' || ev.key === 'I') { state.visible.ignore = !state.visible.ignore; updateLayerVisibility(); }
+  if (ev.key === 'd' || ev.key === 'D') { state.visible.diag = !state.visible.diag; updateLayerVisibility(); }
 });
 
 async function init(){
@@ -918,10 +936,18 @@ def norm_delta(human: dict[str, float | None], pred: dict[str, float | None]) ->
     return deltas, (sum(vals) / len(vals) if vals else None)
 
 
-def mean_float(row: dict[str, str], names: list[str]) -> float | None:
-    vals = [parse_float(row.get(name)) for name in names]
-    vals = [v for v in vals if v is not None]
-    return None if not vals else sum(vals) / len(vals)
+def robust_expert_human(row: dict[str, str]) -> tuple[dict[str, float | None], list[str]]:
+    out: dict[str, float | None] = {}
+    notes: list[str] = []
+    for col, suffix in (("pa_deg", "PA"), ("fl_mm", "FL"), ("mt_mm", "MT")):
+        value, dropped = robust_mean_for_row(row, suffix)
+        out[col] = value
+        if dropped is not None:
+            notes.append(
+                f"{suffix}: dropped {dropped.rater}={dropped.value:.2f} "
+                f"(raw mean {dropped.raw_mean:.2f} -> {dropped.robust_mean:.2f})"
+            )
+    return out, notes
 
 
 def summarize_candidates(summary_acc: dict[str, dict[str, list[float]]]) -> list[dict]:
@@ -1084,16 +1110,11 @@ def build_expert_benchmark_rows(
         name: {"pa": [], "fl": [], "mt": [], "overall": []} for name, _ in candidate_data
     }
     rows = []
-    raters = [f"R{i}" for i in range(1, 8)]
     for src in truth_rows:
         image_id = stem(src.get("ImageID", ""))
         label_id = f"benchmark_{safe_id(image_id)}"
         scale_cm = parse_float(src.get("Scale_pixel_per_cm"))
-        human = {
-            "pa_deg": mean_float(src, [f"{r}_PA" for r in raters]),
-            "fl_mm": mean_float(src, [f"{r}_FL" for r in raters]),
-            "mt_mm": mean_float(src, [f"{r}_MT" for r in raters]),
-        }
+        human, drop_notes = robust_expert_human(src)
         candidates = []
         for name, data in candidate_data:
             pred_row = data.get(image_id, {})
@@ -1128,8 +1149,20 @@ def build_expert_benchmark_rows(
             "calibration_confidence": 1.0,
             "apo_lines": None,
             "label_available": False,
+            "overlay_available": any((ROOT / "results" / "visual_review" / f"{image_id}_{layer}.png").exists()
+                                     for layer in ("apo", "fasc", "ignore")),
+            "overlay_paths": {
+                **{
+                    layer: str(ROOT / "results" / "visual_review" / f"{image_id}_{layer}.png")
+                    for layer in ("apo", "fasc", "ignore")
+                    if (ROOT / "results" / "visual_review" / f"{image_id}_{layer}.png").exists()
+                },
+                **({"diag": str(ROOT / "results" / "benchmark_overlay" / f"{image_id}.jpg")}
+                   if (ROOT / "results" / "benchmark_overlay" / f"{image_id}.jpg").exists() else {}),
+            },
             "truth_label": "expert consensus",
-            "truth_note": "35-image benchmark: seven expert raters, true scale, final PA/FL/MT only.",
+            "truth_note": "35-image benchmark: robust expert consensus, true scale, final PA/FL/MT only."
+                          + (f" Dropped tail(s): {'; '.join(drop_notes)}." if drop_notes else ""),
             "human": human,
             "candidates": candidates,
             "sort_score": sort_score,
@@ -1279,11 +1312,12 @@ class Handler(BaseHTTPRequestHandler):
             if row is None or layer not in LAYERS:
                 self.send_text("bad label path", 404)
                 return
-            path = self.labels_dir / row["label_id"] / f"{layer}.png"
+            overlay_paths = row.get("overlay_paths") or {}
+            path = Path(overlay_paths.get(layer, "")) if overlay_paths.get(layer) else self.labels_dir / row["label_id"] / f"{layer}.png"
             if not path.exists():
                 self.send_text("not labeled yet", 404)
                 return
-            self.send_bytes(path.read_bytes(), "image/png")
+            self.send_bytes(path.read_bytes(), mimetypes.guess_type(path.name)[0] or "image/png")
             return
         self.send_text("not found", 404)
 

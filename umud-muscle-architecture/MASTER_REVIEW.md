@@ -27,8 +27,10 @@ neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best rema
   `results/human_benchmark/`; useful for triage, not official truth. Open with
   `review_server.py --port 8767`.
 - 35-image expert benchmark viewer: `review_server.py --expert-benchmark --port 8768`; compares
-  expert mean targets, our true-scale benchmark run, DLTrack, and SMA. Beware expert outliers, e.g.
-  `im_19_arch` MT mean is distorted by one 80mm rater while the median is about 20mm.
+  robust expert consensus targets, our true-scale benchmark run, DLTrack, and SMA, with mask and
+  fitted/extrapolated line overlays. The source xlsx is untouched, but local scoring drops two clear
+  tails: `im_19_arch` MT `R7=80.13` (`30.03 -> 20.01`) and `im_26_arch` FL `R7=33.88`
+  (`64.11 -> 70.16`).
 - Synthetic geometry viewer: `generate_synthetic_geometry.py` plus
   `review_server.py --synthetic-dir results/synthetic_geometry --port 8769`; exact abstract
   boundary/strand cases. This is a geometry unit test, not a realistic ultrasound/model benchmark.
@@ -89,7 +91,7 @@ measure **different things on different data and are NOT comparable to each othe
 |---|---|---|---|
 | **A** | **Public LEADERBOARD** | **~0.46–0.67** (ours **0.619** best) | The real hidden 309-image test. Scale must be RECOVERED, FL bias is EXPOSED. **The only number that counts.** |
 | **B** | **35-image BENCHMARK** | **~0.19–0.23** (ours 0.227) | Local CPU score vs 7 experts, fed **TRUE scale** and **FL recentered to the true mean**. Looks ~3x better than A *by construction* — it bypasses scale and hides FL bias. **A sanity tool, NOT an oracle** (it has mispredicted the LB direction 4 times). |
-| **C** | **REFERENCE points** | 0.307–0.679 | Other people's scores; some on scale B, some on scale A — tagged below. |
+| **C** | **REFERENCE points** | 0.243–0.679 | Other people's scores; some on scale B, some on scale A — tagged below. |
 
 **Rule: only compare A-to-A.** A 0.227 (B) is NOT better than 0.619 (A). They are different exams.
 The project's single recurring mistake was treating a B-scale win as a reason to spend an A submission.
@@ -113,14 +115,14 @@ The project's single recurring mistake was treating a B-scale win as a reason to
 
 | Reference | Score | Scale | Note |
 |---|---:|---|---|
-| Human-vs-human floor | 0.307 | B | the ceiling; ~0.3 is unbeatable |
-| DL-Track (true scale) | 0.331 | B | a good pipeline is already human-level on the 35-set |
+| Human-vs-human floor | 0.243 | B | local ceiling after obvious expert-tail cleanup |
+| DL-Track (true scale) | 0.299 | B | a good pipeline is already near human-level on the 35-set |
 | Public leader | 0.378 | ~A | sits on the human floor |
 | By-hand labeling the test set (Patrick, 3rd) | 0.459 | **A** | careful human on the REAL board |
-| DL-Track Kaggle benchmark | 0.679 | **A** | different exam — do NOT compare to the 0.331 |
+| DL-Track Kaggle benchmark | 0.679 | **A** | different exam — do NOT compare to the local 0.299 |
 | **Our best** | **0.619** | **A** | beats the 0.679 ref; behind 0.459 (by-hand) and 0.378 (leader) |
 
-The 0.331 and 0.679 are the same tool on different exams. Never subtract across scales.
+The 0.299 and 0.679 are the same tool on different exams. Never subtract across scales.
 
 ---
 

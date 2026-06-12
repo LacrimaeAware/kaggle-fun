@@ -53,9 +53,10 @@ angle PA (deg), fascicle length FL (mm), muscle thickness MT (mm). One row per i
 - Leaderboard leader **0.378**; provided DL-Track benchmark **0.679**; a careful BY-HAND human
   labeling of the test set scored **0.459** on the public LB (forum, "PatrickAIForFun").
 - Current default local expert-benchmark score using the full wired scoring harness
-  (`experiments/score_weights.py`, true scale + TTA + inner-edge MT + fragment FL + recentered FL):
-  **0.2274** (PA 0.1498, FL 0.3528, MT 0.1795) with `UMUD_FL_IDENTITY_BLEND=0`.
-  The experimental blend scored **0.1873** locally but worsened the public LB from `0.61918` to
+  (`experiments/score_weights.py`, true scale + TTA + inner-edge MT + fragment FL + recentered FL)
+  and robust expert consensus: **0.1909** (PA 0.1498, FL 0.3390, MT 0.0840) with
+  `UMUD_FL_IDENTITY_BLEND=0`.
+  The experimental blend scored **0.1507** locally but worsened the public LB from `0.61918` to
   about `0.64`; treat the blend result as a transfer failure, not a current improvement.
   The reference set is cleaner/easier than the hidden LB and should not be compared literally to
   the public score.
@@ -71,9 +72,11 @@ The user downloaded a published **35-image expert benchmark** (OSF, gitignored a
 per image: the TRUE pixels-per-cm scale, all 7 experts' PA/FL/MT, and DL-Track's + SMA's automated
 outputs. This is our **local scoreboard**:
 
-- `benchmark_validate.py` - `load_truth()` (expert consensus, human floor, DLTrack/SMA refs) and
-  `score(pred_df, truth)` (tolerance-normalized MAE). Human floor 0.307, DL-Track-with-true-scale
-  0.331, SMA 0.409.
+- `benchmark_validate.py` - `load_truth()` (robust expert consensus, human floor, DLTrack/SMA refs)
+  and `score(pred_df, truth)` (tolerance-normalized MAE). The source xlsx is untouched, but local
+  scoring drops two clear single-rater tails: `im_19_arch` MT `R7=80.13` (`30.03 -> 20.01`) and
+  `im_26_arch` FL `R7=33.88` (`64.11 -> 70.16`). Human floor 0.243,
+  DL-Track-with-true-scale 0.299, SMA 0.375.
 - `score_on_benchmark.py` - run the saved weights' geometry on the 35 images with TRUE scale.
 - `local_infer.py` - regenerate the full 309-row submission from saved weights on CPU (~110 s with
   TTA), VERIFIED to reproduce the Kaggle PA/MT exactly. **Test changes here; never submit to test.**
@@ -88,8 +91,9 @@ New 2026-06-12 local review surfaces:
   rough local labels in ignored `results/human_benchmark/`. Use this to separate baseline from repaired
   candidates before spending another slot.
 - `benchmark_lab/review_server.py --expert-benchmark --port 8768`: 35-image expert benchmark viewer
-  with expert consensus, our true-scale pipeline, DLTrack, SMA, and scratch rulers. Useful for
-  convention/outlier checks; do not treat it as an LB oracle.
+  with robust expert consensus, our true-scale pipeline, DLTrack, SMA, scratch rulers, mask overlays,
+  and diagnostic fitted/extrapolated line overlays. Useful for convention/outlier checks; do not
+  treat it as an LB oracle.
 - `benchmark_lab/generate_synthetic_geometry.py` plus
   `benchmark_lab/review_server.py --synthetic-dir results/synthetic_geometry --port 8769`: exact
   abstract geometry unit tests for straight/steep/curved/fan-like cases. Useful for testing math, not
@@ -97,15 +101,17 @@ New 2026-06-12 local review surfaces:
 
 ## Per-target status (measured on the 35 experts, with TRUE scale)
 
-Current default full-harness geometry: **overall 0.2274** (PA 0.1498, FL 0.3528, MT 0.1795) vs
-human 0.307, DL-Track 0.331. This is strong on the cleaner benchmark when true scale is known, but
+Current default full-harness geometry: **overall 0.1909** (PA 0.1498, FL 0.3390, MT 0.0840) vs
+human 0.243, DL-Track 0.299. This is strong on the cleaner benchmark when true scale is known, but
 it is also a small benchmark with FL recentering, so do not transfer the number literally to the
 hidden LB.
 
 - **PA - effectively solved (0.150).** Total-least-squares (PCA) fragment orientation +
   length-weighted median + a min-6-deg filter that rejects aponeurosis-parallel fragments. Wired.
-- **MT - strong with true scale (0.180).** The inner-edge aponeurosis fix (`UMUD_APO_INNER=1`) moved
-  MT from a thick-band centroid problem to near-human. Remaining target-set MT error is mostly scale.
+- **MT - strong with true scale (0.084).** The inner-edge aponeurosis fix (`UMUD_APO_INNER=1`) moved
+  MT from a thick-band centroid problem to near-human; the corrected robust benchmark removes the
+  `im_19_arch` single-rater MT tail that previously inflated this term. Remaining target-set MT error
+  is mostly scale.
 - **FL - public-transfer failure for the blend.** Pure fragment-extrapolated FL is the current
   default. Exp16 found that a 50/50 blend of fragment FL and `MT / sin(MAD-gated PA)` reduced FL
   to 0.233 locally, but the resulting public score worsened from `0.61918` to about `0.64` while
@@ -124,7 +130,8 @@ Env switches (defaults in parens):
 - `UMUD_FRAGMENT_FL` (on) - prefer fragment-extrapolated FL when scale and a valid fragment exist.
 - `UMUD_USE_IDENTITY_FL` (on) - fallback FL = MT/sin(PA), then FL values are recentered.
 - `UMUD_FL_IDENTITY_BLEND` (0) - keep fragment-only FL by default. Setting `0.5` blends fragment
-  FL with `MT/sin(MAD-gated PA)` before mm conversion; Exp16 local improved 0.2274 -> 0.1873, but
+  FL with `MT/sin(MAD-gated PA)` before mm conversion; under the robust reference, the local harness
+  improves 0.1909 -> 0.1507, but
   the public LB worsened 0.61918 -> ~0.64, so do not use the blend as a submission default.
 - `UMUD_USE_CALIBRATED_MT` (on) - MT_px / px_per_mm where scale is found.
 - `UMUD_SCALE_ROUTER` (on) - the validated per-family scale router (below). `CALIBRATION_MIN_CONF` 0.3.
@@ -181,7 +188,9 @@ whether to spend a submission.
 - **Immediate submission audit**: no current file is a good four-slot burn. `submission_subpixel_scale.csv` is only a tiny precision pass (FL mean abs delta 0.094mm, max 0.673mm vs baseline), and MT vertical-3 / bar-only scale tail / facing-FL / identity blend are already rejected or audited worse. If spending one slot now, make it the isolated IMG_00275 OCR-scale fix only.
 - **Human target review now exists**: 19/24 target rows were roughly labeled locally using `benchmark_lab/`; the review viewer can compare human masks, baseline, candidates, scale, rulers, PA/FL/MT, and scratch trial FL. These labels are triage, not official truth, but they are the closest local proxy to the hidden board.
 - **Synthetic geometry benchmark built**: exact abstract cases now exist for straight, steep, curved, and fan-like assumptions. Use them as geometry unit tests before touching production math. They are not ultrasound-like enough to score the segmentation model or predict the leaderboard alone.
-- **Expert benchmark viewer built**: the 35-image expert benchmark is now inspectable visually. It helps explain measurement convention and outliers (e.g. expert means distorted by single raters), but it remains a different exam from the Kaggle test set.
+- **Expert benchmark viewer built**: the 35-image expert benchmark is now inspectable visually with
+  robust consensus, mask overlays, and fitted/extrapolated line overlays. It helps explain measurement
+  convention and outliers, but it remains a different exam from the Kaggle test set.
 - **FL recenter proven NO-OP**: `UMUD_FL_RECENTER=0` changes 0/309 rows - per-image FL already averages 74.4 before the pin. Not a hidden confounder.
 - **FL methods benchmark** (`bench_fl_methods.py`): facing = zero bias (+0.7mm, term 0.26). Straight all-frags = +24mm overshoot. Per-gap wave/bend = +25mm (same overshoot - it dropped minimize-extrapolation). Facing's minimize-extrapolation is the fix; the bend/wave is NOT.
 - **Fascicle bend is real but wrong convention** (`bench_fl_bend.py`, FALLMUD `fallmud_fl_test.py`): parabola fits apo edges 44% better on FALLMUD GT; wave FL is median 1.09x longer than reference straight FL. The competition scores straight-line extrapolation convention, not anatomy. Do not chase bend.
@@ -232,7 +241,7 @@ whether to spend a submission.
      table and summary. The target scale router detects 0/35 reference rows, so this is an explicit
      oracle-scale attribution, not production-scale validation. With true scale, raw FL MAPE is
      10.365%, recentered FL MAPE is 6.833%, MT MAPE is 2.396%, and the current recentered reference
-     score is 0.2274 (PA 0.1498, FL 0.3528, MT 0.1795).
+     score is 0.1909 (PA 0.1498, FL 0.3390, MT 0.0840) after robust expert-tail cleanup.
    - Done in `experiments/exp26_scale_cue_pseudolabels.py`: code-generated weak labels for scale
      cues on the 309 target images. The corrected teacher policy exports only production-accepted
      router cues, plus the narrow visible-bar fallback on router-`none` rows. Results: 299/309 images

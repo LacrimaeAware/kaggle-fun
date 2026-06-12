@@ -57,7 +57,8 @@ def main():
     mt_t = np.abs(a[:, 5] - a[:, 2]).mean() / TOL["mt_mm"]
     print(f"\noverall {(pa_t + fl_t + mt_t) / 3:.4f}   pa {pa_t:.4f}   fl {fl_t:.4f}   mt {mt_t:.4f}   "
           f"| mean fragments/img {np.mean(nfrag):.1f}")
-    print("refs: default blend=0 ~0.227 (pa .150 fl .353 mt .180) | blend=.5 local ~0.187 but public regressed 0.61918->~0.64 | human 0.307 | DL-Track 0.331")
+    print("refs after robust expert-tail cleanup: default blend=0 ~0.191 (pa .150 fl .339 mt .084) | "
+          "blend=.5 local ~0.151 but public regressed 0.61918->~0.64 | human 0.243 | DL-Track 0.299")
 
 
 if __name__ == "__main__":
