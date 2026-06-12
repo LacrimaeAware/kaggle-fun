@@ -540,6 +540,9 @@ function drawTools(){
   const r = row();
   if (!r) return;
   const apo = currentApoLines();
+  for (const span of (r.candidate_projection_spans || [])) {
+    drawSegment({x: span.x1, y: span.y1}, {x: span.x2, y: span.y2}, 'rgba(99, 255, 121, 0.92)', 2, false);
+  }
   drawApoFit(apo.superficial, isPiecewiseBoundary(apo.superficial) ? 'rgba(255, 80, 216, 0.95)' : 'rgba(111, 199, 255, 0.85)');
   drawApoFit(apo.deep, 'rgba(255, 214, 102, 0.85)');
   if (state.ruler) {
@@ -575,7 +578,7 @@ function renderToolReadout(){
   if (!apo.superficial || !apo.deep) {
     parts.push('<b>boundary needed:</b> set upper and lower boundary before trial FL can extrapolate.');
   } else if (isPiecewiseBoundary(apo.superficial)) {
-    parts.push('<b>candidate boundary visible:</b> magenta = robust triangle upper boundary; yellow = lower boundary. Cyan overlay spans are old projection diagnostics, not the robust-triangle boundary.');
+    parts.push('<b>candidate overlay:</b> magenta = robust triangle upper boundary; yellow = lower boundary; green = robust-triangle projected FL spans. The optional old diag layer is separate.');
   }
   if (state.tool === 'sup') parts.push(state.pending.length ? 'upper boundary: click the second point' : 'upper boundary: click two points along the upper line');
   if (state.tool === 'deep') parts.push(state.pending.length ? 'lower boundary: click the second point' : 'lower boundary: click two points along the lower line');
@@ -1062,6 +1065,107 @@ def robust_triangle_points(edge_x: np.ndarray, edge_y: np.ndarray) -> list[dict[
     return [low(left), high(center), low(right)]
 
 
+def py_line_from_points(p1: dict[str, float], p2: dict[str, float]) -> dict[str, float] | None:
+    dx = p2["x"] - p1["x"]
+    if abs(dx) < 1e-9:
+        return None
+    slope = (p2["y"] - p1["y"]) / dx
+    return {"slope": float(slope), "intercept": float(p1["y"] - slope * p1["x"])}
+
+
+def py_line_intersection(a: dict[str, float], b: dict[str, float]) -> tuple[float, float] | None:
+    denom = a["slope"] - b["slope"]
+    if abs(denom) < 1e-9:
+        return None
+    x = (b["intercept"] - a["intercept"]) / denom
+    return float(x), float(a["slope"] * x + a["intercept"])
+
+
+def py_piecewise_intersection(line: dict[str, float], top: dict, xref: float) -> tuple[float, float] | None:
+    if top.get("type") != "piecewise":
+        return py_line_intersection(line, top)
+    points = top.get("points") or []
+    hits = []
+    for p1, p2 in zip(points, points[1:]):
+        seg = py_line_from_points(p1, p2)
+        if seg is None:
+            continue
+        hit = py_line_intersection(line, seg)
+        if hit is None:
+            continue
+        lo, hi = sorted((p1["x"], p2["x"]))
+        on_segment = lo - 10.0 <= hit[0] <= hi + 10.0
+        hits.append((0 if on_segment else 1, abs(hit[0] - xref), hit))
+    if not hits:
+        return None
+    return sorted(hits, key=lambda item: (item[0], item[1]))[0][2]
+
+
+def py_pca_line(xs: np.ndarray, ys: np.ndarray) -> dict[str, float] | None:
+    pts = np.column_stack([xs.astype(float), ys.astype(float)])
+    ctr = pts.mean(axis=0)
+    pts0 = pts - ctr
+    try:
+        _, _, vh = np.linalg.svd(pts0, full_matrices=False)
+    except np.linalg.LinAlgError:
+        return None
+    vx, vy = vh[0]
+    if abs(vx) < 1e-9:
+        return None
+    slope = vy / vx
+    return {"slope": float(slope), "intercept": float(ctr[1] - slope * ctr[0])}
+
+
+def py_signed_angle_to_deep(slope: float, deep_slope: float) -> float:
+    angle = np.degrees(np.arctan(slope) - np.arctan(deep_slope))
+    while angle <= -90:
+        angle += 180
+    while angle > 90:
+        angle -= 180
+    return float(angle)
+
+
+def robust_projection_spans(fasc_path: Path, boundary: dict | None, scale_px_per_mm: float | None) -> list[dict[str, float]]:
+    fasc = load_mask(fasc_path)
+    if fasc is None or boundary is None or boundary.get("top") is None or boundary.get("deep") is None:
+        return []
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(np.ascontiguousarray(fasc, np.uint8), 8)
+    spans = []
+    deep = boundary["deep"]
+    for i in range(1, n):
+        area = int(stats[i, cv2.CC_STAT_AREA])
+        if area < 40:
+            continue
+        ys, xs = np.where(lab == i)
+        if len(xs) < 8:
+            continue
+        line = py_pca_line(xs, ys)
+        if line is None:
+            continue
+        cx = float(np.mean(xs))
+        upper = py_piecewise_intersection(line, boundary["top"], cx)
+        lower = py_line_intersection(line, deep)
+        if upper is None or lower is None:
+            continue
+        fl_px = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
+        angle = abs(py_signed_angle_to_deep(line["slope"], deep["slope"]))
+        if not (10.0 <= fl_px <= 4000.0 and 6.0 <= angle <= 75.0):
+            continue
+        row = {
+            "x1": upper[0],
+            "y1": upper[1],
+            "x2": lower[0],
+            "y2": lower[1],
+            "angle_deg": float(angle),
+            "fl_px": fl_px,
+            "area": float(area),
+        }
+        if scale_px_per_mm and scale_px_per_mm > 0:
+            row["fl_mm"] = fl_px / scale_px_per_mm
+        spans.append(row)
+    return spans
+
+
 def candidate_boundary_from_apo_mask(path: Path) -> dict | None:
     apo = load_mask(path)
     if apo is None:
@@ -1346,6 +1450,11 @@ def build_expert_benchmark_rows(
         scale_cm = parse_float(src.get("Scale_pixel_per_cm"))
         human, drop_notes = robust_expert_human(src)
         boundary = candidate_boundary_from_apo_mask(ROOT / "results" / "visual_review" / f"{image_id}_apo.png")
+        projection_spans = robust_projection_spans(
+            ROOT / "results" / "visual_review" / f"{image_id}_fasc.png",
+            boundary,
+            None if scale_cm is None else scale_cm / 10.0,
+        )
         candidates = []
         for name, data in candidate_data:
             pred_row = data.get(image_id, {})
@@ -1380,6 +1489,7 @@ def build_expert_benchmark_rows(
             "calibration_confidence": 1.0,
             "apo_lines": None,
             "candidate_boundary": boundary,
+            "candidate_projection_spans": projection_spans,
             "label_available": False,
             "overlay_available": any((ROOT / "results" / "visual_review" / f"{image_id}_{layer}.png").exists()
                                      for layer in ("apo", "fasc", "ignore")),

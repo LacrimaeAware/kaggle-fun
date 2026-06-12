@@ -83,10 +83,10 @@ Open:
 
 `http://127.0.0.1:8768/`
 
-In this viewer, the actual robust-triangle candidate boundary is drawn live on the canvas:
-magenta = robust-triangle upper boundary, yellow = lower boundary. The `old diag` layer is off by
-default; when enabled, its cyan spans are older projected-FL diagnostics and should not be mistaken
-for the robust-triangle boundary itself.
+In this viewer, the actual robust-triangle candidate geometry is drawn live on the canvas:
+magenta = robust-triangle upper boundary, yellow = lower boundary, green = robust-triangle projected
+FL spans. The `old diag` layer is off by default; when enabled, its cyan spans are older projected-FL
+diagnostics and should not be mistaken for the robust-triangle candidate spans.
 
 Single-image triangle viewer for `im_29_arch`:
 
