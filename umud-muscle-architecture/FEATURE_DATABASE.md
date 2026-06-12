@@ -54,6 +54,10 @@ Negative deltas are good. Positive deltas are bad.
 | `F022` | Synthetic geometry benchmark pack | infrastructure | benchmark tooling | n/a | n/a | n/a | Useful for unit-testing geometry logic, not direct public evidence. |
 | `F023` | Human-in-loop target benchmark labels | infrastructure | benchmark tooling | n/a | n/a | n/a | 19 rough target rows exist. Needs careful quality control and feature scoring protocol. |
 | `F024` | Scale-cue segmentation / learned scale asset detector | idea / untested | scale ML | n/a | n/a | n/a | Long-term ML path: learn ticks/text/rulers/image region instead of hand-coded brittle routers. |
+| `F025` | Per-band fragment-count PA/MT only while keeping FL fixed | bench-tested / small add-on | PA+MT | -0.0015 | n/a | bench robust 0.170 -> 0.169 | Confirms exp41's PA/MT signal is real but tiny; simple band average is rejected. |
+| `F026` | Vertical center MT gap under robust-triangle geometry | bench-tested / small candidate | MT | -0.004 | n/a | bench robust 0.170 -> 0.166 | MT term improves `0.083 -> 0.070`; three-position and mean-width MT are rejected. |
+| `F027` | PA referenced to upper-boundary or average-boundary tangent | bench-tested / rejected | PA | +0.061 to +0.153 | n/a | bench robust 0.170 -> 0.231-0.323 | Strong negative evidence: keep PA relative to lower/deep boundary convention. |
+| `F028` | Best local benchmark stack: scan-region FL + PA conflict/per-band + vertical-center MT | bench-tested / research anchor | PA+FL+MT | -0.017 | n/a | bench robust 0.170 -> 0.153 | Useful local anchor for viewer inspection and production wiring; not a public-transfer claim. |
 
 ## Current Read
 
@@ -69,6 +73,7 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 ## Next Tests To Add To This Database
 
 1. Stack and inspect `strict_scan_region_linear_support_weighted_FL_only` with robust triangle. It is locally useful but hurts existing FL undershoots.
-2. Revisit per-band only as targeted routing/filtering for known multi-band failure families; naive averaging is rejected.
-3. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
-4. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
+2. Inspect and production-wire vertical-center MT and strict scan-region FL as explicit flags before any public test.
+3. Revisit per-band only as a PA/MT add-on or targeted routing/filtering; naive FL averaging is rejected.
+4. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
+5. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
