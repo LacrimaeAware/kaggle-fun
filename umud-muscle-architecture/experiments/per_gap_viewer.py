@@ -166,7 +166,7 @@ def per_gap(am, fm, W):
 def main():
     apo, fasc = load("apo"), load("fasc")
     OUT.mkdir(parents=True, exist_ok=True)
-    base = pd.read_csv(r"C:/Users/EcceNihilum/Downloads/0P61918_submission_local.csv").set_index("image_id")
+    base = pd.read_csv(Path.home() / "Downloads" / "0P61918_submission_local.csv").set_index("image_id")
     files = sorted(p for p in TEST.iterdir() if p.suffix.lower() in EXTS)
     proto = os.environ.get("UMUD_PERGAP_PROTO", "")          # prototype on a small named set for fast review
     if proto:

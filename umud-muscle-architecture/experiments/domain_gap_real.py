@@ -18,7 +18,7 @@ import numpy as np
 import cv2
 
 ROOT = Path(__file__).resolve().parent.parent
-BRIEF = Path(r"C:\Users\EcceNihilum\Desktop\scale-brief")
+BRIEF = Path.home() / "Desktop" / "scale-brief"
 sys.path.insert(0, str(BRIEF))
 import domain_probe as DP  # noqa: E402
 

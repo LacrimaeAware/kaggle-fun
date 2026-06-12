@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "experiments"))
 import segment_then_measure as M       # noqa: E402
 import per_gap_viewer as PGV           # noqa: E402
 
-DL = Path("C:/Users/EcceNihilum/Downloads")
+DL = Path.home() / "Downloads"
 TEST = ROOT / "data/test_images_v2/test_set_v2"
 
 

@@ -35,7 +35,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 BASELINE = ROOT / "results" / "submission_local.csv"
 DEBUG = ROOT / "results" / "calibration_measurement_debug.csv"
-DOWNLOAD_BASELINE = Path(r"C:\Users\EcceNihilum\Downloads\0P61918_submission_local.csv")
+DOWNLOAD_BASELINE = Path.home() / "Downloads" / "0P61918_submission_local.csv"
 
 PRIOR_FL = 74.424
 TOL = {"pa_deg": 6.0, "fl_mm": 12.0, "mt_mm": 3.0}

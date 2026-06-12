@@ -5,6 +5,32 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 
 ---
 
+## RESUME HERE (last touched 2026-06-11, before a multi-day break)
+
+**Best LB: 0.61918 (safe baseline, already your live score).** Production defaults are safe
+(`UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh run reproduces the baseline.
+
+**What changed most recently:** built a human-in-loop labeling lab (`benchmark_lab/`) and hand-labeled
+**19 of 24 real TEST images** (apo + fascicle masks, in gitignored `results/human_benchmark/`). This is
+the first local oracle on the *actual test distribution* — the thing that fixes our core problem (the
+35-expert benchmark is different devices and mispredicted the LB 4 times). Labels are "rough/first-pass"
+(user's words), useful for triage, not yet final truth.
+
+**Submission decision this session (no slot spent):** HOLD the blind probes. We are 0-for-4 on isolated
+LB probes, and we just built the oracle that should gate the next one. Do NOT rush facing-per-gap before
+the break. The one defensible single-slot play, if you want to use one, is the **IMG_00275 scale fix**
+(double-confirmed wrong: OCR 2× scale anomaly + the human label disagrees -10.6mm FL / +9.9° PA with the
+shipped value) — but it is one image, so expect a small move at most.
+
+**#1 task when you return** (this is the workflow you already designed in `benchmark_lab/NEXT_LABEL_PACK.md`):
+1. Score the 0.619 baseline AND the facing / facing-per-gap candidates against the 19 human test rows
+   (`benchmark_lab/score_labels.py` + `review_server.py`).
+2. Wire **facing-FL per gap** (per-gap = multi-muscle separation only; FL via `compute_facing_fl()`, NOT
+   the wave trace — see §6). Submit only if it improves the human rows without breaking sanity rows.
+3. Bigger lever, harder: a better fascicle segmentation model (the real FL bottleneck — see §7).
+
+---
+
 ## 0. THE NUMBER CLARIFICATION (read this first — it is the thing everyone keeps conflating)
 
 There are **three different score scales**. All are tolerance-normalized MAE, lower=better, but they

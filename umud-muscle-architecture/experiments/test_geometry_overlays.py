@@ -35,7 +35,7 @@ def load(t):
 def main():
     apo, fasc = load("apo"), load("fasc")
     OUT.mkdir(parents=True, exist_ok=True)
-    base = pd.read_csv(r"C:/Users/EcceNihilum/Downloads/0P61918_submission_local.csv").set_index("image_id")
+    base = pd.read_csv(Path.home() / "Downloads" / "0P61918_submission_local.csv").set_index("image_id")
     cur = pd.read_csv(ROOT / "results" / "submission_local.csv").set_index("image_id")
     files = sorted(p for p in TEST.iterdir() if p.suffix.lower() in EXTS)
     recs = []
