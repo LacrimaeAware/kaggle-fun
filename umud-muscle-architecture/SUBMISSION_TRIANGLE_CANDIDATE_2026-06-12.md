@@ -83,6 +83,10 @@ Open:
 
 `http://127.0.0.1:8768/`
 
+In this viewer, the actual robust-triangle candidate boundary is drawn live on the canvas:
+magenta = robust-triangle upper boundary, yellow = lower boundary. The cyan diagnostic spans are
+older projected-FL diagnostics and should not be mistaken for the robust-triangle boundary itself.
+
 Single-image triangle viewer for `im_29_arch`:
 
 `http://127.0.0.1:8771/`

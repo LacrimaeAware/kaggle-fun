@@ -412,12 +412,27 @@ function boundaryFromEndpoints(p1, p2){
 function currentApoLines(){
   const r = row() || {};
   const base = r.apo_lines || {};
+  const boundary = r.candidate_boundary || {};
   return {
-    superficial: state.manualApo.superficial || base.superficial || null,
-    deep: state.manualApo.deep || base.deep || null
+    superficial: state.manualApo.superficial || base.superficial || boundary.top || null,
+    deep: state.manualApo.deep || base.deep || boundary.deep || null
   };
 }
-function intersectLineWithApo(testLine, apoLine){
+function isPiecewiseBoundary(boundary){
+  return boundary && boundary.type === 'piecewise' && Array.isArray(boundary.points) && boundary.points.length >= 2;
+}
+function boundarySegmentLine(a, b){
+  return lineFromPoints(a, b);
+}
+function boundaryY(boundary, x){
+  if (!boundary) return null;
+  if (!isPiecewiseBoundary(boundary)) return lineY(boundary, x);
+  const pts = boundary.points;
+  const mid = pts[Math.floor(pts.length / 2)];
+  const seg = x <= mid.x ? boundarySegmentLine(pts[0], pts[1]) : boundarySegmentLine(pts[1], pts[2]);
+  return lineY(seg, x);
+}
+function intersectLineWithLine(testLine, apoLine){
   if (!apoLine) return null;
   if (testLine.vertical) return {x: testLine.x, y: lineY(apoLine, testLine.x)};
   const denom = testLine.slope - apoLine.slope;
@@ -425,12 +440,32 @@ function intersectLineWithApo(testLine, apoLine){
   const x = (apoLine.intercept - testLine.intercept) / denom;
   return {x, y: testLine.slope * x + testLine.intercept};
 }
+function intersectLineWithApo(testLine, apoBoundary, xref=null){
+  if (!apoBoundary) return null;
+  if (!isPiecewiseBoundary(apoBoundary)) return intersectLineWithLine(testLine, apoBoundary);
+  const pts = apoBoundary.points;
+  const hits = [];
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const segLine = boundarySegmentLine(pts[i], pts[i + 1]);
+    if (segLine.vertical) continue;
+    const hit = intersectLineWithLine(testLine, segLine);
+    if (!hit) continue;
+    const lo = Math.min(pts[i].x, pts[i + 1].x);
+    const hi = Math.max(pts[i].x, pts[i + 1].x);
+    const onSegment = hit.x >= lo - 10 && hit.x <= hi + 10;
+    const ref = xref === null ? hit.x : xref;
+    hits.push({hit, onSegment, dist: Math.abs(hit.x - ref)});
+  }
+  if (!hits.length) return null;
+  hits.sort((a, b) => (a.onSegment === b.onSegment ? a.dist - b.dist : (a.onSegment ? -1 : 1)));
+  return hits[0].hit;
+}
 function trialFromEndpoints(p1, p2){
   const apo = currentApoLines();
   const sup = apo.superficial;
   const deep = apo.deep;
   const testLine = lineFromPoints(p1, p2);
-  const upper = intersectLineWithApo(testLine, sup);
+  const upper = intersectLineWithApo(testLine, sup, (p1.x + p2.x) / 2);
   const lower = intersectLineWithApo(testLine, deep);
   if (!upper || !lower) return {p1, p2, visible_px: dist(p1, p2), error: 'no boundary intersection'};
   const visiblePx = dist(p1, p2);
@@ -469,6 +504,13 @@ function drawSegment(a, b, color, width=3, dashed=false){
 }
 function drawApoFit(line, color){
   if (!line || !toolCanvas.width) return;
+  if (isPiecewiseBoundary(line)) {
+    for (let i = 0; i + 1 < line.points.length; i++) {
+      drawSegment(line.points[i], line.points[i + 1], color, 5, false);
+    }
+    for (const p of line.points) drawPoint(p, color);
+    return;
+  }
   drawSegment({x: 0, y: lineY(line, 0)}, {x: toolCanvas.width, y: lineY(line, toolCanvas.width)}, color, 2, true);
   if (line.manual && line.p1 && line.p2) {
     drawSegment(line.p1, line.p2, color, 5, false);
@@ -498,7 +540,7 @@ function drawTools(){
   const r = row();
   if (!r) return;
   const apo = currentApoLines();
-  drawApoFit(apo.superficial, 'rgba(111, 199, 255, 0.85)');
+  drawApoFit(apo.superficial, isPiecewiseBoundary(apo.superficial) ? 'rgba(255, 80, 216, 0.95)' : 'rgba(111, 199, 255, 0.85)');
   drawApoFit(apo.deep, 'rgba(255, 214, 102, 0.85)');
   if (state.ruler) {
     drawSegment(state.ruler.p1, state.ruler.p2, '#6fffd2', 4);
@@ -532,6 +574,8 @@ function renderToolReadout(){
   const apo = currentApoLines();
   if (!apo.superficial || !apo.deep) {
     parts.push('<b>boundary needed:</b> set upper and lower boundary before trial FL can extrapolate.');
+  } else if (isPiecewiseBoundary(apo.superficial)) {
+    parts.push('<b>candidate boundary visible:</b> magenta = robust triangle upper boundary; yellow = lower boundary. Cyan overlay spans are old projection diagnostics, not the robust-triangle boundary.');
   }
   if (state.tool === 'sup') parts.push(state.pending.length ? 'upper boundary: click the second point' : 'upper boundary: click two points along the upper line');
   if (state.tool === 'deep') parts.push(state.pending.length ? 'lower boundary: click the second point' : 'lower boundary: click two points along the lower line');
@@ -738,6 +782,7 @@ function loadCurrent(){
   qs('meta').innerHTML = `<b>${r.label_id}</b><br>image: ${r.image_id}<br>quality: ${r.quality || ''}<br>` +
     `pixels: apo ${r.apo_pixels}, fasc ${r.fasc_pixels}<br>measured fragments: ${r.n_fascicles || ''}<br>` +
     `sort disagreement: ${fmt(r.sort_score,2)}<br>` +
+    (r.candidate_boundary?.mode ? `<b>candidate boundary:</b> ${r.candidate_boundary.mode}; magenta overlay on canvas<br>` : '') +
     `<span class="muted">${r.truth_note || 'FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.'}</span>${taxHtml}`;
   imgs.base.onload = resizeToolCanvas;
   imgs.base.src = `/image/${state.idx}?t=${Date.now()}`;
@@ -994,6 +1039,65 @@ def apo_line_fits(labels_dir: Path, label_id: str) -> dict[str, dict[str, float]
     return out
 
 
+def robust_triangle_points(edge_x: np.ndarray, edge_y: np.ndarray) -> list[dict[str, float]] | None:
+    if np is None or len(edge_x) < 12:
+        return None
+    q25, q75 = np.percentile(edge_x, [25, 75])
+    left = np.where(edge_x <= q25)[0]
+    center = np.where((edge_x >= q25) & (edge_x <= q75))[0]
+    right = np.where(edge_x >= q75)[0]
+    if len(left) == 0 or len(center) == 0 or len(right) == 0:
+        return None
+
+    def low(indices: np.ndarray) -> dict[str, float]:
+        cutoff = np.percentile(edge_y[indices], 95)
+        keep = indices[edge_y[indices] >= cutoff]
+        return {"x": float(np.median(edge_x[keep])), "y": float(np.median(edge_y[keep]))}
+
+    def high(indices: np.ndarray) -> dict[str, float]:
+        cutoff = np.percentile(edge_y[indices], 5)
+        keep = indices[edge_y[indices] <= cutoff]
+        return {"x": float(np.median(edge_x[keep])), "y": float(np.median(edge_y[keep]))}
+
+    return [low(left), high(center), low(right)]
+
+
+def candidate_boundary_from_apo_mask(path: Path) -> dict | None:
+    apo = load_mask(path)
+    if apo is None:
+        return None
+    groups = apo_boundary_groups(np.ascontiguousarray(apo, np.uint8))
+    if groups is None:
+        return None
+    groups.sort(key=lambda item: item[0])
+    (_, sup_xs, sup_ys), (_, deep_xs, deep_ys) = groups[:2]
+
+    sup_ux, sup_inv = np.unique(sup_xs, return_inverse=True)
+    deep_ux, deep_inv = np.unique(deep_xs, return_inverse=True)
+    if len(sup_ux) < 2 or len(deep_ux) < 2:
+        return None
+
+    # Upper boundary uses the muscle-facing/lower edge of the superficial band.
+    sup_edge_y = np.full(len(sup_ux), -1.0)
+    np.maximum.at(sup_edge_y, sup_inv, sup_ys.astype(float))
+    # Lower boundary uses the muscle-facing/upper edge of the deep band.
+    deep_edge_y = np.full(len(deep_ux), 1e18)
+    np.minimum.at(deep_edge_y, deep_inv, deep_ys.astype(float))
+
+    deep_slope, deep_intercept = fit_line(deep_ux.astype(float), deep_edge_y)
+    points = robust_triangle_points(sup_ux.astype(float), sup_edge_y.astype(float))
+    if points is None:
+        sup_slope, sup_intercept = fit_line(sup_ux.astype(float), sup_edge_y)
+        top = {"type": "line", "slope": sup_slope, "intercept": sup_intercept}
+    else:
+        top = {"type": "piecewise", "points": points}
+    return {
+        "mode": "robust_triangle",
+        "top": top,
+        "deep": {"type": "line", "slope": deep_slope, "intercept": deep_intercept},
+    }
+
+
 def browser_image_bytes(path: Path) -> tuple[bytes, str]:
     suffix = path.suffix.lower()
     if suffix not in {".tif", ".tiff", ".bmp"}:
@@ -1241,6 +1345,7 @@ def build_expert_benchmark_rows(
         label_id = f"benchmark_{safe_id(image_id)}"
         scale_cm = parse_float(src.get("Scale_pixel_per_cm"))
         human, drop_notes = robust_expert_human(src)
+        boundary = candidate_boundary_from_apo_mask(ROOT / "results" / "visual_review" / f"{image_id}_apo.png")
         candidates = []
         for name, data in candidate_data:
             pred_row = data.get(image_id, {})
@@ -1274,6 +1379,7 @@ def build_expert_benchmark_rows(
             "calibration_method": "expert_xlsx_true_scale",
             "calibration_confidence": 1.0,
             "apo_lines": None,
+            "candidate_boundary": boundary,
             "label_available": False,
             "overlay_available": any((ROOT / "results" / "visual_review" / f"{image_id}_{layer}.png").exists()
                                      for layer in ("apo", "fasc", "ignore")),
