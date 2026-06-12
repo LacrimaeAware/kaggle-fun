@@ -50,7 +50,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F018` | Bar-only scale tail correction | public-tested / rejected | scale tail | n/a | +0.04793 | public 0.61918 -> 0.66711 | Bad transfer. Do not use broad tail scale patch. |
 | `F019` | On-screen vs off-screen projection support weighting using real image-region bounds | bench-tested / candidate variant | FL aggregation / support | -0.011 | n/a | bench robust 0.170 -> 0.159 | Gentle strict scan-region linear weighting helps FL-only. Harsh visible+scan squared weighting is rejected. |
 | `F020` | Lower robust boundary shape for MT/PA symmetry | bench-tested / mixed-rejected for MT | lower boundary -> MT/PA | +0.009 MT-only; -0.003 FL-only | n/a | bench robust 0.170 -> 0.179 MT-only; 0.167 FL-only | Lower quartile median polyline helps FL slightly but worsens MT. Do not use as MT replacement yet. |
-| `F021` | Per-band geometry separation before FL measurement | partially built / unsubmitted | multi-band routing | n/a | n/a | n/a | Prototype exists in per-gap viewer. User prefers "per band" wording. Highest value if facing/FL failures are multi-band routing errors. |
+| `F021` | Per-band geometry separation before FL measurement | bench-tested / rejected naive averaging | multi-band routing | +0.004 average; +0.001 largest-gap | n/a | bench robust 0.170 -> 0.174 / 0.171 | Naive per-band averaging improves PA/MT on multi-band rows but worsens FL. Revisit only as targeted routing/filtering. |
 | `F022` | Synthetic geometry benchmark pack | infrastructure | benchmark tooling | n/a | n/a | n/a | Useful for unit-testing geometry logic, not direct public evidence. |
 | `F023` | Human-in-loop target benchmark labels | infrastructure | benchmark tooling | n/a | n/a | n/a | 19 rough target rows exist. Needs careful quality control and feature scoring protocol. |
 | `F024` | Scale-cue segmentation / learned scale asset detector | idea / untested | scale ML | n/a | n/a | n/a | Long-term ML path: learn ticks/text/rulers/image region instead of hand-coded brittle routers. |
@@ -69,6 +69,6 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 ## Next Tests To Add To This Database
 
 1. Stack and inspect `strict_scan_region_linear_support_weighted_FL_only` with robust triangle. It is locally useful but hurts existing FL undershoots.
-2. Extract a clean per-band benchmark harness with current best FL method, using "per band" naming in docs and code.
+2. Revisit per-band only as targeted routing/filtering for known multi-band failure families; naive averaging is rejected.
 3. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
 4. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
