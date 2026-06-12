@@ -13,12 +13,13 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 (`UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh default run
 reproduces the 0.61918 baseline unless temporal smoothing is explicitly applied.
 
-**Immediate submission decision after the shape-neighbor win (2026-06-12):** OCR-on-top (`13`) was
-public-score neutral at 0.58910. Do not submit stale `12` or `09` if you want to keep the 0.58910
-gain. Use `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`:
+**Immediate submission decision after the 2026-06-12 burn pack:** OCR-on-top (`13`) was public-score
+neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best remains 0.58910. Use
+`SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md` for selection details:
 
-- `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`
-- optional/tomorrow: `submission_burn_10_temporal_fl_visibility_weighted.csv`
+- `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`: tied best; preferred if selecting one.
+- `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`: tied best.
+- Do not wire/submit broad top3 FL as a production default; it harmed the real board.
 
 **What changed most recently:** built `benchmark_lab/` into three local review surfaces:
 

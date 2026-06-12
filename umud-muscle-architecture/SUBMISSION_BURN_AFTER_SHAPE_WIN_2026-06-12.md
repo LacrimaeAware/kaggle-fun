@@ -6,11 +6,19 @@ improvement over burn #6 at 0.60936. Treat burn #11 as the current working basel
 Update: `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` also scored **0.58910**.
 The isolated IMG_00275 OCR correction is public-score neutral on top of burn #11.
 
-## Submit Next
+Update: `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv` scored **0.62994**.
+The broad top-3/minimal-extrapolation FL combiner is rejected on the real board.
 
-| order | file | axis | note |
-|---:|---|---|---|
-| 1 | `results/submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv` | current best + top-3 minimal-extrapolation FL | Higher-risk core FL aggregation probe; moves 307 FL rows. |
+## Current Selection
+
+Best public score is **0.58910**, tied by:
+
+- `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`
+- `results/submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`
+
+Prefer selecting `13` over `11` for final/private if choosing only one, because it keeps the same public
+score while adding the structurally justified one-row OCR scale correction. Selecting both is also
+reasonable if the competition allows up to 3 final submissions.
 
 ## Generation
 
@@ -24,8 +32,9 @@ Summary CSV:
 
 ## Interpretation
 
-- If #13 improves, wire the isolated IMG_00275 OCR scale correction on top of the current best.
-- If #14 improves, FL aggregation is still a live lever; keep temporal+subpixel+shape as the baseline
-  and develop support-aware/minimal-extrapolation FL.
-- If #13 fails and #14 fails, current best is burn #11 and the next work is likely model/segmentation
-  quality rather than scale cleanup.
+- #13 was neutral publicly: keep it as a reasonable final/private candidate because it is structurally
+  justified and does not cost public score.
+- #14 failed: do not wire top-3 minimal-extrapolation FL into production.
+- The current best path is temporal smoothing + subpixel scale precision + clean shape-neighbor fallback
+  scale. The next serious work is model/segmentation quality or a better scale fallback audit, not broad
+  FL aggregation.

@@ -19,7 +19,14 @@ The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrap
 
 `results/submission_local.csv` is still the **0.61918 non-temporal baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The new best upload is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`. Production code defaults `UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the conservative 0.619 baseline unless temporal/subpixel/shape or rejected probes are explicitly enabled.
 
-Immediate 2026-06-12 submission stance after the shape-neighbor win: **do not submit stale `12` or `09`.** `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` was public-score neutral at 0.58910, so the next meaningful file is the higher-risk `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`.
+Immediate 2026-06-12 submission stance after the completed burn pack: **do not submit stale `12` or
+`09`, and do not repeat `14`.** `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`
+was public-score neutral at 0.58910. `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`
+scored **0.62994**, so the top3/minimal-extrapolation FL combiner is rejected
+on the real board. Current best remains **0.58910**, tied by `11` and `13`. Prefer `13` if selecting
+only one final/private candidate because it keeps the same public score while adding the structurally
+justified one-row OCR scale correction; selecting both `11` and `13` is reasonable if using multiple
+final slots.
 
 ## The competition
 
@@ -295,6 +302,11 @@ whether to spend a submission.
 `results/submission_local.csv` IS the 0.61918 non-temporal baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). The current public best is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` at 0.58910.
 
 **Immediate next action if burning today's remaining slots**: submit the post-shape stacked follow-ups in `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`, not the older post-subpixel order. If pausing instead, use the bigger local benchmark with `benchmark_lab/` to understand why temporal+subpixel+shape helped and whether the 0.58910 file should become the production default.
+
+After the 0.62994 top3 result, do not spend more slots on broad FL combiners unless the goal is pure
+information. The useful production path is temporal smoothing + subpixel scale precision + clean
+shape-neighbor fallback scale; next serious work is understanding/wiring that pipeline cleanly and
+then improving segmentation/orientation.
 
 **The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` - NOT the wave trace. Do not submit it until the new human benchmark can distinguish the 0.619 baseline from the rejected 0.665 facing variant.
 
