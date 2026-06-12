@@ -3,11 +3,12 @@
 Current-state briefing so another model can get caught up and extend or cross-check this work.
 Read it with the canonical docs at the end. Last substantive update: 2026-06-12.
 
-**Read first:** `MASTER_REVIEW.md` (canonical state as of 2026-06-12). Then `STATE_RESET_2026-06-10.md` for pre-history. Best SUBMITTED public score is now **0.60936** from temporal smoothing plus subpixel scale precision. The protected non-temporal baseline is **0.61918**. Most post-0.619 leaderboard probes regressed, but the 2026-06-12 burn pack found two additive wins:
+**Read first:** `MASTER_REVIEW.md` (canonical state as of 2026-06-12). Then `STATE_RESET_2026-06-10.md` for pre-history. Best SUBMITTED public score is now **0.58910** from temporal smoothing plus subpixel scale precision plus clean shape-neighbor fallback scale. The protected non-temporal baseline is **0.61918**. Most post-0.619 leaderboard probes regressed, but the 2026-06-12 burn pack found three additive wins:
 
 | submitted | LB | status |
 |---|---:|---|
-| temporal + subpixel (`submission_burn_06_temporal_subpixel_scale.csv`) | **0.60936** | **NEW BEST** |
+| temporal + subpixel + shape-neighbor fallback scale (`submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`) | **0.58910** | **NEW BEST** |
+| temporal + subpixel (`submission_burn_06_temporal_subpixel_scale.csv`) | **0.60936** | superseded |
 | temporal smoothing (`submission_burn_04_temporal_smooth_092.csv`) | **0.60961** | superseded |
 | FL identity blend | 0.63905 | rejected |
 | MT vertical-3 | 0.62561 | rejected |
@@ -16,9 +17,9 @@ Read it with the canonical docs at the end. Last substantive update: 2026-06-12.
 
 The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrapolation) **was submitted and regressed** 0.619→0.665. The geometry is zero-bias on the 35-expert benchmark (+0.7mm bias) but fails on ~13 multi-muscle test images where 3 apo bands exist, the wrong pair is selected, and fascicles from both muscles mix into one garbage consensus.
 
-`results/submission_local.csv` is still the **0.61918 non-temporal baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The new best upload is `results/submission_burn_06_temporal_subpixel_scale.csv`. Production code defaults `UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the conservative 0.619 baseline unless temporal/subpixel or rejected probes are explicitly enabled.
+`results/submission_local.csv` is still the **0.61918 non-temporal baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The new best upload is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`. Production code defaults `UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the conservative 0.619 baseline unless temporal/subpixel/shape or rejected probes are explicitly enabled.
 
-Immediate 2026-06-12 submission stance after the temporal+subpixel win: **do not submit stale `07` or `08`.** Use `SUBMISSION_BURN_AFTER_SUBPIXEL_WIN_2026-06-12.md`; the next files are `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`, then `submission_burn_12_temporal_subpixel_img00275_ocr_scale.csv`, then the higher-risk `submission_burn_09_temporal_fl_min_extrap_top3.csv`.
+Immediate 2026-06-12 submission stance after the shape-neighbor win: **do not submit stale `12` or `09`.** Use `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`; the next files are `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`, then the higher-risk `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`.
 
 ## The competition
 
@@ -37,7 +38,7 @@ angle PA (deg), fascicle length FL (mm), muscle thickness MT (mm). One row per i
 ## Where we stand (2026-06-09)
 
 - Best **submitted** public LB before the burn pack: **0.61918** (rank #7 at the time). The first
-  temporal/subpixel burn-pack sequence improved this to **0.60936**. A later FL-blend probe
+  temporal/subpixel/shape-neighbor burn-pack sequence improved this to **0.58910**. A later FL-blend probe
   worsened to about **0.64**. Later MT vertical-3 and bar-only scale-tail probes worsened to
   **0.62561** and **0.66711**. The downloaded `0P61918_submission_local.csv` has been restored on
   disk as `results/submission_local.csv` and is byte/data-identical to that known better file.
@@ -291,9 +292,9 @@ whether to spend a submission.
 
 ## Current submission recommendation
 
-`results/submission_local.csv` IS the 0.61918 non-temporal baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). The current public best is `results/submission_burn_06_temporal_subpixel_scale.csv` at 0.60936.
+`results/submission_local.csv` IS the 0.61918 non-temporal baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). The current public best is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` at 0.58910.
 
-**Immediate next action if burning today's remaining slots**: submit the post-subpixel stacked follow-ups in `SUBMISSION_BURN_AFTER_SUBPIXEL_WIN_2026-06-12.md`, not the older temporal-only stacked order. If pausing instead, use the bigger local benchmark with `benchmark_lab/` to understand why temporal helped and whether the 0.60936 file should become the production default.
+**Immediate next action if burning today's remaining slots**: submit the post-shape stacked follow-ups in `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`, not the older post-subpixel order. If pausing instead, use the bigger local benchmark with `benchmark_lab/` to understand why temporal+subpixel+shape helped and whether the 0.58910 file should become the production default.
 
 **The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` - NOT the wave trace. Do not submit it until the new human benchmark can distinguish the 0.619 baseline from the rejected 0.665 facing variant.
 

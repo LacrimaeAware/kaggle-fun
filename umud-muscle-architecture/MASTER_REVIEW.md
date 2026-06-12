@@ -7,18 +7,18 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 
 ## RESUME HERE (latest 2026-06-12, before a multi-day break)
 
-**Best LB: 0.60936 (temporal smoothing + subpixel scale precision,
-`submission_burn_06_temporal_subpixel_scale.csv`).** The protected non-temporal baseline remains 0.61918 (`results/submission_local.csv` /
+**Best LB: 0.58910 (temporal + subpixel + clean shape-neighbor fallback scale,
+`submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`).** The protected non-temporal baseline remains 0.61918 (`results/submission_local.csv` /
 `Downloads/0P61918_submission_local.csv`). Production defaults are still conservative
 (`UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh default run
 reproduces the 0.61918 baseline unless temporal smoothing is explicitly applied.
 
-**Immediate submission decision after the temporal+subpixel win (2026-06-12): pivot again.** Do not
-submit stale `07` or `08`. Use `SUBMISSION_BURN_AFTER_SUBPIXEL_WIN_2026-06-12.md`:
+**Immediate submission decision after the shape-neighbor win (2026-06-12): pivot again.** Do not
+submit stale `12` or `09` if you want to keep the 0.58910 gain. Use
+`SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`:
 
-- `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`
-- `submission_burn_12_temporal_subpixel_img00275_ocr_scale.csv`
-- `submission_burn_09_temporal_fl_min_extrap_top3.csv`
+- `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`
+- `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`
 - optional/tomorrow: `submission_burn_10_temporal_fl_visibility_weighted.csv`
 
 **What changed most recently:** built `benchmark_lab/` into three local review surfaces:

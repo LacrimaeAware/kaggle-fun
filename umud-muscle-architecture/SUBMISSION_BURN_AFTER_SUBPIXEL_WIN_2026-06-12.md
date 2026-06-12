@@ -3,6 +3,9 @@
 `submission_burn_06_temporal_subpixel_scale.csv` scored **0.60936**, improving the temporal-only
 0.60961 result. Treat burn #6 as the current working baseline.
 
+Update: `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` then improved to **0.58910**,
+so the next order is superseded by `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`.
+
 ## Submit Next
 
 | order | file | axis | note |
