@@ -230,6 +230,63 @@ def project_with_lines(
     }
 
 
+def fl_distribution(rows: list[dict], ppm: float, truth_fl_mm: float) -> dict:
+    vals = np.asarray([r["fl_px"] / ppm for r in rows if r.get("fl_px") is not None], dtype=float)
+    vals = vals[np.isfinite(vals)]
+    if vals.size == 0:
+        return {
+            "n": 0,
+            "tail_read": "no projected fragments",
+        }
+    q0, q10, q25, q35, q50, q65, q75, q90, q100 = np.percentile(vals, [0, 10, 25, 35, 50, 65, 75, 90, 100])
+    iqr = q75 - q25
+    tukey_lo = q25 - 1.5 * iqr
+    tukey_hi = q75 + 1.5 * iqr
+    low_out = int(np.sum(vals < tukey_lo))
+    high_out = int(np.sum(vals > tukey_hi))
+    truth_pct = float(np.mean(vals <= truth_fl_mm))
+    p25_delta = float(q25 - truth_fl_mm)
+    p25_improvement = float(abs(q50 - truth_fl_mm) - abs(q25 - truth_fl_mm))
+
+    notes = []
+    if low_out or high_out:
+        notes.append(f"Tukey outliers: {low_out} low / {high_out} high")
+    else:
+        notes.append("no isolated Tukey outliers")
+    if (q90 - q10) >= 24.0:
+        notes.append(f"broad projection spread p10-p90={q90 - q10:.1f}mm")
+    if truth_pct <= 0.35 and q50 > truth_fl_mm:
+        notes.append(f"expert FL sits low in our distribution ({truth_pct * 100:.0f}th percentile)")
+    elif truth_pct >= 0.65 and q50 < truth_fl_mm:
+        notes.append(f"expert FL sits high in our distribution ({truth_pct * 100:.0f}th percentile)")
+    else:
+        notes.append(f"expert FL sits near the middle ({truth_pct * 100:.0f}th percentile)")
+    if p25_improvement >= 5.0:
+        notes.append(f"p25 aggregation would improve FL by {p25_improvement:.1f}mm locally")
+    elif p25_improvement <= -5.0:
+        notes.append(f"p25 aggregation would worsen FL by {-p25_improvement:.1f}mm locally")
+    return {
+        "n": int(vals.size),
+        "min": float(q0),
+        "p10": float(q10),
+        "p25": float(q25),
+        "p35": float(q35),
+        "p50": float(q50),
+        "p65": float(q65),
+        "p75": float(q75),
+        "p90": float(q90),
+        "max": float(q100),
+        "iqr": float(iqr),
+        "p10_p90": float(q90 - q10),
+        "tukey_low_count": low_out,
+        "tukey_high_count": high_out,
+        "truth_percentile": truth_pct,
+        "p25_delta": p25_delta,
+        "p25_improvement": p25_improvement,
+        "tail_read": "; ".join(notes),
+    }
+
+
 def score_frame(df: pd.DataFrame, cols: tuple[str, str, str]) -> dict:
     vals = {}
     vals["pa_deg"] = float((df[cols[0]] - df["pa_deg_true"]).abs().mean() / TOL["pa_deg"])
@@ -284,6 +341,7 @@ def main() -> None:
         )
         chord = project_with_lines(frags, ag["sup_chord_line"], ag["deep_line"])
         parallel = project_with_lines(frags, ag["sup_parallel_deep_line"], ag["deep_line"])
+        dist_stats = fl_distribution(current_proj["rows"], ppm, float(r.fl_mm_true))
 
         delta_pa = float(r.pa_deg - r.pa_deg_true)
         delta_fl = float(r.fl_mm - r.fl_mm_true)
@@ -304,6 +362,12 @@ def main() -> None:
             tags.append("wrong-way fragments")
         if len(raw_wrong) >= 2 or raw_wrong_area / raw_all_area >= 0.10:
             tags.append("opposite raw-slope fragments")
+        if dist_stats.get("tukey_low_count", 0) or dist_stats.get("tukey_high_count", 0):
+            tags.append("projected FL statistical tail")
+        if dist_stats.get("p10_p90", 0.0) >= 24.0:
+            tags.append("broad projected FL spread")
+        if dist_stats.get("truth_percentile", 0.5) <= 0.35 and delta_fl > 0:
+            tags.append("expert FL sits below our median")
         if ag["n_large_components"] >= 3 or ag["third_area_ratio"] >= 0.35:
             tags.append("multi-gap/band risk")
         if max(abs(sup_curve_mm), abs(deep_curve_mm)) >= 1.5 or max(ag["sup_meta"]["quad_gain_px"], ag["deep_meta"]["quad_gain_px"]) / ppm >= 0.5:
@@ -344,6 +408,12 @@ def main() -> None:
             diagnosis.append("prune opposite-orientation fragments before PA/FL aggregation")
         if "opposite raw-slope fragments" in tags:
             diagnosis.append("literal slope-sign pruning is relevant here")
+        if "expert FL sits below our median" in tags:
+            diagnosis.append("median projected FL is probably too high; inspect lower-quartile aggregation")
+        if "broad projected FL spread" in tags and "projected FL statistical tail" not in tags:
+            diagnosis.append("not a single bad tail: the projected-length distribution itself is broad")
+        if "projected FL statistical tail" in tags:
+            diagnosis.append("one or more projected FL tails are present")
         if "top boundary much curvier" in tags and abs(delta_fl) > 12:
             diagnosis.append("top apo line fit likely overprojects FL; test chord/parallel-top boundary")
         if "severe low visible support" in tags or "low visible support" in tags:
@@ -375,6 +445,23 @@ def main() -> None:
             "truth_mt_mm": float(r.mt_mm_true),
             "n_valid_fragments": current_proj["n"],
             "median_visible_support": current_proj["median_support"],
+            "projected_fl_min_mm": dist_stats.get("min"),
+            "projected_fl_p10_mm": dist_stats.get("p10"),
+            "projected_fl_p25_mm": dist_stats.get("p25"),
+            "projected_fl_p35_mm": dist_stats.get("p35"),
+            "projected_fl_p50_mm": dist_stats.get("p50"),
+            "projected_fl_p65_mm": dist_stats.get("p65"),
+            "projected_fl_p75_mm": dist_stats.get("p75"),
+            "projected_fl_p90_mm": dist_stats.get("p90"),
+            "projected_fl_max_mm": dist_stats.get("max"),
+            "projected_fl_iqr_mm": dist_stats.get("iqr"),
+            "projected_fl_p10_p90_mm": dist_stats.get("p10_p90"),
+            "projected_fl_tukey_low_count": dist_stats.get("tukey_low_count"),
+            "projected_fl_tukey_high_count": dist_stats.get("tukey_high_count"),
+            "projected_fl_truth_percentile": dist_stats.get("truth_percentile"),
+            "projected_fl_p25_delta_mm": dist_stats.get("p25_delta"),
+            "projected_fl_p25_improvement_mm": dist_stats.get("p25_improvement"),
+            "projected_fl_tail_read": dist_stats.get("tail_read"),
             "wrong_way_count": len(wrong),
             "wrong_way_area_frac": wrong_area / all_area,
             "raw_slope_wrong_count": len(raw_wrong),
@@ -419,6 +506,12 @@ def main() -> None:
             "wrongway_pruned_fl": row["wrongway_pruned_fl_mm"],
             "raw_slope_pruned_pa": row["raw_slope_pruned_pa_deg"],
             "raw_slope_pruned_fl": row["raw_slope_pruned_fl_mm"],
+            "projected_p10_pa": float(r.pa_deg),
+            "projected_p10_fl": row["projected_fl_p10_mm"],
+            "projected_p25_pa": float(r.pa_deg),
+            "projected_p25_fl": row["projected_fl_p25_mm"],
+            "projected_p35_pa": float(r.pa_deg),
+            "projected_p35_fl": row["projected_fl_p35_mm"],
             "sup_chord_pa": float(r.pa_deg),
             "sup_chord_fl": row["sup_chord_fl_mm"],
             "sup_parallel_deep_pa": float(r.pa_deg),
@@ -434,6 +527,9 @@ def main() -> None:
         "current_raw_true_scale": score_frame(vf, ("pa_deg", "fl_mm", "mt_mm")),
         "wrongway_pruned": score_frame(vf, ("wrongway_pruned_pa", "wrongway_pruned_fl", "mt_mm")),
         "raw_slope_pruned": score_frame(vf, ("raw_slope_pruned_pa", "raw_slope_pruned_fl", "mt_mm")),
+        "projected_p10_fl": score_frame(vf, ("projected_p10_pa", "projected_p10_fl", "mt_mm")),
+        "projected_p25_fl": score_frame(vf, ("projected_p25_pa", "projected_p25_fl", "mt_mm")),
+        "projected_p35_fl": score_frame(vf, ("projected_p35_pa", "projected_p35_fl", "mt_mm")),
         "sup_chord": score_frame(vf, ("sup_chord_pa", "sup_chord_fl", "mt_mm")),
         "sup_parallel_deep": score_frame(vf, ("sup_parallel_deep_pa", "sup_parallel_deep_fl", "mt_mm")),
     }
@@ -453,6 +549,9 @@ def main() -> None:
         "current_raw_true_scale": "current viewer candidate",
         "wrongway_pruned": "drop fragments whose signed angle goes against the area-weighted majority",
         "raw_slope_pruned": "drop fragments whose literal line slope goes against the area-weighted majority",
+        "projected_p10_fl": "use 10th percentile of projected FL distribution",
+        "projected_p25_fl": "use 25th percentile of projected FL distribution",
+        "projected_p35_fl": "use 35th percentile of projected FL distribution",
         "sup_chord": "replace top boundary fit with outer-quartile chord",
         "sup_parallel_deep": "make top boundary parallel to lower boundary at center",
     }

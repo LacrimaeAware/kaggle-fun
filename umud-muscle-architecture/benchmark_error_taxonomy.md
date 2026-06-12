@@ -23,6 +23,9 @@ Lower is better.
 | current raw true-scale | 0.251 | 0.150 | 0.519 | 0.084 | current expert-viewer candidate |
 | signed-angle wrong-way prune | 0.252 | 0.150 | 0.522 | 0.084 | remove fragments whose signed angle opposes the area-weighted majority |
 | literal raw-slope prune | 0.252 | 0.150 | 0.522 | 0.084 | remove fragments whose raw line slope opposes the area-weighted majority |
+| projected-FL p10 | 0.233 | 0.150 | 0.465 | 0.084 | use the 10th percentile of projected FL spans |
+| projected-FL p25 | 0.172 | 0.150 | 0.281 | 0.084 | use the 25th percentile of projected FL spans |
+| projected-FL p35 | 0.182 | 0.150 | 0.312 | 0.084 | use the 35th percentile of projected FL spans |
 | top-boundary chord | 0.231 | 0.150 | 0.460 | 0.084 | replace upper-boundary fit with an outer-quartile chord |
 | top-boundary parallel-to-lower | 0.230 | 0.150 | 0.458 | 0.084 | make upper boundary parallel to the lower boundary at image center |
 
@@ -31,6 +34,13 @@ Lower is better.
 The simple "remove opposite-direction fragments" idea is not supported as a broad fix on this
 35-image reference set. It is still a useful QA tag: `im_03_arch` has visually opposite raw-slope
 fragments, but the aggregate pruning variants slightly worsen the local score.
+
+The user's "tails/extremes" concern is real, but the strongest version is not Tukey-style outlier
+removal. On cases such as `im_12_arch`, there are no isolated statistical outliers; instead, the
+whole projected-FL distribution is broad and the expert value sits below the current median. Using
+the 25th percentile of projected spans is the strongest local benchmark signal in this pass
+(`0.251 -> 0.172`, FL term `0.519 -> 0.281`). Treat this as a geometry/aggregation clue, not as a
+submission-ready rule yet.
 
 The boundary-shape hypothesis is better supported locally. The naive upper-boundary chord and
 upper-parallel-to-lower variants both improve the raw true-scale reference score, mostly by reducing
@@ -54,9 +64,9 @@ candidate minus the robust expert consensus. Positive FL means we are overprojec
 
 | rank | image | score | dPA | dFL | dMT | tags | local read |
 | ---: | --- | ---: | ---: | ---: | ---: | --- | --- |
-| 1 | `im_29_arch` | 0.985 | +0.95 | +27.57 | -1.50 | curved apo; severe low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone; sup_chord helps FL | FL is extrapolation-dominated; boundary shape is likely central |
-| 2 | `im_12_arch` | 0.658 | -2.41 | +14.38 | +1.12 | severe low visible support; PA-sensitive shallow angle; PA/FL coupled error; sup_parallel_deep helps FL | PA and FL are coupled; top-parallel-to-lower helps locally |
-| 3 | `im_05_arch` | 0.466 | -1.19 | +13.66 | -0.19 | severe low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone | extrapolation-dominated; no simple naive rule fixes it cleanly |
+| 1 | `im_29_arch` | 0.985 | +0.95 | +27.57 | -1.50 | projected FL statistical tail; broad projected FL spread; expert FL sits below our median; curved apo; severe low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone; sup_chord helps FL | FL is extrapolation-dominated; boundary shape is likely central |
+| 2 | `im_12_arch` | 0.658 | -2.41 | +14.38 | +1.12 | broad projected FL spread; expert FL sits below our median; severe low visible support; PA-sensitive shallow angle; PA/FL coupled error; sup_parallel_deep helps FL | not one isolated bad tail; the whole projected distribution is high/broad |
+| 3 | `im_05_arch` | 0.466 | -1.19 | +13.66 | -0.19 | broad projected FL spread; expert FL sits below our median; severe low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone | extrapolation-dominated; median aggregation is likely too high |
 | 4 | `im_10_arch` | 0.456 | -4.36 | +7.55 | +0.04 | low visible support; PA-sensitive shallow angle | PA error matters more here |
 | 5 | `im_27_arch` | 0.440 | -0.05 | +13.35 | -0.60 | low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone | FL error is not explained by PA delta alone |
 | 6 | `im_21_arch` | 0.415 | +0.26 | +13.97 | +0.12 | severe low visible support; PA-sensitive shallow angle; FL error not explained by PA delta alone | extrapolation-dominated FL overshoot |

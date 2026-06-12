@@ -33,7 +33,9 @@ neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best rema
   (`64.11 -> 70.16`).
 - `benchmark_error_taxonomy.md` / `experiments/exp35_benchmark_error_taxonomy.py`: classifies the
   35 expert images by likely geometry failure. Wrong-way fragment pruning does not improve this
-  reference (`0.251 -> 0.252`), while naive upper-boundary simplifications do (`0.231`/`0.230`).
+  reference (`0.251 -> 0.252`). The stronger local clue is projected-FL aggregation: p25 of the
+  projected spans improves the expert reference to `0.172` (FL `0.281`) because many expert values
+  sit below our current median. Naive upper-boundary simplifications also help (`0.231`/`0.230`).
   Treat as diagnostic evidence, not a submission candidate.
 - Synthetic geometry viewer: `generate_synthetic_geometry.py` plus
   `review_server.py --synthetic-dir results/synthetic_geometry --port 8769`; exact abstract

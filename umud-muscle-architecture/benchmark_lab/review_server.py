@@ -178,6 +178,12 @@ HTML = r"""<!doctype html>
     .section { border-top: 1px solid #333; margin-top: 12px; padding-top: 12px; }
     .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
     .pill { border: 1px solid #444; border-radius: 999px; padding: 2px 7px; color: #ddd; font-size: 12px; }
+    .diagBox { border: 1px solid #3a3a3a; border-radius: 7px; padding: 9px; background: #181818; }
+    .diagGuess { color: #f4f4f4; font-size: 13px; font-weight: 700; line-height: 1.35; margin-bottom: 8px; }
+    .diagGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+    .diagStat { border: 1px solid #3b3b3b; border-radius: 6px; padding: 6px; background: #202020; }
+    .diagStat b { display: block; color: #f2f2f2; font-size: 14px; }
+    .diagStat span { color: #aaa; font-size: 11px; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     th, td { border-bottom: 1px solid #333; padding: 5px 4px; text-align: right; vertical-align: top; }
     th:first-child, td:first-child { text-align: left; }
@@ -216,6 +222,7 @@ HTML = r"""<!doctype html>
     </main>
     <aside id="side">
       <div id="meta" class="kv"></div>
+      <div id="fragmentDiag" class="section"></div>
       <div class="section">
         <div class="row">
           <button class="layer active" data-layer="apo">apo</button>
@@ -308,6 +315,7 @@ function qs(id){ return document.getElementById(id); }
 function row(){ return state.rows[state.idx]; }
 function fmt(v, digits=2){ if(v===null || v===undefined || v==='') return ''; const n=Number(v); return Number.isFinite(n) ? n.toFixed(digits) : ''; }
 function signed(v, digits=2){ if(v===null || v===undefined || v==='') return ''; const n=Number(v); return Number.isFinite(n) ? (n >= 0 ? '+' : '') + n.toFixed(digits) : ''; }
+function num(v){ const n = Number(v); return Number.isFinite(n) ? n : null; }
 function clsNorm(n){ if(n === null || n === undefined || n === '') return 'ok'; n=Number(n); if(n >= 1) return 'bad'; if(n <= 0.35) return 'good'; return 'ok'; }
 function setStatus(txt){ qs('status').textContent = txt; setTimeout(()=>{ if(qs('status').textContent===txt) qs('status').textContent=''; }, 2500); }
 function dist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y); }
@@ -678,6 +686,44 @@ function renderDeltaStrip(){
     deltaChip('MT', c.delta_mt, ' mm');
 }
 
+function renderFragmentDiagnostics(){
+  const r = row();
+  const tax = r?.taxonomy || {};
+  const p50 = num(tax.projected_fl_p50_mm);
+  if (p50 === null) {
+    qs('fragmentDiag').innerHTML = '';
+    return;
+  }
+  const truth = num(tax.truth_fl_mm);
+  const truthPct = num(tax.projected_fl_truth_percentile);
+  const p25Delta = num(tax.projected_fl_p25_delta_mm);
+  const p25Improve = num(tax.projected_fl_p25_improvement_mm);
+  const highOut = num(tax.projected_fl_tukey_high_count) || 0;
+  const lowOut = num(tax.projected_fl_tukey_low_count) || 0;
+  const tailLine = tax.projected_fl_tail_read || '';
+  let guess = tailLine || 'No projection-tail read available.';
+  if (truthPct !== null && truthPct <= 0.35 && p50 > truth) {
+    guess = `Best guess: median projected FL is too high here; expert FL sits at about the ${fmt(truthPct * 100,0)}th percentile of our projected spans. `;
+    guess += (lowOut || highOut) ? 'There are statistical tails too.' : 'This is not just one obvious statistical tail.';
+  } else if (truthPct !== null && truthPct >= 0.65 && p50 < truth) {
+    guess = `Best guess: median projected FL is too low here; expert FL sits at about the ${fmt(truthPct * 100,0)}th percentile.`;
+  }
+  qs('fragmentDiag').innerHTML = `
+    <div class="diagBox">
+      <div class="diagGuess">${guess}</div>
+      <div class="kv"><b>Projected FL distribution</b> from the cyan full-length spans, in mm.</div>
+      <div class="diagGrid">
+        <div class="diagStat"><b>${fmt(tax.projected_fl_p10_mm,1)} / ${fmt(tax.projected_fl_p25_mm,1)}</b><span>p10 / p25</span></div>
+        <div class="diagStat"><b>${fmt(tax.projected_fl_p50_mm,1)}</b><span>median used now</span></div>
+        <div class="diagStat"><b>${fmt(tax.projected_fl_p75_mm,1)} / ${fmt(tax.projected_fl_p90_mm,1)}</b><span>p75 / p90</span></div>
+        <div class="diagStat"><b>${fmt(truth,1)}</b><span>expert consensus</span></div>
+        <div class="diagStat"><b>${truthPct === null ? '' : fmt(truthPct * 100,0) + '%'}</b><span>expert percentile inside our spans</span></div>
+        <div class="diagStat"><b>${signed(p25Delta,1)} mm</b><span>p25 - expert; local gain ${fmt(p25Improve,1)} mm</span></div>
+      </div>
+      <div class="kv" style="margin-top:8px;"><b>Tail read:</b> ${tailLine}</div>
+    </div>`;
+}
+
 function loadCurrent(){
   const r = row();
   state.pending = [];
@@ -708,6 +754,7 @@ function loadCurrent(){
   renderScaleBox();
   renderList();
   renderDeltaStrip();
+  renderFragmentDiagnostics();
   renderCandidateTable();
   renderToolReadout();
   updateLayerVisibility();
