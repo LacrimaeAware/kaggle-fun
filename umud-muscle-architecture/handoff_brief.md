@@ -19,7 +19,7 @@ The facing FL candidate (consensus angle + facing-parabola apo + minimize-extrap
 
 `results/submission_local.csv` is still the **0.61918 non-temporal baseline** (byte-identical to `Downloads/0P61918_submission_local.csv`). The new best upload is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`. Production code defaults `UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, and `UMUD_FL_IDENTITY_BLEND=0`, so a fresh run preserves the conservative 0.619 baseline unless temporal/subpixel/shape or rejected probes are explicitly enabled.
 
-Immediate 2026-06-12 submission stance after the shape-neighbor win: **do not submit stale `12` or `09`.** Use `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`; the next files are `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`, then the higher-risk `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`.
+Immediate 2026-06-12 submission stance after the shape-neighbor win: **do not submit stale `12` or `09`.** `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` was public-score neutral at 0.58910, so the next meaningful file is the higher-risk `submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv`.
 
 ## The competition
 

@@ -3,12 +3,14 @@
 `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` scored **0.58910**, a large
 improvement over burn #6 at 0.60936. Treat burn #11 as the current working baseline.
 
+Update: `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` also scored **0.58910**.
+The isolated IMG_00275 OCR correction is public-score neutral on top of burn #11.
+
 ## Submit Next
 
 | order | file | axis | note |
 |---:|---|---|---|
-| 1 | `results/submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` | current best + isolated IMG_00275 OCR scale fix | One verified tick-vs-printed-ruler anomaly. This replaces older `12`, which lacked the shape-neighbor gain. |
-| 2 | `results/submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv` | current best + top-3 minimal-extrapolation FL | Higher-risk core FL aggregation probe; moves 307 FL rows. |
+| 1 | `results/submission_burn_14_temporal_subpixel_shape_fl_min_extrap_top3.csv` | current best + top-3 minimal-extrapolation FL | Higher-risk core FL aggregation probe; moves 307 FL rows. |
 
 ## Generation
 

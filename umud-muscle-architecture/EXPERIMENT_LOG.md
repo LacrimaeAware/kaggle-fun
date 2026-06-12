@@ -11,6 +11,7 @@ Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-ex
 
 | date | method | LB | changed | how to reproduce / roll back | status |
 |------|--------|----|---------| -----------------------------|--------|
+| 2026-06-12 | current best + isolated IMG_00275 OCR scale (`submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`) | **0.58910** | burn #11 plus one-row OCR scale fix | `results/submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv` | public-score neutral vs #11 |
 | 2026-06-12 | temporal + subpixel + clean shape-neighbor fallback scale (`submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`) | **0.58910** | burn #6 plus 10 stable fallback-row scale corrections | `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`; follow-ups in `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md` | **NEW BEST** |
 | 2026-06-12 | temporal smoothing + subpixel scale precision (`submission_burn_06_temporal_subpixel_scale.csv`) | **0.60936** | temporal file plus tiny gated scale precision deltas | `results/submission_burn_06_temporal_subpixel_scale.csv`; follow-ups in `SUBMISSION_BURN_AFTER_SUBPIXEL_WIN_2026-06-12.md` | superseded by shape-neighbor stack |
 | 2026-06-12 | temporal smoothing at clip threshold 0.92 (`submission_burn_04_temporal_smooth_092.csv`) | **0.60961** | PA/FL/MT in 28 sequence-like clips | `results/submission_burn_04_temporal_smooth_092.csv`; follow-ups in `SUBMISSION_BURN_AFTER_TEMPORAL_WIN_2026-06-12.md` | superseded by temporal+subpixel |
