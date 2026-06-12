@@ -687,10 +687,12 @@ function loadCurrent(){
   state.drag = null;
   state.dragMoved = false;
   qs('counter').textContent = `${state.idx + 1}/${state.rows.length}`;
+  const tax = r.taxonomy || {};
+  const taxHtml = tax.tags ? `<br><b>tags:</b> ${tax.tags}<br><b>likely:</b> ${tax.diagnosis || ''}` : '';
   qs('meta').innerHTML = `<b>${r.label_id}</b><br>image: ${r.image_id}<br>quality: ${r.quality || ''}<br>` +
     `pixels: apo ${r.apo_pixels}, fasc ${r.fasc_pixels}<br>measured fragments: ${r.n_fascicles || ''}<br>` +
     `sort disagreement: ${fmt(r.sort_score,2)}<br>` +
-    `<span class="muted">${r.truth_note || 'FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.'}</span>`;
+    `<span class="muted">${r.truth_note || 'FL here = median of drawn fascicle lines after straight extrapolation to the two apo boundaries.'}</span>${taxHtml}`;
   imgs.base.onload = resizeToolCanvas;
   imgs.base.src = `/image/${state.idx}?t=${Date.now()}`;
   for (const layer of ['apo','fasc','ignore','diag']) {
@@ -1176,6 +1178,7 @@ def build_expert_benchmark_rows(
 ) -> tuple[list[dict], list[dict]]:
     bench_dir = find_expert_benchmark_dir()
     truth_rows = read_xlsx_first_sheet(next(bench_dir.glob("Results_benchmark_architecture*.xlsx")))
+    taxonomy = read_keyed(ROOT / "results" / "benchmark_error_taxonomy.csv")
     candidate_data = benchmark_candidate_data(truth_rows) + [(name, read_keyed(path)) for name, path in extra_candidate_csvs]
     summary_acc: dict[str, dict[str, list[float]]] = {
         name: {"pa": [], "fl": [], "mt": [], "overall": []} for name, _ in candidate_data
@@ -1236,6 +1239,7 @@ def build_expert_benchmark_rows(
                           + (f" Dropped tail(s): {'; '.join(drop_notes)}." if drop_notes else ""),
             "human": human,
             "candidates": candidates,
+            "taxonomy": taxonomy.get(image_id, {}),
             "sort_score": sort_score,
             "review": load_review(review_dir / f"{label_id}.json"),
         })

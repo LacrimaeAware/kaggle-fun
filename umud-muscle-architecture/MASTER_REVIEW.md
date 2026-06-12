@@ -31,6 +31,10 @@ neutral at 0.58910, while top3 FL (`14`) regressed to 0.62994. Current best rema
   fitted/extrapolated line overlays. The source xlsx is untouched, but local scoring drops two clear
   tails: `im_19_arch` MT `R7=80.13` (`30.03 -> 20.01`) and `im_26_arch` FL `R7=33.88`
   (`64.11 -> 70.16`).
+- `benchmark_error_taxonomy.md` / `experiments/exp35_benchmark_error_taxonomy.py`: classifies the
+  35 expert images by likely geometry failure. Wrong-way fragment pruning does not improve this
+  reference (`0.251 -> 0.252`), while naive upper-boundary simplifications do (`0.231`/`0.230`).
+  Treat as diagnostic evidence, not a submission candidate.
 - Synthetic geometry viewer: `generate_synthetic_geometry.py` plus
   `review_server.py --synthetic-dir results/synthetic_geometry --port 8769`; exact abstract
   boundary/strand cases. This is a geometry unit test, not a realistic ultrasound/model benchmark.

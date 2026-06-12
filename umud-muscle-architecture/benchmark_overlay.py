@@ -84,6 +84,10 @@ def main():
                 cv2.line(vis, (0, int(ln[1])), (w - 1, int(ln[0] * (w - 1) + ln[1])), col, 2)
             segs, slopes, wts = fascicles(fm)
             for s, b, x0, x1 in segs:
+                up = M.line_intersection((s, b), sup)
+                lo = M.line_intersection((s, b), deep)
+                if up is not None and lo is not None:
+                    cv2.line(vis, (int(up[0]), int(up[1])), (int(lo[0]), int(lo[1])), (255, 255, 0), 1)
                 cv2.line(vis, (x0, int(s * x0 + b)), (x1, int(s * x1 + b)), (0, 255, 255), 2)
             if slopes:
                 fsl = float(np.median(slopes))            # representative fascicle direction
@@ -111,7 +115,7 @@ def main():
             cv2.putText(vis, t, (8, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (50, 255, 50), 1, cv2.LINE_AA)
         cv2.imwrite(str(OUT / f"{r.ImageID}.jpg"), vis, [cv2.IMWRITE_JPEG_QUALITY, 92])
     print(f"wrote {len(truth)} overlays to {OUT}")
-    print("apo: superficial=orange deep=blue | fascicle fits=yellow | representative FL=green | red=fasc mask")
+    print("apo: superficial=orange deep=blue | projected fragment spans=cyan | visible fits=yellow | representative FL=green | red=fasc mask")
 
 
 if __name__ == "__main__":
