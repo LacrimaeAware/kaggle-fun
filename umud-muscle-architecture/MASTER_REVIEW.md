@@ -7,23 +7,21 @@ code, docs, CSVs, and experiments. If another doc disagrees with this one, this 
 
 ## RESUME HERE (latest 2026-06-12, before a multi-day break)
 
-**Best LB: 0.61918 (safe baseline, already your live score).** Production defaults are safe
-(`UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh run reproduces the baseline.
+**Best LB: 0.60961 (temporal smoothing, `submission_burn_04_temporal_smooth_092.csv`).** The
+protected non-temporal baseline remains 0.61918 (`results/submission_local.csv` /
+`Downloads/0P61918_submission_local.csv`). Production defaults are still conservative
+(`UMUD_TEMPORAL_SMOOTH=0`, `UMUD_FL_FACING=0`, `UMUD_FL_IDENTITY_BLEND=0`); a fresh default run
+reproduces the 0.61918 baseline unless temporal smoothing is explicitly applied.
 
-**Immediate submission decision (2026-06-12): do not burn 4 slots now.** There is no new ready
-production CSV from the 2026-06-11/12 work. The human-label review tools and synthetic geometry tools
-are decision infrastructure, not submissions. Existing alternative CSVs are either already rejected
-or diagnostic/tiny:
+**Immediate submission decision after the temporal win (2026-06-12): pivot to temporal-stacked
+follow-ups.** The original unstacked burn order is superseded. Use
+`SUBMISSION_BURN_AFTER_TEMPORAL_WIN_2026-06-12.md`:
 
-- `submission_host_mt_vertical3_no_subpixel.csv`: submitted, 0.62561, rejected.
-- FL identity blend / facing-FL / scale-tail variants: submitted or audited, all worse than 0.61918.
-- `submission_subpixel_scale.csv`: structural precision pass only; mean FL delta 0.094mm and max
-  0.673mm vs 12mm tolerance, so likely below leaderboard resolution.
-
-**Only defensible quick one-slot probe:** generate and inspect an **IMG_00275-only OCR scale fix**.
-That row has a verified 2x scale anomaly (tick 201 px/cm vs printed ruler about 101 px/cm) and the
-first rough human label disagrees with the shipped value. It affects one image, so expect a small move
-at most. Do not submit old tail/bar/shape files as substitutes for this.
+- `submission_burn_06_temporal_subpixel_scale.csv`
+- `submission_burn_07_temporal_shape_neighbor_scale.csv`
+- `submission_burn_08_temporal_img00275_ocr_scale.csv`
+- `submission_burn_09_temporal_fl_min_extrap_top3.csv`
+- optional/tomorrow: `submission_burn_10_temporal_fl_visibility_weighted.csv`
 
 **What changed most recently:** built `benchmark_lab/` into three local review surfaces:
 
@@ -43,9 +41,9 @@ username paths or secrets were found outside ignored data/results. Keep `results
 `data/`, human target labels, and generated synthetic images out of git.
 
 **#1 task when you return:**
-1. If you want one immediate LB probe, generate an isolated `IMG_00275` OCR-scale-fix CSV, inspect the
-   one-row diff, and submit only that.
-2. Otherwise score the 0.619 baseline and repaired facing/per-gap candidates against the 19 human
+1. Record public scores for the temporal-stacked burn pack and keep temporal smoothing if it remains
+   the best.
+2. Score the 0.619 baseline, the 0.609 temporal file, and repaired facing/per-gap candidates against the 19 human
    target rows (`benchmark_lab/score_labels.py` + `review_server.py`) before spending another slot.
 3. Wire **facing-FL per gap** only after the local target rows support it. Per-gap is for multi-gap
    separation; FL should use `compute_facing_fl()` / minimize-extrapolation, NOT the wave trace.

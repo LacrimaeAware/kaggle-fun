@@ -3,6 +3,9 @@
 Purpose: if the daily Kaggle slots will expire anyway, spend them as controlled probes. Each CSV below
 tests one axis against the protected 0.61918 baseline. These are not stacked ensemble guesses.
 
+Update: `submission_burn_04_temporal_smooth_092.csv` scored **0.60961**, so the remaining upload
+order is superseded by `SUBMISSION_BURN_AFTER_TEMPORAL_WIN_2026-06-12.md`.
+
 Safe baseline remains `results/submission_local.csv` / downloaded `0P61918_submission_local.csv`
 (public LB 0.61918).
 
