@@ -228,7 +228,7 @@ HTML = r"""<!doctype html>
           <button class="layer active" data-layer="apo">apo</button>
           <button class="layer active" data-layer="fasc">fasc</button>
           <button class="layer" data-layer="ignore">ignore</button>
-          <button class="layer active" data-layer="diag">lines</button>
+          <button class="layer" data-layer="diag">old diag</button>
         </div>
         <div class="row">
           <label>overlay <input id="opacity" type="range" min="0" max="100" value="75"></label>
@@ -299,7 +299,7 @@ const state = {
   summary: [],
   idx: 0,
   zoom: 1,
-  visible: {apo: true, fasc: true, ignore: false, diag: true},
+  visible: {apo: true, fasc: true, ignore: false, diag: false},
   tool: 'off',
   pending: [],
   ruler: null,
