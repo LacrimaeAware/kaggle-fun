@@ -4,6 +4,9 @@
 baseline. Do not keep uploading the original unstacked burn order blindly. Treat temporal smoothing as
 the new working baseline and test remaining axes on top of it.
 
+Update: `submission_burn_06_temporal_subpixel_scale.csv` then improved to **0.60936**, so the next
+order is superseded by `SUBMISSION_BURN_AFTER_SUBPIXEL_WIN_2026-06-12.md`.
+
 ## Submit Next
 
 | order | file | axis | note |
