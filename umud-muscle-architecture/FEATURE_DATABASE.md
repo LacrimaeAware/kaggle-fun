@@ -61,6 +61,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F029` | Alternative PA line fitters and orientation aggregators | bench-tested / rejected | PA | +0.000 to +0.010 | n/a | bench robust 0.170 -> 0.170-0.181 | PCA+area median is hard to beat; circular means, endpoint axes, RANSAC, and x/y fields worsen PA. |
 | `F030` | Raw grayscale texture orientation for PA | bench-tested / rejected | PA | +0.026 to +0.164 | n/a | bench robust 0.170 -> 0.197-0.334 | Texture orientation is not aligned with the scored angle convention; blending toward it fails. |
 | `F031` | Contrarian move away from raw texture orientation | bench-tested / rejected | PA | +0.003 to +0.115 | n/a | bench robust 0.170 -> 0.173-0.285 | Small move fixes signed bias but worsens MAE. Raw texture residual is not a correction direction. |
+| `F032` | Geometry-class story gating for PA/FL/MT | bench-tested / research anchor | PA+FL+MT | -0.019 | n/a | bench robust 0.170 -> 0.151 | Per-band PA on multi-band rows, conflict PA elsewhere, scan-region FL on low-support rows, vertical-center MT. Promising but overfit risk. |
 
 ## Current Read
 
@@ -77,7 +78,8 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 
 1. Stack and inspect `strict_scan_region_linear_support_weighted_FL_only` with robust triangle. It is locally useful but hurts existing FL undershoots.
 2. Inspect and production-wire vertical-center MT and strict scan-region FL as explicit flags before any public test.
-3. For PA, prioritize local conflict/family assignment. Do not pursue global alternate line fitters or raw texture orientation as direct estimators.
-4. Revisit per-band only as a PA/MT add-on or targeted routing/filtering; naive FL averaging is rejected.
-5. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
-6. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
+3. Add geometry-class overlays to the expert viewer so story gates can be inspected visually before production wiring.
+4. For PA, prioritize local conflict/family assignment. Do not pursue global alternate line fitters or raw texture orientation as direct estimators.
+5. Revisit per-band only as a PA/MT add-on or targeted routing/filtering; naive FL averaging is rejected.
+6. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
+7. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
