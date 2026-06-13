@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import re
 
 import pandas as pd
 from PIL import Image
@@ -67,6 +68,27 @@ def _depth_from_scale_and_height(row: pd.Series) -> tuple[float | None, str]:
     return None, f"image height / scale = {raw_mm:.1f} mm did not match a normal depth"
 
 
+def _depth_from_tick_scale_family(row: pd.Series) -> tuple[float | None, str]:
+    scale = _num(row.get("scale_px_per_cm"))
+    width = _num(row.get("image_width"))
+    height = _num(row.get("image_height"))
+    if scale is None or width is None or height is None:
+        return None, ""
+    if (int(width), int(height)) != (1200, 800):
+        return None, ""
+    rules = [
+        (110.0, 111.5, 55.0, "5.5 cm depth family"),
+        (135.0, 136.0, 45.0, "4.5 cm depth family"),
+        (150.5, 153.0, 40.0, "4.0 cm depth family"),
+        (158.8, 160.2, 35.0, "3.5 cm depth family"),
+        (173.5, 174.5, 70.0, "7.0 cm depth family"),
+    ]
+    for lo, hi, depth, label in rules:
+        if lo <= scale <= hi:
+            return depth, f"tick scale {scale:.1f} px/cm matches {label}"
+    return None, ""
+
+
 def _spread_sample(df: pd.DataFrame, n: int) -> pd.DataFrame:
     """Sample rows evenly across the current order without randomness."""
     if len(df) <= n:
@@ -113,6 +135,29 @@ def _num(value: object) -> float | None:
         return None
 
 
+def _depth_mm(value: object) -> float | None:
+    """Parse depth text into mm.
+
+    Bare values under 10 are treated as cm (`3.5` -> 35 mm), because valid
+    field depths are tens of millimeters, not single-digit millimeters.
+    """
+    if value is None:
+        return None
+    text = str(value).strip().lower().replace(",", ".")
+    if not text or text == "nan":
+        return None
+    match = re.search(r"(\d+(?:\.\d+)?)\s*(cm|mm)?", text)
+    if not match:
+        return None
+    depth = float(match.group(1))
+    unit = match.group(2) or ""
+    if unit == "cm" or (not unit and depth < 10.0):
+        depth *= 10.0
+    if 15.0 <= depth <= 90.0:
+        return depth
+    return None
+
+
 def _load_notes() -> dict[str, dict]:
     if not NOTES_PATH.exists():
         return {}
@@ -125,10 +170,13 @@ def _load_notes() -> dict[str, dict]:
 def _depth_guess(row: pd.Series, notes: dict[str, dict]) -> tuple[float | None, str, str]:
     image_id = str(row["image_id"])
     note = notes.get(image_id, {})
-    human_depth = _num(note.get("oracle_depth_mm"))
+    human_depth = _depth_mm(note.get("oracle_depth_mm"))
     if human_depth is not None:
         return human_depth, "human_oracle_note", str(note.get("comment", ""))
-    text_depth = _num(row.get("text_depth_mm"))
+    scale_family_depth, scale_family_note = _depth_from_tick_scale_family(row)
+    text_depth = _depth_mm(row.get("text_depth_mm"))
+    if scale_family_depth is not None and (text_depth is None or abs(text_depth - scale_family_depth) >= 5.0):
+        return scale_family_depth, "tick_scale_family_depth_guess", scale_family_note
     if text_depth is not None:
         return text_depth, "ocr_depth_text", "depth text parsed by current reader"
     if _is_cropped_no_overlay_50mm_family(row):

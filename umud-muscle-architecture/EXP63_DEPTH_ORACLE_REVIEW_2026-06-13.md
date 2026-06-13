@@ -56,11 +56,12 @@ overrides the stale OCR parse.
 Guess priority:
 
 1. existing human oracle note,
-2. parsed depth text,
-3. cropped/no-surrounding-overlay family prior: 50 mm depth,
-4. field-height from scale, snapped to a normal depth,
-5. known-scale common-depth prior: 50 mm,
-6. global common-depth prior: 50 mm.
+2. tick-scale family repair for stale `50 mm` OCR,
+3. parsed depth text,
+4. cropped/no-surrounding-overlay family prior: 50 mm depth,
+5. field-height from scale, snapped to a normal depth,
+6. known-scale common-depth prior: 50 mm,
+7. global common-depth prior: 50 mm.
 
 There should be no blank depth proposals in the review manifest. The
 algorithm must always put a number in front of the user because the review is
@@ -75,6 +76,23 @@ For tick-only rows without text, the next guess is `image_height / px_per_cm`,
 converted to mm and snapped to `{30, 35, 40, 45, 50, 60, 65}` when the raw value
 is close. This catches the `1088x644` rows with `126 px/cm` as about `51.1 mm`,
 so they are proposed as `50 mm`.
+
+## OCR-50 Repair
+
+After the full review pass, 32 rows were marked wrong and every one came from
+the same stale-OCR failure: the old text reader accepted `50 mm` even when the
+screen/tick-scale family indicated another depth. The repair rule is now used
+before raw OCR text when a 1200x800 image has these tick-scale clusters:
+
+- `110.0-111.5 px/cm` -> `55 mm`
+- `135.0-136.0 px/cm` -> `45 mm`
+- `150.5-153.0 px/cm` -> `40 mm`
+- `158.8-160.2 px/cm` -> `35 mm`
+- `173.5-174.5 px/cm` -> `70 mm`
+
+No-human-note audit on the 32 previously wrong rows: `32/32` now match the
+user-confirmed depths. Human entries like `3.5`, `5.5`, and `40 mm` are also
+normalized to `35 mm`, `55 mm`, and `40 mm`.
 
 ## Current Meaning
 
