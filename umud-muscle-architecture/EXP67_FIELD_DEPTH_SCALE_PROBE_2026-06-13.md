@@ -110,3 +110,24 @@ span detector.
 
 If burn #22 regresses, the old tick/family scale is probably closer on many of
 these rows, or the field rectangle detector is still overcounting UI height.
+
+## Public Result
+
+Burn #22 was submitted and scored:
+
+```text
+0.66197
+```
+
+This is a strong regression from the `0.58910` baseline. The result rejects the
+broad heuristic as currently implemented.
+
+The likely cause is the span side, not the depth side:
+
+```text
+90 / 114 changed rows used 50 mm depth and field_h_px = 800 -> 160 px/cm
+```
+
+The public result says this broad `~134 -> 160 px/cm` move is wrong for many
+rows. Future scale work should focus on a better scan-field/ruler-span detector
+before any broad scale override.
