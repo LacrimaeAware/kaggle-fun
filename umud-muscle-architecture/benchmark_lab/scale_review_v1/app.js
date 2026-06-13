@@ -17,9 +17,9 @@ const els = {
   tierFilter: document.getElementById("tierFilter"),
   searchInput: document.getElementById("searchInput"),
   imageList: document.getElementById("imageList"),
-  scaleGuess: document.getElementById("scaleGuess"),
-  tierBadge: document.getElementById("tierBadge"),
-  groupBadge: document.getElementById("groupBadge"),
+  depthGuess: document.getElementById("depthGuess"),
+  scaleState: document.getElementById("scaleState"),
+  depthSource: document.getElementById("depthSource"),
   imageMeta: document.getElementById("imageMeta"),
   viewport: document.getElementById("viewport"),
   reviewImage: document.getElementById("reviewImage"),
@@ -31,6 +31,8 @@ const els = {
   tickPx: document.getElementById("tickPx"),
   rulerPx: document.getElementById("rulerPx"),
   depthText: document.getElementById("depthText"),
+  ocrDepthText: document.getElementById("ocrDepthText"),
+  submittedState: document.getElementById("submittedState"),
   scaleZ: document.getElementById("scaleZ"),
   reason: document.getElementById("reason"),
   note: document.getElementById("note"),
@@ -46,6 +48,10 @@ function fmt(value, suffix = "") {
   const n = Number(value);
   if (Number.isFinite(n)) return `${n.toFixed(n >= 100 ? 1 : 2)}${suffix}`;
   return `${value}${suffix}`;
+}
+
+function depthLabel(row) {
+  return row && row.depth_guess_mm ? fmt(row.depth_guess_mm, " mm") : "Unknown";
 }
 
 function rowKey(row) {
@@ -90,11 +96,11 @@ function renderList() {
   els.imageList.innerHTML = state.filtered
     .map((row, i) => {
       const note = state.notes[rowKey(row)] || {};
-      const status = note.status ? `status: ${note.status}` : row.reason;
+      const status = note.status ? `status: ${note.status}` : row.depth_guess_source || row.reason;
       const selected = i === state.index ? " selected" : "";
       return `<button class="list-item${selected}" data-index="${i}">
         <strong>${row.image_id}</strong>
-        <span class="tier-${row.tier}">${row.tier} · ${fmt(row.scale_px_per_cm, " px/cm")}</span>
+        <span class="tier-${row.tier}">depth ${depthLabel(row)} - ${row.submitted_scale_state || row.tier}</span>
         <span>${status || ""}</span>
       </button>`;
     })
@@ -114,18 +120,19 @@ function renderCurrent() {
   const note = state.notes[rowKey(row)] || {};
   els.title.textContent = row.image_id;
   els.reviewImage.src = `/image/${encodeURIComponent(row.image_id)}`;
-  els.scaleGuess.textContent = `${fmt(row.scale_px_per_cm, " px/cm")} / ${fmt(row.scale_px_per_mm, " px/mm")}`;
-  els.tierBadge.textContent = row.tier;
-  els.tierBadge.className = `tier-${row.tier}`;
-  els.groupBadge.textContent = row.review_group;
+  els.depthGuess.textContent = depthLabel(row);
+  els.scaleState.textContent = row.submitted_scale_state || row.tier || "--";
+  els.depthSource.textContent = row.depth_guess_source || "--";
   els.imageMeta.textContent = `${state.index + 1} / ${state.filtered.length}`;
+  els.depthText.textContent = depthLabel(row);
+  els.submittedState.textContent = row.submitted_scale_state || row.tier || "--";
   els.pxCm.textContent = fmt(row.scale_px_per_cm);
   els.pxMm.textContent = fmt(row.scale_px_per_mm);
   els.tickPx.textContent = fmt(row.tick_px_cm);
   els.rulerPx.textContent = fmt(row.ruler_px_cm);
-  els.depthText.textContent = fmt(row.text_depth_mm, " mm");
+  els.ocrDepthText.textContent = fmt(row.text_depth_mm, " mm");
   els.scaleZ.textContent = fmt(row.scale_robust_z);
-  els.reason.textContent = row.reason || "";
+  els.reason.textContent = row.depth_guess_note || row.reason || "";
   els.note.textContent = row.note || "";
   els.oracleScale.value = note.oracle_scale_px_per_cm || "";
   els.oracleDepth.value = note.oracle_depth_mm || "";
@@ -167,6 +174,14 @@ function updateNote(status = null) {
     btn.classList.toggle("active", btn.dataset.status === state.notes[key].status);
   });
   scheduleSave();
+}
+
+function markStatus(status) {
+  const row = currentRow();
+  if (status === "correct" && row?.depth_guess_mm && !els.oracleDepth.value.trim()) {
+    els.oracleDepth.value = String(Number(row.depth_guess_mm));
+  }
+  updateNote(status);
 }
 
 function scheduleSave() {
@@ -213,15 +228,19 @@ els.zoomResetBtn.addEventListener("click", () => {
   applyZoom();
 });
 document.querySelectorAll(".status-btn").forEach((btn) => {
-  btn.addEventListener("click", () => updateNote(btn.dataset.status));
+  btn.addEventListener("click", () => markStatus(btn.dataset.status));
 });
 [els.oracleScale, els.oracleDepth, els.oracleTicks, els.oracleComment].forEach((el) => {
   el.addEventListener("input", () => updateNote());
 });
 document.addEventListener("keydown", (event) => {
   if (event.target.matches("input, textarea")) return;
-  if (event.key === "ArrowRight") move(1);
-  if (event.key === "ArrowLeft") move(-1);
+  const key = event.key.toLowerCase();
+  if (key === "arrowright" || key === "d") move(1);
+  if (key === "arrowleft" || key === "a") move(-1);
+  if (key === "q") markStatus("correct");
+  if (key === "w") markStatus("wrong");
+  if (key === "e") markStatus("unclear");
 });
 
 load().catch((err) => {

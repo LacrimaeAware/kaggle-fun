@@ -44,16 +44,16 @@
       <section class="center-panel">
         <div class="scale-strip">
           <div>
-            <span class="label">Machine guess</span>
-            <strong id="scaleGuess">--</strong>
+            <span class="label">Proposed depth</span>
+            <strong id="depthGuess">--</strong>
           </div>
           <div>
-            <span class="label">Tier</span>
-            <strong id="tierBadge">--</strong>
+            <span class="label">Submitted scale state</span>
+            <strong id="scaleState">--</strong>
           </div>
           <div>
-            <span class="label">Review group</span>
-            <strong id="groupBadge">--</strong>
+            <span class="label">Depth source</span>
+            <strong id="depthSource">--</strong>
           </div>
         </div>
         <div class="image-toolbar">
@@ -71,11 +71,13 @@
         <section class="card">
           <h2>Evidence</h2>
           <dl class="evidence-grid">
+            <div><dt>depth guess</dt><dd id="depthText">--</dd></div>
+            <div><dt>submitted state</dt><dd id="submittedState">--</dd></div>
             <div><dt>px/cm</dt><dd id="pxCm">--</dd></div>
             <div><dt>px/mm</dt><dd id="pxMm">--</dd></div>
             <div><dt>tick px/cm</dt><dd id="tickPx">--</dd></div>
             <div><dt>ruler px/cm</dt><dd id="rulerPx">--</dd></div>
-            <div><dt>depth text</dt><dd id="depthText">--</dd></div>
+            <div><dt>OCR depth</dt><dd id="ocrDepthText">--</dd></div>
             <div><dt>robust z</dt><dd id="scaleZ">--</dd></div>
           </dl>
           <p id="reason" class="reason"></p>
@@ -83,23 +85,23 @@
         </section>
 
         <section class="card">
-          <h2>Oracle Entry</h2>
+          <h2>Depth Check</h2>
           <div class="status-row">
-            <button class="status-btn" data-status="correct" type="button">Correct</button>
-            <button class="status-btn" data-status="wrong" type="button">Wrong</button>
-            <button class="status-btn" data-status="unclear" type="button">Unclear</button>
+            <button class="status-btn" data-status="correct" type="button">Q Correct</button>
+            <button class="status-btn" data-status="wrong" type="button">W Wrong</button>
+            <button class="status-btn" data-status="unclear" type="button">E Unclear</button>
           </div>
           <label>
-            Correct px/cm
-            <input id="oracleScale" type="text" inputmode="decimal" placeholder="optional">
+            Correct depth mm
+            <input id="oracleDepth" type="text" inputmode="decimal" placeholder="e.g. 50, 45, 40, 35, 30">
           </label>
           <label>
-            Visible depth / ticks
+            Visible ticks / cue
             <input id="oracleTicks" type="text" placeholder="e.g. 50 mm label, 10 mm tick">
           </label>
           <label>
-            Depth mm
-            <input id="oracleDepth" type="text" inputmode="decimal" placeholder="optional">
+            Correct px/cm
+            <input id="oracleScale" type="text" inputmode="decimal" placeholder="optional">
           </label>
           <label>
             Notes

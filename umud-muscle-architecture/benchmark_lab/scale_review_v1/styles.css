@@ -198,7 +198,7 @@ textarea {
 
 .scale-strip {
   display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1fr;
+  grid-template-columns: 1.3fr 1fr 1fr;
   gap: 10px;
   padding: 14px;
   border-bottom: 1px solid var(--line);
@@ -221,6 +221,11 @@ textarea {
   display: block;
   margin-top: 3px;
   font-size: 22px;
+}
+
+#depthGuess {
+  font-size: 34px;
+  line-height: 1.05;
 }
 
 .image-toolbar {
@@ -295,6 +300,11 @@ dd {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   margin: 12px 0;
+}
+
+.status-btn {
+  min-height: 46px;
+  font-weight: 750;
 }
 
 .status-btn[data-status="correct"].active {

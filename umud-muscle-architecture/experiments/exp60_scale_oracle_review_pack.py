@@ -9,6 +9,7 @@ pack so a human can verify a few confident examples plus the unresolved rows.
 from __future__ import annotations
 
 from pathlib import Path
+import json
 
 import pandas as pd
 
@@ -19,6 +20,7 @@ TEST_IMAGES = ROOT / "data" / "test_images_v2" / "test_set_v2"
 OUT_DIR = RESULTS / "scale_oracle_review"
 MANIFEST_OUT = OUT_DIR / "manifest.csv"
 START_PACK_OUT = OUT_DIR / "start_pack.csv"
+NOTES_PATH = OUT_DIR / "oracle_notes.json"
 
 
 CONFIRMED_TIERS = {"verified", "text-confirmed"}
@@ -60,6 +62,41 @@ def _reason(row: pd.Series) -> str:
     return "unclassified scale evidence"
 
 
+def _num(value: object) -> float | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() == "nan":
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _load_notes() -> dict[str, dict]:
+    if not NOTES_PATH.exists():
+        return {}
+    try:
+        return json.loads(NOTES_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def _depth_guess(row: pd.Series, notes: dict[str, dict]) -> tuple[float | None, str, str]:
+    image_id = str(row["image_id"])
+    note = notes.get(image_id, {})
+    human_depth = _num(note.get("oracle_depth_mm"))
+    if human_depth is not None:
+        return human_depth, "human_oracle_note", str(note.get("comment", ""))
+    text_depth = _num(row.get("text_depth_mm"))
+    if text_depth is not None:
+        return text_depth, "ocr_depth_text", "depth text parsed by current reader"
+    if _num(row.get("scale_px_per_cm")) is not None:
+        return None, "scale_known_depth_unknown", "scale was detected from ticks/ruler, but field depth label is unknown"
+    return None, "unknown_needs_oracle", "submitted pipeline had no usable scale/depth"
+
+
 def main() -> None:
     partition_path = RESULTS / "scale_partition.csv"
     if not partition_path.exists():
@@ -70,12 +107,18 @@ def main() -> None:
         print(f"warning: expected 309 rows, found {len(df)}")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    notes = _load_notes()
     df = df.copy()
     df["image_path"] = df["image_id"].map(lambda name: str((TEST_IMAGES / str(name)).resolve()))
     df["exists"] = df["image_path"].map(lambda p: Path(p).exists())
     df["scale_px_per_mm"] = (df["scale_px_per_cm"] / 10.0).round(4)
     df["review_group"] = df.apply(_review_group, axis=1)
     df["reason"] = df.apply(_reason, axis=1)
+    depth_rows = df.apply(lambda row: _depth_guess(row, notes), axis=1)
+    df["depth_guess_mm"] = [item[0] for item in depth_rows]
+    df["depth_guess_source"] = [item[1] for item in depth_rows]
+    df["depth_guess_note"] = [item[2] for item in depth_rows]
+    df["submitted_scale_state"] = df["scale_px_per_cm"].map(lambda v: "scale_used" if _num(v) is not None else "fallback_no_scale")
 
     scale_med = df["scale_px_per_cm"].median()
     scale_mad = (df["scale_px_per_cm"] - scale_med).abs().median() or 1.0
