@@ -81,6 +81,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F049` | Robust triangle retested with conservative 3 cm scale repair | generated / submission candidate | upper boundary + scale correction | bench robust triangle 0.170; public old robust 0.60102 | pending | burn #15 robust triangle | EXP66 creates burn #20 by changing `IMG_00198-00200` and burn #21 by also changing `IMG_00251`, recomputing FL/MT from robust debug pixels at `159.333 px/cm`. | submit #20 if using a repaired-scale benchmark-geometry slot; hold #21 unless isolating `IMG_00251` |
 | `F050` | Guarded field-depth scale probe from algorithmic depth plus scan-field height | public-tested / rejected | broad scale correction | n/a | +0.07287 | public 0.58910 | EXP67 creates burn #22 from current public best, changing 114 rows where EXP64 depth and EXP61 field height imply a plausible 80-180 px/cm scale and old-vs-new disagreement is moderate. Public score `0.66197`. | reject broad field-height override; improve span detector before revisiting |
 | `F051` | Robust triangle plus broad field-depth scale probe | generated / diagnostic | upper boundary + broad scale correction | public old robust 0.60102 | pending | burn #15 robust triangle | EXP68 creates burn #23 by applying EXP67's failed broad scale adjustment to robust triangle. Changes 114 rows and mostly lowers FL/MT. | diagnostic only; submit only to test interaction, not because it is expected to improve |
+| `F052` | Non-full-height field-depth scale probe | generated / submission candidate | scale correction | n/a | pending | public 0.58910 and burn #15 robust | EXP69 fixes the #22 failure mode by keeping only field spans where `field_h / image_h < 0.98`. Creates burn #24 from public best and burn #25 from robust triangle; each changes 9 rows. | submit #24 for public-improvement probe; #25 only as benchmark-derived diagnostic |
 
 ## Current Read
 
@@ -109,5 +110,6 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 12. If retesting robust triangle, use EXP66 burn #20 rather than the old burn #15 file, because #20 includes the confirmed 3 cm scale-span repair.
 13. Do not use EXP67 broad field-depth scale as a default: public score `0.66197` rejects the current span heuristic.
 14. If testing the same scale move on robust triangle anyway, use EXP68 burn #23 and treat it as diagnostic only.
-15. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
-16. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
+15. If testing the repaired scale gate, use EXP69 burn #24 for the public-best baseline or burn #25 for the literal robust-triangle benchmark-derived diagnostic.
+16. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
+17. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
