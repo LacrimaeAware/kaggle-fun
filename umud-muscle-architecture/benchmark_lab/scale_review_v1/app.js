@@ -53,7 +53,8 @@ function fmt(value, suffix = "") {
 }
 
 function depthLabel(row) {
-  return row && row.depth_guess_mm ? fmt(row.depth_guess_mm, " mm") : "Unknown";
+  if (!row) return "--";
+  return row.depth_guess_mm ? fmt(row.depth_guess_mm, " mm") : "50.00 mm";
 }
 
 function rowKey(row) {

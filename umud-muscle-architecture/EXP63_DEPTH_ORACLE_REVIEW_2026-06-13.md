@@ -58,13 +58,23 @@ Guess priority:
 1. existing human oracle note,
 2. parsed depth text,
 3. cropped/no-surrounding-overlay family prior: 50 mm depth,
-4. known scale but unknown depth,
-5. unknown / needs oracle.
+4. field-height from scale, snapped to a normal depth,
+5. known-scale common-depth prior: 50 mm,
+6. global common-depth prior: 50 mm.
+
+There should be no blank depth proposals in the review manifest. The
+algorithm must always put a number in front of the user because the review is
+testing the guesser we would have at submission time.
 
 The cropped/no-surrounding-overlay prior is keyed from the image-family
 signature rather than one-off IDs: `1069x853` full-field crops and `~464x513`
 full-field crops are proposed as 50 mm depth unless OCR or a human note has
 already supplied a stronger value. This catches cases like `IMG_00040.tif`.
+
+For tick-only rows without text, the next guess is `image_height / px_per_cm`,
+converted to mm and snapped to `{30, 35, 40, 45, 50, 60, 65}` when the raw value
+is close. This catches the `1088x644` rows with `126 px/cm` as about `51.1 mm`,
+so they are proposed as `50 mm`.
 
 ## Current Meaning
 

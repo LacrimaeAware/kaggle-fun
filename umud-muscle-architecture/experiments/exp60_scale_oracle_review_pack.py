@@ -27,6 +27,7 @@ NOTES_PATH = OUT_DIR / "oracle_notes.json"
 CONFIRMED_TIERS = {"verified", "text-confirmed"}
 DETECTOR_TIERS = {"verified", "text-confirmed", "tick-only"}
 URGENT_TIERS = {"flag", "mean"}
+DEPTH_CANDIDATES_MM = (30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 65.0)
 
 
 def _image_size(path: Path) -> tuple[int | None, int | None]:
@@ -44,8 +45,26 @@ def _is_cropped_no_overlay_50mm_family(row: pd.Series) -> bool:
     height = _num(row.get("image_height"))
     if width is None or height is None:
         return False
+    width_i = int(width)
+    height_i = int(height)
     # User-confirmed family: no surrounding overlay/background, field fills frame.
-    return (int(width), int(height)) == (1069, 853) or (460 <= int(width) <= 466 and int(height) == 513)
+    return (
+        900 <= width_i <= 1100 and height_i == 853
+    ) or (
+        460 <= width_i <= 466 and 512 <= height_i <= 513
+    )
+
+
+def _depth_from_scale_and_height(row: pd.Series) -> tuple[float | None, str]:
+    scale_px_per_cm = _num(row.get("scale_px_per_cm"))
+    height = _num(row.get("image_height"))
+    if scale_px_per_cm is None or height is None or scale_px_per_cm <= 0:
+        return None, ""
+    raw_mm = height / scale_px_per_cm * 10.0
+    nearest = min(DEPTH_CANDIDATES_MM, key=lambda value: abs(value - raw_mm))
+    if abs(nearest - raw_mm) <= 3.5:
+        return nearest, f"image height / scale = {raw_mm:.1f} mm, snapped to {nearest:.0f} mm"
+    return None, f"image height / scale = {raw_mm:.1f} mm did not match a normal depth"
 
 
 def _spread_sample(df: pd.DataFrame, n: int) -> pd.DataFrame:
@@ -114,9 +133,12 @@ def _depth_guess(row: pd.Series, notes: dict[str, dict]) -> tuple[float | None, 
         return text_depth, "ocr_depth_text", "depth text parsed by current reader"
     if _is_cropped_no_overlay_50mm_family(row):
         return 50.0, "cropped_no_overlay_50mm_family", "shape/family rule: no surrounding overlay family identified as 50 mm depth"
+    scale_depth, scale_note = _depth_from_scale_and_height(row)
+    if scale_depth is not None:
+        return scale_depth, "field_height_scale_depth_guess", scale_note
     if _num(row.get("scale_px_per_cm")) is not None:
-        return None, "scale_known_depth_unknown", "scale was detected from ticks/ruler, but field depth label is unknown"
-    return None, "unknown_needs_oracle", "submitted pipeline had no usable scale/depth"
+        return 50.0, "scale_known_common_depth_prior", "scale was detected but no depth text/family matched; forcing 50 mm as the common-depth prior"
+    return 50.0, "global_common_depth_prior", "no depth cue parsed; forcing 50 mm as the common-depth prior"
 
 
 def main() -> None:
