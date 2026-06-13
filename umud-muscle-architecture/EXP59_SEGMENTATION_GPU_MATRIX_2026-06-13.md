@@ -25,8 +25,11 @@ Code support added:
 - `local_infer.py` now loads tagged/alternate-architecture weights through the shared model builder.
 - `experiments/score_weights.py` now scores tagged/alternate-architecture weights on the expert
   benchmark.
-- `kaggle_segment_notebook.ipynb` version gate updated to `2026-06-13.01` and now includes
+- `kaggle_segment_notebook.ipynb` version gate updated to `2026-06-13.02` and now includes
   selectable EXP59 run presets.
+- `kaggle_seg59_02_highres_512_unet_auto.ipynb` is the no-edit Kaggle notebook for the first
+  serious run. Import it, add the competition input, set GPU + Internet, and Run All; it bundles
+  the submission/debug CSVs and tagged weights into one downloadable zip.
 
 ## Ordered GPU Runs
 
@@ -38,9 +41,10 @@ Code support added:
 | 4 | `seg59_04_highres_focal` | only if support improves without PA drift | sparse-structure loss test |
 | 5 | `seg59_05_train_clahe` | exploratory | train-time contrast normalization |
 
-Exact commands are written to `results/exp59_segmentation_gpu_matrix.csv`. The Kaggle path is the
-notebook: edit `RUN_ID` in the EXP59 preset cell, then run the notebook end to end. The command
-strings are mainly for RunPod/local shell use.
+Exact commands are written to `results/exp59_segmentation_gpu_matrix.csv`. The easiest Kaggle path
+for the first serious run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`, which requires no preset
+editing. Use `kaggle_segment_notebook.ipynb` only when deliberately switching to another EXP59 run.
+The command strings are mainly for RunPod/local shell use.
 
 ## Why This Direction
 
