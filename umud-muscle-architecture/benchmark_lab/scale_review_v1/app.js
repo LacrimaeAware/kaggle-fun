@@ -32,6 +32,7 @@ const els = {
   rulerPx: document.getElementById("rulerPx"),
   depthText: document.getElementById("depthText"),
   ocrDepthText: document.getElementById("ocrDepthText"),
+  imageFamily: document.getElementById("imageFamily"),
   submittedState: document.getElementById("submittedState"),
   scaleZ: document.getElementById("scaleZ"),
   reason: document.getElementById("reason"),
@@ -98,10 +99,11 @@ function renderList() {
       const note = state.notes[rowKey(row)] || {};
       const status = note.status ? `status: ${note.status}` : row.depth_guess_source || row.reason;
       const selected = i === state.index ? " selected" : "";
+      const family = row.image_family ? ` - ${row.image_family}` : "";
       return `<button class="list-item${selected}" data-index="${i}">
         <strong>${row.image_id}</strong>
         <span class="tier-${row.tier}">depth ${depthLabel(row)} - ${row.submitted_scale_state || row.tier}</span>
-        <span>${status || ""}</span>
+        <span>${status || ""}${family}</span>
       </button>`;
     })
     .join("");
@@ -131,6 +133,7 @@ function renderCurrent() {
   els.tickPx.textContent = fmt(row.tick_px_cm);
   els.rulerPx.textContent = fmt(row.ruler_px_cm);
   els.ocrDepthText.textContent = fmt(row.text_depth_mm, " mm");
+  els.imageFamily.textContent = row.image_family || "--";
   els.scaleZ.textContent = fmt(row.scale_robust_z);
   els.reason.textContent = row.depth_guess_note || row.reason || "";
   els.note.textContent = row.note || "";

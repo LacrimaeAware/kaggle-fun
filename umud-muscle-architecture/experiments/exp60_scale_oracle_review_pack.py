@@ -12,6 +12,7 @@ from pathlib import Path
 import json
 
 import pandas as pd
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -26,6 +27,25 @@ NOTES_PATH = OUT_DIR / "oracle_notes.json"
 CONFIRMED_TIERS = {"verified", "text-confirmed"}
 DETECTOR_TIERS = {"verified", "text-confirmed", "tick-only"}
 URGENT_TIERS = {"flag", "mean"}
+
+
+def _image_size(path: Path) -> tuple[int | None, int | None]:
+    if not path.exists():
+        return None, None
+    try:
+        with Image.open(path) as im:
+            return int(im.width), int(im.height)
+    except OSError:
+        return None, None
+
+
+def _is_cropped_no_overlay_50mm_family(row: pd.Series) -> bool:
+    width = _num(row.get("image_width"))
+    height = _num(row.get("image_height"))
+    if width is None or height is None:
+        return False
+    # User-confirmed family: no surrounding overlay/background, field fills frame.
+    return (int(width), int(height)) == (1069, 853) or (460 <= int(width) <= 466 and int(height) == 513)
 
 
 def _spread_sample(df: pd.DataFrame, n: int) -> pd.DataFrame:
@@ -92,6 +112,8 @@ def _depth_guess(row: pd.Series, notes: dict[str, dict]) -> tuple[float | None, 
     text_depth = _num(row.get("text_depth_mm"))
     if text_depth is not None:
         return text_depth, "ocr_depth_text", "depth text parsed by current reader"
+    if _is_cropped_no_overlay_50mm_family(row):
+        return 50.0, "cropped_no_overlay_50mm_family", "shape/family rule: no surrounding overlay family identified as 50 mm depth"
     if _num(row.get("scale_px_per_cm")) is not None:
         return None, "scale_known_depth_unknown", "scale was detected from ticks/ruler, but field depth label is unknown"
     return None, "unknown_needs_oracle", "submitted pipeline had no usable scale/depth"
@@ -111,6 +133,13 @@ def main() -> None:
     df = df.copy()
     df["image_path"] = df["image_id"].map(lambda name: str((TEST_IMAGES / str(name)).resolve()))
     df["exists"] = df["image_path"].map(lambda p: Path(p).exists())
+    sizes = df["image_path"].map(lambda p: _image_size(Path(p)))
+    df["image_width"] = [item[0] for item in sizes]
+    df["image_height"] = [item[1] for item in sizes]
+    df["image_family"] = df.apply(
+        lambda row: "cropped_no_overlay_50mm_family" if _is_cropped_no_overlay_50mm_family(row) else "",
+        axis=1,
+    )
     df["scale_px_per_mm"] = (df["scale_px_per_cm"] / 10.0).round(4)
     df["review_group"] = df.apply(_review_group, axis=1)
     df["reason"] = df.apply(_reason, axis=1)
