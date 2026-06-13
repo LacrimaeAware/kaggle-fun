@@ -19,6 +19,10 @@ Viewer:
 http://127.0.0.1:8774/scale-review/
 ```
 
+The default pack is now `Remaining unreviewed`, because the starter pack is
+only a sampled subset. Use the dropdown to switch to `All 309` or the old
+`Starter pack`.
+
 Keyboard:
 
 - `Q`: mark proposed depth correct, save, and advance

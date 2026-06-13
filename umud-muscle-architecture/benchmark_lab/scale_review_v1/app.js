@@ -4,7 +4,7 @@ const state = {
   notes: {},
   index: 0,
   zoom: 1,
-  pack: "start",
+  pack: "remaining",
   saveTimer: null,
 };
 

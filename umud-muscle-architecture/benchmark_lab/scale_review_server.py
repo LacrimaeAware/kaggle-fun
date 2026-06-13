@@ -105,15 +105,20 @@ class ScaleReviewHandler(BaseHTTPRequestHandler):
         print(f"{self.address_string()} - {fmt % args}")
 
     def _send_manifest(self, pack: str) -> None:
-        path = RESULTS_DIR / ("start_pack.csv" if pack == "start" else "manifest.csv")
+        pack_name = str(pack or self.server.pack).strip().lower()
+        path = RESULTS_DIR / ("start_pack.csv" if pack_name == "start" else "manifest.csv")
         if not path.exists():
             self.send_error(404, f"missing {path}; run experiments/exp60_scale_oracle_review_pack.py")
             return
         rows = _read_csv(path)
         notes = _read_notes()
+        if pack_name in {"remaining", "unreviewed"}:
+            reviewed = {image_id for image_id, note in notes.items() if note.get("status")}
+            rows = [row for row in rows if row.get("image_id", "") not in reviewed]
         self._send_json(
             {
-                "pack": pack,
+                "pack": pack_name,
+                "row_count": len(rows),
                 "rows": rows,
                 "notes": notes,
                 "notes_path": str(NOTES_PATH),
@@ -176,7 +181,7 @@ class ScaleReviewHandler(BaseHTTPRequestHandler):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8773)
-    parser.add_argument("--pack", choices=["start", "all"], default="start")
+    parser.add_argument("--pack", choices=["start", "remaining", "all"], default="remaining")
     args = parser.parse_args()
 
     server = ThreadingHTTPServer(("127.0.0.1", args.port), ScaleReviewHandler)
