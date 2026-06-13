@@ -197,17 +197,15 @@ textarea {
 }
 
 .scale-strip {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
-  gap: 10px;
+  display: block;
   padding: 14px;
   border-bottom: 1px solid var(--line);
 }
 
 .scale-strip div {
-  padding: 10px 12px;
+  padding: 14px 16px;
   border-radius: 8px;
-  background: #f7f8f5;
+  background: #f1f7f5;
 }
 
 .scale-strip .label {
@@ -219,13 +217,21 @@ textarea {
 
 .scale-strip strong {
   display: block;
-  margin-top: 3px;
+  margin-top: 4px;
   font-size: 22px;
 }
 
 #depthGuess {
-  font-size: 34px;
+  font-size: 46px;
   line-height: 1.05;
+}
+
+.depth-card small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .image-toolbar {
@@ -243,11 +249,43 @@ textarea {
 }
 
 .viewport {
+  position: relative;
   min-height: 0;
   overflow: auto;
   background: #171717;
   display: grid;
   place-items: center;
+}
+
+.depth-overlay {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  min-width: 180px;
+  padding: 12px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(12, 18, 22, 0.82);
+  color: #ffffff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+  pointer-events: none;
+}
+
+.depth-overlay span {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  opacity: 0.82;
+}
+
+.depth-overlay strong {
+  font-size: 44px;
+  line-height: 1;
 }
 
 #reviewImage {
@@ -259,6 +297,17 @@ textarea {
 
 .card {
   padding: 14px;
+}
+
+.debug-card summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.debug-card[open] summary {
+  margin-bottom: 12px;
 }
 
 .evidence-grid {

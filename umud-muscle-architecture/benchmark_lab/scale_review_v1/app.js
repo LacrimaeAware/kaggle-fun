@@ -23,6 +23,7 @@ const els = {
   imageMeta: document.getElementById("imageMeta"),
   viewport: document.getElementById("viewport"),
   reviewImage: document.getElementById("reviewImage"),
+  depthOverlay: document.getElementById("depthOverlay"),
   zoomOutBtn: document.getElementById("zoomOutBtn"),
   zoomResetBtn: document.getElementById("zoomResetBtn"),
   zoomInBtn: document.getElementById("zoomInBtn"),
@@ -123,6 +124,7 @@ function renderCurrent() {
   els.title.textContent = row.image_id;
   els.reviewImage.src = `/image/${encodeURIComponent(row.image_id)}`;
   els.depthGuess.textContent = depthLabel(row);
+  els.depthOverlay.textContent = depthLabel(row);
   els.scaleState.textContent = row.submitted_scale_state || row.tier || "--";
   els.depthSource.textContent = row.depth_guess_source || "--";
   els.imageMeta.textContent = `${state.index + 1} / ${state.filtered.length}`;

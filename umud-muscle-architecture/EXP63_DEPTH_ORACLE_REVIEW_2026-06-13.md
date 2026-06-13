@@ -33,6 +33,13 @@ need a corrected depth or a comment.
 The top strip now shows proposed depth first. Scale remains visible only as
 evidence.
 
+The review UI now treats that proposed depth as the single answer to confirm.
+Raw OCR depth, px/cm, tick values, and other detector evidence are collapsed
+under debug evidence so stale OCR text does not compete with a corrected
+human-or-family depth proposal. For example, `IMG_00234.tif` can have raw OCR
+depth `50 mm` while the review answer is `35 mm` because a human oracle note
+overrides the stale OCR parse.
+
 ## Manifest Changes
 
 `experiments/exp60_scale_oracle_review_pack.py` now enriches the manifest with:
