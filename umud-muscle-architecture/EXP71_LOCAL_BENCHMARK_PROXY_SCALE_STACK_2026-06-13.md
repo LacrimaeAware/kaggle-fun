@@ -10,6 +10,15 @@ Output:
 
 `results/submission_burn_28_local_benchmark_proxy_plus_missing_scale.csv`
 
+Public result:
+
+`0.65917`
+
+Status:
+
+Rejected. This did not validate the local-benchmark proxy stack, and it should not be treated as a
+safe scale repair.
+
 ## What It Is
 
 The exact EXP53/55/56 best local benchmark route is still benchmark-only. EXP71 builds the closest available 309-row production-wired proxy from existing submission artifacts:
@@ -46,6 +55,20 @@ Also, the individual public probes for these proxy pieces were bad:
 
 So EXP71 is the correct answer to "best local benchmark proxy plus scale," but it is not high-confidence for public improvement.
 
+The public result confirms that caution. Also, burn #28 should not be summarized as "burn #15 plus
+scale." Column-level comparison shows:
+
+- PA is unchanged from burn #13/#15/#16/#17/#26.
+- Outside the 4 missing-scale rows, FL equals burn #16's visibility-weighted FL proxy.
+- Outside the 4 missing-scale rows, MT equals burn #17's vertical-MT proxy.
+- Relative to burn #15, burn #28 changes FL on 307 rows with mean absolute movement `5.732 mm`.
+
+So burn #28 is better described as:
+
+> burn #16 FL + burn #17 MT + the 4-row missing-scale patch
+
+not as a clean retest of burn #15 with only scale repaired.
+
 ## Movement
 
 Versus current public best anchor:
@@ -56,9 +79,10 @@ Versus current public best anchor:
 
 ## Recommendation
 
-If the goal is to submit the requested best-local-benchmark proxy with the safe scale fix, submit:
+Do not promote burn #28. It is now public-tested and rejected:
 
 `results/submission_burn_28_local_benchmark_proxy_plus_missing_scale.csv`
 
-If the goal is highest expected public score, this is lower confidence than the current public-best anchor because the component public probes already regressed.
-
+The result mainly reinforces that broad production proxies for local-benchmark geometry are not
+transferring. The next credible direction remains EXP59 segmentation retraining and targeted
+diagnostics, not stacking these rejected proxy deltas.
