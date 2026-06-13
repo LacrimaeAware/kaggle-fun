@@ -16,6 +16,7 @@ import re
 import sys
 import zipfile
 from datetime import datetime, timezone
+from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
@@ -35,6 +36,120 @@ from expert_consensus import robust_mean_for_row  # noqa: E402
 
 TOL = {"pa_deg": 6.0, "fl_mm": 12.0, "mt_mm": 3.0}
 LAYERS = ("apo", "fasc", "ignore", "diag")
+VIEWER_V2_DIR = Path(__file__).resolve().parent / "viewer_v2"
+VIEWER_V2_SESSION_DIR = ROOT / "results" / "viewer_v2_sessions"
+
+MODEL_INFO = {
+    "our_pipeline_true_scale": {
+        "label": "Pipeline true scale",
+        "color": "#5b8def",
+        "kind": "baseline",
+        "description": "Original benchmark pipeline with true benchmark scale.",
+    },
+    "robust_triangle_anchor": {
+        "label": "Robust triangle",
+        "color": "#d665d6",
+        "kind": "geometry",
+        "description": "Upper boundary uses the robust three-anchor triangle convention.",
+    },
+    "story_stack": {
+        "label": "Story stack",
+        "color": "#14a276",
+        "kind": "class-aware",
+        "description": "EXP48 class-aware stack: scan-support FL, gated PA, vertical MT.",
+    },
+    "weighted_story_fl": {
+        "label": "Weighted story FL",
+        "color": "#10b981",
+        "kind": "weighted stack",
+        "description": "EXP49: PA median, FL weighted by area times ultrasound-field support, MT vertical center.",
+    },
+    "story_weight_grid_best": {
+        "label": "Story weight grid best",
+        "color": "#34d399",
+        "kind": "weighted stack",
+        "description": "EXP50: PA median, FL weighted-trimmed by support and local trajectory residual, MT vertical center.",
+    },
+    "story_weight_same_story": {
+        "label": "Story weight same-story",
+        "color": "#2dd4bf",
+        "kind": "weighted stack",
+        "description": "EXP50: PA and FL both use the same area x ultrasound-field x trajectory residual weighting.",
+    },
+    "median_weight_blend_best": {
+        "label": "Median/weight blend best",
+        "color": "#a3e635",
+        "kind": "weighted stack",
+        "description": "EXP53: median anchor blended with weighted PA/FL support reducers.",
+    },
+    "fl_scan_support": {
+        "label": "FL scan support",
+        "color": "#f59e0b",
+        "kind": "component",
+        "description": "Strict scan-region and visible-support weighted FL component.",
+    },
+    "pa_per_band": {
+        "label": "PA per-band",
+        "color": "#8b5cf6",
+        "kind": "component",
+        "description": "Fragment-count weighted per-band PA component.",
+    },
+    "pa_conflict_gate": {
+        "label": "PA local conflict gate",
+        "color": "#06b6d4",
+        "kind": "component",
+        "description": "Older local-median PA conflict gate. This is not the wave non-crossing trial.",
+    },
+    "wave_non_crossing_trial": {
+        "label": "Wave non-crossing trial",
+        "color": "#22d3ee",
+        "kind": "visual trial",
+        "description": "User-proposed rotate-only wave correction: avoid projected fragment crossings, then remeasure PA/FL.",
+    },
+    "wave_non_crossing_updating_trial": {
+        "label": "Wave non-crossing updating",
+        "color": "#2dd4bf",
+        "kind": "visual trial",
+        "description": "Same rotate-only wave correction, but recomputes the consensus direction after accepted corrections.",
+    },
+    "mt_vertical_center": {
+        "label": "MT vertical center",
+        "color": "#ef4444",
+        "kind": "component",
+        "description": "Vertical center-gap MT convention.",
+    },
+    "best_local_all_features": {
+        "label": "Best local stack",
+        "color": "#84cc16",
+        "kind": "stack",
+        "description": "Best full-feature stack from EXP44, before EXP48 class-aware story gating.",
+    },
+    "DLTrack": {
+        "label": "DLTrack",
+        "color": "#94a3b8",
+        "kind": "reference",
+        "description": "Reference benchmark method from the expert spreadsheet.",
+    },
+    "SMA": {
+        "label": "SMA",
+        "color": "#64748b",
+        "kind": "reference",
+        "description": "Reference benchmark method from the expert spreadsheet.",
+    },
+}
+
+GEOMETRY_MODEL_IDS = {
+    "our_pipeline_true_scale",
+    "robust_triangle_anchor",
+    "story_stack",
+    "fl_scan_support",
+    "pa_per_band",
+    "best_local_all_features",
+    "weighted_story_fl",
+    "story_weight_grid_best",
+    "story_weight_same_story",
+    "median_weight_blend_best",
+}
 
 
 HTML = r"""<!doctype html>
@@ -1018,6 +1133,74 @@ def apo_boundary_groups(apo_mask: np.ndarray) -> list[tuple[float, np.ndarray, n
     return out
 
 
+def candidate_apo_boundary_groups(apo_mask: np.ndarray) -> list[tuple[float, np.ndarray, np.ndarray]] | None:
+    """Select the primary measured band from model apo masks.
+
+    Multi-band predictions often contain three or more long boundary traces.
+    The old largest-gap split could merge the first two traces and pick a lower
+    trace/artifact as the deep boundary. For candidate geometry, use the first
+    two substantial horizontal boundary clusters instead.
+    """
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
+    comps = []
+    for i in range(1, n):
+        area = int(stats[i, 4])
+        if area < 5:
+            continue
+        ys, xs = np.where(lab == i)
+        if len(xs) < 2:
+            continue
+        comps.append({
+            "mean_y": float(np.mean(ys)),
+            "xs": xs,
+            "ys": ys,
+            "area": area,
+            "y_min": int(np.min(ys)),
+            "y_max": int(np.max(ys)),
+            "x_span": int(np.max(xs) - np.min(xs) + 1),
+        })
+    if len(comps) < 2:
+        return None
+    comps.sort(key=lambda c: c["mean_y"])
+    clusters: list[list[dict]] = []
+    for comp in comps:
+        if not clusters:
+            clusters.append([comp])
+            continue
+        prev = clusters[-1]
+        prev_ymax = max(c["y_max"] for c in prev)
+        prev_mean = float(np.average([c["mean_y"] for c in prev], weights=[c["area"] for c in prev]))
+        if comp["y_min"] <= prev_ymax + 20 or abs(comp["mean_y"] - prev_mean) <= 45:
+            prev.append(comp)
+        else:
+            clusters.append([comp])
+    cluster_rows = []
+    for group in clusters:
+        xs = np.concatenate([g["xs"] for g in group])
+        ys = np.concatenate([g["ys"] for g in group])
+        area = int(sum(g["area"] for g in group))
+        cluster_rows.append({
+            "mean_y": float(np.average([g["mean_y"] for g in group], weights=[g["area"] for g in group])),
+            "xs": xs,
+            "ys": ys,
+            "area": area,
+            "x_span": int(np.max(xs) - np.min(xs) + 1),
+        })
+    max_area = max(c["area"] for c in cluster_rows)
+    max_span = max(c["x_span"] for c in cluster_rows)
+    substantial = [
+        c for c in cluster_rows
+        if c["area"] >= max(80, 0.08 * max_area) and c["x_span"] >= max(40, 0.18 * max_span)
+    ]
+    if len(substantial) < 2:
+        substantial = cluster_rows
+    substantial.sort(key=lambda c: c["mean_y"])
+    pair = substantial[:2]
+    if len(pair) < 2:
+        return None
+    return [(c["mean_y"], c["xs"], c["ys"]) for c in pair]
+
+
 def apo_line_fits(labels_dir: Path, label_id: str) -> dict[str, dict[str, float]] | None:
     apo = load_mask(labels_dir / label_id / "apo.png")
     if apo is None:
@@ -1125,6 +1308,479 @@ def py_signed_angle_to_deep(slope: float, deep_slope: float) -> float:
     return float(angle)
 
 
+def py_weighted_median(vals: list[float], wts: list[float]) -> float | None:
+    if not vals:
+        return None
+    pairs = sorted(
+        (float(v), float(w))
+        for v, w in zip(vals, wts)
+        if np.isfinite(v) and np.isfinite(w) and w > 0
+    )
+    if not pairs:
+        return None
+    total = sum(w for _v, w in pairs)
+    acc = 0.0
+    for value, weight in pairs:
+        acc += weight
+        if acc >= total / 2.0:
+            return value
+    return pairs[-1][0]
+
+
+def fragment_visible_length(xs: np.ndarray, ys: np.ndarray, slope: float) -> float:
+    ux = 1.0 / np.sqrt(1.0 + slope * slope)
+    uy = slope * ux
+    proj = xs.astype(float) * ux + ys.astype(float) * uy
+    return float(np.ptp(proj)) if len(proj) else 0.0
+
+
+def line_segment_from_center(cx: float, cy: float, slope: float, length: float) -> dict[str, float]:
+    half = max(18.0, min(float(length) / 2.0, 95.0))
+    ux = 1.0 / np.sqrt(1.0 + slope * slope)
+    uy = slope * ux
+    return {
+        "x1": float(cx - ux * half),
+        "y1": float(cy - uy * half),
+        "x2": float(cx + ux * half),
+        "y2": float(cy + uy * half),
+    }
+
+
+def segment_intersection(a: dict[str, float], b: dict[str, float]) -> bool:
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    p1 = (float(a["x1"]), float(a["y1"]))
+    p2 = (float(a["x2"]), float(a["y2"]))
+    q1 = (float(b["x1"]), float(b["y1"]))
+    q2 = (float(b["x2"]), float(b["y2"]))
+    o1 = orient(p1, p2, q1)
+    o2 = orient(p1, p2, q2)
+    o3 = orient(q1, q2, p1)
+    o4 = orient(q1, q2, p2)
+    return (o1 * o2 < 0) and (o3 * o4 < 0)
+
+
+def project_center_slope(
+    cx: float,
+    cy: float,
+    slope: float,
+    boundary: dict,
+    scale_px_per_mm: float | None,
+) -> dict | None:
+    line = {"slope": float(slope), "intercept": float(cy - slope * cx)}
+    top = py_piecewise_intersection(line, boundary.get("top"), cx)
+    deep = py_line_intersection(line, boundary.get("deep"))
+    if top is None or deep is None:
+        return None
+    fl_px = float(np.hypot(top[0] - deep[0], top[1] - deep[1]))
+    angle = abs(py_signed_angle_to_deep(slope, float(boundary["deep"]["slope"])))
+    out = {
+        "x1": top[0],
+        "y1": top[1],
+        "x2": deep[0],
+        "y2": deep[1],
+        "fl_px": fl_px,
+        "angle_deg": angle,
+    }
+    if scale_px_per_mm and scale_px_per_mm > 0:
+        out["fl_mm"] = fl_px / scale_px_per_mm
+    return out
+
+
+def angle_delta_rad(a: float, b: float) -> float:
+    d = float(a - b)
+    while d <= -np.pi / 2:
+        d += np.pi
+    while d > np.pi / 2:
+        d -= np.pi
+    return d
+
+
+def angle_abs_delta_rad(a: float, b: float) -> float:
+    return abs(angle_delta_rad(a, b))
+
+
+@lru_cache(maxsize=128)
+def wave_non_crossing_diagnostics_cached(
+    image_id: str,
+    boundary_text: str,
+    scale_px_per_mm: float | None,
+    max_degrees: float = 42.0,
+    update_consensus: bool = False,
+) -> str:
+    boundary = json.loads(boundary_text) if boundary_text else None
+    orientations = pa_orientation_diagnostics(image_id, boundary, deg_gate=999.0)
+    if not orientations or boundary is None:
+        return json.dumps({"order": "none", "items": [], "median_fl_mm": None, "median_pa_deg": None, "n_changed": 0}, default=json_numpy_default)
+    raw_items = []
+    for frag in orientations:
+        raw_span = project_center_slope(frag["cx"], frag["cy"], frag["raw_slope"], boundary, scale_px_per_mm)
+        if raw_span is None:
+            continue
+        raw_items.append({**frag, "raw_span": raw_span})
+    if not raw_items:
+        return json.dumps({"order": "none", "items": [], "median_fl_mm": None, "median_pa_deg": None, "n_changed": 0}, default=json_numpy_default)
+
+    median_dx = float(np.median([item["raw_span"]["x1"] - item["raw_span"]["x2"] for item in raw_items]))
+    left_to_right = median_dx >= 0.0
+    wave_theta = py_weighted_median(
+        [float(np.arctan(item["raw_slope"])) for item in raw_items],
+        [item["area"] for item in raw_items],
+    )
+    if wave_theta is None:
+        wave_theta = float(np.median([np.arctan(item["raw_slope"]) for item in raw_items]))
+
+    out = []
+    for item in raw_items:
+        raw_theta = float(np.arctan(item["raw_slope"]))
+        out.append({
+            **item,
+            "current_theta": raw_theta,
+            "raw_crosses": 0,
+            "corrected_slope": item["raw_slope"],
+            "corrected_angle": item["raw_angle"],
+            "corrected_span": item["raw_span"],
+            "changed": False,
+            "delta_angle_deg": 0.0,
+            "cascade_steps": 0,
+            "failed_to_resolve": False,
+        })
+
+    def crossings(items: list[dict]) -> list[tuple[int, int]]:
+        pairs = []
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                if segment_intersection(items[i]["corrected_span"], items[j]["corrected_span"]):
+                    pairs.append((i, j))
+        return pairs
+
+    raw_pairs = crossings(out)
+    raw_counts = [0 for _ in out]
+    for i, j in raw_pairs:
+        raw_counts[i] += 1
+        raw_counts[j] += 1
+    for idx, count in enumerate(raw_counts):
+        out[idx]["raw_crosses"] = int(count)
+
+    wave_slope = float(np.tan(wave_theta))
+    seed_opposite_sign = 0
+    for item in out:
+        raw_theta = float(item["current_theta"])
+        raw_dev = angle_abs_delta_rad(raw_theta, wave_theta)
+        if (
+            abs(wave_slope) > 0.03
+            and float(item["raw_slope"]) * wave_slope < 0.0
+            and raw_dev > np.radians(15.0)
+        ):
+            slope = wave_slope
+            span = project_center_slope(item["cx"], item["cy"], slope, boundary, scale_px_per_mm)
+            if span is None:
+                continue
+            item["current_theta"] = float(wave_theta)
+            item["corrected_slope"] = float(slope)
+            item["corrected_angle"] = abs(py_signed_angle_to_deep(float(slope), float(boundary["deep"]["slope"])))
+            item["corrected_span"] = span
+            item["changed"] = True
+            item["delta_angle_deg"] = float(np.degrees(angle_delta_rad(wave_theta, raw_theta)))
+            item["correction_reason"] = "opposite_consensus_sign_seed"
+            seed_opposite_sign += 1
+
+    max_iter = max(20, len(out) * 8)
+    cascade_log = []
+    for step in range(max_iter):
+        if update_consensus:
+            updated_wave = py_weighted_median(
+                [float(item["current_theta"]) for item in out],
+                [float(item.get("area", 1.0)) for item in out],
+            )
+            if updated_wave is not None:
+                wave_theta = float(updated_wave)
+        pairs = crossings(out)
+        if not pairs:
+            break
+        offender_counts = {idx: 0 for idx in range(len(out))}
+        offender_devs = {idx: angle_abs_delta_rad(out[idx]["current_theta"], wave_theta) for idx in range(len(out))}
+        for i, j in pairs:
+            offender = i if offender_devs[i] >= offender_devs[j] else j
+            offender_counts[offender] += 1
+        offender = max(
+            offender_counts,
+            key=lambda idx: (offender_counts[idx], offender_devs[idx], out[idx].get("area", 0.0)),
+        )
+        if offender_counts[offender] <= 0:
+            break
+
+        item = out[offender]
+        start_theta = float(item["current_theta"])
+        to_consensus = angle_delta_rad(wave_theta, start_theta)
+        candidate_thetas = [start_theta]
+        if abs(to_consensus) > np.radians(0.05):
+            # Clamp to the consensus direction. This trial is allowed to rotate
+            # a fragment toward the wave, but not past it.
+            for frac in np.linspace(0.03, 1.0, 80):
+                candidate_thetas.append(float(start_theta + to_consensus * frac))
+
+        best = None
+        best_count = 10**9
+        best_dev = 10**9
+        for theta in candidate_thetas:
+            slope = float(np.tan(theta))
+            span = project_center_slope(item["cx"], item["cy"], slope, boundary, scale_px_per_mm)
+            if span is None:
+                continue
+            count = 0
+            for other_idx, other in enumerate(out):
+                if other_idx == offender:
+                    continue
+                if segment_intersection(span, other["corrected_span"]):
+                    count += 1
+            dev = angle_abs_delta_rad(theta, wave_theta)
+            if (count, dev) < (best_count, best_dev):
+                best = (theta, slope, span)
+                best_count = count
+                best_dev = dev
+            if count == 0:
+                break
+        if best is None:
+            out[offender]["failed_to_resolve"] = True
+            break
+        theta, slope, span = best
+        # Stop if this pass cannot improve the offender's conflicts.
+        if best_count >= offender_counts[offender] and abs(theta - start_theta) < np.radians(0.1):
+            out[offender]["failed_to_resolve"] = True
+            break
+        out[offender]["current_theta"] = float(theta)
+        out[offender]["corrected_slope"] = float(slope)
+        out[offender]["corrected_angle"] = abs(py_signed_angle_to_deep(float(slope), float(boundary["deep"]["slope"])))
+        out[offender]["corrected_span"] = span
+        raw_theta = float(np.arctan(out[offender]["raw_slope"]))
+        out[offender]["changed"] = angle_abs_delta_rad(theta, raw_theta) > np.radians(0.5)
+        out[offender]["delta_angle_deg"] = float(np.degrees(angle_delta_rad(theta, raw_theta)))
+        out[offender]["cascade_steps"] = int(out[offender].get("cascade_steps", 0) + 1)
+        cascade_log.append({
+            "step": step + 1,
+            "index": offender,
+            "frag_id": out[offender].get("frag_id"),
+            "remaining_before": len(pairs),
+            "offender_crossings_before": offender_counts[offender],
+            "offender_crossings_after": best_count,
+            "delta_angle_deg": out[offender]["delta_angle_deg"],
+            "consensus_angle_deg": float(np.degrees(wave_theta)),
+        })
+
+    remaining_pairs = crossings(out)
+    for item in out:
+        raw_theta = float(np.arctan(item["raw_slope"]))
+        current_theta = float(item.get("current_theta", raw_theta))
+        item["raw_theta_deg"] = float(np.degrees(raw_theta))
+        item["corrected_theta_deg"] = float(np.degrees(current_theta))
+        item["raw_consensus_dev_deg"] = float(np.degrees(angle_abs_delta_rad(raw_theta, wave_theta)))
+        item["corrected_consensus_dev_deg"] = float(np.degrees(angle_abs_delta_rad(current_theta, wave_theta)))
+    out_sorted = sorted(out, key=lambda item: item["cx"], reverse=not left_to_right)
+    fls = [item["corrected_span"].get("fl_mm") for item in out_sorted if item["corrected_span"].get("fl_mm") is not None]
+    pas = [item["corrected_angle"] for item in out_sorted if item.get("corrected_angle") is not None]
+    return json.dumps({
+        "order": "left_to_right" if left_to_right else "right_to_left",
+        "mode": "updating_consensus" if update_consensus else "fixed_consensus",
+        "consensus_angle_deg": float(np.degrees(wave_theta)),
+        "items": out_sorted,
+        "median_fl_mm": float(np.median(fls)) if fls else None,
+        "median_pa_deg": float(np.median(pas)) if pas else None,
+        "n_changed": int(sum(1 for item in out if item.get("changed"))),
+        "n_seed_opposite_sign": int(seed_opposite_sign),
+        "n_raw_crossing": int(sum(1 for item in out if item.get("raw_crosses", 0) > 0)),
+        "raw_crossing_pairs": len(raw_pairs),
+        "remaining_crossing_pairs": len(remaining_pairs),
+        "cascade_steps": len(cascade_log),
+        "cascade_log": cascade_log[:120],
+    }, default=json_numpy_default)
+
+
+def wave_non_crossing_diagnostics(
+    image_id: str,
+    boundary: dict | None,
+    scale_px_per_mm: float | None,
+    max_degrees: float = 42.0,
+    update_consensus: bool = False,
+) -> dict:
+    boundary_text = json.dumps(boundary, sort_keys=True) if boundary else ""
+    return json.loads(wave_non_crossing_diagnostics_cached(image_id, boundary_text, scale_px_per_mm, max_degrees, update_consensus))
+
+
+def segment_fraction_in_rect(span: dict | None, rect: dict | None) -> float | None:
+    if not span or not rect:
+        return None
+    x0 = float(rect["x"])
+    y0 = float(rect["y"])
+    x1 = x0 + float(rect["w"])
+    y1 = y0 + float(rect["h"])
+    ax = float(span["x1"])
+    ay = float(span["y1"])
+    bx = float(span["x2"])
+    by = float(span["y2"])
+    dx = bx - ax
+    dy = by - ay
+    if float(np.hypot(dx, dy)) <= 1e-9:
+        return 0.0
+    t0, t1 = 0.0, 1.0
+    for p, q in ((-dx, ax - x0), (dx, x1 - ax), (-dy, ay - y0), (dy, y1 - ay)):
+        if abs(p) < 1e-12:
+            if q < 0:
+                return 0.0
+            continue
+        r = q / p
+        if p < 0:
+            if r > t1:
+                return 0.0
+            t0 = max(t0, r)
+        else:
+            if r < t0:
+                return 0.0
+            t1 = min(t1, r)
+    return float(np.clip(t1 - t0, 0.0, 1.0))
+
+
+def add_support_fractions_to_wave_items(items: list[dict], row: dict) -> list[dict]:
+    out = []
+    for item in items:
+        item = dict(item)
+        span = item.get("corrected_span")
+        raw_span = item.get("raw_span")
+        fl_px = float((span or {}).get("fl_px") or 0.0)
+        raw_fl_px = float((raw_span or {}).get("fl_px") or 0.0)
+        visible_len = float(item.get("visible_len") or 0.0)
+        visible_frac = float(np.clip(visible_len / fl_px, 0.0, 1.0)) if fl_px > 0 else None
+        raw_visible_frac = float(np.clip(visible_len / raw_fl_px, 0.0, 1.0)) if raw_fl_px > 0 else None
+        us_frac = segment_fraction_in_rect(span, row.get("us_field"))
+        raw_us_frac = segment_fraction_in_rect(raw_span, row.get("us_field"))
+        area = float(item.get("area") or 1.0)
+        raw_crosses = float(item.get("raw_crosses") or 0.0)
+        cross_down = 1.0 / (1.0 + raw_crosses)
+        item["visible_frac"] = visible_frac
+        item["raw_visible_frac"] = raw_visible_frac
+        item["us_field_frac"] = us_frac
+        item["raw_us_field_frac"] = raw_us_frac
+        item["area_us_weight"] = area * (us_frac if us_frac is not None else 1.0)
+        item["raw_area_us_weight"] = area * (raw_us_frac if raw_us_frac is not None else 1.0)
+        item["area_us_visible_weight"] = area * (us_frac if us_frac is not None else 1.0) * (visible_frac if visible_frac is not None else 1.0)
+        item["area_us_cross_weight"] = area * (us_frac if us_frac is not None else 1.0) * cross_down
+        out.append(item)
+    return out
+
+
+def wave_projection_spans_from_items(items: list[dict]) -> list[dict]:
+    return [
+        {
+            **item["corrected_span"],
+            "component_id": item.get("component_id"),
+            "frag_id": item.get("frag_id"),
+            "raw_x1": item["raw_span"]["x1"],
+            "raw_y1": item["raw_span"]["y1"],
+            "raw_x2": item["raw_span"]["x2"],
+            "raw_y2": item["raw_span"]["y2"],
+            "changed": item.get("changed", False),
+            "raw_crosses": item.get("raw_crosses", 0),
+            "raw_theta_deg": item.get("raw_theta_deg"),
+            "corrected_theta_deg": item.get("corrected_theta_deg"),
+            "raw_consensus_dev_deg": item.get("raw_consensus_dev_deg"),
+            "corrected_consensus_dev_deg": item.get("corrected_consensus_dev_deg"),
+            "delta_angle_deg": item.get("delta_angle_deg", 0.0),
+            "cascade_steps": item.get("cascade_steps", 0),
+            "failed_to_resolve": item.get("failed_to_resolve", False),
+            "correction_reason": item.get("correction_reason"),
+            "raw_fl_mm": item.get("raw_span", {}).get("fl_mm"),
+            "raw_angle_deg": item.get("raw_angle"),
+            "corrected_angle_deg": item.get("corrected_angle"),
+            "visible_frac": item.get("visible_frac"),
+            "raw_visible_frac": item.get("raw_visible_frac"),
+            "us_field_frac": item.get("us_field_frac"),
+            "raw_us_field_frac": item.get("raw_us_field_frac"),
+            "area_us_weight": item.get("area_us_weight"),
+            "raw_area_us_weight": item.get("raw_area_us_weight"),
+            "area_us_visible_weight": item.get("area_us_visible_weight"),
+            "area_us_cross_weight": item.get("area_us_cross_weight"),
+        }
+        for item in items
+        if item.get("corrected_span") is not None
+    ]
+
+
+@lru_cache(maxsize=256)
+def pa_orientation_diagnostics_cached(image_id: str, boundary_text: str, deg_gate: float = 7.0, width: float = 180.0) -> tuple[dict, ...]:
+    boundary = json.loads(boundary_text) if boundary_text else None
+    if cv2 is None or np is None or boundary is None or boundary.get("deep") is None:
+        return tuple()
+    fasc = load_mask(ROOT / "results" / "visual_review" / f"{image_id}_fasc.png")
+    if fasc is None:
+        return []
+    deep_slope = float(boundary["deep"]["slope"])
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(np.ascontiguousarray(fasc, np.uint8), 8)
+    raw = []
+    for i in range(1, n):
+        area = int(stats[i, cv2.CC_STAT_AREA])
+        if area < 40:
+            continue
+        ys, xs = np.where(lab == i)
+        if len(xs) < 8:
+            continue
+        line = py_pca_line(xs, ys)
+        if line is None:
+            continue
+        cx = float(np.mean(xs))
+        cy = float(np.mean(ys))
+        slope = float(line["slope"])
+        angle = abs(py_signed_angle_to_deep(slope, deep_slope))
+        if not (6.0 <= angle <= 75.0):
+            continue
+        visible = fragment_visible_length(xs, ys, slope)
+        raw.append({
+            "component_id": int(i),
+            "frag_id": f"F{i}",
+            "cx": cx,
+            "cy": cy,
+            "area": float(area),
+            "raw_slope": slope,
+            "raw_angle": angle,
+            "visible_len": visible,
+        })
+    out = []
+    for frag in raw:
+        neigh = [
+            other for other in raw
+            if 0 < abs(other["cx"] - frag["cx"]) <= width
+        ]
+        local_theta = None
+        if len(neigh) >= 2:
+            local_theta = py_weighted_median(
+                [float(np.arctan(other["raw_slope"])) for other in neigh],
+                [other["area"] for other in neigh],
+            )
+        raw_theta = float(np.arctan(frag["raw_slope"]))
+        corrected_theta = raw_theta
+        changed = False
+        if local_theta is not None and abs(np.degrees(raw_theta - local_theta)) >= deg_gate:
+            corrected_theta = float(local_theta)
+            changed = True
+        corrected_slope = float(np.tan(corrected_theta))
+        row = {
+            **frag,
+            "local_slope": None if local_theta is None else float(np.tan(local_theta)),
+            "corrected_slope": corrected_slope,
+            "corrected_angle": abs(py_signed_angle_to_deep(corrected_slope, deep_slope)),
+            "changed": changed,
+            "raw_segment": line_segment_from_center(frag["cx"], frag["cy"], frag["raw_slope"], frag["visible_len"]),
+            "corrected_segment": line_segment_from_center(frag["cx"], frag["cy"], corrected_slope, frag["visible_len"]),
+        }
+        out.append(row)
+    return tuple(out)
+
+
+def pa_orientation_diagnostics(image_id: str, boundary: dict | None, deg_gate: float = 7.0, width: float = 180.0) -> list[dict]:
+    boundary_text = json.dumps(boundary, sort_keys=True) if boundary else ""
+    return list(pa_orientation_diagnostics_cached(image_id, boundary_text, float(deg_gate), float(width)))
+
+
 def robust_projection_spans(fasc_path: Path, boundary: dict | None, scale_px_per_mm: float | None) -> list[dict[str, float]]:
     fasc = load_mask(fasc_path)
     if fasc is None or boundary is None or boundary.get("top") is None or boundary.get("deep") is None:
@@ -1152,6 +1808,8 @@ def robust_projection_spans(fasc_path: Path, boundary: dict | None, scale_px_per
         if not (10.0 <= fl_px <= 4000.0 and 6.0 <= angle <= 75.0):
             continue
         row = {
+            "component_id": int(i),
+            "frag_id": f"F{i}",
             "x1": upper[0],
             "y1": upper[1],
             "x2": lower[0],
@@ -1170,7 +1828,7 @@ def candidate_boundary_from_apo_mask(path: Path) -> dict | None:
     apo = load_mask(path)
     if apo is None:
         return None
-    groups = apo_boundary_groups(np.ascontiguousarray(apo, np.uint8))
+    groups = candidate_apo_boundary_groups(np.ascontiguousarray(apo, np.uint8))
     if groups is None:
         return None
     groups.sort(key=lambda item: item[0])
@@ -1227,6 +1885,27 @@ def default_candidate_csvs() -> list[tuple[str, Path]]:
     return [(name, path) for name, path in candidates if path.exists()]
 
 
+def default_expert_candidate_csvs() -> list[tuple[str, Path]]:
+    exp48 = ROOT / "results" / "exp48_geometry_class_feature_matrix"
+    exp49 = ROOT / "results" / "exp49_weighted_story_aggregators"
+    exp50 = ROOT / "results" / "exp50_story_weight_grid"
+    exp53 = ROOT / "results" / "exp53_median_weight_blends"
+    candidates = [
+        ("robust_triangle_anchor", ROOT / "results" / "benchmark_pred_robust_triangle.csv"),
+        ("story_stack", exp48 / "story_FL_scan_on_low_support_PA_per_band_on_multi_band_else_conflict_all_MT_vertical_all.csv"),
+        ("weighted_story_fl", exp49 / "best_combo.csv"),
+        ("story_weight_grid_best", exp50 / "best_combo.csv"),
+        ("story_weight_same_story", exp50 / "best_same_story.csv"),
+        ("median_weight_blend_best", exp53 / "best_combo.csv"),
+        ("fl_scan_support", ROOT / "results" / "exp40_untested_feature_benchmark" / "strict_scan_region_linear_support_weighted_FL_only.csv"),
+        ("pa_per_band", ROOT / "results" / "exp42_per_band_pa_mt_isolation" / "fragment_count_average_all_detected_bands_pa_only_keep_FL_baseline.csv"),
+        ("pa_conflict_gate", ROOT / "results" / "exp39_pa_lower_boundary_ablation" / "pa_conflict_gated_7deg.csv"),
+        ("mt_vertical_center", ROOT / "results" / "exp43_pa_mt_geometry_conventions" / "MT_only_vertical_center_gap_keep_PA_FL.csv"),
+        ("best_local_all_features", ROOT / "results" / "exp44_best_local_feature_stack" / "FL_scan_region_linear_plus_PA_conflict_gate_plus_MT_vertical_center.csv"),
+    ]
+    return [(name, path) for name, path in candidates if path.exists()]
+
+
 def rejected_candidate_csvs() -> list[tuple[str, Path]]:
     candidates = [
         ("mt_vertical3_0625", ROOT / "results" / "submission_host_mt_vertical3_no_subpixel.csv"),
@@ -1246,6 +1925,635 @@ def parse_candidate_arg(values: list[str]) -> list[tuple[str, Path]]:
             name = Path(value).stem
         out.append((safe_id(name), Path(path)))
     return out
+
+
+def dedupe_candidate_csvs(candidates: list[tuple[str, Path]]) -> list[tuple[str, Path]]:
+    seen: set[str] = set()
+    out = []
+    for name, path in candidates:
+        key = safe_id(name)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((key, path))
+    return out
+
+
+def read_exp48_classes() -> dict[str, dict[str, bool]]:
+    path = ROOT / "results" / "exp48_geometry_class_feature_matrix" / "geometry_classes.csv"
+    out: dict[str, dict[str, bool]] = {}
+    for row in read_csv(path):
+        image_id = stem(row.get("image_id", ""))
+        out[image_id] = {
+            key: str(value).strip().lower() == "true"
+            for key, value in row.items()
+            if key != "image_id"
+        }
+    return out
+
+
+def read_exp48_table(name: str) -> list[dict[str, str]]:
+    return read_csv(ROOT / "results" / "exp48_geometry_class_feature_matrix" / name)
+
+
+@lru_cache(maxsize=8)
+def read_json_file(path_text: str) -> dict:
+    path = Path(path_text)
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def json_numpy_default(value):
+    if np is not None and isinstance(value, np.generic):
+        return value.item()
+    raise TypeError(f"Object of type {value.__class__.__name__} is not JSON serializable")
+
+
+def exp40_geometry(variant: str, image_id: str) -> dict:
+    bundle = read_json_file(str(ROOT / "results" / "exp40_untested_feature_benchmark" / "geometry_bundle.json"))
+    return bundle.get(variant, {}).get(image_id, {})
+
+
+def exp42_geometry(image_id: str) -> dict:
+    bundle = read_json_file(str(ROOT / "results" / "exp42_per_band_pa_mt_isolation" / "geometry_bundle.json"))
+    return bundle.get(image_id, {})
+
+
+def exp43_geometry(variant: str, image_id: str) -> dict:
+    bundle = read_json_file(str(ROOT / "results" / "exp43_pa_mt_geometry_conventions" / "geometry_bundle.json"))
+    return bundle.get(variant, {}).get(image_id, {})
+
+
+def exp39_geometry(image_id: str) -> dict:
+    bundle = read_json_file(str(ROOT / "results" / "exp39_pa_lower_boundary_ablation" / "geometry_bundle.json"))
+    return bundle.get(image_id, {})
+
+
+def boundary_from_points(points: list[dict[str, float]] | None) -> dict | None:
+    if not points:
+        return None
+    return {"type": "piecewise", "points": points}
+
+
+def normalize_span(span: dict) -> dict:
+    out = {
+        "x1": span.get("x1"),
+        "y1": span.get("y1"),
+        "x2": span.get("x2"),
+        "y2": span.get("y2"),
+    }
+    for key in ("fl_mm", "angle_deg", "visible_frac", "strict_scan_region_frac", "gap_index", "frag_id", "component_id"):
+        if key in span:
+            out[key] = span[key]
+    return out
+
+
+def attach_span_ids(spans: list[dict], reference_spans: list[dict]) -> list[dict]:
+    if not spans or not reference_spans:
+        return spans
+    refs = [ref for ref in reference_spans if ref.get("frag_id")]
+    if not refs:
+        return spans
+    used: set[int] = set()
+    for idx, span in enumerate(spans):
+        if span.get("frag_id"):
+            continue
+        best_idx = None
+        best_score = float("inf")
+        for ref_idx, ref in enumerate(refs):
+            if ref_idx in used:
+                continue
+            try:
+                endpoint_dist = (
+                    abs(float(span.get("x1", 0)) - float(ref.get("x1", 0)))
+                    + abs(float(span.get("y1", 0)) - float(ref.get("y1", 0)))
+                    + abs(float(span.get("x2", 0)) - float(ref.get("x2", 0)))
+                    + abs(float(span.get("y2", 0)) - float(ref.get("y2", 0)))
+                )
+                angle_dist = abs(float(span.get("angle_deg", 0)) - float(ref.get("angle_deg", 0))) * 8.0
+                fl_dist = abs(float(span.get("fl_mm", 0)) - float(ref.get("fl_mm", 0))) * 2.0
+            except (TypeError, ValueError):
+                continue
+            score = endpoint_dist + angle_dist + fl_dist
+            if score < best_score:
+                best_score = score
+                best_idx = ref_idx
+        if best_idx is not None and best_score < 160.0:
+            ref = refs[best_idx]
+            used.add(best_idx)
+            span["frag_id"] = ref.get("frag_id")
+            span["component_id"] = ref.get("component_id")
+            span["frag_match"] = "geometry_nearest"
+        elif idx < len(refs):
+            ref = refs[idx]
+            span["frag_id"] = ref.get("frag_id")
+            span["component_id"] = ref.get("component_id")
+            span["frag_match"] = "order_fallback"
+    return spans
+
+
+def detect_scan_region(image_id: str, image_path_text: str) -> dict | None:
+    if cv2 is None or np is None:
+        return None
+    preferred = ROOT / "results" / "visual_review" / f"{image_id}_base.jpg"
+    path = preferred if preferred.exists() else Path(image_path_text)
+    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    if gray is None:
+        return None
+    nonblack = (gray > 8).astype(np.uint8)
+    if int(nonblack.sum()) == 0:
+        return None
+    closed = cv2.morphologyEx(nonblack, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8), iterations=2)
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(closed, 8)
+    if n <= 1:
+        ys, xs = np.where(nonblack > 0)
+        if len(xs) == 0:
+            return None
+        x, y, w, h = int(xs.min()), int(ys.min()), int(xs.max() - xs.min() + 1), int(ys.max() - ys.min() + 1)
+        area = int(nonblack.sum())
+    else:
+        keep = int(np.argmax(stats[1:, cv2.CC_STAT_AREA])) + 1
+        x = int(stats[keep, cv2.CC_STAT_LEFT])
+        y = int(stats[keep, cv2.CC_STAT_TOP])
+        w = int(stats[keep, cv2.CC_STAT_WIDTH])
+        h = int(stats[keep, cv2.CC_STAT_HEIGHT])
+        area = int(stats[keep, cv2.CC_STAT_AREA])
+    return {
+        "x": x,
+        "y": y,
+        "w": w,
+        "h": h,
+        "area": area,
+        "image_w": int(gray.shape[1]),
+        "image_h": int(gray.shape[0]),
+        "method": "largest_nonblack_connected_component",
+    }
+
+
+def longest_true_run(mask: np.ndarray, min_len: int) -> tuple[int, int] | None:
+    best: tuple[int, int] | None = None
+    start: int | None = None
+    for idx, ok in enumerate(mask.tolist() + [False]):
+        if ok and start is None:
+            start = idx
+        if not ok and start is not None:
+            end = idx
+            if end - start >= min_len and (best is None or end - start > best[1] - best[0]):
+                best = (start, end)
+            start = None
+    return best
+
+
+def detect_image_field(image_id: str, image_path_text: str) -> dict | None:
+    if cv2 is None or np is None:
+        return None
+    preferred = ROOT / "results" / "visual_review" / f"{image_id}_base.jpg"
+    path = preferred if preferred.exists() else Path(image_path_text)
+    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    if gray is None:
+        return None
+    # Broad field estimate: find long rows/columns that are not pure black.
+    # This is intentionally not the dense texture core; it is the visible image
+    # field boundary used for on-screen/off-screen projection reasoning.
+    active = (gray > 8).astype(np.uint8)
+    active = cv2.morphologyEx(active, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1).astype(bool)
+    row_density = active.mean(axis=1)
+    col_density = active.mean(axis=0)
+    row_density = np.convolve(row_density, np.ones(21) / 21.0, mode="same")
+    col_density = np.convolve(col_density, np.ones(21) / 21.0, mode="same")
+    rows = longest_true_run(row_density > 0.05, max(20, gray.shape[0] // 10))
+    cols = longest_true_run(col_density > 0.05, max(40, gray.shape[1] // 10))
+    if rows is None or cols is None:
+        return None
+    y0, y1 = rows
+    x0, x1 = cols
+    if (x1 - x0) * (y1 - y0) < gray.shape[0] * gray.shape[1] * 0.08:
+        return None
+    return {
+        "x": int(x0),
+        "y": int(y0),
+        "w": int(x1 - x0),
+        "h": int(y1 - y0),
+        "image_w": int(gray.shape[1]),
+        "image_h": int(gray.shape[0]),
+        "method": "broad_nonblack_field",
+    }
+
+
+def mask_anchor_for_field(image_id: str) -> tuple[int, int] | None:
+    masks = []
+    for suffix in ("fasc", "apo"):
+        mask = load_mask(ROOT / "results" / "visual_review" / f"{image_id}_{suffix}.png")
+        if mask is not None and int(mask.sum()) > 0:
+            masks.append(mask.astype(bool))
+    if not masks:
+        return None
+    merged = np.logical_or.reduce(masks)
+    ys, xs = np.where(merged)
+    if len(xs) == 0:
+        return None
+    return int(np.median(xs)), int(np.median(ys))
+
+
+def uniform_vertical(gray: np.ndarray, x: int, y: int, run: int, tol: int) -> bool:
+    y0 = max(0, y - run)
+    y1 = min(gray.shape[0], y + run + 1)
+    vals = gray[y0:y1, x]
+    return len(vals) >= run and int(vals.max()) - int(vals.min()) <= tol
+
+
+def uniform_horizontal(gray: np.ndarray, x: int, y: int, run: int, tol: int) -> bool:
+    x0 = max(0, x - run)
+    x1 = min(gray.shape[1], x + run + 1)
+    vals = gray[y, x0:x1]
+    return len(vals) >= run and int(vals.max()) - int(vals.min()) <= tol
+
+
+def detect_ultrasound_field(image_id: str, image_path_text: str) -> dict | None:
+    if cv2 is None or np is None:
+        return None
+    preferred = ROOT / "results" / "visual_review" / f"{image_id}_base.jpg"
+    path = preferred if preferred.exists() else Path(image_path_text)
+    gray = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    if gray is None:
+        return None
+    anchor = mask_anchor_for_field(image_id)
+    if anchor is None:
+        return None
+    cx, cy = anchor
+    masks = []
+    for suffix in ("fasc", "apo"):
+        mask = load_mask(ROOT / "results" / "visual_review" / f"{image_id}_{suffix}.png")
+        if mask is not None and int(mask.sum()) > 0:
+            masks.append(mask.astype(bool))
+    if not masks:
+        return None
+    merged = np.logical_or.reduce(masks)
+    ys, xs = np.where(merged)
+    if len(xs) == 0:
+        return None
+    mx0, mx1 = int(xs.min()), int(xs.max())
+    my0, my1 = int(ys.min()), int(ys.max())
+    run = max(10, min(gray.shape[:2]) // 40)
+    tol = 4
+    y_samples = [int(v) for v in np.linspace(max(0, my0 - 30), min(gray.shape[0] - 1, my1 + 30), 13)]
+    x_samples = [int(v) for v in np.linspace(max(0, mx0 - 45), min(gray.shape[1] - 1, mx1 + 45), 15)]
+
+    def vertical_background_vote(x: int) -> float:
+        votes = [uniform_vertical(gray, x, y, run, tol) for y in y_samples]
+        return float(sum(votes) / max(len(votes), 1))
+
+    def horizontal_background_vote(y: int) -> float:
+        votes = [uniform_horizontal(gray, x, y, run, tol) for x in x_samples]
+        return float(sum(votes) / max(len(votes), 1))
+
+    def sustained_edge(values: list[tuple[int, float]], reverse: bool) -> int | None:
+        run = 0
+        best = None
+        ordered = values[::-1] if reverse else values
+        for pos, vote in ordered:
+            if vote >= 0.62:
+                run += 1
+                if run >= 4:
+                    best = pos
+                    break
+            else:
+                run = 0
+        return best
+
+    left_values = [(x, vertical_background_vote(x)) for x in range(max(0, mx0 - 320), max(1, mx0 + 1))]
+    right_values = [(x, vertical_background_vote(x)) for x in range(min(gray.shape[1] - 1, mx1), min(gray.shape[1], mx1 + 321))]
+    top_values = [(y, horizontal_background_vote(y)) for y in range(max(0, my0 - 260), max(1, my0 + 1))]
+    bottom_values = [(y, horizontal_background_vote(y)) for y in range(min(gray.shape[0] - 1, my1), min(gray.shape[0], my1 + 261))]
+    left_bg = sustained_edge(left_values, reverse=True)
+    right_bg = sustained_edge(right_values, reverse=False)
+    top_bg = sustained_edge(top_values, reverse=True)
+    bottom_bg = sustained_edge(bottom_values, reverse=False)
+    left = 0 if left_bg is None else min(gray.shape[1] - 1, left_bg + 3)
+    right = gray.shape[1] - 1 if right_bg is None else max(0, right_bg - 3)
+    top = 0 if top_bg is None else min(gray.shape[0] - 1, top_bg + 3)
+    bottom = gray.shape[0] - 1 if bottom_bg is None else max(0, bottom_bg - 3)
+    if right <= left or bottom <= top:
+        return None
+    return {
+        "x": left,
+        "y": top,
+        "w": right - left + 1,
+        "h": bottom - top + 1,
+        "anchor_x": cx,
+        "anchor_y": cy,
+        "mask_box": {"x": mx0, "y": my0, "w": mx1 - mx0 + 1, "h": my1 - my0 + 1},
+        "uniform_run": run,
+        "uniform_tol": tol,
+        "vote_threshold": 0.62,
+        "image_w": int(gray.shape[1]),
+        "image_h": int(gray.shape[0]),
+        "method": "mask_bounds_uniform_run_vote",
+    }
+
+
+def model_display(name: str) -> dict[str, str]:
+    key = safe_id(name)
+    info = MODEL_INFO.get(key, {})
+    return {
+        "id": key,
+        "label": info.get("label", name.replace("_", " ")),
+        "color": info.get("color", "#f4f4f5"),
+        "kind": info.get("kind", "candidate"),
+        "description": info.get("description", ""),
+    }
+
+
+def story_gate_reason(model_id: str, flags: dict[str, bool]) -> str:
+    if model_id == "story_stack":
+        pa = "per-band PA" if flags.get("multi_band_risk") else "conflict-gated PA"
+        fl = "scan-support FL" if flags.get("low_support_any") else "robust-triangle FL"
+        return f"{fl}; {pa}; vertical-center MT."
+    if model_id == "weighted_story_fl":
+        return "EXP49 benchmark: PA median, FL weighted by area x ultrasound-field support, vertical-center MT."
+    if model_id == "story_weight_grid_best":
+        return "EXP50 benchmark best: PA median; FL raw-span weighted trim using area x ultrasound-field support x local trajectory residual; vertical-center MT."
+    if model_id == "story_weight_same_story":
+        return "EXP50 coherent reducer: PA and FL both use area x ultrasound-field support x local trajectory residual; vertical-center MT."
+    if model_id == "median_weight_blend_best":
+        return "EXP53 benchmark best: PA median blended 25% toward saturating support/position PA; FL median blended 85% toward weighted-trim support FL; vertical-center MT."
+    if model_id == "fl_scan_support":
+        return "Component check: FL is weighted by scan-region support."
+    if model_id == "pa_per_band":
+        return "Component check: PA is averaged within bands before global aggregation."
+    if model_id == "pa_conflict_gate":
+        return "Component check: PA uses conflict-gated orientation selection."
+    if model_id == "mt_vertical_center":
+        return "Component check: MT uses vertical center gap."
+    if model_id == "robust_triangle_anchor":
+        return "Anchor model: robust upper triangle plus linear lower boundary."
+    if model_id == "best_local_all_features":
+        return "Prior best local stack before class-aware EXP48 gating."
+    return ""
+
+
+def model_from_candidate(
+    cand: dict,
+    boundary: dict | None,
+    spans: list[dict[str, float]],
+    flags: dict[str, bool],
+    row: dict,
+) -> dict:
+    display = model_display(cand.get("name", "candidate"))
+    model_id = display["id"]
+    has_geometry = model_id in GEOMETRY_MODEL_IDS and boundary is not None
+    model_boundary = boundary if has_geometry else None
+    model_spans = spans if has_geometry else []
+    diagnostics: dict = {}
+    geometry_note = "No model-specific geometry bundle; numeric candidate only."
+
+    if model_id == "robust_triangle_anchor" and model_boundary is not None:
+        diagnostics["pa_orientation"] = pa_orientation_diagnostics(row.get("image_id", ""), boundary, deg_gate=999.0)
+        geometry_note = "Model-specific robust-triangle boundary and projected spans."
+    if model_id == "our_pipeline_true_scale" and model_boundary is not None:
+        diagnostics["pa_orientation"] = pa_orientation_diagnostics(row.get("image_id", ""), boundary, deg_gate=999.0)
+        geometry_note = "Numeric true-scale pipeline CSV; spans shown are reconstructed from current masks for visual reference, not an archived exact production geometry bundle."
+    if model_id in {"fl_scan_support", "best_local_all_features"}:
+        g = exp40_geometry("strict_scan_region_linear_support_weighted_FL_only", row.get("image_id", ""))
+        if g:
+            model_boundary = {
+                "mode": "exp40_scan_support",
+                "top": boundary_from_points(g.get("upper", {}).get("points")) or (boundary or {}).get("top"),
+                "deep": (boundary or {}).get("deep"),
+            }
+            model_spans = attach_span_ids([normalize_span(s) for s in g.get("spans", [])], row.get("candidate_projection_spans") or [])
+            diagnostics.update({k: g.get(k) for k in ("n_fragments", "n_projected", "median_visible_frac", "median_strict_scan_region_frac")})
+            geometry_note = "Model-specific exp40 scan-support spans; lower line remains the robust deep line."
+    if model_id == "story_stack":
+        diagnostics["pa_orientation"] = pa_orientation_diagnostics(row.get("image_id", ""), boundary, deg_gate=(999.0 if flags.get("multi_band_risk") else 7.0))
+        if flags.get("low_support_any"):
+            g = exp40_geometry("strict_scan_region_linear_support_weighted_FL_only", row.get("image_id", ""))
+            if g:
+                model_boundary = {
+                    "mode": "story_low_support_scan",
+                    "top": boundary_from_points(g.get("upper", {}).get("points")) or (boundary or {}).get("top"),
+                    "deep": (boundary or {}).get("deep"),
+                }
+                model_spans = attach_span_ids([normalize_span(s) for s in g.get("spans", [])], row.get("candidate_projection_spans") or [])
+                diagnostics.update({k: g.get(k) for k in ("n_fragments", "n_projected", "median_visible_frac", "median_strict_scan_region_frac")})
+                geometry_note = "Story stack used scan-support FL for this low-support image."
+        elif model_boundary is not None:
+            geometry_note = "Story stack uses robust FL geometry for this image."
+    if model_id in {"weighted_story_fl", "story_weight_grid_best", "story_weight_same_story", "median_weight_blend_best"} and boundary is not None:
+        diag = wave_non_crossing_diagnostics(
+            row.get("image_id", ""),
+            boundary,
+            row.get("scale_px_per_mm"),
+        )
+        diag["items"] = add_support_fractions_to_wave_items(diag.get("items") or [], row)
+        diagnostics["wave_non_crossing"] = diag
+        diagnostics["pa_orientation"] = [
+            {
+                **item,
+                "corrected_segment": item.get("corrected_segment") or line_segment_from_center(
+                    item["cx"],
+                    item["cy"],
+                    item.get("corrected_slope", item["raw_slope"]),
+                    item.get("visible_len", 60.0),
+                ),
+            }
+            for item in diag.get("items") or []
+        ]
+        model_boundary = boundary
+        model_spans = wave_projection_spans_from_items(diag.get("items") or [])
+        geometry_note = "Weighted story stack: wave spans displayed with ultrasound-field support weights."
+    if model_id == "pa_per_band":
+        diagnostics["pa_orientation"] = pa_orientation_diagnostics(row.get("image_id", ""), boundary, deg_gate=999.0)
+        g = exp42_geometry(row.get("image_id", ""))
+        band_spans = []
+        for gap in g.get("gaps", []):
+            for span in gap.get("spans", []):
+                band_spans.append(normalize_span({**span, "gap_index": gap.get("gap_index")}))
+        if band_spans:
+            model_boundary = boundary
+            model_spans = attach_span_ids(band_spans, row.get("candidate_projection_spans") or [])
+            diagnostics.update({"n_bands": g.get("n_bands"), "n_gaps": g.get("n_gaps")})
+            geometry_note = "Model-specific exp42 per-band grouped projected spans."
+    if model_id == "pa_conflict_gate":
+        diagnostics["pa_orientation"] = pa_orientation_diagnostics(row.get("image_id", ""), boundary, deg_gate=7.0)
+        g = exp39_geometry(row.get("image_id", ""))
+        if g:
+            model_boundary = boundary
+            diagnostics.update({
+                "n_fragments": g.get("n_fragments"),
+                "lower_smooth": g.get("lower_smooth"),
+                "lower_quartile": g.get("lower_quartile"),
+            })
+            geometry_note = "PA conflict is numeric; lower-boundary diagnostic curves are available."
+    if model_id in {"mt_vertical_center", "best_local_all_features", "story_stack"}:
+        mt = exp43_geometry("MT_only_vertical_center_gap_keep_PA_FL", row.get("image_id", ""))
+        if mt.get("mt"):
+            model_boundary = model_boundary or boundary
+            diagnostics["mt_positions"] = mt["mt"].get("positions", [])
+            diagnostics["mt_values"] = mt["mt"].get("mt_values", [])
+            if model_id == "mt_vertical_center":
+                geometry_note = "Model-specific exp43 vertical-center MT position."
+
+    return {
+        **display,
+        "predictions": {
+            "pa_deg": cand.get("pa_deg"),
+            "fl_mm": cand.get("fl_mm"),
+            "mt_mm": cand.get("mt_mm"),
+        },
+        "deltas": {
+            "pa_deg": cand.get("delta_pa"),
+            "fl_mm": cand.get("delta_fl"),
+            "mt_mm": cand.get("delta_mt"),
+        },
+        "overall_norm": cand.get("overall_norm"),
+        "gate_reason": story_gate_reason(model_id, flags),
+        "geometry_note": geometry_note,
+        "diagnostics": diagnostics,
+        "boundary": model_boundary,
+        "projection_spans": model_spans,
+    }
+
+
+def wave_trial_model(
+    row: dict,
+    boundary: dict | None,
+    flags: dict[str, bool],
+    model_id: str = "wave_non_crossing_trial",
+    update_consensus: bool = False,
+) -> dict | None:
+    if boundary is None:
+        return None
+    display = model_display(model_id)
+    diag = wave_non_crossing_diagnostics(
+        row.get("image_id", ""),
+        boundary,
+        row.get("scale_px_per_mm"),
+        update_consensus=update_consensus,
+    )
+    items = diag.get("items") or []
+    items = add_support_fractions_to_wave_items(items, row)
+    diag["items"] = items
+    spans = wave_projection_spans_from_items(items)
+    pred = {
+        "pa_deg": diag.get("median_pa_deg"),
+        "fl_mm": diag.get("median_fl_mm"),
+        "mt_mm": None,
+    }
+    deltas, overall = norm_delta(row.get("human", {}), pred)
+    return {
+        **display,
+        "predictions": pred,
+        "deltas": {
+            "pa_deg": deltas.get("delta_pa"),
+            "fl_mm": deltas.get("delta_fl"),
+            "mt_mm": deltas.get("delta_mt"),
+        },
+        "overall_norm": overall,
+        "summary": {},
+        "gate_reason": (
+            f"Visual trial only ({diag.get('mode')}). Order {diag.get('order')}; "
+            f"changed {diag.get('n_changed')} of {len(items)} fragments; "
+            f"raw crossing fragments {diag.get('n_raw_crossing')}."
+        ),
+        "geometry_note": "Rotate-only non-crossing projected-span trial, clamped at consensus; not yet a production candidate.",
+        "diagnostics": {
+            "wave_non_crossing": diag,
+            "pa_orientation": [
+                {
+                    **item,
+                    "corrected_segment": item.get("corrected_segment") or line_segment_from_center(
+                        item["cx"],
+                        item["cy"],
+                        item.get("corrected_slope", item["raw_slope"]),
+                        item.get("visible_len", 60.0),
+                    ),
+                }
+                for item in items
+            ],
+        },
+        "boundary": boundary,
+        "projection_spans": spans,
+    }
+
+
+def enrich_rows_for_v2(rows: list[dict], summary: list[dict]) -> dict:
+    class_map = read_exp48_classes()
+    summary_by_name = {safe_id(row.get("name", "")): row for row in summary}
+    for row in rows:
+        flags = class_map.get(row.get("image_id", ""), {})
+        row["class_flags"] = flags
+        row["classes"] = [name for name, enabled in flags.items() if enabled]
+        row["scan_region"] = detect_scan_region(row.get("image_id", ""), row.get("image_path", ""))
+        row["image_field"] = detect_image_field(row.get("image_id", ""), row.get("image_path", ""))
+        row["us_field"] = detect_ultrasound_field(row.get("image_id", ""), row.get("image_path", ""))
+        models = [
+            model_from_candidate(
+                cand,
+                row.get("candidate_boundary"),
+                row.get("candidate_projection_spans") or [],
+                flags,
+                row,
+            )
+            for cand in row.get("candidates", [])
+        ]
+        wave = wave_trial_model(row, row.get("candidate_boundary"), flags)
+        wave_updating = wave_trial_model(
+            row,
+            row.get("candidate_boundary"),
+            flags,
+            model_id="wave_non_crossing_updating_trial",
+            update_consensus=True,
+        )
+        wave_models = [model for model in (wave, wave_updating) if model is not None]
+        if wave_models:
+            insert_at = next((idx + 1 for idx, model in enumerate(models) if model["id"] == "pa_conflict_gate"), len(models))
+            for offset, model in enumerate(wave_models):
+                models.insert(insert_at + offset, model)
+        row["models"] = models
+        for model in row["models"]:
+            model["summary"] = summary_by_name.get(model["id"], {})
+    computed: dict[str, dict[str, list[float]]] = {}
+    for row in rows:
+        for model in row.get("models", []):
+            acc = computed.setdefault(model["id"], {"overall": [], "pa": [], "fl": [], "mt": []})
+            if model.get("overall_norm") is not None:
+                acc["overall"].append(float(model["overall_norm"]))
+            deltas = model.get("deltas") or {}
+            if deltas.get("pa_deg") is not None:
+                acc["pa"].append(abs(float(deltas["pa_deg"])) / TOL["pa_deg"])
+            if deltas.get("fl_mm") is not None:
+                acc["fl"].append(abs(float(deltas["fl_mm"])) / TOL["fl_mm"])
+            if deltas.get("mt_mm") is not None:
+                acc["mt"].append(abs(float(deltas["mt_mm"])) / TOL["mt_mm"])
+
+    def mean(xs: list[float]) -> float | None:
+        return sum(xs) / len(xs) if xs else None
+
+    for model_id, acc in computed.items():
+        summary_by_name[model_id] = {
+            **summary_by_name.get(model_id, {}),
+            "name": model_id,
+            "overall_norm": mean(acc["overall"]),
+            "pa_norm": mean(acc["pa"]),
+            "fl_norm": mean(acc["fl"]),
+            "mt_norm": mean(acc["mt"]),
+            "n": len(acc["overall"]),
+        }
+    for row in rows:
+        for model in row.get("models", []):
+            model["summary"] = summary_by_name.get(model["id"], {})
+    return {
+        "tolerances": TOL,
+        "model_info": MODEL_INFO,
+        "story_summary": read_exp48_table("story_candidate_summary.csv"),
+        "class_feature_scores": read_exp48_table("class_feature_scores.csv"),
+        "class_names": list(next(iter(class_map.values())).keys()) if class_map else [],
+    }
 
 
 def norm_delta(human: dict[str, float | None], pred: dict[str, float | None]) -> tuple[dict[str, float | None], float | None]:
@@ -1600,8 +2908,10 @@ def build_synthetic_rows(
 class Handler(BaseHTTPRequestHandler):
     rows: list[dict] = []
     summary: list[dict] = []
+    metadata: dict = {}
     labels_dir: Path = ROOT / "results" / "human_benchmark" / "target_labels"
     review_dir: Path = ROOT / "results" / "human_benchmark" / "review_notes"
+    session_dir: Path = VIEWER_V2_SESSION_DIR
 
     def log_message(self, fmt: str, *args) -> None:
         print(f"{self.address_string()} - {fmt % args}")
@@ -1628,14 +2938,51 @@ class Handler(BaseHTTPRequestHandler):
             return None
         return self.rows[idx]
 
+    def send_static_v2(self, rel_path: str) -> None:
+        rel = rel_path.strip("/") or "index.html"
+        path = (VIEWER_V2_DIR / rel).resolve()
+        try:
+            path.relative_to(VIEWER_V2_DIR.resolve())
+        except ValueError:
+            self.send_text("bad static path", 404)
+            return
+        if not path.exists() or not path.is_file():
+            self.send_text("static file not found", 404)
+            return
+        ctype = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        if path.suffix.lower() in {".html", ".css", ".js"}:
+            ctype += "; charset=utf-8"
+        self.send_bytes(path.read_bytes(), ctype)
+
+    def session_path(self) -> Path:
+        return self.session_dir / "session.json"
+
+    def load_session(self) -> dict:
+        path = self.session_path()
+        if not path.exists():
+            return {"items": {}, "updated_at": None}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {"items": {}, "updated_at": None}
+
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         parts = [p for p in parsed.path.split("/") if p]
         if parsed.path == "/":
             self.send_bytes(HTML.encode("utf-8"), "text/html; charset=utf-8")
             return
+        if parsed.path == "/v2" or parsed.path == "/v2/":
+            self.send_static_v2("index.html")
+            return
+        if parsed.path.startswith("/viewer_v2/"):
+            self.send_static_v2(parsed.path.removeprefix("/viewer_v2/"))
+            return
         if parsed.path == "/api/review":
-            self.send_json({"rows": self.rows, "summary": self.summary})
+            self.send_json({"rows": self.rows, "summary": self.summary, "metadata": self.metadata})
+            return
+        if parsed.path == "/api/session":
+            self.send_json(self.load_session())
             return
         if len(parts) == 2 and parts[0] == "image":
             row = self.row_for(parts[1])
@@ -1665,7 +3012,22 @@ class Handler(BaseHTTPRequestHandler):
         self.send_text("not found", 404)
 
     def do_POST(self) -> None:
-        if urlparse(self.path).path != "/api/save_review":
+        path = urlparse(self.path).path
+        if path == "/api/save_session":
+            try:
+                n = int(self.headers.get("Content-Length", "0"))
+                payload = json.loads(self.rfile.read(n).decode("utf-8"))
+                if not isinstance(payload, dict):
+                    raise ValueError("session payload must be an object")
+            except Exception as exc:
+                self.send_text(f"bad session payload: {exc}", 400)
+                return
+            self.session_dir.mkdir(parents=True, exist_ok=True)
+            payload["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self.session_path().write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            self.send_json({"ok": True, "updated_at": payload["updated_at"]})
+            return
+        if path != "/api/save_review":
             self.send_text("not found", 404)
             return
         try:
@@ -1717,7 +3079,7 @@ def main() -> None:
         Handler.labels_dir = Path(args.synthetic_dir) / "labels"
     elif args.expert_benchmark:
         primary_candidate_csvs = parse_candidate_arg(args.primary_pred_csv)
-        candidate_csvs = parse_candidate_arg(args.pred_csv)
+        candidate_csvs = dedupe_candidate_csvs(default_expert_candidate_csvs() + parse_candidate_arg(args.pred_csv))
         rows, summary = build_expert_benchmark_rows(primary_candidate_csvs, candidate_csvs, Path(args.review_dir))
         Handler.labels_dir = Path(args.labels_dir)
     else:
@@ -1733,13 +3095,18 @@ def main() -> None:
             Path(args.review_dir),
         )
         Handler.labels_dir = Path(args.labels_dir)
+    metadata = enrich_rows_for_v2(rows, summary)
     Handler.rows = rows
     Handler.summary = summary
+    Handler.metadata = metadata
     Handler.review_dir = Path(args.review_dir)
+    Handler.session_dir = VIEWER_V2_SESSION_DIR / safe_id("expert_benchmark" if args.expert_benchmark else (Path(args.synthetic_dir).name if args.synthetic_dir else "target_review"))
     Handler.review_dir.mkdir(parents=True, exist_ok=True)
+    Handler.session_dir.mkdir(parents=True, exist_ok=True)
 
     server = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"UMUD label review: http://{args.host}:{args.port}")
+    print(f"Viewer v2: http://{args.host}:{args.port}/v2")
     print(f"labeled rows: {len(rows)}")
     print("candidates:")
     if args.synthetic_dir:

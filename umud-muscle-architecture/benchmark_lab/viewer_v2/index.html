@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Class-Aware Story Stack Viewer</title>
+    <link rel="stylesheet" href="/viewer_v2/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">S2</span>
+          <span>
+            <strong>Story Stack Viewer</strong>
+            <small>class-aware geometry review</small>
+          </span>
+        </div>
+        <div class="top-actions">
+          <button id="prevBtn" type="button">Prev</button>
+          <button id="nextBtn" type="button">Next</button>
+          <span id="counter" class="counter"></span>
+          <button id="zoomOutBtn" type="button">-</button>
+          <button id="fitBtn" type="button">Fit</button>
+          <button id="zoomResetBtn" type="button">100%</button>
+          <button id="zoomInBtn" type="button">+</button>
+          <span id="saveStatus" class="save-status">loading</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="left-panel">
+          <section class="panel-section">
+            <label class="field-label" for="searchInput">Search image</label>
+            <input id="searchInput" type="search" placeholder="im_29, class, source" />
+          </section>
+
+          <section class="panel-section">
+            <label class="field-label" for="sortSelect">Sort</label>
+            <select id="sortSelect">
+              <option value="overall_desc">Worst selected model</option>
+              <option value="pa_desc">Worst PA delta</option>
+              <option value="fl_desc">Worst FL delta</option>
+              <option value="mt_desc">Worst MT delta</option>
+              <option value="image_id">Image id</option>
+            </select>
+          </section>
+
+          <section class="panel-section">
+            <div class="section-title">Class filters</div>
+            <div id="classFilters" class="class-filter-list"></div>
+          </section>
+
+          <section class="panel-section list-section">
+            <div class="section-title">Images</div>
+            <div id="imageList" class="image-list"></div>
+          </section>
+        </aside>
+
+        <section class="stage-panel">
+          <div id="deltaStrip" class="delta-strip"></div>
+          <div class="stage-scroll" id="stageScroll">
+            <div id="imageStack" class="image-stack">
+              <img id="baseImage" alt="Current benchmark image" />
+              <img id="apoLayer" class="mask-layer" alt="" />
+              <img id="fascLayer" class="mask-layer" alt="" />
+              <img id="ignoreLayer" class="mask-layer" alt="" />
+              <img id="diagLayer" class="mask-layer" alt="" />
+              <canvas id="overlayCanvas"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <aside class="right-panel">
+          <nav class="tabs" aria-label="Review tabs">
+            <button class="tab active" data-tab="models" type="button">Models</button>
+            <button class="tab" data-tab="classes" type="button">Classes</button>
+            <button class="tab" data-tab="scratch" type="button">Scratch</button>
+            <button class="tab" data-tab="notes" type="button">Notes</button>
+          </nav>
+
+          <section id="tab-models" class="tab-page active">
+            <div class="panel-section">
+              <div class="section-title">Active model</div>
+              <div id="modelCards" class="model-list"></div>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">Visible layers</div>
+              <div id="layerToggles" class="toggle-grid"></div>
+            </div>
+          </section>
+
+          <section id="tab-classes" class="tab-page">
+            <div class="panel-section">
+              <div class="section-title">Story gate</div>
+              <div id="storyGate" class="story-box"></div>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">Class tags</div>
+              <div id="classTags" class="tag-list"></div>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">Class matrix</div>
+              <div id="classMatrix" class="compact-table-wrap"></div>
+            </div>
+          </section>
+
+          <section id="tab-scratch" class="tab-page">
+            <div class="panel-section">
+              <div class="section-title">Tools</div>
+              <div id="toolButtons" class="tool-grid"></div>
+              <div class="tool-actions">
+                <button id="undoScratchBtn" type="button">Undo</button>
+                <button id="clearScratchBtn" type="button">Clear scratch</button>
+              </div>
+            </div>
+            <div class="panel-section">
+              <div class="section-title">Measurement readout</div>
+              <div id="scratchReadout" class="readout"></div>
+            </div>
+          </section>
+
+          <section id="tab-notes" class="tab-page">
+            <div class="panel-section">
+              <label class="field-label" for="labelQuality">Review quality</label>
+              <select id="labelQuality">
+                <option value="">unreviewed</option>
+                <option value="ok">ok</option>
+                <option value="suspect">suspect</option>
+                <option value="bad">bad</option>
+              </select>
+            </div>
+            <div class="panel-section">
+              <label class="field-label" for="failureKind">Failure kind</label>
+              <input id="failureKind" type="text" placeholder="curve, sparse, scale, etc." />
+            </div>
+            <div class="panel-section">
+              <label class="field-label" for="reviewNotes">Review notes</label>
+              <textarea id="reviewNotes" placeholder="Saved to the existing review note JSON."></textarea>
+            </div>
+            <div class="panel-section">
+              <label class="field-label" for="viewerNotes">Viewer notes</label>
+              <textarea id="viewerNotes" placeholder="Autosaved v2 session notes, scratch context, next ideas."></textarea>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+    <script src="/viewer_v2/app.js"></script>
+  </body>
+</html>

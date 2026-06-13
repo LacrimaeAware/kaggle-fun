@@ -62,6 +62,13 @@ Negative deltas are good. Positive deltas are bad.
 | `F030` | Raw grayscale texture orientation for PA | bench-tested / rejected | PA | +0.026 to +0.164 | n/a | bench robust 0.170 -> 0.197-0.334 | Texture orientation is not aligned with the scored angle convention; blending toward it fails. |
 | `F031` | Contrarian move away from raw texture orientation | bench-tested / rejected | PA | +0.003 to +0.115 | n/a | bench robust 0.170 -> 0.173-0.285 | Small move fixes signed bias but worsens MAE. Raw texture residual is not a correction direction. |
 | `F032` | Geometry-class story gating for PA/FL/MT | bench-tested / research anchor | PA+FL+MT | -0.019 | n/a | bench robust 0.170 -> 0.151 | Per-band PA on multi-band rows, conflict PA elsewhere, scan-region FL on low-support rows, vertical-center MT. Promising but overfit risk. |
+| `F033` | Weighted trimmed FL using ultrasound-field support and local trajectory residual | bench-tested / research anchor | FL aggregation support | -0.026 | n/a | bench robust 0.170 -> 0.144 | Best EXP50 combo keeps PA median, uses raw-span weighted-trimmed FL, and vertical-center MT. FL improves `0.278 -> 0.210`; public transfer unproven. |
+| `F034` | Same-story weighted PA+FL reducer using shared support and trajectory residual weights | bench-tested / mixed research | PA+FL aggregation | -0.021 | n/a | bench robust 0.170 -> 0.149 | Conceptually cleaner than F033 because PA and FL share the same fragment weights, but PA worsens `0.150 -> 0.158`; useful for diagnosis, not yet the best candidate. |
+| `F035` | Class-gated weighted PA only on nonparallel/high-support-risk rows | bench-tested / diagnostic | PA class gate | -0.002 | n/a | PA median frame 0.166 -> 0.164 | EXP51 improves PA `0.150 -> 0.145` when a raw weighted-trim PA is applied only to `boundaries_not_parallel` rows. Overfit risk is high. |
+| `F036` | Saturating visible-fragment support and projected-position weighting | bench-tested / mixed research | PA+FL support | -0.023 | n/a | bench robust 0.170 -> 0.147 | EXP52 validates the mechanism as sane, but it does not beat EXP50. Best use is future target-label scoring, not current promotion. |
+| `F037` | Median anchor blended with weighted support reducers | bench-tested / current local research best | PA+FL support blend | -0.027 | n/a | bench robust 0.170 -> 0.143 | EXP53 best: PA median blended 25% toward saturating support/position PA; FL median blended 85% toward EXP50 weighted-trim FL; tiny gain over EXP50. |
+| `F038` | Allowed-only class and term route over local story models | bench-tested / benchmark-best research route | class-aware PA+FL+MT routing | -0.039 | n/a | bench robust 0.170 -> 0.131; bench median-weight 0.143 -> 0.131 | EXP55/EXP56: excludes `DLTrack`, `SMA`, and `our_pipeline_true_scale`. Full route is benchmark-best but not production-wired; prefix-5 captures most gain. |
+| `F039` | Production split stack from current public best | candidate CSVs generated | public burn planning | n/a | pending | public 0.58910 anchor | EXP57 generated burn #15 core robust, #16 core+visibility-FL proxy, and #17 core+vertical-MT proxy. These are production-delta proxies, not the full EXP55 route. |
 
 ## Current Read
 
@@ -72,14 +79,14 @@ The current best public improvement stack is not a single magic geometry fix. It
 3. clean shape-neighbor scale fallback;
 4. optionally the public-neutral isolated OCR correction.
 
-The most promising unsubmitted geometry idea is robust upper-boundary triangle. The most promising PA-specific idea is conflict-gated local angle replacement, but its gain is small. The most important untested support idea is real on-screen/off-screen projection weighting; that has not been tested yet and should not be confused with local PA smoothing.
+The most promising unsubmitted geometry idea is robust upper-boundary triangle. The most promising PA-specific idea is conflict-gated local angle replacement, but its gain is small. Real ultrasound-field on-screen/off-screen projection weighting is now tested and locally useful for FL, especially with weighted trimming and local trajectory-residual weights. It does not solve PA by itself.
 
 ## Next Tests To Add To This Database
 
-1. Stack and inspect `strict_scan_region_linear_support_weighted_FL_only` with robust triangle. It is locally useful but hurts existing FL undershoots.
-2. Inspect and production-wire vertical-center MT and strict scan-region FL as explicit flags before any public test.
-3. Add geometry-class overlays to the expert viewer so story gates can be inspected visually before production wiring.
-4. For PA, prioritize local conflict/family assignment. Do not pursue global alternate line fitters or raw texture orientation as direct estimators.
+1. Inspect EXP53 `Median/weight blend best` plus EXP50 `Story weight grid best` in viewer v2, especially lines with low ultrasound-field support.
+2. Build a real local curve/trajectory PA model; support weighting and partial blends only barely improve PA.
+3. Score EXP50/EXP53 candidates against the rough target human-label set after quality checks, before any public promotion.
+4. Inspect and production-wire vertical-center MT and strict/US-field weighted FL as explicit flags before any public test.
 5. Revisit per-band only as a PA/MT add-on or targeted routing/filtering; naive FL averaging is rejected.
-6. Revisit lower-boundary shape only if a viewer shows an MT-specific failure that the benchmark aggregate is hiding.
-7. Public test of robust triangle if spending a slot, recorded as a delta from `public_058910`.
+6. Public test of robust triangle or EXP50 only with a clearly named delta from `public_058910`, not as an assumed improvement.
+7. Production-wire the EXP50/EXP53 weighted reducers and EXP55 class gates before claiming the `0.131264` route as a real submission candidate.
