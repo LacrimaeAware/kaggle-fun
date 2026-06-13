@@ -42,7 +42,7 @@ def _tokens(im, reader):
     big = cv2.resize(im, (w * 2, h * 2), interpolation=cv2.INTER_CUBIC)
     out = []
     for (box, t, c) in reader.readtext(big, allowlist=ALLOW):
-        t = t.strip()
+        t = t.strip().replace(",", ".")
         if c < 0.25 or not t:
             continue
         cx = float(np.mean([p[0] for p in box])) / 2.0
@@ -50,6 +50,37 @@ def _tokens(im, reader):
         m = re.match(r"^(\d+\.?\d*)", t)
         out.append((float(m.group(1)) if m else None, "cm" in t, cx, cy, float(c), t))
     return out, w, h
+
+
+def _text_depth_candidates(toks, w, h):
+    """Find printed field-depth labels, including split OCR like `4` + `cm`.
+
+    Returns [(depth_mm, score, y, text)]. The score mildly prefers lower/right UI
+    labels because the field-depth value is commonly printed near the lower UI.
+    """
+    cands = []
+    for (v, hc, cx, cy, c, t) in toks:
+        text = t.lower().replace(" ", "")
+        for num, unit in re.findall(r"(\d+\.?\d*)(mm|cm)", text):
+            d = float(num) * (10.0 if unit == "cm" else 1.0)
+            if 15 <= d <= 90:
+                loc_bonus = 0.08 * (cy / max(h, 1)) + 0.05 * (cx / max(w, 1))
+                cands.append((d, c + loc_bonus, cy, t))
+
+    numeric = [(v, cx, cy, c, t) for (v, hc, cx, cy, c, t) in toks if v is not None and not hc]
+    units = [(cx, cy, c, t.lower()) for (v, hc, cx, cy, c, t) in toks if v is None and ("cm" in t.lower() or "mm" in t.lower())]
+    for v, cx, cy, c, t in numeric:
+        if not (1 <= v <= 90):
+            continue
+        for ux, uy, uc, ut in units:
+            if abs(cx - ux) > 100 or abs(cy - uy) > 35:
+                continue
+            unit = "cm" if "cm" in ut else "mm"
+            d = v * (10.0 if unit == "cm" else 1.0)
+            if 15 <= d <= 90:
+                loc_bonus = 0.08 * (max(cy, uy) / max(h, 1)) + 0.05 * (max(cx, ux) / max(w, 1))
+                cands.append((d, (c + uc) / 2.0 + loc_bonus, max(cy, uy), f"{t}+{ut}"))
+    return cands
 
 
 def _robust_line(pts):
@@ -101,12 +132,7 @@ def read_scale(im, reader=None):
         res.update(px_per_mm=(1.0 / val_per_px) / (10.0 if unit == "cm" else 1.0),
                    depth_mm=round(depth, 1), unit=unit, r2=round(r2, 4), n=n, src=f"ruler-{side}")
     # 2) printed depth label, independent cross-check / fallback
-    text_cands = []
-    for (v, hc, cx, cy, c, t) in toks:
-        for num, unit in re.findall(r"(\d+\.?\d*)\s*(mm|cm)", t):
-            d = float(num) * (10.0 if unit == "cm" else 1.0)
-            if 15 <= d <= 90:
-                text_cands.append((d, c))
+    text_cands = _text_depth_candidates(toks, w, h)
     if text_cands:
         res["text_depth_mm"] = round(max(text_cands, key=lambda x: x[1])[0], 1)
     # locate the depth-value mark on a ruler edge (bottommost token equal to the depth), so a caller

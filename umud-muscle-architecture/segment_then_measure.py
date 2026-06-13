@@ -106,7 +106,8 @@ MT_MODE = os.environ.get("UMUD_MT_MODE", "perp_center").lower()    # perp_center
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-13.01"  # bump on every pipeline change; printed at run start so the version is verifiable
+SCALE_OVERRIDE_CSV = os.environ.get("UMUD_SCALE_OVERRIDE_CSV", "").strip()  # optional image_id -> px/cm overrides from human scale review
+PIPELINE_VERSION = "2026-06-13.02"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -790,9 +791,45 @@ class _Cal:  # lightweight calibration result, matches the attrs main() reads of
             setattr(self, k, v)
 
 
+_SCALE_OVERRIDE_CACHE = None
+
+
+def scale_overrides():
+    """Optional explicit px/cm overrides from the human scale-review workflow."""
+    global _SCALE_OVERRIDE_CACHE
+    if _SCALE_OVERRIDE_CACHE is not None:
+        return _SCALE_OVERRIDE_CACHE
+    _SCALE_OVERRIDE_CACHE = {}
+    if not SCALE_OVERRIDE_CSV:
+        return _SCALE_OVERRIDE_CACHE
+    path = Path(SCALE_OVERRIDE_CSV)
+    if not path.is_absolute():
+        path = HERE / path
+    if not path.exists():
+        print(f"scale override CSV missing: {path}", flush=True)
+        return _SCALE_OVERRIDE_CACHE
+    try:
+        df = pd.read_csv(path)
+        for _, row in df.iterrows():
+            image_id = str(row.get("image_id", "")).strip()
+            scale = row.get("chosen_scale_px_per_cm", row.get("scale_px_per_cm", None))
+            if not image_id or pd.isna(scale):
+                continue
+            scale = float(scale)
+            if 40 <= scale <= 240:
+                _SCALE_OVERRIDE_CACHE[image_id] = scale
+        print(f"loaded {len(_SCALE_OVERRIDE_CACHE)} scale overrides from {path}", flush=True)
+    except Exception as exc:
+        print(f"failed to load scale override CSV {path}: {exc}", flush=True)
+    return _SCALE_OVERRIDE_CACHE
+
+
 def calibrate_image(path):
     if not CALIBRATION_AVAILABLE:
         return None
+    override = scale_overrides().get(path.name)
+    if override is not None:
+        return _Cal(px_per_mm=override / 10.0, confidence=1.0, method="oracle_scale_override")
     gray = read_calibration_gray(path)
     if USE_SCALE_ROUTER and scale_ticks is not None:  # validated per-family router (PNG/644/Telemed/cropped)
         if hasattr(scale_ticks, "recover_for_image_detail"):
