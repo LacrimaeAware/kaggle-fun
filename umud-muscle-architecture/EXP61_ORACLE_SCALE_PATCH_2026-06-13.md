@@ -30,7 +30,7 @@ and compares that against the existing tick/router scale.
 
 Outputs are ignored because they contain local human review notes.
 
-## Current First-Pass Findings
+## Current Findings
 
 The first user pass added observations for 25 rows:
 
@@ -50,6 +50,25 @@ Running `experiments/exp61_oracle_scale_patch.py` on those notes produced:
 This is an important distinction: the OCR label can be wrong while the numeric
 tick scale is still right. The first-pass actionable numeric correction is
 therefore concentrated in `IMG_00198-00200`, not all 25 reviewed rows.
+
+After the full 309-row depth review and the OCR-50 family repair, rerunning the
+audit gives:
+
+- `193` rows where reviewed/algorithmic field depth confirms the existing
+  scale closely.
+- `116` rows where field-depth-derived scale disagrees enough to remain a
+  candidate, not an automatic override.
+- `0` rows without a depth proposal.
+
+The 116 candidate rows are not all "scale is wrong" rows. Many are
+text-confirmed images where the current field-rectangle detector likely
+over-includes the UI panel and produces an inflated field height. This is why
+EXP61 remains an audit table rather than a submission generator.
+
+The reviewed notes should be treated as evaluation evidence. The default
+production path does not read them. A public candidate would only use them if we
+explicitly export an override CSV and set `UMUD_SCALE_OVERRIDE_CSV`, which should
+be called out as a human-reviewed scale override submission.
 
 ## OCR Plan
 

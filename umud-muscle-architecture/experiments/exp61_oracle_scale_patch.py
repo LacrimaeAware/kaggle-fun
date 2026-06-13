@@ -9,6 +9,7 @@ tick/router scale. The output is an audit table, not an automatic submission.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import cv2
@@ -101,6 +102,29 @@ def as_float(value: object) -> float | None:
         return None
 
 
+def parse_depth_mm(value: object) -> float | None:
+    """Parse reviewed/guessed visible depth into millimeters.
+
+    Bare values under 10 are treated as centimeters (`3.5` -> 35 mm), matching
+    the scale-review UI convention and the visible depth labels in these files.
+    """
+    if value is None:
+        return None
+    s = str(value).strip().lower().replace(",", ".")
+    if not s or s == "nan":
+        return None
+    match = re.search(r"(\d+(?:\.\d+)?)\s*(cm|mm)?", s)
+    if not match:
+        return None
+    out = float(match.group(1))
+    unit = match.group(2) or ""
+    if unit == "cm" or (not unit and out < 10.0):
+        out *= 10.0
+    if not np.isfinite(out) or out < 15.0 or out > 90.0:
+        return None
+    return out
+
+
 def main() -> None:
     if not NOTES.exists():
         raise SystemExit(f"missing {NOTES}; review some scale rows first")
@@ -114,7 +138,7 @@ def main() -> None:
         p = TEST_IMAGES / image_id
         gray = cv2.imread(str(p), cv2.IMREAD_GRAYSCALE)
         rect = detect_field_rect(gray) if gray is not None else None
-        oracle_depth = as_float(note.get("oracle_depth_mm"))
+        oracle_depth = parse_depth_mm(note.get("oracle_depth_mm"))
         oracle_scale = as_float(note.get("oracle_scale_px_per_cm"))
         field_scale = None
         if rect and oracle_depth and oracle_depth > 0:

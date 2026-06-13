@@ -94,9 +94,42 @@ No-human-note audit on the 32 previously wrong rows: `32/32` now match the
 user-confirmed depths. Human entries like `3.5`, `5.5`, and `40 mm` are also
 normalized to `35 mm`, `55 mm`, and `40 mm`.
 
+## Algorithm-Only Depth Audit
+
+After the final remaining row (`IMG_00031.tif`) was reviewed, the local notes
+cover all 309 test images. To test whether the pipeline is now relying on those
+notes, the depth guesser was rerun with the human-note input hidden and then
+compared against the reviewed depths only afterward.
+
+Result:
+
+- algorithm-only rows: `309`
+- reviewed rows available for comparison: `309`
+- misses versus reviewed depth: `0`
+
+Source breakdown for the algorithm-only guesses:
+
+- `ocr_depth_text`: `202`
+- `field_height_scale_depth_guess`: `50`
+- `tick_scale_family_depth_guess`: `37`
+- `cropped_no_overlay_50mm_family`: `20`
+
+Meaning: for displayed field depth, we now have a deterministic non-human
+guesser that matches the full human review pass. The human review remains useful
+as an audit set, but the proposed depth itself no longer needs the notes file.
+
+Important boundary: this is a depth audit, not a blanket proof that every
+`px/cm` scale is correct. Scale still requires either tick/ruler spacing or a
+reliable visible-field rectangle.
+
 ## Current Meaning
 
 This review is for the full 309-image test set. A correct depth does not by
 itself guarantee a correct scale; the scale still needs a valid field height or
 tick spacing. But depth is the user-reviewable fact, so it is the right first
 question.
+
+The production inference path does not read `oracle_notes.json`. Human-reviewed
+notes affect production only if we deliberately export and pass an override CSV
+through `UMUD_SCALE_OVERRIDE_CSV`. Without that opt-in, the default submission
+code uses the automatic scale router.
