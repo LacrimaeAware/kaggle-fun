@@ -71,6 +71,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F039` | Production split stack from current public best | public-tested / rejected | public burn planning | n/a | +0.01192 / +0.05601 / +0.01810 | public 0.58910 anchor -> #15 0.60102, #16 0.64511, #17 0.60720 | EXP57 proxy stacks all regressed. These were production-delta proxies, not the full EXP55 route; do not promote them as defaults. |
 | `F040` | Test scale status tiers | diagnostic / tracking | scale verification | n/a | n/a | `scale_partition.csv` | EXP58: 147 independently confirmed, 294 detector-scaled, 15 unresolved/fallback. Scale is not hidden-label ground truth; tick-only rows remain plausible but not proven. |
 | `F041` | Configurable high-resolution segmentation retraining | infrastructure / next candidate | training/data | pending | pending | current U-Net 384 baseline | EXP59 adds image size, architecture, encoder, loss, augmentation, threshold, batch-size, and weight-tag knobs. First serious candidate is `seg59_02_highres_512_unet`. |
+| `F042` | Human-oracle scale review pack | infrastructure / next candidate | scale verification | n/a | pending | EXP58 scale partition | EXP60 creates a full 309-row scale manifest and 41-row starter pack for the user to verify confident, tick-only, and fallback scale guesses. Corrections save locally under ignored `results/scale_oracle_review/`. |
 
 ## Current Read
 
@@ -93,3 +94,4 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 6. Public test of robust triangle or EXP50 only with a clearly named delta from `public_058910`, not as an assumed improvement.
 7. Production-wire the EXP50/EXP53 weighted reducers and EXP55 class gates before claiming the `0.131264` route as a real submission candidate.
 8. Run the EXP59 GPU segmentation matrix before spending more submissions on broad geometry proxies.
+9. Use the EXP60 scale-oracle viewer to verify the 15 unresolved/fallback rows and sample tick-only rows; convert only confirmed scale fixes into a public candidate.

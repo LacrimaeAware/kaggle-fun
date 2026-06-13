@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UMUD Scale Oracle Review</title>
+    <link rel="stylesheet" href="/scale-review/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Scale oracle review</div>
+        <h1 id="title">Loading...</h1>
+      </div>
+      <div class="top-actions">
+        <select id="packSelect" title="Review pack">
+          <option value="start">Starter pack</option>
+          <option value="all">All 309</option>
+        </select>
+        <button id="prevBtn" type="button">Prev</button>
+        <button id="nextBtn" type="button">Next</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="left-panel">
+        <div class="filters">
+          <label>
+            Group
+            <select id="groupFilter"></select>
+          </label>
+          <label>
+            Tier
+            <select id="tierFilter"></select>
+          </label>
+          <label>
+            Search
+            <input id="searchInput" type="search" placeholder="IMG_00042">
+          </label>
+        </div>
+        <div id="imageList" class="image-list"></div>
+      </aside>
+
+      <section class="center-panel">
+        <div class="scale-strip">
+          <div>
+            <span class="label">Machine guess</span>
+            <strong id="scaleGuess">--</strong>
+          </div>
+          <div>
+            <span class="label">Tier</span>
+            <strong id="tierBadge">--</strong>
+          </div>
+          <div>
+            <span class="label">Review group</span>
+            <strong id="groupBadge">--</strong>
+          </div>
+        </div>
+        <div class="image-toolbar">
+          <button id="zoomOutBtn" type="button">-</button>
+          <button id="zoomResetBtn" type="button">100%</button>
+          <button id="zoomInBtn" type="button">+</button>
+          <span id="imageMeta"></span>
+        </div>
+        <div id="viewport" class="viewport">
+          <img id="reviewImage" alt="review target">
+        </div>
+      </section>
+
+      <aside class="right-panel">
+        <section class="card">
+          <h2>Evidence</h2>
+          <dl class="evidence-grid">
+            <div><dt>px/cm</dt><dd id="pxCm">--</dd></div>
+            <div><dt>px/mm</dt><dd id="pxMm">--</dd></div>
+            <div><dt>tick px/cm</dt><dd id="tickPx">--</dd></div>
+            <div><dt>ruler px/cm</dt><dd id="rulerPx">--</dd></div>
+            <div><dt>depth text</dt><dd id="depthText">--</dd></div>
+            <div><dt>robust z</dt><dd id="scaleZ">--</dd></div>
+          </dl>
+          <p id="reason" class="reason"></p>
+          <p id="note" class="note"></p>
+        </section>
+
+        <section class="card">
+          <h2>Oracle Entry</h2>
+          <div class="status-row">
+            <button class="status-btn" data-status="correct" type="button">Correct</button>
+            <button class="status-btn" data-status="wrong" type="button">Wrong</button>
+            <button class="status-btn" data-status="unclear" type="button">Unclear</button>
+          </div>
+          <label>
+            Correct px/cm
+            <input id="oracleScale" type="text" inputmode="decimal" placeholder="optional">
+          </label>
+          <label>
+            Visible depth / ticks
+            <input id="oracleTicks" type="text" placeholder="e.g. 50 mm label, 10 mm tick">
+          </label>
+          <label>
+            Depth mm
+            <input id="oracleDepth" type="text" inputmode="decimal" placeholder="optional">
+          </label>
+          <label>
+            Notes
+            <textarea id="oracleComment" rows="6" placeholder="What you can verify visually"></textarea>
+          </label>
+          <div id="saveState" class="save-state">Autosave ready</div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="/scale-review/app.js"></script>
+  </body>
+</html>
