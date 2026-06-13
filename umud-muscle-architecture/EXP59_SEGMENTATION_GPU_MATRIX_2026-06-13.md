@@ -30,6 +30,9 @@ Code support added:
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` is the no-edit Kaggle notebook for the first
   serious run. Import it, add the competition input, set GPU + Internet, and Run All; it bundles
   the submission/debug CSVs and tagged weights into one downloadable zip.
+- `kaggle_seg59_sleep_matrix_auto.ipynb` is the sleep-run notebook. It fails fast if the competition
+  input is not attached, then runs the serious segmentation candidates sequentially and copies every
+  submission/debug CSV to a run-specific filename before zipping all outputs.
 
 ## Ordered GPU Runs
 
@@ -40,11 +43,23 @@ Code support added:
 | 3 | `seg59_03_highres_512_unetplusplus` | yes if masks look sane | stronger decoder/skip fusion |
 | 4 | `seg59_04_highres_focal` | only if support improves without PA drift | sparse-structure loss test |
 | 5 | `seg59_05_train_clahe` | exploratory | train-time contrast normalization |
+| 6 | `seg59_06_highres_512_unet_strong_aug` | maybe | high-res U-Net with stronger geometric/intensity augmentation |
 
 Exact commands are written to `results/exp59_segmentation_gpu_matrix.csv`. The easiest Kaggle path
 for the first serious run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`, which requires no preset
 editing. Use `kaggle_segment_notebook.ipynb` only when deliberately switching to another EXP59 run.
 The command strings are mainly for RunPod/local shell use.
+
+For an unattended run, use `kaggle_seg59_sleep_matrix_auto.ipynb`. It currently runs:
+
+1. `seg59_02_highres_512_unet`
+2. `seg59_03_highres_512_unetplusplus`
+3. `seg59_06_highres_512_unet_strong_aug`
+
+This is intentionally segmentation-first. The supervised labels available here are the two mask
+families. Text/ruler/tick/field scale logic remains deterministic diagnostics in this run; every
+candidate saves a run-specific `calibration_measurement_debug_*.csv` so scale failures remain
+visible instead of being hidden behind the new masks.
 
 ## Why This Direction
 
