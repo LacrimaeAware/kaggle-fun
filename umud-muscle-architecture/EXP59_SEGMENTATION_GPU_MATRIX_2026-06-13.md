@@ -32,7 +32,10 @@ Code support added:
   the submission/debug CSVs and tagged weights into one downloadable zip.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` is the sleep-run notebook. It fails fast if the competition
   input is not attached, then runs the serious segmentation candidates sequentially and copies every
-  submission/debug CSV to a run-specific filename before zipping all outputs.
+  submission/debug CSV to a run-specific filename before zipping all outputs. Updated after the first
+  Kaggle confusion: it now writes per-run logs under `seg59_logs/`, a live
+  `seg59_sleep_matrix_status.json`, and a resumable `seg59_sleep_matrix_summary.csv`; rerunning the
+  matrix cell skips already completed valid submissions unless `FORCE_RERUN=True`.
 
 ## Ordered GPU Runs
 
@@ -60,6 +63,11 @@ This is intentionally segmentation-first. The supervised labels available here a
 families. Text/ruler/tick/field scale logic remains deterministic diagnostics in this run; every
 candidate saves a run-specific `calibration_measurement_debug_*.csv` so scale failures remain
 visible instead of being hidden behind the new masks.
+
+Kaggle operational note: files in `/kaggle/working` are safest when the final zip is downloaded or a
+notebook version is saved with outputs. Browser-tab closure should not be treated as durable storage.
+If a run is interrupted, inspect `seg59_sleep_matrix_status.json`, `seg59_sleep_matrix_summary.csv`,
+and `seg59_logs/<run_id>.log`.
 
 ## Why This Direction
 

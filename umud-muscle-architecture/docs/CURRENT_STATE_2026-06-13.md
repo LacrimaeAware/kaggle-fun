@@ -65,8 +65,8 @@ The active work is EXP59 segmentation retraining:
 1. Run `kaggle_seg59_sleep_matrix_auto.ipynb` on Kaggle with the competition input attached, GPU on,
    and Internet on.
 2. Let it produce `umud_seg59_sleep_matrix_outputs.zip`.
-3. Inspect `seg59_sleep_matrix_summary.csv`, each `submission_*.csv`, and each
-   `calibration_measurement_debug_*.csv`.
+3. Inspect `seg59_sleep_matrix_status.json`, `seg59_sleep_matrix_summary.csv`, each
+   `submission_*.csv`, each `calibration_measurement_debug_*.csv`, and `seg59_logs/<run_id>.log`.
 4. Submit only a candidate whose output distribution and scale/debug counts look sane.
 5. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
