@@ -79,6 +79,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F047` | Multi-region text scale OCR audit | implemented / reviewed | scale/depth OCR | n/a | pending | EXP63 reviewed notes | EXP64 runs EasyOCR over targeted UI crops and caches tokens. Direct OCR finds displayed depth on 237/309; OCR plus deterministic fallbacks covers 309/309 with zero misses versus review. This fixes the "OCR not installed / OCR only full-frame" gap. |
 | `F048` | Conservative 3 cm scale-span probe | generated / submission candidate | scale correction | n/a | pending | public 0.58910 | EXP65 creates burn #19: current public best plus `IMG_00198-00200` and `IMG_00251` using the 3 cm OCR/ruler span (`478px / 30mm = 159.333 px/cm`). Existing burn #18 tests only `IMG_00198-00200`. | submit #18 first; use #19 only if #18 improves or ties |
 | `F049` | Robust triangle retested with conservative 3 cm scale repair | generated / submission candidate | upper boundary + scale correction | bench robust triangle 0.170; public old robust 0.60102 | pending | burn #15 robust triangle | EXP66 creates burn #20 by changing `IMG_00198-00200` and burn #21 by also changing `IMG_00251`, recomputing FL/MT from robust debug pixels at `159.333 px/cm`. | submit #20 if using a repaired-scale benchmark-geometry slot; hold #21 unless isolating `IMG_00251` |
+| `F050` | Guarded field-depth scale probe from algorithmic depth plus scan-field height | generated / submission candidate | broad scale correction | n/a | pending | public 0.58910 | EXP67 creates burn #22 from current public best, changing 114 rows where EXP64 depth and EXP61 field height imply a plausible 80-180 px/cm scale and old-vs-new disagreement is moderate. | submit #22 to test the broad scale-span hypothesis |
 
 ## Current Read
 
@@ -105,5 +106,6 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 10. Promote EXP64 depth/text inference into the next scale solver: OCR/fallback depth is solved, but `px/cm` still needs a trusted pixel span.
 11. Submit EXP65's conservative 3 cm scale sequence as a controlled probe: burn #18 first, then #19 only if #18 does not regress.
 12. If retesting robust triangle, use EXP66 burn #20 rather than the old burn #15 file, because #20 includes the confirmed 3 cm scale-span repair.
-13. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates; current full pass has 116 candidates, many probably UI-height false positives.
-14. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
+13. Submit EXP67 burn #22 if intentionally testing the broad field-depth scale hypothesis; do not silently fold it into the default until public LB says it helps.
+14. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
+15. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
