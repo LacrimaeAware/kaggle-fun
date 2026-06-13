@@ -15,12 +15,15 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from PIL import Image
+
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC_DIR = Path(__file__).resolve().parent / "scale_review_v1"
 RESULTS_DIR = ROOT / "results" / "scale_oracle_review"
 TEST_IMAGES = ROOT / "data" / "test_images_v2" / "test_set_v2"
 NOTES_PATH = RESULTS_DIR / "oracle_notes.json"
+PNG_CACHE = RESULTS_DIR / "png_cache"
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -122,7 +125,26 @@ class ScaleReviewHandler(BaseHTTPRequestHandler):
         if not path.exists():
             self.send_error(404, "missing image")
             return
+        if path.suffix.lower() in {".tif", ".tiff"}:
+            self._send_tiff_as_png(path)
+            return
         self._send_file(path)
+
+    def _send_tiff_as_png(self, path: Path) -> None:
+        PNG_CACHE.mkdir(parents=True, exist_ok=True)
+        out = PNG_CACHE / f"{path.stem}.png"
+        if not out.exists() or out.stat().st_mtime < path.stat().st_mtime:
+            with Image.open(path) as im:
+                if im.mode not in {"RGB", "RGBA"}:
+                    im = im.convert("RGB")
+                im.save(out, format="PNG")
+        body = out.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", "image/png")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def _send_json(self, data: dict) -> None:
         body = json.dumps(data).encode("utf-8")
