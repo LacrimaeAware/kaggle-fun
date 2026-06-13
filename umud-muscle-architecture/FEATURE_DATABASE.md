@@ -69,6 +69,8 @@ Negative deltas are good. Positive deltas are bad.
 | `F037` | Median anchor blended with weighted support reducers | bench-tested / current local research best | PA+FL support blend | -0.027 | n/a | bench robust 0.170 -> 0.143 | EXP53 best: PA median blended 25% toward saturating support/position PA; FL median blended 85% toward EXP50 weighted-trim FL; tiny gain over EXP50. |
 | `F038` | Allowed-only class and term route over local story models | bench-tested / benchmark-best research route | class-aware PA+FL+MT routing | -0.039 | n/a | bench robust 0.170 -> 0.131; bench median-weight 0.143 -> 0.131 | EXP55/EXP56: excludes `DLTrack`, `SMA`, and `our_pipeline_true_scale`. Full route is benchmark-best but not production-wired; prefix-5 captures most gain. |
 | `F039` | Production split stack from current public best | public-tested / rejected | public burn planning | n/a | +0.01192 / +0.05601 / +0.01810 | public 0.58910 anchor -> #15 0.60102, #16 0.64511, #17 0.60720 | EXP57 proxy stacks all regressed. These were production-delta proxies, not the full EXP55 route; do not promote them as defaults. |
+| `F040` | Test scale status tiers | diagnostic / tracking | scale verification | n/a | n/a | `scale_partition.csv` | EXP58: 147 independently confirmed, 294 detector-scaled, 15 unresolved/fallback. Scale is not hidden-label ground truth; tick-only rows remain plausible but not proven. |
+| `F041` | Configurable high-resolution segmentation retraining | infrastructure / next candidate | training/data | pending | pending | current U-Net 384 baseline | EXP59 adds image size, architecture, encoder, loss, augmentation, threshold, batch-size, and weight-tag knobs. First serious candidate is `seg59_02_highres_512_unet`. |
 
 ## Current Read
 
@@ -90,3 +92,4 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 5. Revisit per-band only as a PA/MT add-on or targeted routing/filtering; naive FL averaging is rejected.
 6. Public test of robust triangle or EXP50 only with a clearly named delta from `public_058910`, not as an assumed improvement.
 7. Production-wire the EXP50/EXP53 weighted reducers and EXP55 class gates before claiming the `0.131264` route as a real submission candidate.
+8. Run the EXP59 GPU segmentation matrix before spending more submissions on broad geometry proxies.

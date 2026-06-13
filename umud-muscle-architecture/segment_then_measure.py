@@ -68,7 +68,18 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 NW = 4 if os.name != "nt" else 0  # Kaggle Linux: 4 workers; Windows spawns/re-imports, keep 0
 PIN = DEVICE.type == "cuda"
 USE_AMP = DEVICE.type == "cuda"
-IMG_SIZE = 384
+IMG_SIZE = int(os.environ.get("UMUD_IMG_SIZE", "384"))
+TTA_EXTRA_SIZE = int(os.environ.get("UMUD_TTA_EXTRA_SIZE", "448"))
+MODEL_ARCH = os.environ.get("UMUD_MODEL_ARCH", "unet").lower()  # unet | unetplusplus | fpn | deeplabv3plus
+MODEL_ENCODER = os.environ.get("UMUD_MODEL_ENCODER", "resnet34")
+MODEL_ENCODER_WEIGHTS = os.environ.get("UMUD_MODEL_ENCODER_WEIGHTS", "imagenet")
+LOSS_MODE = os.environ.get("UMUD_LOSS_MODE", "dice_bce").lower()  # dice_bce | dice_focal | dice_tversky
+AUG_LEVEL = os.environ.get("UMUD_AUG_LEVEL", "light").lower()  # light | strong
+MASK_THRESHOLD = float(os.environ.get("UMUD_MASK_THRESHOLD", "0.5"))
+APO_MASK_THRESHOLD = float(os.environ.get("UMUD_APO_MASK_THRESHOLD", str(MASK_THRESHOLD)))
+FASC_MASK_THRESHOLD = float(os.environ.get("UMUD_FASC_MASK_THRESHOLD", str(MASK_THRESHOLD)))
+BS = int(os.environ.get("UMUD_BATCH_SIZE", "8"))
+WEIGHTS_TAG = os.environ.get("UMUD_WEIGHTS_TAG", "").strip()
 SEED = 42
 EPOCHS = int(os.environ.get("UMUD_EPOCHS", "12"))      # UMUD_EPOCHS=2 for a fast smoke run
 MAX_PAIRS = int(os.environ.get("UMUD_MAX_PAIRS", "0"))  # >0 caps train pairs (local smoke tests)
@@ -95,7 +106,7 @@ MT_MODE = os.environ.get("UMUD_MT_MODE", "perp_center").lower()    # perp_center
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
-PIPELINE_VERSION = "2026-06-09.11"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-13.01"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -258,8 +269,45 @@ def tf(train):
     aug = [A.Resize(IMG_SIZE, IMG_SIZE)]
     if train:
         aug += [A.HorizontalFlip(p=0.5), A.VerticalFlip(p=0.5), A.RandomRotate90(p=0.5)]
+        if AUG_LEVEL == "strong":
+            aug += [
+                A.ShiftScaleRotate(shift_limit=0.04, scale_limit=0.12, rotate_limit=12,
+                                   border_mode=cv2.BORDER_REFLECT_101, p=0.5),
+                A.RandomBrightnessContrast(p=0.35),
+                A.GaussNoise(p=0.15),
+                A.MotionBlur(blur_limit=3, p=0.10),
+            ]
     aug += [A.Normalize(), ToTensorV2()]
     return A.Compose(aug)
+
+
+def weights_path(target):
+    tag = f"_{WEIGHTS_TAG}" if WEIGHTS_TAG else ""
+    return OUT / f"seg_{target}{tag}.pt"
+
+
+def build_model(encoder_weights=None):
+    kwargs = dict(
+        encoder_name=MODEL_ENCODER,
+        encoder_weights=encoder_weights,
+        in_channels=3,
+        classes=1,
+    )
+    if MODEL_ARCH in {"unet", "u-net"}:
+        return smp.Unet(**kwargs)
+    if MODEL_ARCH in {"unetplusplus", "unet++", "unet_plus_plus"}:
+        return smp.UnetPlusPlus(**kwargs)
+    if MODEL_ARCH == "fpn":
+        return smp.FPN(**kwargs)
+    if MODEL_ARCH in {"deeplabv3plus", "deeplabv3+"}:
+        return smp.DeepLabV3Plus(**kwargs)
+    raise ValueError(f"unknown UMUD_MODEL_ARCH={MODEL_ARCH!r}")
+
+
+def checkpoint_state(obj):
+    if isinstance(obj, dict) and "state_dict" in obj:
+        return obj["state_dict"]
+    return obj
 
 
 def dice_loss(logits, target, eps=1e-6):
@@ -267,8 +315,35 @@ def dice_loss(logits, target, eps=1e-6):
     return 1 - (2 * (p * target).sum() + eps) / (p.sum() + target.sum() + eps)
 
 
-def train_segmenter(target, epochs=12, bs=8):
-    weights = OUT / f"seg_{target}.pt"
+def focal_bce_loss(logits, target, alpha=0.25, gamma=2.0):
+    bce = torch.nn.functional.binary_cross_entropy_with_logits(logits, target, reduction="none")
+    p = torch.sigmoid(logits)
+    pt = p * target + (1 - p) * (1 - target)
+    alpha_t = alpha * target + (1 - alpha) * (1 - target)
+    return (alpha_t * ((1 - pt) ** gamma) * bce).mean()
+
+
+def tversky_loss(logits, target, alpha=0.35, beta=0.65, eps=1e-6):
+    p = torch.sigmoid(logits)
+    tp = (p * target).sum()
+    fp = (p * (1 - target)).sum()
+    fn = ((1 - p) * target).sum()
+    return 1 - (tp + eps) / (tp + alpha * fp + beta * fn + eps)
+
+
+def combined_loss(logits, target, bce):
+    if LOSS_MODE == "dice_bce":
+        return 0.5 * dice_loss(logits, target) + 0.5 * bce(logits, target)
+    if LOSS_MODE == "dice_focal":
+        return 0.5 * dice_loss(logits, target) + 0.5 * focal_bce_loss(logits, target)
+    if LOSS_MODE == "dice_tversky":
+        return 0.5 * dice_loss(logits, target) + 0.5 * tversky_loss(logits, target)
+    raise ValueError(f"unknown UMUD_LOSS_MODE={LOSS_MODE!r}")
+
+
+def train_segmenter(target, epochs=12, bs=None):
+    bs = BS if bs is None else bs
+    weights = weights_path(target)
     img_key, msk_key = TARGET_DIRS[target]
     img_dir, msk_dir = DIRS[img_key], DIRS[msk_key]
     imgs, msks = list_images(img_dir), list_images(msk_dir)
@@ -286,8 +361,10 @@ def train_segmenter(target, epochs=12, bs=8):
     val = [items[i] for i in idx[:n_val]]
     tr = [items[i] for i in idx[n_val:]] or val
     print(f"[{target}] {len(items)} pairs ({len(tr)} train / {len(val)} val), device {DEVICE}", flush=True)
+    print(f"[{target}] model={MODEL_ARCH}/{MODEL_ENCODER} img_size={IMG_SIZE} loss={LOSS_MODE} "
+          f"aug={AUG_LEVEL} batch={bs} weights={weights.name}", flush=True)
 
-    model = smp.Unet("resnet34", encoder_weights="imagenet", in_channels=3, classes=1).to(DEVICE)
+    model = build_model(encoder_weights=MODEL_ENCODER_WEIGHTS if MODEL_ENCODER_WEIGHTS != "none" else None).to(DEVICE)
     opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=max(epochs, 1))
     bce = nn.BCEWithLogitsLoss()
@@ -308,7 +385,7 @@ def train_segmenter(target, epochs=12, bs=8):
             opt.zero_grad()
             with torch.amp.autocast("cuda", enabled=USE_AMP):
                 out = model(img)
-                loss = 0.5 * dice_loss(out, msk) + 0.5 * bce(out, msk)
+                loss = combined_loss(out, msk, bce)
             scaler.scale(loss).backward()
             scaler.step(opt)
             scaler.update()
@@ -324,10 +401,19 @@ def train_segmenter(target, epochs=12, bs=8):
         print(f"[{target}] epoch {ep}: val_dice {vdice:.4f} ({time.time()-t0:.0f}s)", flush=True)
         if vdice > best:
             best = vdice
-            torch.save(model.state_dict(), weights)
+            torch.save({
+                "state_dict": model.state_dict(),
+                "target": target,
+                "img_size": IMG_SIZE,
+                "model_arch": MODEL_ARCH,
+                "model_encoder": MODEL_ENCODER,
+                "loss_mode": LOSS_MODE,
+                "aug_level": AUG_LEVEL,
+                "pipeline_version": PIPELINE_VERSION,
+            }, weights)
     if not weights.exists():  # epochs==0 or never improved: still save a checkpoint
-        torch.save(model.state_dict(), weights)
-    model.load_state_dict(torch.load(weights, map_location=DEVICE))
+        torch.save({"state_dict": model.state_dict()}, weights)
+    model.load_state_dict(checkpoint_state(torch.load(weights, map_location=DEVICE)))
     print(f"[{target}] best dice {best:.4f}", flush=True)
     return model
 
@@ -343,15 +429,16 @@ def _prob_at(model, image_rgb, size):
     return cv2.resize(prob, (w, h))
 
 
-def predict_mask(model, image_rgb):
+def predict_mask(model, image_rgb, target=""):
     if USE_TTA:  # average original + horizontal mirror + second scale, then threshold (exp08: denoises)
         flipped = np.ascontiguousarray(image_rgb[:, ::-1])
         prob = (_prob_at(model, image_rgb, IMG_SIZE)
                 + _prob_at(model, flipped, IMG_SIZE)[:, ::-1]
-                + _prob_at(model, image_rgb, 448)) / 3.0
+                + _prob_at(model, image_rgb, TTA_EXTRA_SIZE)) / 3.0
     else:
         prob = _prob_at(model, image_rgb, IMG_SIZE)
-    return (prob > 0.5).astype(np.uint8)
+    thr = APO_MASK_THRESHOLD if target == "apo" else FASC_MASK_THRESHOLD if target == "fasc" else MASK_THRESHOLD
+    return (prob > thr).astype(np.uint8)
 
 
 def fit_line(ys, xs):
@@ -754,6 +841,10 @@ def main():
           f"clahe={USE_CLAHE}  temporal={USE_TEMPORAL_SMOOTH}  epochs={EPOCHS}  min_conf={CALIBRATION_MIN_CONF}  "
           f"fl_identity_blend={FL_IDENTITY_BLEND}",
           flush=True)
+    print(f"      model={MODEL_ARCH}/{MODEL_ENCODER} img_size={IMG_SIZE} tta_extra={TTA_EXTRA_SIZE} "
+          f"loss={LOSS_MODE} aug={AUG_LEVEL} thresholds apo={APO_MASK_THRESHOLD} fasc={FASC_MASK_THRESHOLD} "
+          f"weights_tag={WEIGHTS_TAG or '(default)'}",
+          flush=True)
     print("      (old code would NOT print this line - if you don't see VERSION, re-run the wget cell)\n", flush=True)
     test_dir = DIRS["test"]
     test_files = sorted(p for p in test_dir.iterdir() if p.is_file() and p.suffix.lower() in IMG_EXTS)
@@ -776,7 +867,7 @@ def main():
         img = read_rgb(p)
         fps.append(fingerprint(img))
         try:
-            geom = measure(predict_mask(apo, img), predict_mask(fasc, img))
+            geom = measure(predict_mask(apo, img, "apo"), predict_mask(fasc, img, "fasc"))
         except Exception as e:  # no single image can abort the 309-row submission
             print(f"  measure failed on {p.name}: {e}", flush=True)
             geom = None

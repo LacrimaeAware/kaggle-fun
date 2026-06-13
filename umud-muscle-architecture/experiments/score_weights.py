@@ -8,7 +8,6 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-import segmentation_models_pytorch as smp
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -16,27 +15,28 @@ import benchmark_validate as BV  # noqa: E402
 import segment_then_measure as M  # noqa: E402
 
 TOL = {"pa_deg": 6.0, "fl_mm": 12.0, "mt_mm": 3.0}
-apo_path = sys.argv[1] if len(sys.argv) > 1 else str(ROOT / "results" / "seg_apo.pt")
-fasc_path = sys.argv[2] if len(sys.argv) > 2 else str(ROOT / "results" / "seg_fasc.pt")
+apo_path = sys.argv[1] if len(sys.argv) > 1 else str(M.weights_path("apo"))
+fasc_path = sys.argv[2] if len(sys.argv) > 2 else str(M.weights_path("fasc"))
 
 
 def load(path):
-    m = smp.Unet("resnet34", encoder_weights=None, in_channels=3, classes=1)
-    m.load_state_dict(torch.load(path, map_location="cpu"))
+    m = M.build_model(encoder_weights=None)
+    m.load_state_dict(M.checkpoint_state(torch.load(path, map_location="cpu")))
     return m.eval().to(M.DEVICE)
 
 
 def main():
     print(f"apo  = {apo_path}\nfasc = {fasc_path}\n(TTA={M.USE_TTA} min_area={M.FASC_MIN_AREA} "
-          f"min_ang={M.FASC_MIN_ANG} fl_identity_blend={M.FL_IDENTITY_BLEND})")
+          f"min_ang={M.FASC_MIN_ANG} fl_identity_blend={M.FL_IDENTITY_BLEND} "
+          f"model={M.MODEL_ARCH}/{M.MODEL_ENCODER} img_size={M.IMG_SIZE} tag={M.WEIGHTS_TAG or '(default)'})")
     truth, _ = BV.load_truth()
     bench = next((p.parent for p in ROOT.glob("data/**/im_01_arch.tif")), None)
     apo, fasc = load(apo_path), load(fasc_path)
     rows, nfrag = [], []
     for _, r in truth.iterrows():
         img = M.read_rgb(bench / f"{r.ImageID}.tif")
-        am = M.predict_mask(apo, img)
-        fm = M.predict_mask(fasc, img)
+        am = M.predict_mask(apo, img, "apo")
+        fm = M.predict_mask(fasc, img, "fasc")
         nfrag.append(int(cv2.connectedComponentsWithStats((fm > 0).astype(np.uint8))[0] - 1))
         g = M.measure(am, fm)
         ppm = float(r.scale_px_per_cm) / 10.0

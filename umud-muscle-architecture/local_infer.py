@@ -16,18 +16,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-import segmentation_models_pytorch as smp
 
 ROOT = Path(__file__).resolve().parent
 import segment_then_measure as M  # geometry/calibration/flags (resolves local data on import)
 
 
 def load(target):
-    w = ROOT / "results" / f"seg_{target}.pt"
+    w = M.weights_path(target)
     if not w.exists():
         raise SystemExit(f"missing {w} - move the Kaggle weights into results/")
-    m = smp.Unet("resnet34", encoder_weights=None, in_channels=3, classes=1)
-    m.load_state_dict(torch.load(w, map_location="cpu"))
+    m = M.build_model(encoder_weights=None)
+    m.load_state_dict(M.checkpoint_state(torch.load(w, map_location="cpu")))
     return m.eval().to(M.DEVICE)
 
 
@@ -40,14 +39,15 @@ def main():
     print(f"{len(files)} images | identity_FL={M.USE_IDENTITY_FL} fragment_FL={M.USE_FRAGMENT_FL} "
           f"fl_identity_blend={M.FL_IDENTITY_BLEND} fl_mode={M.FL_FRAGMENT_MODE} "
           f"top_boundary={M.TOP_BOUNDARY_MODE} mt_mode={M.MT_MODE} calib_MT={M.USE_CALIBRATED_MT} "
-          f"conf>={M.CALIBRATION_MIN_CONF}", flush=True)
+          f"conf>={M.CALIBRATION_MIN_CONF} model={M.MODEL_ARCH}/{M.MODEL_ENCODER} "
+          f"img_size={M.IMG_SIZE} weights_tag={M.WEIGHTS_TAG or '(default)'}", flush=True)
     rows, calib_rows, mt_ok, fl_ok, t0 = [], [], 0, 0, time.time()
     fps = []
     for i, p in enumerate(files):
         img = M.read_rgb(p)
         fps.append(M.fingerprint(img))
         try:
-            geom = M.measure(M.predict_mask(apo, img), M.predict_mask(fasc, img))
+            geom = M.measure(M.predict_mask(apo, img, "apo"), M.predict_mask(fasc, img, "fasc"))
         except Exception as e:
             print(f"  measure failed {p.name}: {e}", flush=True)
             geom = None
