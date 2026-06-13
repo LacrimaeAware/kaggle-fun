@@ -60,13 +60,15 @@ Segmentation:
 
 ## What We Were Working On Last
 
-The active work is EXP59 segmentation retraining:
+The active work is segmentation retraining, now split into two tiers:
 
-1. Run `kaggle_seg59_sleep_matrix_auto.ipynb` on Kaggle with the competition input attached, GPU on,
-   and Internet on.
-2. Let it produce `umud_seg59_sleep_matrix_outputs.zip`.
-3. Inspect `seg59_sleep_matrix_status.json`, `seg59_sleep_matrix_summary.csv`, each
-   `submission_*.csv`, each `calibration_measurement_debug_*.csv`, and `seg59_logs/<run_id>.log`.
+1. EXP59 (`kaggle_seg59_sleep_matrix_auto.ipynb`) is the conservative GPU matrix: higher resolution,
+   architecture, loss, and augmentation variations while keeping the same binary mask target.
+2. EXP72 (`kaggle_seg72_thin_structure_heavy_auto.ipynb`) is the serious thin-structure attempt:
+   soft/dilated fascicle targets, validation threshold sweep, skeleton-style decoding, and debug mask
+   exports. Prefer EXP72 for the next overnight run if the goal is to break the thin-mask wall.
+3. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+   and any `pred_debug_*` masks before submitting.
 4. Submit only a candidate whose output distribution and scale/debug counts look sane.
 5. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.

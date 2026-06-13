@@ -78,6 +78,15 @@ AUG_LEVEL = os.environ.get("UMUD_AUG_LEVEL", "light").lower()  # light | strong
 MASK_THRESHOLD = float(os.environ.get("UMUD_MASK_THRESHOLD", "0.5"))
 APO_MASK_THRESHOLD = float(os.environ.get("UMUD_APO_MASK_THRESHOLD", str(MASK_THRESHOLD)))
 FASC_MASK_THRESHOLD = float(os.environ.get("UMUD_FASC_MASK_THRESHOLD", str(MASK_THRESHOLD)))
+APO_TARGET_MODE = os.environ.get("UMUD_APO_TARGET_MODE", "binary").lower()
+FASC_TARGET_MODE = os.environ.get("UMUD_FASC_TARGET_MODE", "binary").lower()
+AUTO_THRESHOLD = os.environ.get("UMUD_AUTO_THRESHOLD", "0") == "1"
+THRESHOLD_SWEEP = os.environ.get(
+    "UMUD_THRESHOLD_SWEEP",
+    "0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.45,0.50,0.55,0.60",
+)
+FASC_POSTPROCESS = os.environ.get("UMUD_FASC_POSTPROCESS", "threshold").lower()  # threshold | skeleton | skeleton_dilate
+SAVE_PRED_DEBUG = int(os.environ.get("UMUD_SAVE_PRED_DEBUG", "0"))
 BS = int(os.environ.get("UMUD_BATCH_SIZE", "8"))
 WEIGHTS_TAG = os.environ.get("UMUD_WEIGHTS_TAG", "").strip()
 SEED = 42
@@ -107,7 +116,7 @@ FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biase
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
 SCALE_OVERRIDE_CSV = os.environ.get("UMUD_SCALE_OVERRIDE_CSV", "").strip()  # optional image_id -> px/cm overrides from human scale review
-PIPELINE_VERSION = "2026-06-13.02"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-13.03"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -250,20 +259,59 @@ def list_images(d):
     return {p.stem: p for p in d.iterdir() if p.suffix.lower() in IMG_EXTS}
 
 
+def target_mode_for(target):
+    return FASC_TARGET_MODE if target == "fasc" else APO_TARGET_MODE
+
+
+def prepare_loss_mask(mask, target):
+    """Build the training target. Validation still scores against the original binary mask."""
+    mode = target_mode_for(target)
+    m = (mask > 0).astype(np.float32)
+    if mode in {"binary", "raw"}:
+        return m
+    if mode.startswith("dilate_soft"):
+        digits = "".join(ch for ch in mode if ch.isdigit())
+        k = int(digits or "5")
+        k = max(3, k if k % 2 == 1 else k + 1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
+        base = cv2.dilate(m, kernel, iterations=1)
+        base = cv2.GaussianBlur(base, (k, k), sigmaX=max(0.8, k / 3.0))
+        if base.max() > 0:
+            base = base / base.max()
+        return np.clip(base, 0.0, 1.0).astype(np.float32)
+    if mode.startswith("dilate"):
+        k = int(mode.replace("dilate", "") or "3")
+        k = max(1, k if k % 2 == 1 else k + 1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
+        return cv2.dilate(m, kernel, iterations=1).astype(np.float32)
+    if mode.startswith("soft") or mode.startswith("gaussian"):
+        digits = "".join(ch for ch in mode if ch.isdigit())
+        k = int(digits or "5")
+        k = max(3, k if k % 2 == 1 else k + 1)
+        sigma = max(0.8, k / 3.0)
+        base = cv2.GaussianBlur(m, (k, k), sigmaX=sigma, sigmaY=sigma)
+        if base.max() > 0:
+            base = base / base.max()
+        return np.clip(base, 0.0, 1.0).astype(np.float32)
+    raise ValueError(f"unknown {target} target mode: {mode}")
+
+
 class SegDS(Dataset):
-    def __init__(self, items, tf):
-        self.items, self.tf = items, tf
+    def __init__(self, items, tf, target, train):
+        self.items, self.tf, self.target, self.train = items, tf, target, train
 
     def __len__(self):
         return len(self.items)
 
     def __getitem__(self, i):
         img = read_rgb(self.items[i][0])
-        msk = read_mask(self.items[i][1])
-        if msk.shape[:2] != img.shape[:2]:
-            msk = cv2.resize(msk, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
-        t = self.tf(image=img, mask=msk)
-        return t["image"], t["mask"].unsqueeze(0)
+        raw = read_mask(self.items[i][1])
+        if raw.shape[:2] != img.shape[:2]:
+            raw = cv2.resize(raw, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
+        t = self.tf(image=img, mask=raw)
+        eval_mask = (t["mask"].numpy() > 0.5).astype(np.float32)
+        loss_mask = prepare_loss_mask(eval_mask, self.target) if self.train else eval_mask
+        return t["image"], torch.from_numpy(loss_mask).unsqueeze(0), torch.from_numpy(eval_mask).unsqueeze(0)
 
 
 def tf(train):
@@ -277,6 +325,23 @@ def tf(train):
                 A.RandomBrightnessContrast(p=0.35),
                 A.GaussNoise(p=0.15),
                 A.MotionBlur(blur_limit=3, p=0.10),
+            ]
+        elif AUG_LEVEL == "heavy":
+            aug += [
+                A.ShiftScaleRotate(shift_limit=0.06, scale_limit=0.18, rotate_limit=18,
+                                   border_mode=cv2.BORDER_REFLECT_101, p=0.65),
+                A.OneOf([
+                    A.RandomBrightnessContrast(brightness_limit=0.22, contrast_limit=0.28, p=1.0),
+                    A.CLAHE(clip_limit=2.5, tile_grid_size=(8, 8), p=1.0),
+                ], p=0.55),
+                A.OneOf([
+                    A.GaussNoise(p=1.0),
+                    A.RandomGamma(gamma_limit=(85, 115), p=1.0),
+                ], p=0.25),
+                A.OneOf([
+                    A.MotionBlur(blur_limit=3, p=1.0),
+                    A.GaussianBlur(blur_limit=3, p=1.0),
+                ], p=0.18),
             ]
     aug += [A.Normalize(), ToTensorV2()]
     return A.Compose(aug)
@@ -311,6 +376,39 @@ def checkpoint_state(obj):
     return obj
 
 
+def threshold_values():
+    vals = []
+    for part in THRESHOLD_SWEEP.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        vals.append(float(part))
+    return vals or [0.5]
+
+
+def skeletonize(mask):
+    """Small OpenCV-only morphological skeleton fallback for thin-line decoding."""
+    src = (mask > 0).astype(np.uint8)
+    skel = np.zeros_like(src)
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    while cv2.countNonZero(src):
+        eroded = cv2.erode(src, element)
+        opened = cv2.dilate(eroded, element)
+        skel = cv2.bitwise_or(skel, cv2.subtract(src, opened))
+        src = eroded
+    return skel
+
+
+def binarize_prob(prob, target, thr):
+    mask = (prob > thr).astype(np.uint8)
+    if target == "fasc" and FASC_POSTPROCESS in {"skeleton", "skeletonize", "skeleton_dilate"}:
+        mask = skeletonize(mask)
+        if FASC_POSTPROCESS == "skeleton_dilate":
+            kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+            mask = cv2.dilate(mask, kernel, iterations=1)
+    return mask.astype(np.uint8)
+
+
 def dice_loss(logits, target, eps=1e-6):
     p = torch.sigmoid(logits)
     return 1 - (2 * (p * target).sum() + eps) / (p.sum() + target.sum() + eps)
@@ -339,10 +437,13 @@ def combined_loss(logits, target, bce):
         return 0.5 * dice_loss(logits, target) + 0.5 * focal_bce_loss(logits, target)
     if LOSS_MODE == "dice_tversky":
         return 0.5 * dice_loss(logits, target) + 0.5 * tversky_loss(logits, target)
+    if LOSS_MODE == "bce_tversky":
+        return 0.4 * bce(logits, target) + 0.6 * tversky_loss(logits, target)
     raise ValueError(f"unknown UMUD_LOSS_MODE={LOSS_MODE!r}")
 
 
 def train_segmenter(target, epochs=12, bs=None):
+    global APO_MASK_THRESHOLD, FASC_MASK_THRESHOLD
     bs = BS if bs is None else bs
     weights = weights_path(target)
     img_key, msk_key = TARGET_DIRS[target]
@@ -363,7 +464,7 @@ def train_segmenter(target, epochs=12, bs=None):
     tr = [items[i] for i in idx[n_val:]] or val
     print(f"[{target}] {len(items)} pairs ({len(tr)} train / {len(val)} val), device {DEVICE}", flush=True)
     print(f"[{target}] model={MODEL_ARCH}/{MODEL_ENCODER} img_size={IMG_SIZE} loss={LOSS_MODE} "
-          f"aug={AUG_LEVEL} batch={bs} weights={weights.name}", flush=True)
+          f"aug={AUG_LEVEL} target_mode={target_mode_for(target)} batch={bs} weights={weights.name}", flush=True)
 
     model = build_model(encoder_weights=MODEL_ENCODER_WEIGHTS if MODEL_ENCODER_WEIGHTS != "none" else None).to(DEVICE)
     opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
@@ -373,15 +474,17 @@ def train_segmenter(target, epochs=12, bs=None):
         bce = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(FASC_POS_WEIGHT, device=DEVICE))
         print(f"[{target}] using pos_weight={FASC_POS_WEIGHT} on BCE (recall bias)", flush=True)
     scaler = torch.amp.GradScaler("cuda", enabled=USE_AMP)
-    tr_dl = DataLoader(SegDS(tr, tf(True)), batch_size=bs, shuffle=True, num_workers=NW,
+    tr_dl = DataLoader(SegDS(tr, tf(True), target, True), batch_size=bs, shuffle=True, num_workers=NW,
                        pin_memory=PIN, persistent_workers=(NW > 0))
-    va_dl = DataLoader(SegDS(val, tf(False)), batch_size=bs, num_workers=NW,
+    va_dl = DataLoader(SegDS(val, tf(False), target, False), batch_size=bs, num_workers=NW,
                        pin_memory=PIN, persistent_workers=(NW > 0))
 
     best = -1.0
+    best_thr = APO_MASK_THRESHOLD if target == "apo" else FASC_MASK_THRESHOLD
+    sweep = threshold_values() if AUTO_THRESHOLD else [best_thr]
     for ep in range(epochs):
         model.train(); t0 = time.time()
-        for img, msk in tr_dl:
+        for img, msk, _eval_msk in tr_dl:
             img, msk = img.to(DEVICE), msk.to(DEVICE)
             opt.zero_grad()
             with torch.amp.autocast("cuda", enabled=USE_AMP):
@@ -391,17 +494,26 @@ def train_segmenter(target, epochs=12, bs=None):
             scaler.step(opt)
             scaler.update()
         sched.step()
-        model.eval(); inter = 0.0; union = 0.0
+        model.eval()
+        inter_by_thr = {thr: 0.0 for thr in sweep}
+        union_by_thr = {thr: 0.0 for thr in sweep}
         with torch.no_grad():
-            for img, msk in va_dl:
-                img, msk = img.to(DEVICE), msk.to(DEVICE)
-                p = (torch.sigmoid(model(img)) > 0.5).float()
-                inter += float((p * msk).sum())
-                union += float(p.sum() + msk.sum())
-        vdice = (2 * inter + 1e-6) / (union + 1e-6)  # global Dice over the val set
-        print(f"[{target}] epoch {ep}: val_dice {vdice:.4f} ({time.time()-t0:.0f}s)", flush=True)
+            for img, _loss_msk, eval_msk in va_dl:
+                img = img.to(DEVICE)
+                prob = torch.sigmoid(model(img))[:, 0].cpu().numpy()
+                truth = eval_msk[:, 0].numpy()
+                for thr in sweep:
+                    for j in range(prob.shape[0]):
+                        pred = binarize_prob(prob[j], target, thr).astype(np.float32)
+                        msk = truth[j].astype(np.float32)
+                        inter_by_thr[thr] += float((pred * msk).sum())
+                        union_by_thr[thr] += float(pred.sum() + msk.sum())
+        dice_by_thr = {thr: (2 * inter_by_thr[thr] + 1e-6) / (union_by_thr[thr] + 1e-6) for thr in sweep}
+        epoch_thr, vdice = max(dice_by_thr.items(), key=lambda kv: kv[1])
+        print(f"[{target}] epoch {ep}: val_dice {vdice:.4f} thr {epoch_thr:.2f} ({time.time()-t0:.0f}s)", flush=True)
         if vdice > best:
             best = vdice
+            best_thr = float(epoch_thr)
             torch.save({
                 "state_dict": model.state_dict(),
                 "target": target,
@@ -410,11 +522,21 @@ def train_segmenter(target, epochs=12, bs=None):
                 "model_encoder": MODEL_ENCODER,
                 "loss_mode": LOSS_MODE,
                 "aug_level": AUG_LEVEL,
+                "target_mode": target_mode_for(target),
+                "auto_threshold": AUTO_THRESHOLD,
+                "best_threshold": best_thr,
+                "postprocess": FASC_POSTPROCESS if target == "fasc" else "threshold",
                 "pipeline_version": PIPELINE_VERSION,
             }, weights)
     if not weights.exists():  # epochs==0 or never improved: still save a checkpoint
         torch.save({"state_dict": model.state_dict()}, weights)
     model.load_state_dict(checkpoint_state(torch.load(weights, map_location=DEVICE)))
+    if AUTO_THRESHOLD:
+        if target == "apo":
+            APO_MASK_THRESHOLD = best_thr
+        else:
+            FASC_MASK_THRESHOLD = best_thr
+        print(f"[{target}] selected inference threshold {best_thr:.2f}", flush=True)
     print(f"[{target}] best dice {best:.4f}", flush=True)
     return model
 
@@ -430,16 +552,19 @@ def _prob_at(model, image_rgb, size):
     return cv2.resize(prob, (w, h))
 
 
-def predict_mask(model, image_rgb, target=""):
+def predict_prob(model, image_rgb):
     if USE_TTA:  # average original + horizontal mirror + second scale, then threshold (exp08: denoises)
         flipped = np.ascontiguousarray(image_rgb[:, ::-1])
-        prob = (_prob_at(model, image_rgb, IMG_SIZE)
+        return (_prob_at(model, image_rgb, IMG_SIZE)
                 + _prob_at(model, flipped, IMG_SIZE)[:, ::-1]
                 + _prob_at(model, image_rgb, TTA_EXTRA_SIZE)) / 3.0
-    else:
-        prob = _prob_at(model, image_rgb, IMG_SIZE)
+    return _prob_at(model, image_rgb, IMG_SIZE)
+
+
+def predict_mask(model, image_rgb, target=""):
+    prob = predict_prob(model, image_rgb)
     thr = APO_MASK_THRESHOLD if target == "apo" else FASC_MASK_THRESHOLD if target == "fasc" else MASK_THRESHOLD
-    return (prob > thr).astype(np.uint8)
+    return binarize_prob(prob, target, thr)
 
 
 def fit_line(ys, xs):
@@ -882,6 +1007,8 @@ def main():
           f"loss={LOSS_MODE} aug={AUG_LEVEL} thresholds apo={APO_MASK_THRESHOLD} fasc={FASC_MASK_THRESHOLD} "
           f"weights_tag={WEIGHTS_TAG or '(default)'}",
           flush=True)
+    print(f"      target_modes apo={APO_TARGET_MODE} fasc={FASC_TARGET_MODE} auto_threshold={AUTO_THRESHOLD} "
+          f"fasc_postprocess={FASC_POSTPROCESS} save_pred_debug={SAVE_PRED_DEBUG}", flush=True)
     print("      (old code would NOT print this line - if you don't see VERSION, re-run the wget cell)\n", flush=True)
     test_dir = DIRS["test"]
     test_files = sorted(p for p in test_dir.iterdir() if p.is_file() and p.suffix.lower() in IMG_EXTS)
@@ -898,13 +1025,21 @@ def main():
           f"min calibration confidence: {CALIBRATION_MIN_CONF}, "
           f"fl_mode: {FL_FRAGMENT_MODE}, top_boundary: {TOP_BOUNDARY_MODE}, mt_mode: {MT_MODE}", flush=True)
 
+    debug_dir = OUT / f"pred_debug_{WEIGHTS_TAG or 'default'}"
+    if SAVE_PRED_DEBUG > 0:
+        debug_dir.mkdir(parents=True, exist_ok=True)
     rows, calib_rows, ok, mt_ok, fl_ok = [], [], 0, 0, 0
     fps = []
-    for p in test_files:
+    for idx, p in enumerate(test_files):
         img = read_rgb(p)
         fps.append(fingerprint(img))
         try:
-            geom = measure(predict_mask(apo, img, "apo"), predict_mask(fasc, img, "fasc"))
+            apo_mask = predict_mask(apo, img, "apo")
+            fasc_mask = predict_mask(fasc, img, "fasc")
+            if SAVE_PRED_DEBUG > 0 and idx < SAVE_PRED_DEBUG:
+                cv2.imwrite(str(debug_dir / f"{p.stem}_apo.png"), (apo_mask * 255).astype(np.uint8))
+                cv2.imwrite(str(debug_dir / f"{p.stem}_fasc.png"), (fasc_mask * 255).astype(np.uint8))
+            geom = measure(apo_mask, fasc_mask)
         except Exception as e:  # no single image can abort the 309-row submission
             print(f"  measure failed on {p.name}: {e}", flush=True)
             geom = None

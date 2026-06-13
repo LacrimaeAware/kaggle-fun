@@ -20,6 +20,9 @@ Kaggle notebooks:
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` - no-edit first serious high-resolution run.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` - unattended matrix run for several segmentation candidates;
   writes per-run logs/status/summary files and can skip completed runs when rerun.
+- `kaggle_seg72_thin_structure_heavy_auto.ipynb` - heavy overnight thin-structure run; changes the
+  fascicle target/decoding formulation with soft/dilated targets, threshold sweep, and skeleton-style
+  postprocessing.
 
 Kaggle setup: import the notebook, attach the UMUD competition input, set GPU + Internet on, and run
 all cells.

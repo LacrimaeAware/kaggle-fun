@@ -12,8 +12,11 @@ Use this map instead of opening random root-level notes.
 ## Active Operations
 
 - `EXP59_SEGMENTATION_GPU_MATRIX_2026-06-13.md` - current GPU segmentation plan.
+- `EXP72_THIN_STRUCTURE_SEGMENTATION_2026-06-13.md` - heavy thin-structure follow-up; preferred
+  overnight run when trying to break the low fascicle-mask Dice wall.
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` - no-edit single serious run.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` - unattended multi-run segmentation matrix.
+- `kaggle_seg72_thin_structure_heavy_auto.ipynb` - no-edit heavy EXP72 Kaggle notebook.
 - `experiments/README.md` - older experiment narrative; useful history but not current state.
 
 ## Chronological Experiment Notes

@@ -84,6 +84,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F052` | Non-full-height field-depth scale probe | generated / superseded | scale correction | n/a | pending | public 0.58910 and burn #15 robust | EXP69 fixes the worst #22 failure mode by keeping only field spans where `field_h / image_h < 0.98`. Creates burn #24 from public best and burn #25 from robust triangle; each changes 9 rows. | superseded by F053 because it still changes rows with existing scales |
 | `F053` | Missing-scale-only field-depth scale probe | generated / hold | scale correction | n/a | pending | public 0.58910 and burn #15 robust | EXP70 wires the scan-outward field heuristic into EXP61, but uses field-depth scale only for rows with no finite existing `scale_px_per_cm`, changing `IMG_00198-00200` and `IMG_00251` at `478px / 30mm = 159.333 px/cm`. Burn #26 equals older #19; burn #27 equals older #21. | not active after #22/#28 scale failures; use only if deliberately isolating those four rows |
 | `F054` | Local-benchmark proxy plus safe scale | public-tested / rejected | benchmark proxy stack | local best story proxy | +0.07007 | public 0.58910 -> 0.65917 | EXP71 creates burn #28 from current public best plus robust triangle, visibility-weighted FL proxy, vertical MT proxy, and EXP70 safe scale delta. Public result rejected it. Column-level audit: outside the 4 scale-patch rows, FL equals burn #16's visibility-weighted proxy and MT equals burn #17's vertical-MT proxy, so this was not a clean "burn #15 plus scale" retest. | reject as a default; do not stack the rejected proxy deltas again without production-wiring and target-label validation |
+| `F055` | Heavy thin-structure segmentation formulation | implemented / unsubmitted | segmentation target + decoding | EXP59 conservative segmentation | pending | n/a | EXP72 changes the actual thin-mask problem formulation: soft/dilated fascicle targets, validation threshold sweep, skeleton-style decoding, heavy augmentation, and debug mask exports in pipeline version `2026-06-13.03`. | run `kaggle_seg72_thin_structure_heavy_auto.ipynb`; submit only candidates with sane output distributions and debug masks |
 
 ## Current Read
 
@@ -96,11 +97,15 @@ The current best public improvement stack is not a single magic geometry fix. It
 
 The broad geometry proxy phase is now rejected publicly. Robust triangle, support/visibility FL, and vertical-MT proxies all regressed on the public board despite local wins. Keep them as diagnostic components, not defaults.
 
-The active next lever is segmentation retraining (EXP59). If better masks improve public score, continue with model-quality work. If segmentation fails, the next durable work is not another broad scale patch; it is either a better trusted pixel-span detector for scale assets or a higher-quality target validation set.
+The active next lever is segmentation retraining. EXP59 is the conservative settings sweep; EXP72 is
+the stronger thin-structure formulation change and should be preferred for the next heavy overnight
+run. If better masks improve public score, continue with model-quality work. If segmentation fails,
+the next durable work is not another broad scale patch; it is either a better trusted pixel-span
+detector for scale assets or a higher-quality target validation set.
 
 ## Next Tests To Add To This Database
 
-1. Run the EXP59 GPU segmentation matrix and record each public score.
+1. Run the EXP72 heavy thin-structure segmentation notebook and record each public score.
 2. Compare each segmentation candidate's output distribution and calibration debug CSV against burn #13 before submitting.
 3. If segmentation improves, test stronger/longer model variants and maybe ensembling.
 4. If segmentation does not improve, design a trusted pixel-span detector for scale assets before any more field-depth scale submissions.

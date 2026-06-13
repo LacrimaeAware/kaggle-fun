@@ -25,7 +25,7 @@ Code support added:
 - `local_infer.py` now loads tagged/alternate-architecture weights through the shared model builder.
 - `experiments/score_weights.py` now scores tagged/alternate-architecture weights on the expert
   benchmark.
-- `kaggle_segment_notebook.ipynb` version gate updated to `2026-06-13.02` and now includes
+- `kaggle_segment_notebook.ipynb` version gate updated to `2026-06-13.03` and now includes
   selectable EXP59 run presets.
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` is the no-edit Kaggle notebook for the first
   serious run. Import it, add the competition input, set GPU + Internet, and Run All; it bundles
@@ -80,6 +80,13 @@ The public leaderboard has now rejected:
 
 The only recent public gains were temporal smoothing and scale routing. Geometry work is not dead,
 but it should no longer be the main submission source until masks or target labels improve.
+
+## Superseding Follow-Up
+
+EXP59 is a conservative matrix: it mainly changes training settings while keeping the same binary
+thin-mask target. `EXP72_THIN_STRUCTURE_SEGMENTATION_2026-06-13.md` is the stronger follow-up. It
+changes the fascicle target representation and decoding itself with soft/dilated targets, validation
+threshold sweep, and skeleton-style postprocessing. Prefer EXP72 for the next heavy overnight attempt.
 
 ## Submission Rule
 
