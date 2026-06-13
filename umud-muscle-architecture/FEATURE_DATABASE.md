@@ -77,6 +77,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F045` | Depth-first oracle review UI | infrastructure | scale/depth verification | n/a | n/a | EXP60 scale manifest | EXP63 makes the review workflow ask only for field depth first, with `Q/W/E` status and `A/D` navigation. This separates the human-readable fact from later px/cm computation. |
 | `F046` | Tick-scale family repair for stale OCR-50 depth | implemented / reviewed | scale/depth parsing | n/a | pending | EXP63 reviewed notes | The 32 wrong reviewed depths all came from stale OCR accepting `50 mm`. New 1200x800 tick-scale family rules map 110.7->55mm, 135.4->45mm, 152.3->40mm, 159.5->35mm, 174.0->70mm. Algorithm-only depth audit now matches the full 309-row human review 309/309 without using notes as predictor input. |
 | `F047` | Multi-region text scale OCR audit | implemented / reviewed | scale/depth OCR | n/a | pending | EXP63 reviewed notes | EXP64 runs EasyOCR over targeted UI crops and caches tokens. Direct OCR finds displayed depth on 237/309; OCR plus deterministic fallbacks covers 309/309 with zero misses versus review. This fixes the "OCR not installed / OCR only full-frame" gap. |
+| `F048` | Conservative 3 cm scale-span probe | generated / submission candidate | scale correction | n/a | pending | public 0.58910 | EXP65 creates burn #19: current public best plus `IMG_00198-00200` and `IMG_00251` using the 3 cm OCR/ruler span (`478px / 30mm = 159.333 px/cm`). Existing burn #18 tests only `IMG_00198-00200`. | submit #18 first; use #19 only if #18 improves or ties |
 
 ## Current Read
 
@@ -101,5 +102,6 @@ The most promising unsubmitted geometry idea is robust upper-boundary triangle. 
 8. Run the EXP59 GPU segmentation matrix before spending more submissions on broad geometry proxies.
 9. Use EXP63 depth guesses as the audited algorithmic depth source: 309/309 now match human review without notes as predictor input.
 10. Promote EXP64 depth/text inference into the next scale solver: OCR/fallback depth is solved, but `px/cm` still needs a trusted pixel span.
-11. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates; current full pass has 116 candidates, many probably UI-height false positives.
-12. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
+11. Submit EXP65's conservative 3 cm scale sequence as a controlled probe: burn #18 first, then #19 only if #18 does not regress.
+12. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates; current full pass has 116 candidates, many probably UI-height false positives.
+13. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
