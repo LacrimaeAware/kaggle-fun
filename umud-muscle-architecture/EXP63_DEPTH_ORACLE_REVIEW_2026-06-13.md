@@ -21,11 +21,14 @@ http://127.0.0.1:8774/scale-review/
 
 Keyboard:
 
-- `Q`: mark proposed depth correct
+- `Q`: mark proposed depth correct, save, and advance
 - `W`: mark proposed depth wrong
 - `E`: mark unclear
 - `A`: previous image
 - `D`: next image
+
+Wrong and unclear intentionally do not auto-advance, because those cases usually
+need a corrected depth or a comment.
 
 The top strip now shows proposed depth first. Scale remains visible only as
 evidence.

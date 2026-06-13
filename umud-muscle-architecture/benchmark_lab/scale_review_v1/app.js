@@ -157,9 +157,13 @@ function move(delta) {
   renderCurrent();
 }
 
-function updateNote(status = null) {
+function buildPayload(row) {
+  return { image_id: row.image_id, ...(state.notes[rowKey(row)] || {}) };
+}
+
+function updateNote(status = null, options = {}) {
   const row = currentRow();
-  if (!row) return;
+  if (!row) return null;
   const key = rowKey(row);
   const existing = state.notes[key] || {};
   state.notes[key] = {
@@ -173,27 +177,33 @@ function updateNote(status = null) {
   document.querySelectorAll(".status-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.status === state.notes[key].status);
   });
-  scheduleSave();
+  const payload = buildPayload(row);
+  if (!options.deferSave) scheduleSave(payload);
+  return payload;
 }
 
-function markStatus(status) {
+async function markStatus(status) {
   const row = currentRow();
   if (status === "correct" && row?.depth_guess_mm && !els.oracleDepth.value.trim()) {
     els.oracleDepth.value = String(Number(row.depth_guess_mm));
   }
-  updateNote(status);
+  const payload = updateNote(status, { deferSave: status === "correct" });
+  if (status === "correct" && payload) {
+    clearTimeout(state.saveTimer);
+    const saved = await savePayload(payload);
+    if (saved) move(1);
+  }
 }
 
-function scheduleSave() {
+function scheduleSave(payload) {
   clearTimeout(state.saveTimer);
   els.saveState.textContent = "Autosaving...";
-  state.saveTimer = setTimeout(saveCurrent, 350);
+  state.saveTimer = setTimeout(() => savePayload(payload), 350);
 }
 
-async function saveCurrent() {
-  const row = currentRow();
-  if (!row) return;
-  const payload = { image_id: row.image_id, ...(state.notes[rowKey(row)] || {}) };
+async function savePayload(payload) {
+  if (!payload) return false;
+  els.saveState.textContent = "Saving...";
   const res = await fetch("/api/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -201,6 +211,7 @@ async function saveCurrent() {
   });
   els.saveState.textContent = res.ok ? "Saved" : "Save failed";
   renderList();
+  return res.ok;
 }
 
 els.packSelect.addEventListener("change", () => load(els.packSelect.value));
