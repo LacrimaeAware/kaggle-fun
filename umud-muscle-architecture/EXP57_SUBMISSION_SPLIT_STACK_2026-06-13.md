@@ -20,11 +20,11 @@ Known public score: `0.58910`.
 
 ## Generated CSVs
 
-| file | role | movement vs public anchor | read |
-|---|---|---:|---|
-| `results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv` | core production geometry | 0.073669 normalized movement | cleanest immediate test; robust triangle stacked on current public best |
-| `results/submission_burn_16_core_plus_visibility_weighted_fl_proxy.csv` | FL-support proxy split | 0.182325 normalized movement | risky/informative; moves FL heavily using older visibility-weighted production delta |
-| `results/submission_burn_17_core_plus_vertical_mt_proxy.csv` | MT proxy split | 0.077956 normalized movement | smaller movement but lower confidence because vertical MT previously regressed public LB |
+| file | role | movement vs public anchor | public score | read |
+|---|---|---:|---:|---|
+| `results/submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv` | core production geometry | 0.073669 normalized movement | 0.60102 | rejected vs `0.58910`; robust triangle local win did not transfer enough |
+| `results/submission_burn_16_core_plus_visibility_weighted_fl_proxy.csv` | FL-support proxy split | 0.182325 normalized movement | 0.64511 | rejected hard; broad visibility-weighted FL proxy moved too much |
+| `results/submission_burn_17_core_plus_vertical_mt_proxy.csv` | MT proxy split | 0.077956 normalized movement | 0.60720 | rejected vs `0.58910`; less bad than #16 but not useful |
 
 ## Exact Movements
 
@@ -36,11 +36,11 @@ Known public score: `0.58910`.
 
 ## Recommendation
 
-Submit order if burning slots:
+Submitted scores:
 
-1. `submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv`
-2. `submission_burn_16_core_plus_visibility_weighted_fl_proxy.csv`
-3. `submission_burn_17_core_plus_vertical_mt_proxy.csv` only if still burning after the first two.
+1. `submission_burn_15_temporal_subpixel_shape_ocr_robust_triangle.csv`: `0.60102`
+2. `submission_burn_16_core_plus_visibility_weighted_fl_proxy.csv`: `0.64511`
+3. `submission_burn_17_core_plus_vertical_mt_proxy.csv`: `0.60720`
 
 The actual best benchmark route is not one of these files yet. The next engineering step is to wire
 the EXP50/EXP53 weighted reducers and EXP55 class gates into the 309-image production path.

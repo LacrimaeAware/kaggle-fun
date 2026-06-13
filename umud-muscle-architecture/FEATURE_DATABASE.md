@@ -68,7 +68,7 @@ Negative deltas are good. Positive deltas are bad.
 | `F036` | Saturating visible-fragment support and projected-position weighting | bench-tested / mixed research | PA+FL support | -0.023 | n/a | bench robust 0.170 -> 0.147 | EXP52 validates the mechanism as sane, but it does not beat EXP50. Best use is future target-label scoring, not current promotion. |
 | `F037` | Median anchor blended with weighted support reducers | bench-tested / current local research best | PA+FL support blend | -0.027 | n/a | bench robust 0.170 -> 0.143 | EXP53 best: PA median blended 25% toward saturating support/position PA; FL median blended 85% toward EXP50 weighted-trim FL; tiny gain over EXP50. |
 | `F038` | Allowed-only class and term route over local story models | bench-tested / benchmark-best research route | class-aware PA+FL+MT routing | -0.039 | n/a | bench robust 0.170 -> 0.131; bench median-weight 0.143 -> 0.131 | EXP55/EXP56: excludes `DLTrack`, `SMA`, and `our_pipeline_true_scale`. Full route is benchmark-best but not production-wired; prefix-5 captures most gain. |
-| `F039` | Production split stack from current public best | candidate CSVs generated | public burn planning | n/a | pending | public 0.58910 anchor | EXP57 generated burn #15 core robust, #16 core+visibility-FL proxy, and #17 core+vertical-MT proxy. These are production-delta proxies, not the full EXP55 route. |
+| `F039` | Production split stack from current public best | public-tested / rejected | public burn planning | n/a | +0.01192 / +0.05601 / +0.01810 | public 0.58910 anchor -> #15 0.60102, #16 0.64511, #17 0.60720 | EXP57 proxy stacks all regressed. These were production-delta proxies, not the full EXP55 route; do not promote them as defaults. |
 
 ## Current Read
 
