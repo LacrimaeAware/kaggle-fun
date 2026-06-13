@@ -89,6 +89,8 @@ If burn 18 worsens, do not submit burn 19 in the same direction. That would
 mean the 3 cm pixel-span correction is not transferring cleanly, or the public
 subset is not rewarding it.
 
-Do not resubmit robust triangle as the "best benchmark" candidate: it already
-public-tested at `0.60102`, worse than `0.58910`. The remaining benchmark-best
-class route is not production-wired yet, so it is not a real CSV candidate.
+Do not resubmit the old robust-triangle CSV as-is: it already public-tested at
+`0.60102`, worse than `0.58910`. If robust triangle is retested, use the EXP66
+repaired-scale candidate, because burn 15 did not include the 3 cm scale-span
+repair. The remaining benchmark-best class route is not production-wired yet,
+so it is not a real CSV candidate.
