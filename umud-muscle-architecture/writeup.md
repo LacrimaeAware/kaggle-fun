@@ -1,8 +1,9 @@
 # UMUD Challenge: Muscle Architecture in Ultrasound Data
 
-> **Archive note (2026-06-09):** this writeup describes an early pass where FL/MT calibration was not
-> built yet. Current state is documented in `handoff_brief.md`: public LB 0.61918 restored baseline,
-> scale router 295/309, and a rejected FL blend that regressed to ~0.64.
+> **Archive note (updated 2026-06-13):** this writeup describes an early pass where FL/MT calibration
+> was not built yet. Current state is documented in `docs/CURRENT_STATE_2026-06-13.md`: public best
+> `0.58910`, broad geometry/scale proxy stacks rejected, and EXP59 segmentation retraining is the
+> active next direction.
 
 Kaggle community competition. https://www.kaggle.com/competitions/umud-challenge-muscle-architecture-in-ultrasound-data
 Deadline 2026-11-14. Prizes total CHF 5000. The provisional top three must release FAIR, open-source, reproducible code to be eligible.

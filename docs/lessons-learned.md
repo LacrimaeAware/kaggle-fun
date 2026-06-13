@@ -18,6 +18,19 @@ Evidence: the public leaderboard is computed on a subset of the test set and is 
 
 Observed in playground-series-s6e6 (Predicting Stellar Class): a 5-fold StratifiedKFold out-of-fold balanced accuracy of 0.9640 matched the public leaderboard 0.96523 (leaderboard higher by 0.0012), confirming the local score tracked the leaderboard with no sign of leakage.
 
+### A local proxy is only useful after it proves transfer
+
+When the local validation set differs in device, label convention, scale availability, or hidden
+post-processing from the leaderboard data, treat local wins as diagnostics, not submission evidence.
+Promote a proxy only after a small, isolated public or target-distribution check confirms its
+direction.
+
+Evidence: in UMUD, the 35-image expert benchmark helped explain geometry, but multiple local wins
+failed publicly. Robust triangle improved the local benchmark but scored 0.60102 versus the public
+best 0.58910. Visibility/support FL and vertical-MT proxies also regressed publicly, and a broad
+field-depth scale override scored 0.66197. The useful public gains came from narrow, gated changes:
+temporal smoothing, subpixel scale precision, and clean shape-neighbor fallback scale.
+
 ## Feature engineering and diagnostics
 
 ### Confirm the discriminative information is present before engineering features

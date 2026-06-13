@@ -1,5 +1,12 @@
 # UMUD Master Review (rewritten 2026-06-10)
 
+> **Current-state note (2026-06-13):** this file is now a historical long-form synthesis, not the
+> active resume point. Read `docs/CURRENT_STATE_2026-06-13.md` first. Since the top section below was
+> written, robust triangle (#15), visibility-weighted FL (#16), vertical MT (#17), broad field-depth
+> scale (#22), and the local-benchmark proxy stack (#28) were public-tested and rejected. The active
+> next direction is EXP59 segmentation retraining via the Kaggle notebooks, not another broad
+> geometry/scale proxy.
+
 The single clean source of truth for the project. Built from a 5-agent source-grounded audit of the
 code, docs, CSVs, and experiments. If another doc disagrees with this one, this one is right.
 

@@ -1,5 +1,10 @@
 # UMUD handoff brief (for a collaborating model)
 
+> **Current-state note (2026-06-13):** this handoff is historical and partially superseded. Start
+> with `docs/CURRENT_STATE_2026-06-13.md` and `docs/DOC_INDEX.md`. The current best public score is
+> still `0.58910`; post-burn geometry/scale proxy stacks through burn #28 have regressed; active work
+> is EXP59 segmentation retraining.
+
 Current-state briefing so another model can get caught up and extend or cross-check this work.
 Read it with the canonical docs at the end. Last substantive update: 2026-06-12.
 
@@ -308,29 +313,37 @@ whether to spend a submission.
 
 ## Current submission recommendation
 
-`results/submission_local.csv` IS the 0.61918 non-temporal baseline (byte-identical to `Downloads/0P61918_submission_local.csv`). The current public best is `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` at 0.58910.
+This section is superseded by `docs/CURRENT_STATE_2026-06-13.md`.
 
-**Immediate next action if burning today's remaining slots**: submit the post-shape stacked follow-ups in `SUBMISSION_BURN_AFTER_SHAPE_WIN_2026-06-12.md`, not the older post-subpixel order. If pausing instead, use the bigger local benchmark with `benchmark_lab/` to understand why temporal+subpixel+shape helped and whether the 0.58910 file should become the production default.
+Current best remains `0.58910` from burn #11/#13. Broad geometry and broad scale proxy stacks through
+burn #28 regressed publicly. Do not submit old post-shape or local-benchmark proxy candidates as if
+they are still open recommendations.
 
-After the 0.62994 top3 result, do not spend more slots on broad FL combiners unless the goal is pure
-information. The useful production path is temporal smoothing + subpixel scale precision + clean
-shape-neighbor fallback scale; next serious work is understanding/wiring that pipeline cleanly and
-then improving segmentation/orientation.
+The active next step is EXP59 segmentation retraining:
 
-**The one geometry shot left**: wire facing-FL per gap. Use `apo_bands()` + gap formation from `per_gap_viewer.py` for multi-muscle separation ONLY. Then compute FL per gap using `compute_facing_fl()` - NOT the wave trace. Do not submit it until the new human benchmark can distinguish the 0.619 baseline from the rejected 0.665 facing variant.
+- single run: `kaggle_seg59_02_highres_512_unet_auto.ipynb`;
+- unattended run: `kaggle_seg59_sleep_matrix_auto.ipynb`.
+
+Submit a segmentation candidate only after its output distribution and calibration debug CSV look
+sane against burn #13.
 
 **Do NOT submit** based on:
 - Local benchmark improvement alone (mispredicted LB direction 4 times)
 - Any change that hasn't been isolated to a single dimension
 - The wave/bend FL (it overshoots +25mm, same as straight; the per-gap wave dropped minimize-extrapolation)
 
-**Rejected candidates** (all regressed from 0.61918):
+**Rejected candidates / families**:
 - Facing FL as-is (0.66459): multi-muscle gate wrong
 - FL identity blend (0.63905)
 - MT vertical-3 (0.62561)
 - Bar-only scale tail (0.66711)
-- Existing subpixel-scale CSV: not rejected on LB, but too tiny to be worth a slot by itself
+- Top-3 FL (0.62994)
+- Robust triangle production proxy (0.60102)
+- Visibility-weighted FL proxy (0.64511)
+- Vertical-MT proxy stack (0.60720)
+- Broad field-depth scale (0.66197)
+- Local-benchmark proxy stack plus missing-scale patch (0.65917)
 
 **Do not run**: `UMUD_FL_FACING=1` unless intentionally testing a repaired facing/per-gap variant. A fresh `local_infer.py` run now defaults to the safe 0.619 fragment-FL baseline.
 
-Canonical current-state doc: `MASTER_REVIEW.md`.
+Canonical current-state doc: `docs/CURRENT_STATE_2026-06-13.md`.

@@ -1,10 +1,9 @@
 # UMUD Strategy Brief
 
-> **Archive note (2026-06-09):** this brief predates the scale-router and real-domain-probe pivot.
-> Current state: public LB 0.61918 restored baseline, scale router 295/309, rejected FL blend
-> regressed to ~0.64, rejected MT vertical-3 regressed to 0.62561, and augmentation/domain-adaptation
-> retraining demoted. Rejected bar-only scale-tail regressed to 0.66711. Read
-> `STATE_RESET_2026-06-10.md` first.
+> **Archive note (updated 2026-06-13):** this brief predates the scale-router, temporal/scale public
+> wins, and later failed geometry/scale proxy burns. It is useful history, not a current plan.
+> Current state is `docs/CURRENT_STATE_2026-06-13.md`: best public `0.58910`, broad proxy stacks
+> rejected, EXP59 segmentation retraining active.
 
 Public-safe working brief for the UMUD Challenge: Muscle Architecture in Ultrasound Data.
 
