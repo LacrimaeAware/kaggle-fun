@@ -1,3 +1,11 @@
+> **CORRECTION 2026-06-14 (later same day). Read `docs/CURRENT_STATE.md`.** The FL guidance in the
+> "Plan" section ("FL stays ... FL is high-variance but unbiased ... the FL recenter is masking a real
+> ~+6mm overshoot, do NOT just delete it") is FALSIFIED by the leaderboard. A global FL scale x1.05
+> scored **0.52570** (from 0.55033), the biggest gain of the project: the test set wants FL LONGER, and
+> the recenter (pin to 74.424, raw FL ~91.6) actively shortens it ~19%. The "FL unbiased" reading came
+> from validators (the 35-image benchmark and the self-measured 19 labels) that are structurally blind
+> to a global FL/scale error. The PA findings below stand; the FL/recenter conclusions do not.
+
 # EXP79 PA aggregation bias investigation (2026-06-14)
 
 Status: a real, evidence-backed lever was found, then red-teamed down to "real but smaller and more

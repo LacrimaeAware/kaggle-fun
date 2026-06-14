@@ -1,23 +1,27 @@
 # UMUD Muscle Architecture
 
-Current public best: `0.55075` (flat PA +2 deg correction; see `STATE_2026-06-14.md`).
+Current public best: **`0.52570`** (global FL scale x1.05 on the PA+2.5 base, `results/submission_fl_x105.csv`; 2026-06-14).
 
-Start here:
+Start here (these five are the living docs; everything else is in `archive/`):
 
-- `STATE_2026-06-14.md` - latest state audit: scores, error structure, what is ruled out, what is untested.
-- `docs/CURRENT_STATE_2026-06-13.md` - prior verdict and agenda (pre-PA-correction).
-- `docs/DOC_INDEX.md` - map of which docs are current versus historical.
-- `EXPERIMENT_LOG.md` - chronological record of public submissions and experiment status.
-- `FEATURE_DATABASE.md` / `FEATURE_DATABASE.csv` - feature ledger with benchmark and public deltas.
+- `docs/CURRENT_STATE.md` - **canonical single source of truth** (undated). Read this first.
+- `VERIFIED_FACTS.md` - code/LB-grounded facts only; nothing unproven.
+- `FINDINGS_REGISTRY.md` - every idea/feature/experiment by concept, each tagged LIVE / FACT / UNTESTED / REJECTED / FALSE / PAST. The merged replacement for the old front-door and EXP journals.
+- `EXPERIMENT_LOG.md` - chronological public-submission changelog.
+- `competition_reference.md` / `FEATURE_DATABASE.md` - host rules and the feature ledger.
+
+> Reset (2026-06-14): the repo was consolidated. ~25 narrative docs and 41 dated EXP journals moved to
+> `archive/` (history preserved); their findings are folded into `FINDINGS_REGISTRY.md` with corrected
+> status. Several old claims were falsified - notably "the FL recenter is a no-op / masks an overshoot":
+> it is an active ~19% FL shrink, and the leaderboard wants FL longer (FL x1.05 -> 0.52570).
 
 ## Current Work
 
-The active direction is measurement-quality work in two tracks. The latest scale/geometry proxy
-submissions regressed publicly, so the next useful work is not stacking more downstream patches. It is:
-
-1. a best-effort heavy segmentation candidate run;
-2. controlled segmentation diagnostics and one-axis GPU ablations;
-3. a local classical fascicle-line extractor based on external muscle-ultrasound pipelines.
+The live lever is **FL global scale** (FL x1.05 -> 0.52570, still climbing; bracket x1.10/1.15/1.20/1.25,
+then bake the optimum into `segment_then_measure.py`). PA is tapped at ~+2.4. The next non-LB work is a
+classical Frangi+Radon fascicle-orientation extractor (no GPU). The GPU segmentation pivot is on hold:
+its premise ("FL is mask-limited") was falsified by the FL scale win. See `docs/CURRENT_STATE.md` for the
+full plan. The segmentation notebooks below remain available but EXP77 was never run.
 
 Kaggle notebooks:
 
@@ -57,7 +61,8 @@ all cells.
 
 ## Current Public Submission Read
 
-- Current best: `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` / `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`, both `0.58910`.
+- Current best: `results/submission_fl_x105.csv` at `0.52570` (FL x1.05 on the PA+2.5 base). The
+  burn_11/burn_13 files (`0.58910`) and the PA-shift files (`0.55075`/`0.55033`) are superseded.
 - Rejected: robust triangle (#15), visibility-weighted FL (#16), vertical MT (#17), broad field-depth scale (#22), and local-benchmark proxy stack (#28).
 - Scale status: displayed depth is audited on all 309 test images and algorithmically recovered
   309/309 after EXP63/EXP64 repairs; the unsolved part is trusted `px/cm` span detection.

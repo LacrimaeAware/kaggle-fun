@@ -1,3 +1,8 @@
+> **SUPERSEDED 2026-06-14. Read `docs/CURRENT_STATE.md` and `VERIFIED_FACTS.md` first.** Two
+> load-bearing claims here are falsified: "FL recenter is a measured no-op (0/309 rows)" (it is an
+> active ~19% FL shrink on the live pipeline, 308/309 rows) and "FL is mask-limited" (a one-line global
+> FL scale x1.05 scored **0.52570**, the project best, with no mask change). Treat this file as history.
+
 # UMUD Master Review (rewritten 2026-06-10)
 
 > **Current-state note (2026-06-13):** this file is now a historical long-form synthesis, not the

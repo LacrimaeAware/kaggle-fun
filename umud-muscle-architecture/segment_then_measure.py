@@ -99,14 +99,14 @@ FL_MIN, FL_MAX = 30.0, 200.0
 MT_MIN, MT_MAX = 10.0, 50.0
 USE_CALIBRATED_MT = os.environ.get("UMUD_USE_CALIBRATED_MT", "1") != "0"
 USE_CALIBRATED_FL = os.environ.get("UMUD_USE_CALIBRATED_FL", "0") == "1"
-USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated per-family scale (54% coverage)
+USE_SCALE_ROUTER = os.environ.get("UMUD_SCALE_ROUTER", "1") != "0"  # validated per-family scale (295/309 = 95% coverage; the old "54%" comment was stale)
 USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/sin(PA), fallback when no fragment
 USE_FRAGMENT_FL = os.environ.get("UMUD_FRAGMENT_FL", "1") != "0"  # FL from fascicle fragment extrapolated to apo lines; beats identity once apo inner-edge is fixed (0.481->0.353 on the 35 experts)
 FL_IDENTITY_BLEND = float(os.environ.get("UMUD_FL_IDENTITY_BLEND", "0"))  # keep fragment-only FL by default; blend=.5 looked better locally but regressed public LB 0.61918->~0.64
 FL_FRAGMENT_MODE = os.environ.get("UMUD_FL_FRAGMENT_MODE", "median").lower()  # median | min_extrap_top3 | visibility_weighted
 FL_FRAGMENT_TOPK = int(os.environ.get("UMUD_FL_FRAGMENT_TOPK", "3"))  # host protocol uses 3 manually selected low-extrapolation structures
 USE_FL_FACING = os.environ.get("UMUD_FL_FACING", "0") == "1"  # opt-in rejected probe: consensus angle + facing-parabola apo + minimize-extrapolation. It improved the 35-expert FL proxy but regressed public LB 0.61918->0.66459, so keep the safe fragment-FL baseline as default.
-USE_FL_RECENTER = os.environ.get("UMUD_FL_RECENTER", "1") != "0"  # ON (default) = pin submission FL mean to PRIOR (the 0.61918 baseline). OFF = honest per-image FL (fl_px/scale), prior only where no scale; this is the principled "no mean" version but it exposes the FL geometry's ~+6mm overshoot the recenter masks, so it is a leaderboard bet, not a free win.
+USE_FL_RECENTER = os.environ.get("UMUD_FL_RECENTER", "1") != "0"  # CORRECTED 2026-06-14: this is NOT a no-op and does NOT mask an overshoot. On the live pipeline raw FL mean is ~91.6mm; pinning to PRIOR=74.424 multiplies every FL by ~0.81 (a ~19% SHRINK, 308/309 rows). The LB proves FL must be LONGER (FL x1.05 -> 0.52570 best). So the recenter actively shortens FL the wrong way. The fix is to raise PRIOR['fl_mm'] toward the LB optimum or set this OFF; see docs/CURRENT_STATE.md. (Old "0/309 no-op" claim came from re-applying the pin to an already-pinned file.)
 USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; denoises masks (exp08: 0.383->0.370)
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
