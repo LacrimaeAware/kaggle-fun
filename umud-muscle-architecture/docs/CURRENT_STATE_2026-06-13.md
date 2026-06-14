@@ -41,6 +41,10 @@ Scale:
   remaining problem is a trusted pixel span.
 - EXP64's text/depth OCR is useful: direct OCR finds displayed depth on 237/309 and fused rules cover
   309/309 versus the human review. That solves depth reading, not px/mm by itself.
+- EXP78 is the compact current scale synthesis. The user manually reviewed all 309 test-image
+  displayed depths; after repairs, the algorithm-only depth guesser matched the full review 309/309
+  without reading the notes file as predictor input. The standing boundary is unchanged: depth is
+  solved, broad px/cm scale is not.
 
 Geometry:
 
@@ -73,6 +77,10 @@ Segmentation:
 - The deeper audit found that EXP72 did not faithfully implement clDice/boundary/skeleton-recall style
   thin-structure training; it used soft/dilated targets plus hard post-hoc skeleton decoding and
   changed too many knobs at once.
+- The next segmentation follow-up after an EXP77 checkpoint should include inference-only
+  recall-heavy variants: lower fascicle thresholds, lower minimum component area, and threshold versus
+  skeleton-dilate postprocess. This tests the user's "guess more, then let geometry filter" idea
+  without spending another full training run.
 
 ## What We Were Working On Last
 
@@ -100,10 +108,12 @@ The active work is segmentation retraining, now split into two tiers:
 7. EXP77 (`EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md`) is the current recommended
    overnight Kaggle plan. It generates `kaggle_seg77_best_effort_heavy_auto.ipynb`, with
    `seg77_01_best_unetpp640_dilate_soft5_cldice` as the main best-effort candidate.
-8. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+8. EXP78 (`EXP78_SCALE_REVIEW_AND_RECALL_SEGMENTATION_STATE_2026-06-14.md`) is the compact synthesis
+   of the full 309-row scale-depth review and the recall-heavy segmentation follow-up idea.
+9. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-9. Submit only a candidate whose output distribution and scale/debug counts look sane.
-10. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+10. Submit only a candidate whose output distribution and scale/debug counts look sane.
+11. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
@@ -114,15 +124,17 @@ Immediate:
    competition input attached.
 2. Download `umud_seg77_best_effort_outputs.zip` and inspect `seg77_best_effort_summary.csv`, run
    logs, submission CSVs, calibration debug CSVs, and `pred_debug_*` masks.
-3. Bundle/download any partial EXP72 outputs and logs if they still exist.
-4. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
+3. If EXP77 produces usable weights, generate recall-heavy inference-only variants before concluding
+   the segmentation branch failed.
+4. Bundle/download any partial EXP72 outputs and logs if they still exist.
+5. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
    is the fastest way to test whether ultrasound texture contains a recoverable geometry signal that
    our fascicle masks miss.
-5. Run EXP76 only if we specifically want controlled one-axis diagnostics after the EXP77 best-effort
+6. Run EXP76 only if we specifically want controlled one-axis diagnostics after the EXP77 best-effort
    run.
-6. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
+7. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
    component counts, accepted fragment counts, and downstream geometry distributions.
-7. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
+8. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
    change at a time, preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
@@ -138,6 +150,8 @@ After that:
 ## Do Not Repeat
 
 - Do not submit broad field-depth scale overrides from depth text plus field rectangle alone.
+- Do not confuse displayed depth with px/cm scale. The 309-row depth review solved depth, not the
+  trusted-span problem.
 - Do not treat local expert-benchmark FL wins as public evidence without a transfer check.
 - Do not describe burn #28 as burn #15 plus scale.
 - Do not promote support/visibility FL or vertical MT proxies based only on local benchmark wins.

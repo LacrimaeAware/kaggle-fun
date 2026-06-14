@@ -93,6 +93,8 @@ Negative deltas are good. Positive deltas are bad.
 | `F061` | High-confidence pseudo-label consensus for thin structures | planned / held | segmentation semi-supervision | pending | pending | EXP75 external method review | If pseudo-labeling test/external images, compare multiple models/confidence maps and keep only high-confidence foreground/boundary regions. Do not train from a single model's full predictions. | wait until EXP74 probability outputs and at least two independent models exist |
 | `F062` | EXP76 controlled segmentation diagnostic matrix | generated / secondary diagnostic | segmentation diagnostics + training | pending | pending | EXP76 tonight notebook audit | No-edit Kaggle notebook that keeps public-safe measurement settings fixed while testing one segmentation axis at a time: soft target, dilated target, Tversky loss, U-Net++ architecture, and a final combo. Saves submissions, logs, summaries, debug masks, and weights. | run after EXP77 only if controlled one-axis evidence is needed |
 | `F063` | EXP77 best-effort heavy segmentation with CLDice topology loss | generated / recommended overnight run | segmentation topology + training | pending | pending | EXP77 best-effort notebook | Strongest implemented segmentation candidate first: U-Net++ 640, soft/dilated fascicle targets, Tversky plus CLDice-style topology loss, threshold sweep, TTA, temporal smoothing, debug masks, and serious alternates. | run `kaggle_seg77_best_effort_heavy_auto.ipynb`; inspect zip; first intended candidate is `submission_seg77_01_best_unetpp640_dilate_soft5_cldice.csv` if sane |
+| `F064` | Full 309-image depth review as scale audit set | implemented / documented | scale depth audit | n/a | n/a | EXP63/EXP64/EXP78 | User manually reviewed proposed displayed depth for all 309 test images. Repaired algorithm-only guesser matches reviewed depth 309/309 without using notes as predictor input. This solves displayed depth, not trusted `px/cm` span. | use as audit/evaluation set; do not read human notes in default production; build trusted span detector before broad scale changes |
+| `F065` | Recall-heavy fascicle inference variants from trained checkpoints | planned / next segmentation diagnostic | segmentation inference + geometry filtering | pending | pending | EXP78 recall synthesis | User diagnosis: masks may be too timid; better to over-detect plausible fascicle fragments and let geometry reject bad ones. Generate lower-threshold/lower-min-area variants from EXP77 weights without retraining. | after EXP77 checkpoint, generate threshold/min-area/postprocess variants and compare accepted fragments, PA/FL/MT distributions, debug masks, and public-safe CSVs |
 
 ## Current Read
 
@@ -119,20 +121,21 @@ a better trusted pixel-span detector for scale assets, or a higher-quality targe
 
 1. Bundle/download the partial EXP72 outputs and inspect `pred_debug_*` if available.
 2. Run EXP77's best-effort heavy segmentation notebook and download the output zip.
-3. Run EXP76's controlled segmentation matrix only if EXP77 leaves an unclear diagnostic question.
-4. Build EXP75's classical ultrasound fascicle-line extractor harness and viewer overlays.
-5. Add instrumentation for threshold-only vs skeleton decoding, component counts, and downstream geometry distribution.
-6. Build EXP74 as a controlled thin-line ablation: baseline settings plus one change at a time.
-7. Add masked in-domain ultrasound pretraining only after diagnostics exist, not as another blind all-in-one run.
-8. If segmentation does not improve, design a trusted pixel-span detector for scale assets before any more field-depth scale submissions.
-9. Keep EXP50/EXP53/EXP55 class-aware geometry as research only until exact production wiring and target-label scoring exist.
-10. Use EXP64 depth/text inference as the audited algorithmic depth source; OCR/fallback depth is solved, but `px/cm` still needs a trusted span.
-11. Submit EXP65's conservative 3 cm scale sequence as a controlled probe: burn #18 first, then #19 only if #18 does not regress.
-12. If retesting robust triangle, use EXP66 burn #20 rather than the old burn #15 file, because #20 includes the confirmed 3 cm scale-span repair.
-13. Do not use EXP67 broad field-depth scale as a default: public score `0.66197` rejects the current span heuristic.
-14. If testing the same scale move on robust triangle anyway, use EXP68 burn #23 and treat it as diagnostic only.
-15. If testing scale now, use EXP70 burn #26 first: it is the safe missing-scale-only field-depth probe. Use burn #27 only if deliberately testing robust triangle plus that safe scale patch.
-16. Treat EXP69 burn #24/#25 as superseded by EXP70 for recommendation purposes: they are cleaner than #22 but still change rows with existing scales.
-17. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
-18. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
-19. If the user asks for "best local benchmark plus scale", use EXP71 burn #28, not burn #27. Burn #27 is only robust triangle plus scale.
+3. If EXP77 produces weights, generate recall-heavy inference-only variants before another full training run.
+4. Run EXP76's controlled segmentation matrix only if EXP77 leaves an unclear diagnostic question.
+5. Build EXP75's classical ultrasound fascicle-line extractor harness and viewer overlays.
+6. Add instrumentation for threshold-only vs skeleton decoding, component counts, and downstream geometry distribution.
+7. Build EXP74 as a controlled thin-line ablation: baseline settings plus one change at a time.
+8. Add masked in-domain ultrasound pretraining only after diagnostics exist, not as another blind all-in-one run.
+9. If segmentation does not improve, design a trusted pixel-span detector for scale assets before any more field-depth scale submissions.
+10. Keep EXP50/EXP53/EXP55 class-aware geometry as research only until exact production wiring and target-label scoring exist.
+11. Use EXP64 depth/text inference as the audited algorithmic depth source; OCR/fallback depth is solved, but `px/cm` still needs a trusted span.
+12. Submit EXP65's conservative 3 cm scale sequence as a controlled probe: burn #18 first, then #19 only if #18 does not regress.
+13. If retesting robust triangle, use EXP66 burn #20 rather than the old burn #15 file, because #20 includes the confirmed 3 cm scale-span repair.
+14. Do not use EXP67 broad field-depth scale as a default: public score `0.66197` rejects the current span heuristic.
+15. If testing the same scale move on robust triangle anyway, use EXP68 burn #23 and treat it as diagnostic only.
+16. If testing scale now, use EXP70 burn #26 first: it is the safe missing-scale-only field-depth probe. Use burn #27 only if deliberately testing robust triangle plus that safe scale patch.
+17. Treat EXP69 burn #24/#25 as superseded by EXP70 for recommendation purposes: they are cleaner than #22 but still change rows with existing scales.
+18. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
+19. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
+20. If the user asks for "best local benchmark plus scale", use EXP71 burn #28, not burn #27. Burn #27 is only robust triangle plus scale.

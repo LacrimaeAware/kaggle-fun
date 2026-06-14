@@ -18,6 +18,7 @@ Audited the public-facing repository docs and UMUD root notes after public burns
 - `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md`
 - `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md`
 - `EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md`
+- `EXP78_SCALE_REVIEW_AND_RECALL_SEGMENTATION_STATE_2026-06-14.md`
 - `kaggle_seg76_controlled_diagnostics_auto.ipynb`
 - `kaggle_seg77_best_effort_heavy_auto.ipynb`
 
@@ -38,6 +39,9 @@ Audited the public-facing repository docs and UMUD root notes after public burns
   all-knobs heavy run.
 - Added EXP77 after the user clarified the immediate goal: strongest implemented segmentation
   candidate first. EXP76 is now secondary diagnostics; EXP77 is the recommended overnight notebook.
+- Added EXP78 to consolidate the full 309-image manual depth review, the algorithm-only 309/309
+  depth audit, the failed broad scale probes, the EXP72 downloaded-partial audit, and the
+  recall-heavy segmentation follow-up idea.
 
 ## Known Stale Or Historical Docs
 
@@ -86,10 +90,12 @@ privacy checks.
 
 1. After the EXP77 Kaggle matrix finishes, add the resulting public scores and diagnostics to the
    experiment log and feature database.
-2. If needed, run EXP76 afterward for controlled one-axis diagnostics.
-3. Build the EXP75 classical fascicle-line extractor harness so raw ultrasound texture is tested
+2. If EXP77 produces weights, generate recall-heavy inference-only variants before another full
+   training run.
+3. If needed, run EXP76 afterward for controlled one-axis diagnostics.
+4. Build the EXP75 classical fascicle-line extractor harness so raw ultrasound texture is tested
    independently from the neural fascicle masks.
-4. Build the EXP74 controlled segmentation notebook before another long GPU run.
-5. If a segmentation candidate improves, promote it from "next direction" to "accepted branch" and
+5. Build the EXP74 controlled segmentation notebook before another long GPU run.
+6. If a segmentation candidate improves, promote it from "next direction" to "accepted branch" and
    write the exact submission file path.
-6. If segmentation fails, write a new dated diagnostic note before changing strategy again.
+7. If segmentation fails, write a new dated diagnostic note before changing strategy again.

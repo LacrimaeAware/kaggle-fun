@@ -43,6 +43,8 @@ Current segmentation docs:
   after EXP77 if the goal is immediate best candidate first.
 - `EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md` - rationale for the current best-effort
   overnight notebook.
+- `EXP78_SCALE_REVIEW_AND_RECALL_SEGMENTATION_STATE_2026-06-14.md` - compact synthesis of the full
+  309-image depth review, failed scale submissions, and the recall-heavy segmentation follow-up.
 
 Current recommended Kaggle notebook:
 
@@ -56,6 +58,8 @@ all cells.
 
 - Current best: `submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv` / `submission_burn_13_temporal_subpixel_shape_img00275_ocr_scale.csv`, both `0.58910`.
 - Rejected: robust triangle (#15), visibility-weighted FL (#16), vertical MT (#17), broad field-depth scale (#22), and local-benchmark proxy stack (#28).
+- Scale status: displayed depth is audited on all 309 test images and algorithmically recovered
+  309/309 after EXP63/EXP64 repairs; the unsolved part is trusted `px/cm` span detection.
 
 ## Repo Hygiene
 
