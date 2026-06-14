@@ -16,6 +16,8 @@ Audited the public-facing repository docs and UMUD root notes after public burns
 - `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md`
 - `EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md`
 - `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md`
+- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md`
+- `kaggle_seg76_controlled_diagnostics_auto.ipynb`
 
 ## Fixed During This Pass
 
@@ -30,6 +32,8 @@ Audited the public-facing repository docs and UMUD root notes after public burns
 - Added EXP75 after a broader external-method review covering muscle-ultrasound measurement
   pipelines, Kaggle segmentation practice, masked pretraining, pseudo-labeling, and scale auxiliary
   models.
+- Added EXP76 after the antagonistic source review: current tonight run is a controlled segmentation
+  matrix, not another all-knobs heavy run.
 
 ## Known Stale Or Historical Docs
 
@@ -76,8 +80,8 @@ privacy checks.
 
 ## Next Freshness Tasks
 
-1. After the Kaggle sleep matrix finishes, add the resulting public scores to the experiment log and
-   feature database.
+1. After the EXP76 Kaggle matrix finishes, add the resulting public scores and diagnostics to the
+   experiment log and feature database.
 2. Build the EXP75 classical fascicle-line extractor harness so raw ultrasound texture is tested
    independently from the neural fascicle masks.
 3. Build the EXP74 controlled segmentation notebook before another long GPU run.

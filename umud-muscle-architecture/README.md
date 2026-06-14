@@ -34,6 +34,12 @@ Current segmentation docs:
 - `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - external research synthesis:
   muscle-ultrasound line extraction, Kaggle segmentation practice, masked pretraining, pseudo-label
   discipline, and scale auxiliary modeling.
+- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - rationale for the current no-edit overnight notebook.
+
+Current recommended Kaggle notebook:
+
+- `kaggle_seg76_controlled_diagnostics_auto.ipynb` - controlled segmentation matrix; keeps
+  public-safe measurement settings fixed and tests one segmentation axis at a time.
 
 Kaggle setup: import the notebook, attach the UMUD competition input, set GPU + Internet on, and run
 all cells.

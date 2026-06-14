@@ -58,8 +58,11 @@ Segmentation:
   hybrid approach of learned boundaries plus classical fascicle-line extraction, dominant-orientation
   clustering, and non-crossing line cleanup. It also argues for masked in-domain ultrasound
   pretraining and Kaggle-grade folds/OOF/TTA/threshold diagnostics.
+- EXP76 is the generated notebook to run next: it keeps public-safe measurement settings fixed and
+  tests controlled segmentation axes one at a time.
 - The no-edit first run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`.
 - The unattended run is `kaggle_seg59_sleep_matrix_auto.ipynb`.
+- The current recommended tonight run is `kaggle_seg76_controlled_diagnostics_auto.ipynb`.
 - `seg59_02_highres_512_unet` is the current segmentation control: apo best Dice `0.7945`, fasc best
   Dice `0.2925`.
 - `seg72_01_soft5_tversky_640_unetpp` underperformed the control in the partial log: apo best Dice
@@ -89,23 +92,30 @@ The active work is segmentation retraining, now split into two tiers:
    correction. It says the next non-GPU local experiment should be a classical fascicle-line extractor:
    CLAHE/ridge filtering, skeletonized line segments, dominant-orientation clustering, extension to
    boundaries, and non-crossing cleanup.
-6. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+6. EXP76 (`EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md`) is the current Kaggle run plan. It generates
+   `kaggle_seg76_controlled_diagnostics_auto.ipynb`, which tests binary control, soft target, dilated
+   target, Tversky loss, U-Net++ architecture, and a final soft+Tversky combo.
+7. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-7. Submit only a candidate whose output distribution and scale/debug counts look sane.
-8. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+8. Submit only a candidate whose output distribution and scale/debug counts look sane.
+9. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
 
 Immediate:
 
-1. Bundle/download any partial EXP72 outputs and logs.
-2. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
+1. Run `kaggle_seg76_controlled_diagnostics_auto.ipynb` on Kaggle GPU with Internet on and the UMUD
+   competition input attached.
+2. Download `umud_seg76_controlled_diagnostics_outputs.zip` and inspect `seg76_controlled_summary.csv`,
+   run logs, submission CSVs, calibration debug CSVs, and `pred_debug_*` masks.
+3. Bundle/download any partial EXP72 outputs and logs if they still exist.
+4. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
    is the fastest way to test whether ultrasound texture contains a recoverable geometry signal that
    our fascicle masks miss.
-3. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
+5. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
    component counts, accepted fragment counts, and downstream geometry distributions.
-4. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
+6. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
    change at a time, preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
