@@ -54,6 +54,10 @@ Geometry:
 Segmentation:
 
 - This is the active direction, but EXP73/EXP74 now supersede the "just run EXP72" advice.
+- EXP75 adds the missing external-method layer: published muscle-ultrasound pipelines support a
+  hybrid approach of learned boundaries plus classical fascicle-line extraction, dominant-orientation
+  clustering, and non-crossing line cleanup. It also argues for masked in-domain ultrasound
+  pretraining and Kaggle-grade folds/OOF/TTA/threshold diagnostics.
 - The no-edit first run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`.
 - The unattended run is `kaggle_seg59_sleep_matrix_auto.ipynb`.
 - `seg59_02_highres_512_unet` is the current segmentation control: apo best Dice `0.7945`, fasc best
@@ -81,10 +85,14 @@ The active work is segmentation retraining, now split into two tiers:
 4. EXP74 (`EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md`) is the next notebook spec:
    baseline settings plus one change at a time, decoder sweeps, probability/debug outputs, component
    counts, and downstream geometry summaries.
-5. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+5. EXP75 (`EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md`) is the external-method
+   correction. It says the next non-GPU local experiment should be a classical fascicle-line extractor:
+   CLAHE/ridge filtering, skeletonized line segments, dominant-orientation clustering, extension to
+   boundaries, and non-crossing cleanup.
+6. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-6. Submit only a candidate whose output distribution and scale/debug counts look sane.
-7. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+7. Submit only a candidate whose output distribution and scale/debug counts look sane.
+8. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
@@ -92,17 +100,23 @@ The active work is segmentation retraining, now split into two tiers:
 Immediate:
 
 1. Bundle/download any partial EXP72 outputs and logs.
-2. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
+2. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
+   is the fastest way to test whether ultrasound texture contains a recoverable geometry signal that
+   our fascicle masks miss.
+3. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
    component counts, accepted fragment counts, and downstream geometry distributions.
-3. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
+4. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
    change at a time, preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
 
 1. If controlled segmentation improves, then scale to longer/heavier variants.
-2. If segmentation does not improve, build explicit labels/tooling for scale assets or field spans
+2. If EXP75's classical extractor produces sane line candidates, compare it against current masks,
+   human scratch labels, and the expert benchmark before deciding whether to use it as a production
+   feature or pseudo-label source.
+3. If segmentation does not improve, build explicit labels/tooling for scale assets or field spans
    before attempting another scale correction.
-3. Keep class-aware geometry work as research only until it is production-wired and target-validated.
+4. Keep class-aware geometry work as research only until it is production-wired and target-validated.
 
 ## Do Not Repeat
 
@@ -110,6 +124,8 @@ After that:
 - Do not treat local expert-benchmark FL wins as public evidence without a transfer check.
 - Do not describe burn #28 as burn #15 plus scale.
 - Do not promote support/visibility FL or vertical MT proxies based only on local benchmark wins.
+- Do not run another "heavy" segmentation notebook that changes target, decoder, augmentation,
+  architecture, and resolution all at once.
 
 ## Public/Privacy Notes
 

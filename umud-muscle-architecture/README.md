@@ -11,9 +11,11 @@ Start here:
 
 ## Current Work
 
-The active direction is controlled segmentation work. The latest scale/geometry proxy submissions
-regressed publicly, so the next useful work is improving and diagnosing the supervised mask models
-rather than stacking more downstream geometry patches.
+The active direction is measurement-quality work in two tracks. The latest scale/geometry proxy
+submissions regressed publicly, so the next useful work is not stacking more downstream patches. It is:
+
+1. controlled segmentation diagnostics and one-axis GPU ablations;
+2. a local classical fascicle-line extractor based on external muscle-ultrasound pipelines.
 
 Kaggle notebooks:
 
@@ -29,6 +31,9 @@ Current segmentation docs:
 - `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` - deeper audit of EXP72 and the current pipeline.
 - `EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md` - next notebook design: instrumentation
   and one-axis ablations before another long GPU run.
+- `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - external research synthesis:
+  muscle-ultrasound line extraction, Kaggle segmentation practice, masked pretraining, pseudo-label
+  discipline, and scale auxiliary modeling.
 
 Kaggle setup: import the notebook, attach the UMUD competition input, set GPU + Internet on, and run
 all cells.

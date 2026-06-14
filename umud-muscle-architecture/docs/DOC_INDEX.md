@@ -18,6 +18,9 @@ Use this map instead of opening random root-level notes.
   current segmentation decision document.
 - `EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md` - next notebook design: instrumentation
   plus one-axis thin-line ablations before another long GPU run.
+- `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - missing external-method review:
+  muscle-ultrasound extraction pipelines, Kaggle segmentation practice, pseudo-label discipline,
+  masked pretraining, and the next classical line-extractor harness.
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` - no-edit single serious run.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` - unattended multi-run segmentation matrix.
 - `kaggle_seg72_thin_structure_heavy_auto.ipynb` - no-edit heavy EXP72 Kaggle notebook; hold unless
@@ -26,7 +29,7 @@ Use this map instead of opening random root-level notes.
 
 ## Chronological Experiment Notes
 
-The dated files `EXP38_...` through `EXP71_...` are append-only experiment journals. They should keep
+The dated files `EXP38_...` through `EXP75_...` are append-only experiment journals. They should keep
 their original conclusions, then be superseded by later dated notes rather than rewritten into a
 single story.
 

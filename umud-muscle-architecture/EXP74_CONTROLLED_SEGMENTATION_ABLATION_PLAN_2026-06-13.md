@@ -12,6 +12,11 @@ thin-line model is failing before we spend another long run.
 No more "change everything and hope." EXP74 changes one axis at a time and logs the downstream
 measurement consequences.
 
+EXP75's external-method review strengthens this plan. Published muscle-ultrasound pipelines combine
+learned boundary extraction with classical fascicle-line processing, and Kaggle segmentation practice
+leans heavily on folds, threshold sweeps, TTA, OOF diagnostics, and controlled augmentation. EXP74
+should therefore be a diagnostics-first notebook, not just a longer run.
+
 The goal is not just higher validation Dice. The goal is better masks for the measurement pipeline:
 stable boundary bands, enough usable thin fragments, sane PA/FL/MT distributions, and no public-score
 style broad proxy drift.
@@ -61,6 +66,14 @@ The decoder sweep should report, at minimum:
 - connected component count,
 - for fasc: accepted fragment count after measurement filters.
 
+The Kaggle-style training diagnostics should also report:
+
+- train/validation split seed and any fold id;
+- threshold chosen on validation versus threshold used for submission;
+- TTA on/off distribution shift;
+- per-image predicted area and component-count outliers;
+- whether the run used pseudo labels, and if so the confidence rule that admitted them.
+
 The geometry summary should report:
 
 - geometry success count,
@@ -101,6 +114,27 @@ Add these only after the decoder/probability diagnostics exist:
    - Reason: uses skeleton/tubed ground truth with probability-map recall and lower overhead than full
      differentiable skeleton methods.
    - Source: https://arxiv.org/abs/2404.03010
+
+4. In-domain masked ultrasound pretraining.
+   - Reason: ultrasound segmentation is low-label and noisy; masked reconstruction on unlabeled
+     ultrasound-looking images may adapt the encoder/decoder before supervised fine-tuning.
+   - Source: https://www.nature.com/articles/s41598-025-11688-2
+
+## Parallel Local Harness From EXP75
+
+EXP74 is the GPU segmentation plan. In parallel, build EXP75's CPU/local classical fascicle extractor
+as a non-neural comparison:
+
+- CLAHE inside the muscle band;
+- ridge/elongated-line filtering;
+- skeletonized segment fitting;
+- collinear segment connection;
+- dominant-orientation clustering;
+- line extension to aponeurosis boundaries;
+- non-crossing cleanup inside the muscle band.
+
+This should be scored as an independent measurement candidate and used to diagnose whether the neural
+fascicle masks are missing texture that classical image processing can recover.
 
 ## Submit Rule
 
