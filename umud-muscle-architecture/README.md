@@ -1,10 +1,11 @@
 # UMUD Muscle Architecture
 
-Current public best: `0.58910`.
+Current public best: `0.55075` (flat PA +2 deg correction; see `HONEST_STATE_2026-06-14.md`).
 
 Start here:
 
-- `docs/CURRENT_STATE_2026-06-13.md` - current verdict and next agenda.
+- `HONEST_STATE_2026-06-14.md` - latest verdict: the +2 win, scale solved, post-hoc PA tapped, next step.
+- `docs/CURRENT_STATE_2026-06-13.md` - prior verdict and agenda (pre-PA-correction).
 - `docs/DOC_INDEX.md` - map of which docs are current versus historical.
 - `EXPERIMENT_LOG.md` - chronological record of public submissions and experiment status.
 - `FEATURE_DATABASE.md` / `FEATURE_DATABASE.csv` - feature ledger with benchmark and public deltas.
