@@ -4,6 +4,10 @@ Created after the EXP59 sleep matrix proved too conservative for the actual prob
 varied architecture, resolution, augmentation, and loss while keeping the same thin binary target.
 EXP72 changes the target/decoding formulation itself.
 
+Status after first partial run: under audit. `seg72_01_soft5_tversky_640_unetpp` underperformed the
+EXP59 control in the available log (`apo 0.7873` vs `0.7945`, `fasc 0.2594` by epoch 20 vs `0.2925`).
+Do not continue the full matrix blindly; see `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md`.
+
 ## Why EXP59 Was Not Enough
 
 Facts from repeated runs:

@@ -53,10 +53,14 @@ Geometry:
 
 Segmentation:
 
-- This is the active direction. The current plan is to spend GPU time on better supervised masks
-  rather than more post-processing patches.
+- This is the active direction, but EXP73 now supersedes the "just run EXP72" advice.
 - The no-edit first run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`.
 - The unattended run is `kaggle_seg59_sleep_matrix_auto.ipynb`.
+- `seg59_02_highres_512_unet` is the current segmentation control: apo best Dice `0.7945`, fasc best
+  Dice `0.2925`.
+- `seg72_01_soft5_tversky_640_unetpp` underperformed the control in the partial log: apo best Dice
+  `0.7873`, fasc best Dice `0.2594` by epoch 20. Treat EXP72 as under audit, not as the current
+  recommended overnight run.
 
 ## What We Were Working On Last
 
@@ -66,25 +70,29 @@ The active work is segmentation retraining, now split into two tiers:
    architecture, loss, and augmentation variations while keeping the same binary mask target.
 2. EXP72 (`kaggle_seg72_thin_structure_heavy_auto.ipynb`) is the serious thin-structure attempt:
    soft/dilated fascicle targets, validation threshold sweep, skeleton-style decoding, and debug mask
-   exports. Prefer EXP72 for the next overnight run if the goal is to break the thin-mask wall.
-3. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+   exports. Its first run underperformed; see EXP73 before rerunning or continuing the full matrix.
+3. EXP73 (`EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md`) is now the active segmentation decision
+   note. It recommends stopping/bundling `seg72_01`, holding remaining EXP72 runs, adding
+   instrumentation, and then building an EXP74 controlled ablation.
+4. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-4. Submit only a candidate whose output distribution and scale/debug counts look sane.
-5. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+5. Submit only a candidate whose output distribution and scale/debug counts look sane.
+6. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
 
 Immediate:
 
-1. Wait for the Kaggle sleep matrix or run the single `seg59_02` notebook if time is limited.
-2. Compare each segmentation candidate's PA/FL/MT distributions against burn #13.
-3. If a segmentation output is sane, submit it as a clean model-quality probe.
+1. Bundle/download any partial EXP72 outputs and logs.
+2. Add instrumentation for threshold-only vs skeleton decoding, component counts, and downstream
+   geometry distribution before another overnight notebook.
+3. Build EXP74 as a controlled thin-line ablation: baseline settings plus one change at a time,
+   preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
 
-1. If segmentation improves, keep exploring model quality: U-Net++, stronger augmentation, longer
-   512 training, and possibly ensembles.
+1. If controlled segmentation improves, then scale to longer/heavier variants.
 2. If segmentation does not improve, build explicit labels/tooling for scale assets or field spans
    before attempting another scale correction.
 3. Keep class-aware geometry work as research only until it is production-wired and target-validated.

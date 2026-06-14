@@ -13,7 +13,9 @@ Use this map instead of opening random root-level notes.
 
 - `EXP59_SEGMENTATION_GPU_MATRIX_2026-06-13.md` - current GPU segmentation plan.
 - `EXP72_THIN_STRUCTURE_SEGMENTATION_2026-06-13.md` - heavy thin-structure follow-up; preferred
-  overnight run when trying to break the low fascicle-mask Dice wall.
+  overnight run when trying to break the low fascicle-mask Dice wall, but see EXP73 before rerunning.
+- `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` - methodology audit after EXP72 underperformed;
+  current segmentation decision document.
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` - no-edit single serious run.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` - unattended multi-run segmentation matrix.
 - `kaggle_seg72_thin_structure_heavy_auto.ipynb` - no-edit heavy EXP72 Kaggle notebook.
