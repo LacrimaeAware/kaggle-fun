@@ -53,7 +53,7 @@ Geometry:
 
 Segmentation:
 
-- This is the active direction, but EXP73 now supersedes the "just run EXP72" advice.
+- This is the active direction, but EXP73/EXP74 now supersede the "just run EXP72" advice.
 - The no-edit first run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`.
 - The unattended run is `kaggle_seg59_sleep_matrix_auto.ipynb`.
 - `seg59_02_highres_512_unet` is the current segmentation control: apo best Dice `0.7945`, fasc best
@@ -61,6 +61,9 @@ Segmentation:
 - `seg72_01_soft5_tversky_640_unetpp` underperformed the control in the partial log: apo best Dice
   `0.7873`, fasc best Dice `0.2594` by epoch 20. Treat EXP72 as under audit, not as the current
   recommended overnight run.
+- The deeper audit found that EXP72 did not faithfully implement clDice/boundary/skeleton-recall style
+  thin-structure training; it used soft/dilated targets plus hard post-hoc skeleton decoding and
+  changed too many knobs at once.
 
 ## What We Were Working On Last
 
@@ -68,16 +71,20 @@ The active work is segmentation retraining, now split into two tiers:
 
 1. EXP59 (`kaggle_seg59_sleep_matrix_auto.ipynb`) is the conservative GPU matrix: higher resolution,
    architecture, loss, and augmentation variations while keeping the same binary mask target.
-2. EXP72 (`kaggle_seg72_thin_structure_heavy_auto.ipynb`) is the serious thin-structure attempt:
+2. EXP72 (`kaggle_seg72_thin_structure_heavy_auto.ipynb`) is the first heavy thin-structure attempt:
    soft/dilated fascicle targets, validation threshold sweep, skeleton-style decoding, and debug mask
-   exports. Its first run underperformed; see EXP73 before rerunning or continuing the full matrix.
+   exports. Its first run underperformed and the matrix is too confounded; hold it unless gathering
+   artifacts.
 3. EXP73 (`EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md`) is now the active segmentation decision
-   note. It recommends stopping/bundling `seg72_01`, holding remaining EXP72 runs, adding
-   instrumentation, and then building an EXP74 controlled ablation.
-4. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+   note. It recommends stopping/bundling `seg72_01`, holding remaining EXP72 runs, and adding
+   instrumentation before more training.
+4. EXP74 (`EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md`) is the next notebook spec:
+   baseline settings plus one change at a time, decoder sweeps, probability/debug outputs, component
+   counts, and downstream geometry summaries.
+5. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-5. Submit only a candidate whose output distribution and scale/debug counts look sane.
-6. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+6. Submit only a candidate whose output distribution and scale/debug counts look sane.
+7. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
@@ -85,10 +92,10 @@ The active work is segmentation retraining, now split into two tiers:
 Immediate:
 
 1. Bundle/download any partial EXP72 outputs and logs.
-2. Add instrumentation for threshold-only vs skeleton decoding, component counts, and downstream
-   geometry distribution before another overnight notebook.
-3. Build EXP74 as a controlled thin-line ablation: baseline settings plus one change at a time,
-   preferably with target-specific training/reuse so apo and fasc are not confounded.
+2. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
+   component counts, accepted fragment counts, and downstream geometry distributions.
+3. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
+   change at a time, preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
 

@@ -2,207 +2,184 @@
 
 Date: 2026-06-13
 
-Purpose: slow down and audit the segmentation strategy before generating yet another notebook. The
-goal is to separate facts, implementation issues, literature-supported methods, and the next
-controlled experiment.
+Purpose: do the slower audit that should have happened before treating EXP72 as "the" heavy
+segmentation answer. This note separates facts, implementation details, known method gaps, and the
+next controlled experiment.
 
-## Immediate Recommendation
+## Straight Answer
 
-Stop `seg72_01_soft5_tversky_640_unetpp` if it is still running and bundle/download whatever logs and
-debug outputs exist.
+EXP72 does **not** prove that segmentation is capped.
 
-Reason: the partial EXP72 log shows it is slower and worse than the conservative EXP59 control:
+EXP72 does prove that `seg72_01_soft5_tversky_640_unetpp` is not currently earning GPU time, and that
+the EXP72 matrix is not a clean enough experiment to diagnose the thin-line problem.
 
-| run | pipeline | apo best Dice | fasc/thin-line best Dice | note |
-|---|---|---:|---:|---|
-| `seg59_02_highres_512_unet` | `2026-06-13.02` | `0.7945` | `0.2925` | finished in `33.2 min`; conservative binary target |
-| `seg72_01_soft5_tversky_640_unetpp` | `2026-06-13.03` | `0.7873` | `0.2594` by fasc epoch 20 | much slower; soft target + skeleton-dilate decoder |
+If `seg72_01` is still running, stop it or let it finish only if you specifically want the partial
+artifact. Bundle/download logs, configs, debug masks, and weights. Do not continue the remaining EXP72
+runs blindly.
 
-This does not prove segmentation cannot improve. It does prove that the first EXP72 formulation is
-not currently earning its GPU time.
+The next notebook should be EXP74: instrumentation plus controlled one-axis ablations. It should not
+be another "bigger everything" overnight run.
 
-## Core Audit Finding
+## Observed Run Facts
 
-EXP72 was directionally aimed at a real problem, but it did **not** faithfully implement the strongest
-known thin-structure methods. It implemented a local approximation:
+| run | pipeline | apo best Dice | fasc/thin-line best Dice | runtime / status | read |
+|---|---|---:|---:|---|---|
+| `seg59_02_highres_512_unet` | `2026-06-13.02` | `0.7945` | `0.2925` | finished in `33.2 min` | current conservative control |
+| `seg72_01_soft5_tversky_640_unetpp` | `2026-06-13.03` | `0.7873` | `0.2594` by fasc epoch 20 | much slower | worse than control in the pasted log |
 
-- soft/dilated target masks,
-- threshold sweep,
-- hard morphological skeletonization after thresholding,
-- heavy augmentation,
-- larger image sizes and U-Net++.
+This is enough to reject continuing `seg72_01` as-is. It is not enough to reject segmentation work.
 
-The literature-backed thin-structure methods are more specific:
+## Code Audit Facts
 
-- clDice introduces a centerline-aware metric/loss using skeleton/mask overlap and soft skeletonization
-  during training, not only a post-processing skeleton step.
-- Boundary loss addresses severe class imbalance by optimizing a contour/distance-based objective
-  that complements regional Dice/Cross-Entropy.
-- Skeleton Recall Loss uses a tubed ground-truth skeleton and soft recall against predicted
-  probabilities, avoiding expensive differentiable skeletons while still training against a
-  connectivity-aware target.
-- Newer centerline-boundary losses explicitly note that centerline-only losses can miss geometric
-  detail and need boundary/geometric terms too.
+These are direct facts from `segment_then_measure.py` and the EXP72 notebook.
 
-So EXP72 should be treated as a failed approximation, not as a failed test of the whole class of
-thin-structure segmentation methods.
+1. Most training knobs are global for both targets.
 
-Sources:
+   `UMUD_IMG_SIZE`, `UMUD_MODEL_ARCH`, `UMUD_LOSS_MODE`, `UMUD_AUG_LEVEL`, `UMUD_AUTO_THRESHOLD`, and
+   `UMUD_THRESHOLD_SWEEP` are shared by apo and fasc training. Only the target mask mode is cleanly
+   target-specific through `UMUD_APO_TARGET_MODE` and `UMUD_FASC_TARGET_MODE`.
 
-- clDice: https://arxiv.org/abs/2003.07311
-- Boundary loss: https://proceedings.mlr.press/v102/kervadec19a.html
-- Skeleton Recall Loss: https://arxiv.org/html/2404.03010v1
-- Centerline Boundary Dice: https://arxiv.org/abs/2407.01517
+   That matters because apo is a broad boundary-band task while fasc is the sparse thin-line task. A
+   heavier setting can hurt apo while trying to help fasc, and EXP72 retrains both at once.
 
-## Implementation / Method Issues Found
+2. Soft/dilated targets are training targets, not topology losses.
 
-### 1. Too many knobs changed at once
+   `prepare_loss_mask()` converts the augmented binary mask into `soft5`, `soft7`, `dilate3`,
+   `dilate_soft5`, etc. for training. This is a reasonable target transform, but it is not clDice,
+   boundary loss, skeleton recall, or a distance-transform loss.
 
-`seg72_01` changed architecture, resolution, loss, augmentation, target mode, thresholding, and
-postprocessing together. When it underperforms, the result is hard to diagnose.
+3. EXP72 skeletonization is post-hoc and non-differentiable.
 
-This is not merely hindsight. It means the run cannot answer the basic question: did soft targets
-help, did skeleton decoding hurt, did heavy augmentation hurt, or did U-Net++/640 simply train worse?
+   `binarize_prob()` thresholds the probability map, then applies OpenCV morphological skeletonization
+   and optional dilation. That hard decoder is used during validation and inference. It does not teach
+   the model connectivity during backpropagation.
 
-### 2. The pipeline cannot cleanly isolate apo and fasc training
+4. The current validation score is one hard-decoder Dice number.
 
-`segment_then_measure.py` uses global settings for both tasks:
+   In `train_segmenter()`, validation computes binary Dice after the selected decoder. It does not log:
 
-- `UMUD_MODEL_ARCH`
-- `UMUD_IMG_SIZE`
-- `UMUD_LOSS_MODE`
-- `UMUD_AUG_LEVEL`
-- `UMUD_AUTO_THRESHOLD`
+   - threshold-only Dice,
+   - skeleton Dice,
+   - skeleton-dilate Dice,
+   - probability-map quality,
+   - connected component count,
+   - accepted fragment count after measurement filters,
+   - PA/FL/MT downstream measurement distributions,
+   - expert-benchmark score with the candidate weights.
 
-But the two tasks are different. The apo task is a broader band/edge segmentation problem; the fasc
-task is the sparse thin-line problem. The code now supports target modes separately, but not
-architecture/loss/augmentation/epoch isolation by target. That is a real experimental-design
-limitation.
+   Therefore a worse `fasc val_dice` could mean the probability map is worse, or the hard decoder is
+   worse, or the metric is simply misaligned with the downstream line-fitting task.
 
-Next code should allow either:
+5. EXP72 changed too many axes at once.
 
-- reuse/freeze/load a known-good apo model and retrain only fasc, or
-- target-specific env vars like `UMUD_APO_*` and `UMUD_FASC_*`.
+   `seg72_01` changed all of these together:
 
-### 3. Post-hoc skeleton decoding is not the same as a topology-aware loss
+   - architecture: U-Net -> U-Net++,
+   - image size: 512-ish control -> 640,
+   - batch size,
+   - loss: Dice/BCE -> BCE/Tversky,
+   - augmentation: light -> heavy,
+   - target: binary -> soft5,
+   - thresholding: fixed -> auto sweep,
+   - decoder: threshold -> skeleton-dilate,
+   - fragment area gate: 40 -> 14.
 
-EXP72 validates by:
+   A negative result cannot answer which part failed.
 
-1. predicting a probability map,
-2. thresholding it,
-3. skeletonizing it,
-4. optionally re-dilating it,
-5. scoring binary Dice against the original mask.
+6. Debug outputs still miss the most useful diagnostics.
 
-That can easily delete useful probability mass. The thin-structure literature supports skeleton or
-centerline information inside the loss/metric, not necessarily this hard post-process. This is the
-most likely specific method flaw in `seg72_01`.
+   `UMUD_SAVE_PRED_DEBUG` saves hard masks for the first N test images. It does not save probability
+   maps or validation-set decoder sweeps. For thin structures, a probability map can be useful even
+   when a hard threshold looks bad.
 
-### 4. Soft target training is evaluated only through a hard binary decoder
+## Literature Check
 
-For `soft5`, the model is trained against a blurred target. Validation still scores against the
-original binary target, after hard thresholding and skeletonization. This is a valid possible design,
-but it is incomplete because we did not also log:
+Primary sources support the idea that thin-structure segmentation often needs losses or metrics that
+care about topology, boundaries, or centerlines. They do **not** say that a hard skeleton postprocess
+after thresholding is the same thing.
 
-- threshold-only Dice,
-- skeleton Dice,
-- skeleton-dilate Dice,
-- raw probability overlap / average precision,
-- line-component geometry quality.
+- clDice defines a centerline Dice metric and soft-clDice differentiable loss for tubular structures:
+  https://arxiv.org/abs/2003.07311
+- Boundary loss was designed for highly unbalanced segmentation and complements region losses with a
+  contour/distance objective:
+  https://proceedings.mlr.press/v102/kervadec19a.html
+- Skeleton Recall Loss targets connectivity for thin tubular structures without expensive
+  differentiable skeletons:
+  https://arxiv.org/abs/2404.03010
+- Centerline Boundary Dice argues that centerline/topology terms need geometric/boundary detail too:
+  https://arxiv.org/abs/2407.01517
 
-Therefore the current validation number cannot tell whether the probability map improved but the
-decoder ruined it.
+Conclusion: EXP72 was a directionally sensible approximation, but not a faithful test of the strongest
+thin-structure method family.
 
-### 5. We still lack a validation metric aligned with the leaderboard measurement
+## What Was Actually Wrong With EXP72
 
-The model is optimized/selected by pixel Dice. The submission score is geometry after connected
-components, line fitting, calibration, FL aggregation, and temporal/scale post-processing. A mask can
-have similar Dice but different component topology and downstream measurements.
+This is not "we tried improving the old method and hindsight says old was good." The design mistake
+inside EXP72 is narrower and more actionable:
 
-For segmentation work, every candidate should log at least:
+1. It mixed method axes, so it cannot identify a cause.
+2. It used post-hoc skeletonization instead of training/evaluating with a topology-aware objective.
+3. It optimized one hard pixel Dice number instead of the measurement pipeline's component/line
+   behavior.
+4. It re-risked apo while trying to solve fasc.
+5. It did not preserve enough debug state to tell whether the model or the decoder failed.
 
-- validation Dice,
-- component count distribution,
-- accepted fragment count,
-- geometry success rate,
-- PA/FL/MT output distribution,
-- expert-benchmark score with the candidate weights where feasible,
-- side-by-side debug masks for fixed target images.
+Those are fixable methodology problems.
 
-## What This Says About The Project Wall
+## Hypotheses To Test Next
 
-The project is not pure coin-flipping. Some improvements were real:
+| hypothesis | why plausible | how to falsify quickly |
+|---|---|---|
+| Hard skeleton-dilate decoding hurt `seg72_01` | it can delete or reshape thin probability mass before Dice and measurement | run the same checkpoint through threshold-only, skeleton, and skeleton-dilate decoders |
+| Heavy augmentation hurt sparse fragments | rotations/noise/blur can distort tiny partial lines more than broad apo bands | compare light-vs-heavy with all other knobs fixed |
+| Soft targets helped probabilities but not hard Dice | blurred targets reward near misses, but fixed binary Dice may not reveal that | save probability maps and score threshold sweeps / AP-like overlap |
+| Apo retraining confounded the run | apo was already near 0.79-0.80 and EXP72 made it worse | reuse/freeze the known-good apo model and retrain/test fasc only |
+| Pixel Dice is not selecting leaderboard-good masks | component topology and line fits matter more than raw pixel overlap | log component counts, accepted fragments, PA/FL/MT distributions, expert score |
 
-- temporal smoothing and scale routing transferred publicly;
-- subpixel/shape-neighbor scale stacked into the current best `0.58910`;
-- scale/text/depth tooling is now much better understood.
+## Immediate Go / No-Go
 
-But the 35-image expert benchmark over-rewarded geometry changes that did not transfer. This created
-a false sense that robust triangle, visibility FL, vertical MT, and other local fixes were closer to
-submission-ready than they were.
-
-The current public evidence says:
-
-- narrow sequence/scale fixes can transfer;
-- broad geometry proxies have not transferred;
-- broad field-depth scale override failed;
-- conservative segmentation has not yet obviously improved thin-line validation;
-- EXP72's first heavy approximation underperforms the conservative control.
+- Keep `seg59_02_highres_512_unet` as the control artifact.
+- Stop/bundle `seg72_01` unless it has already finished and produced outputs worth inspecting.
+- Hold `seg72_02`, `seg72_03`, and `seg72_04`; they inherit the same confounded design.
+- Do not generate another overnight notebook until EXP74 instrumentation exists.
 
 ## Corrected Next Experiment
 
-Do not generate another all-in-one heavy notebook. The next notebook should be a controlled thin-line
-ablation, and it should not retrain/re-risk the apo side.
+Build EXP74 as a controlled ablation, not a heavier matrix. The full plan is in
+`EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md`.
 
-### Step 1 - Instrument before training more
+Minimum EXP74 requirements:
 
-Add or run a scoring script that can compare, on the same validation split/checkpoint:
+1. Use EXP59 settings as the control: `512`, U-Net, ResNet34, Dice/BCE, light augmentation, no skeleton
+   decoder, default area/angle filters.
+2. Add target-specific training/reuse so a known-good apo model can be loaded while fasc is tested.
+3. Save validation probability maps or enough summary stats to run decoder sweeps offline.
+4. Score every candidate by:
+   - pixel Dice by decoder and threshold,
+   - component count,
+   - accepted fragment count,
+   - geometry success rate,
+   - PA/FL/MT distribution,
+   - expert-benchmark score where weights are available.
+5. Test one change at a time:
+   - baseline + threshold sweep only,
+   - baseline + `soft5`, no skeleton,
+   - baseline + `dilate3`, no skeleton,
+   - decoder-only skeleton/skeleton-dilate on the same checkpoint,
+   - only after instrumentation, a true topology/boundary loss.
 
-- threshold-only vs skeleton vs skeleton-dilate decoding,
-- multiple thresholds,
-- component/fragment counts,
-- downstream geometry outputs.
+## Practical Answer For The Current Kaggle Run
 
-This should be done before another overnight run if possible.
+If EXP72 is the run still sitting on Kaggle, I would not spend more night-hours on it. The partial
+trajectory is worse than the control and the experiment is too confounded to teach us much. Bundle it
+so the logs and masks are not lost.
 
-### Step 2 - Freeze the baseline shape
+If EXP59 is still running, it is acceptable to let it finish because it is the conservative control
+matrix and produces useful comparison artifacts. But do not interpret "more epochs with similar Dice"
+as the ceiling until EXP74 checks decoder/probability/geometry diagnostics.
 
-Use the EXP59 control settings as the base:
+## Privacy / Public Repo Note
 
-- `IMG_SIZE=512`
-- `MODEL_ARCH=unet`
-- `LOSS_MODE=dice_bce`
-- `AUG_LEVEL=light`
-- no skeleton postprocess
-- only threshold sweep as the first isolated change.
-
-### Step 3 - Test one axis at a time
-
-Suggested controlled matrix:
-
-1. baseline binary target + threshold sweep only;
-2. baseline + `soft5`, no skeleton;
-3. baseline + `dilate3`, no skeleton;
-4. baseline + boundary/distance loss if implemented;
-5. baseline + skeleton-recall-style loss if implemented;
-6. only after those, test skeleton decoding as a separate decoder ablation.
-
-### Step 4 - Implement literature-backed loss only after instrumentation
-
-The highest-priority method to implement is not another post-hoc skeleton decoder. It is a
-connectivity-aware training loss:
-
-- skeleton-recall-style loss on a tubed ground-truth skeleton, or
-- soft-clDice/clDice-inspired loss if compute is acceptable,
-- optionally combined with Dice/BCE and a distance/boundary term.
-
-The key is: the skeleton/centerline signal belongs in training/evaluation, not only after thresholding.
-
-## Current Go / No-Go
-
-- `seg59_02_highres_512_unet`: keep as a control artifact.
-- `seg72_01_soft5_tversky_640_unetpp`: stop/bundle; not worth continuing unless it suddenly exceeds
-  the `0.2925` fasc Dice control.
-- Remaining EXP72 runs: hold. They inherit the same too-many-knobs design problem.
-- Next generated notebook: should be EXP74, a controlled thin-line ablation, after instrumentation is
-  added or explicitly planned.
+This audit contains no private labels, no Kaggle secrets, no local human review annotations, and no
+generated images. Keep `results/`, `data/`, OCR caches, trained weights, and target human notes
+ignored unless deliberately sanitized.

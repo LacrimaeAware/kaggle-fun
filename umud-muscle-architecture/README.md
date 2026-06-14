@@ -11,9 +11,9 @@ Start here:
 
 ## Current Work
 
-The active direction is EXP59 segmentation retraining. The latest scale/geometry proxy submissions
-regressed publicly, so the next useful work is improving the supervised mask models rather than
-stacking more downstream geometry patches.
+The active direction is controlled segmentation work. The latest scale/geometry proxy submissions
+regressed publicly, so the next useful work is improving and diagnosing the supervised mask models
+rather than stacking more downstream geometry patches.
 
 Kaggle notebooks:
 
@@ -22,7 +22,13 @@ Kaggle notebooks:
   writes per-run logs/status/summary files and can skip completed runs when rerun.
 - `kaggle_seg72_thin_structure_heavy_auto.ipynb` - heavy overnight thin-structure run; changes the
   fascicle target/decoding formulation with soft/dilated targets, threshold sweep, and skeleton-style
-  postprocessing.
+  postprocessing. Hold it for now unless deliberately collecting artifacts from the confounded run.
+
+Current segmentation docs:
+
+- `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` - deeper audit of EXP72 and the current pipeline.
+- `EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md` - next notebook design: instrumentation
+  and one-axis ablations before another long GPU run.
 
 Kaggle setup: import the notebook, attach the UMUD competition input, set GPU + Internet on, and run
 all cells.

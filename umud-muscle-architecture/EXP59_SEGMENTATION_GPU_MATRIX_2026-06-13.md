@@ -84,9 +84,9 @@ but it should no longer be the main submission source until masks or target labe
 ## Superseding Follow-Up
 
 EXP59 is a conservative matrix: it mainly changes training settings while keeping the same binary
-thin-mask target. `EXP72_THIN_STRUCTURE_SEGMENTATION_2026-06-13.md` is the stronger follow-up. It
-changes the fascicle target representation and decoding itself with soft/dilated targets, validation
-threshold sweep, and skeleton-style postprocessing. Prefer EXP72 for the next heavy overnight attempt.
+thin-mask target. `EXP72_THIN_STRUCTURE_SEGMENTATION_2026-06-13.md` was the stronger follow-up, but
+`seg72_01` underperformed and the audit found the matrix too confounded. Prefer the EXP74 controlled
+ablation plan before another heavy overnight attempt.
 
 ## Submission Rule
 

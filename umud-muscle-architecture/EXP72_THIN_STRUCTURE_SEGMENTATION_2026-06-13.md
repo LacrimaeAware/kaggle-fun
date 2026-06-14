@@ -1,12 +1,15 @@
 # EXP72 Thin-Structure Segmentation
 
-Created after the EXP59 sleep matrix proved too conservative for the actual problem. EXP59 mostly
+Created after the EXP59 sleep matrix seemed too conservative for the actual problem. EXP59 mostly
 varied architecture, resolution, augmentation, and loss while keeping the same thin binary target.
-EXP72 changes the target/decoding formulation itself.
+EXP72 changes the target/decoding formulation itself, but the later audit found that it still does not
+implement a true topology-aware training loss. It is a soft/dilated-target plus hard-decoder
+approximation, not a clean clDice/boundary/skeleton-recall test.
 
-Status after first partial run: under audit. `seg72_01_soft5_tversky_640_unetpp` underperformed the
-EXP59 control in the available log (`apo 0.7873` vs `0.7945`, `fasc 0.2594` by epoch 20 vs `0.2925`).
-Do not continue the full matrix blindly; see `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md`.
+Status after first partial run: held. `seg72_01_soft5_tversky_640_unetpp` underperformed the EXP59
+control in the available log (`apo 0.7873` vs `0.7945`, `fasc 0.2594` by epoch 20 vs `0.2925`).
+Do not continue the full matrix blindly; see `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` and
+`EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md`.
 
 ## Why EXP59 Was Not Enough
 
@@ -78,9 +81,9 @@ This is the heavy notebook. It writes:
 
 ## Expected Interpretation
 
-If EXP72 still produces the same public wall, then the failure is probably not solved by standard
-binary/soft mask training alone. The next step would be a more explicit geometry target: orientation
-field, line-center heatmap plus endpoint/support prediction, or a separate field/ruler/text model.
+If EXP72 still produces the same public wall, do not conclude segmentation is capped. The matrix is too
+confounded to answer that. The next step is EXP74: isolate target mode, decoder, thresholding,
+augmentation, and downstream geometry diagnostics.
 
 If EXP72 improves validation thin-line Dice but not public score, inspect `pred_debug_*` and
 `calibration_measurement_debug_*` before submitting more variants. The postprocessing may be finding
