@@ -1,5 +1,9 @@
 # UMUD Current State - 2026-06-13
 
+> **Superseded 2026-06-14.** Current best is **0.55075** (flat PA +2 deg), not 0.58910. Read
+> `../STATE_2026-06-14.md` first: scale solved, PA corrected, post-hoc levers exhausted, remaining
+> gap is test-image robustness (GPU). This file is prior history.
+
 This is the current resume point. Older files such as `MASTER_REVIEW.md`, `handoff_brief.md`, and
 the dated `EXP*.md` notes are still useful as history, but this file wins when they disagree.
 
