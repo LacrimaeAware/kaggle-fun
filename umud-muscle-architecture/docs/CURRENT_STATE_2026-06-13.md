@@ -58,11 +58,13 @@ Segmentation:
   hybrid approach of learned boundaries plus classical fascicle-line extraction, dominant-orientation
   clustering, and non-crossing line cleanup. It also argues for masked in-domain ultrasound
   pretraining and Kaggle-grade folds/OOF/TTA/threshold diagnostics.
-- EXP76 is the generated notebook to run next: it keeps public-safe measurement settings fixed and
-  tests controlled segmentation axes one at a time.
+- EXP76 is still useful as a controlled diagnostic matrix, but it is no longer the first notebook to
+  run when the user asks for the strongest candidate.
+- EXP77 is the current recommended overnight notebook: it runs the strongest implemented
+  segmentation candidate first, then serious alternates if wall time remains.
 - The no-edit first run is `kaggle_seg59_02_highres_512_unet_auto.ipynb`.
 - The unattended run is `kaggle_seg59_sleep_matrix_auto.ipynb`.
-- The current recommended tonight run is `kaggle_seg76_controlled_diagnostics_auto.ipynb`.
+- The current recommended tonight run is `kaggle_seg77_best_effort_heavy_auto.ipynb`.
 - `seg59_02_highres_512_unet` is the current segmentation control: apo best Dice `0.7945`, fasc best
   Dice `0.2925`.
 - `seg72_01_soft5_tversky_640_unetpp` underperformed the control in the partial log: apo best Dice
@@ -92,35 +94,40 @@ The active work is segmentation retraining, now split into two tiers:
    correction. It says the next non-GPU local experiment should be a classical fascicle-line extractor:
    CLAHE/ridge filtering, skeletonized line segments, dominant-orientation clustering, extension to
    boundaries, and non-crossing cleanup.
-6. EXP76 (`EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md`) is the current Kaggle run plan. It generates
-   `kaggle_seg76_controlled_diagnostics_auto.ipynb`, which tests binary control, soft target, dilated
-   target, Tversky loss, U-Net++ architecture, and a final soft+Tversky combo.
-7. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
+6. EXP76 (`EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md`) is the controlled diagnostic Kaggle plan. It
+   generates `kaggle_seg76_controlled_diagnostics_auto.ipynb`, which tests binary control, soft
+   target, dilated target, Tversky loss, U-Net++ architecture, and a final soft+Tversky combo.
+7. EXP77 (`EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md`) is the current recommended
+   overnight Kaggle plan. It generates `kaggle_seg77_best_effort_heavy_auto.ipynb`, with
+   `seg77_01_best_unetpp640_dilate_soft5_cldice` as the main best-effort candidate.
+8. Inspect each notebook's status JSON, summary CSV, run logs, submissions, calibration debug CSVs,
    and any `pred_debug_*` masks before submitting.
-8. Submit only a candidate whose output distribution and scale/debug counts look sane.
-9. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
+9. Submit only a candidate whose output distribution and scale/debug counts look sane.
+10. Record every public score immediately in `EXPERIMENT_LOG.md`, `FEATURE_DATABASE.md`, and
    `FEATURE_DATABASE.csv`.
 
 ## Next Agenda
 
 Immediate:
 
-1. Run `kaggle_seg76_controlled_diagnostics_auto.ipynb` on Kaggle GPU with Internet on and the UMUD
+1. Run `kaggle_seg77_best_effort_heavy_auto.ipynb` on Kaggle GPU with Internet on and the UMUD
    competition input attached.
-2. Download `umud_seg76_controlled_diagnostics_outputs.zip` and inspect `seg76_controlled_summary.csv`,
-   run logs, submission CSVs, calibration debug CSVs, and `pred_debug_*` masks.
+2. Download `umud_seg77_best_effort_outputs.zip` and inspect `seg77_best_effort_summary.csv`, run
+   logs, submission CSVs, calibration debug CSVs, and `pred_debug_*` masks.
 3. Bundle/download any partial EXP72 outputs and logs if they still exist.
 4. Build the EXP75 classical fascicle-line extractor harness as a local, inspectable experiment. This
    is the fastest way to test whether ultrasound texture contains a recoverable geometry signal that
    our fascicle masks miss.
-5. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
+5. Run EXP76 only if we specifically want controlled one-axis diagnostics after the EXP77 best-effort
+   run.
+6. Add/build EXP74 instrumentation for threshold-only vs skeleton decoding, probability/debug maps,
    component counts, accepted fragment counts, and downstream geometry distributions.
-6. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
+7. Build the controlled thin-line ablation notebook from the EXP74 plan: baseline settings plus one
    change at a time, preferably with target-specific training/reuse so apo and fasc are not confounded.
 
 After that:
 
-1. If controlled segmentation improves, then scale to longer/heavier variants.
+1. If EXP77 or later controlled segmentation improves, then scale to longer/heavier variants.
 2. If EXP75's classical extractor produces sane line candidates, compare it against current masks,
    human scratch labels, and the expert benchmark before deciding whether to use it as a production
    feature or pseudo-label source.
@@ -134,8 +141,8 @@ After that:
 - Do not treat local expert-benchmark FL wins as public evidence without a transfer check.
 - Do not describe burn #28 as burn #15 plus scale.
 - Do not promote support/visibility FL or vertical MT proxies based only on local benchmark wins.
-- Do not run another "heavy" segmentation notebook that changes target, decoder, augmentation,
-  architecture, and resolution all at once.
+- Do not call a notebook "best effort" unless the strongest candidate runs first and the remaining
+  runs are serious alternates, not deliberately weak experiments.
 
 ## Public/Privacy Notes
 

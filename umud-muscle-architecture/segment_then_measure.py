@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
 try:
@@ -73,7 +74,7 @@ TTA_EXTRA_SIZE = int(os.environ.get("UMUD_TTA_EXTRA_SIZE", "448"))
 MODEL_ARCH = os.environ.get("UMUD_MODEL_ARCH", "unet").lower()  # unet | unetplusplus | fpn | deeplabv3plus
 MODEL_ENCODER = os.environ.get("UMUD_MODEL_ENCODER", "resnet34")
 MODEL_ENCODER_WEIGHTS = os.environ.get("UMUD_MODEL_ENCODER_WEIGHTS", "imagenet")
-LOSS_MODE = os.environ.get("UMUD_LOSS_MODE", "dice_bce").lower()  # dice_bce | dice_focal | dice_tversky | bce_tversky
+LOSS_MODE = os.environ.get("UMUD_LOSS_MODE", "dice_bce").lower()  # dice_bce | dice_focal | dice_tversky | bce_tversky | dice_bce_cldice | dice_tversky_cldice
 AUG_LEVEL = os.environ.get("UMUD_AUG_LEVEL", "light").lower()  # light | strong | heavy
 MASK_THRESHOLD = float(os.environ.get("UMUD_MASK_THRESHOLD", "0.5"))
 APO_MASK_THRESHOLD = float(os.environ.get("UMUD_APO_MASK_THRESHOLD", str(MASK_THRESHOLD)))
@@ -116,7 +117,7 @@ FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biase
 USE_CLAHE = os.environ.get("UMUD_CLAHE", "0") == "1"  # CLAHE contrast-normalize input; surfaces more fragments but MUST retrain both models with it on (exp10)
 USE_TEMPORAL_SMOOTH = os.environ.get("UMUD_TEMPORAL_SMOOTH", "0") == "1"  # median-smooth within sequence clips (exp02); off by default
 SCALE_OVERRIDE_CSV = os.environ.get("UMUD_SCALE_OVERRIDE_CSV", "").strip()  # optional image_id -> px/cm overrides from human scale review
-PIPELINE_VERSION = "2026-06-13.03"  # bump on every pipeline change; printed at run start so the version is verifiable
+PIPELINE_VERSION = "2026-06-14.01"  # bump on every pipeline change; printed at run start so the version is verifiable
 CALIBRATION_MIN_CONF = float(os.environ.get("UMUD_CALIBRATION_MIN_CONF", "0.3"))  # router gates per-method internally (png/644/right>=0.5, bottom>=0.9, faint-left>=0.30)
 IMG_EXTS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
 
@@ -430,6 +431,42 @@ def tversky_loss(logits, target, alpha=0.35, beta=0.65, eps=1e-6):
     return 1 - (tp + eps) / (tp + alpha * fp + beta * fn + eps)
 
 
+def soft_erode(img):
+    p1 = -F.max_pool2d(-img, kernel_size=(3, 1), stride=1, padding=(1, 0))
+    p2 = -F.max_pool2d(-img, kernel_size=(1, 3), stride=1, padding=(0, 1))
+    return torch.minimum(p1, p2)
+
+
+def soft_dilate(img):
+    return F.max_pool2d(img, kernel_size=3, stride=1, padding=1)
+
+
+def soft_open(img):
+    return soft_dilate(soft_erode(img))
+
+
+def soft_skeleton(img, iterations=8):
+    opened = soft_open(img)
+    skel = F.relu(img - opened)
+    for _ in range(iterations):
+        img = soft_erode(img)
+        opened = soft_open(img)
+        delta = F.relu(img - opened)
+        skel = skel + F.relu(delta - skel * delta)
+    return skel
+
+
+def cldice_loss(logits, target, iterations=8, eps=1e-6):
+    pred = torch.sigmoid(logits)
+    target = target.clamp(0.0, 1.0)
+    pred_skel = soft_skeleton(pred, iterations=iterations)
+    target_skel = soft_skeleton(target, iterations=iterations)
+    tprec = (pred_skel * target).sum() / (pred_skel.sum() + eps)
+    tsens = (target_skel * pred).sum() / (target_skel.sum() + eps)
+    cldice = (2 * tprec * tsens + eps) / (tprec + tsens + eps)
+    return 1 - cldice
+
+
 def combined_loss(logits, target, bce):
     if LOSS_MODE == "dice_bce":
         return 0.5 * dice_loss(logits, target) + 0.5 * bce(logits, target)
@@ -439,6 +476,10 @@ def combined_loss(logits, target, bce):
         return 0.5 * dice_loss(logits, target) + 0.5 * tversky_loss(logits, target)
     if LOSS_MODE == "bce_tversky":
         return 0.4 * bce(logits, target) + 0.6 * tversky_loss(logits, target)
+    if LOSS_MODE == "dice_bce_cldice":
+        return 0.35 * dice_loss(logits, target) + 0.35 * bce(logits, target) + 0.30 * cldice_loss(logits, target)
+    if LOSS_MODE == "dice_tversky_cldice":
+        return 0.35 * dice_loss(logits, target) + 0.35 * tversky_loss(logits, target) + 0.30 * cldice_loss(logits, target)
     raise ValueError(f"unknown UMUD_LOSS_MODE={LOSS_MODE!r}")
 
 

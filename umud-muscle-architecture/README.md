@@ -14,8 +14,9 @@ Start here:
 The active direction is measurement-quality work in two tracks. The latest scale/geometry proxy
 submissions regressed publicly, so the next useful work is not stacking more downstream patches. It is:
 
-1. controlled segmentation diagnostics and one-axis GPU ablations;
-2. a local classical fascicle-line extractor based on external muscle-ultrasound pipelines.
+1. a best-effort heavy segmentation candidate run;
+2. controlled segmentation diagnostics and one-axis GPU ablations;
+3. a local classical fascicle-line extractor based on external muscle-ultrasound pipelines.
 
 Kaggle notebooks:
 
@@ -25,6 +26,10 @@ Kaggle notebooks:
 - `kaggle_seg72_thin_structure_heavy_auto.ipynb` - heavy overnight thin-structure run; changes the
   fascicle target/decoding formulation with soft/dilated targets, threshold sweep, and skeleton-style
   postprocessing. Hold it for now unless deliberately collecting artifacts from the confounded run.
+- `kaggle_seg76_controlled_diagnostics_auto.ipynb` - controlled diagnostic matrix; useful if we want
+  one-axis evidence after the best-effort run.
+- `kaggle_seg77_best_effort_heavy_auto.ipynb` - current recommended overnight run; strongest
+  implemented segmentation candidate first, then serious alternates if wall time remains.
 
 Current segmentation docs:
 
@@ -34,12 +39,15 @@ Current segmentation docs:
 - `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - external research synthesis:
   muscle-ultrasound line extraction, Kaggle segmentation practice, masked pretraining, pseudo-label
   discipline, and scale auxiliary modeling.
-- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - rationale for the current no-edit overnight notebook.
+- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - controlled diagnostic notebook rationale; secondary
+  after EXP77 if the goal is immediate best candidate first.
+- `EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md` - rationale for the current best-effort
+  overnight notebook.
 
 Current recommended Kaggle notebook:
 
-- `kaggle_seg76_controlled_diagnostics_auto.ipynb` - controlled segmentation matrix; keeps
-  public-safe measurement settings fixed and tests one segmentation axis at a time.
+- `kaggle_seg77_best_effort_heavy_auto.ipynb` - best-effort heavy segmentation run. Main candidate:
+  `seg77_01_best_unetpp640_dilate_soft5_cldice`.
 
 Kaggle setup: import the notebook, attach the UMUD competition input, set GPU + Internet on, and run
 all cells.

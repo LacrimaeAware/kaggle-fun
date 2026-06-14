@@ -2,7 +2,7 @@
 
 Date: 2026-06-14
 
-Status: notebook generated.
+Status: notebook generated; secondary diagnostic after EXP77.
 
 Notebook: `kaggle_seg76_controlled_diagnostics_auto.ipynb`
 
@@ -14,7 +14,9 @@ variants, postprocessing variants, TTA, temporal smoothing, and debug mask expor
 masked self-supervised pretraining, true clDice, skeleton-recall loss, OOF folds, or the classical
 CLAHE/ridge/skeleton/line-extraction harness without new implementation work.
 
-Therefore EXP76 is a conservative high-information notebook:
+Therefore EXP76 is a conservative high-information notebook. After the user clarified that tonight's
+goal is the best implemented candidate first, EXP77 supersedes EXP76 as the recommended overnight
+run. Keep EXP76 for controlled follow-up diagnostics:
 
 - keep the public-positive measurement side fixed where possible;
 - avoid rejected geometry proxies such as robust triangle, broad visibility-FL, vertical-MT proxy, and

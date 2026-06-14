@@ -21,19 +21,23 @@ Use this map instead of opening random root-level notes.
 - `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - missing external-method review:
   muscle-ultrasound extraction pipelines, Kaggle segmentation practice, pseudo-label discipline,
   masked pretraining, and the next classical line-extractor harness.
-- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - final audit and rationale for the current overnight
-  Kaggle notebook.
+- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - audit and rationale for the secondary controlled
+  diagnostic Kaggle notebook.
+- `EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md` - current recommended overnight notebook:
+  best implemented segmentation candidate first, then serious alternates if wall time remains.
 - `kaggle_seg59_02_highres_512_unet_auto.ipynb` - no-edit single serious run.
 - `kaggle_seg59_sleep_matrix_auto.ipynb` - unattended multi-run segmentation matrix.
 - `kaggle_seg72_thin_structure_heavy_auto.ipynb` - no-edit heavy EXP72 Kaggle notebook; hold unless
   deliberately reproducing the rejected/confounded run for artifacts.
-- `kaggle_seg76_controlled_diagnostics_auto.ipynb` - current recommended overnight run: controlled
-  segmentation matrix with logs, status, summaries, submissions, weights, and debug masks.
+- `kaggle_seg76_controlled_diagnostics_auto.ipynb` - secondary controlled diagnostic run with logs,
+  status, summaries, submissions, weights, and debug masks.
+- `kaggle_seg77_best_effort_heavy_auto.ipynb` - current recommended overnight run. Main candidate:
+  `seg77_01_best_unetpp640_dilate_soft5_cldice`.
 - `experiments/README.md` - older experiment narrative; useful history but not current state.
 
 ## Chronological Experiment Notes
 
-The dated files `EXP38_...` through `EXP76_...` are append-only experiment journals. They should keep
+The dated files `EXP38_...` through `EXP77_...` are append-only experiment journals. They should keep
 their original conclusions, then be superseded by later dated notes rather than rewritten into a
 single story.
 
