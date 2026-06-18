@@ -21,6 +21,14 @@ first (play/attach/evolve/ability), attack last. Tested two ways: real-budget se
 [0.348,0.615] n=50. BOTH ties with point estimates straddling 0.5 -> continuation policy makes no
 reliable difference. Kept `aggro`. The strongest-named target did not pan out; lever closed.
 
+### 0b. Deck adoption test -- DO NOT swap to the #1's deck
+Pulled leaderboard #1 (Praxel, 0.83 in 23 sampled games): a Mega Lucario ex Fighting deck (10 basics,
+13 energy vs our 8/3). Our SAME search piloting Praxel's deck vs DENPA92 head-to-head = 0.300 (15-35)
+[0.191,0.438], 0 errors -> DENPA92 clearly better UNDER OUR SEARCH. Deck value is policy-coupled: the
+Mega evolution line + heavy energy needs multi-turn setup our 1-ply search + generic hand-eval do not
+pilot well. Kept DENPA92. To use a Mega/evolution deck would need eval/forced-move work for it, not a
+free swap. (Their replays are still kept as training/opponent data.)
+
 ### 1. Search sprint, knob = opponent belief (H022/H008) -> PARKED, not refuted
 Belief-conditioned determinization (`opp_prior=meta`, fill the opponent's hidden zones from a DIFFERENT
 archetype) did NOT beat the same-deck placeholder (0.800 [0.652,0.895] vs 0.925 [0.801,0.974], n=40).
