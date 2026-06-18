@@ -13,11 +13,13 @@ Updated: 2026-06-18
   (root + action descriptor + card embedding + decoded effects + state x effect interactions +
   option_deltas) ranks SIBLING actions within a decision better than the hand evaluator, with a
   NON-CIRCULAR target, judged within-decision then by win-rate.
-- **Phase / status:** Phase 1 = `offline-evaluated` (tools/rank_phase1.py). RESULT: on the existing
-  leaf-only E013 data (5327 decisions), centering the target barely changes within-decision ranking
-  (raw top-1 0.446 / centered 0.426; pair 0.453 / 0.469), and BOTH are far below the chose-option-0
-  baseline (0.702). So leaf-state features alone cannot rank sibling actions, with or without
-  centering -> the representation is the binding issue, exactly as the diagnosis said. Move to Phase 2.
+- **Phase / status:** Phase 1 `offline-evaluated` (leaf-only data can't rank; centering doesn't fix it,
+  below option-0). Phase 2 `data-generated`: single deck = KanNinomiya (top by winner-decisions),
+  action-conditioned imitation dataset `data/replay_db/action_imit.jsonl` (96,561 option-rows /
+  11,628 winner-decisions; root + action descriptor + card_id + 11 decoded effects; target = the
+  winner's actual move, non-circular). Phase 4 `trained/training` (tools/train_action_ranker.py): torch
+  ranker = card EMBEDDING + effects + action + root -> listwise per decision, with no-embedding /
+  no-effects / no-root ablations. Awaiting offline within-decision metrics vs option-0.
 - **Exact next command:** Phase 2 -- build the proper ACTION-CONDITIONED dataset: rewrite
   `tools/datagen_actions.py` (or a v2) to log per option: root features + action descriptor (type,
   card/attack id, target, draws/tutors/evolves/attacks/ends, immediate KO/survival) + leaf features +
