@@ -15,6 +15,7 @@ is not done here -- pass ids explicitly or via --file.
     python tools/fetch_episodes.py --file episode_ids.txt
     python tools/fetch_episodes.py --submission 53794404        # our episodes (needs ~/.kaggle/kaggle.json)
     python tools/fetch_episodes.py --team <leaderboard-team-id> # an opponent team's episodes (needs auth)
+    python tools/fetch_episodes.py --top-teams 40 --max 500     # AUTO: top 40 leaderboard teams, no manual linking
 
 Auth for discovery: kaggle.com -> Settings -> API -> Create New Token -> save kaggle.json to
 ~/.kaggle/kaggle.json. Download-by-id needs no auth. Kaggle will also post a daily top-episode
@@ -78,6 +79,16 @@ def submissions_for_team(teamid: int) -> list:
     return _kaggle_ids(["team-submissions", str(teamid)])
 
 
+def leaderboard_team_ids(n: int) -> list:
+    """Top-n team ids straight off the public leaderboard (no manual linking) via the Kaggle Python
+    API. The CLI only shows a few rows; this paginates up to 500 in one call. Needs auth (.env)."""
+    import kaggle
+    api = kaggle.KaggleApi()
+    api.authenticate()
+    lb = api.competition_leaderboard_view(COMP, page_size=min(max(n, 1), 500))
+    return [e.team_id for e in lb[:n] if getattr(e, "team_id", None)]
+
+
 def fetch(eid: int, out_dir: Path, overwrite: bool = False) -> str:
     path = out_dir / f"{eid}.json"
     if path.exists() and not overwrite:
@@ -100,12 +111,18 @@ def main() -> None:
                     help="submission id(s): discover their episodes via the kaggle CLI (needs kaggle.json)")
     ap.add_argument("--team", nargs="*", type=int, default=[],
                     help="team id(s) from the leaderboard: discover their submissions' episodes (needs kaggle.json)")
+    ap.add_argument("--top-teams", type=int, default=0, metavar="N",
+                    help="auto-discover the top N teams off the public leaderboard and pull their episodes (no manual linking)")
     ap.add_argument("--sleep", type=float, default=1.0, help="seconds between requests (rate-limit politeness)")
     ap.add_argument("--max", type=int, default=0, help="cap total episodes downloaded (0 = no cap)")
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
-    if args.submission or args.team:
-        _load_env()                              # auth only needed for CLI discovery
+    if args.submission or args.team or args.top_teams:
+        _load_env()                              # auth only needed for discovery
+    if args.top_teams:
+        discovered = leaderboard_team_ids(args.top_teams)
+        print(f"  leaderboard top {args.top_teams}: {len(discovered)} team ids")
+        args.team = list(dict.fromkeys(discovered + list(args.team)))
     ids = list(args.ids)
     if args.file:
         ids += [int(x) for x in Path(args.file).read_text().split() if x.strip()]
