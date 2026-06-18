@@ -38,10 +38,17 @@ def mk_ndet(n):
     return ag
 
 
-def load_meta_deck():
+def load_meta_deck(exclude_deck=None, min_games=5):
+    """Most-played corpus deck. exclude_deck (a card-id list) skips decks multiset-equal to it, so the
+    belief test uses a DIFFERENT archetype than ours (else opp_prior==our deck and the test is a no-op)."""
     import json
+    from collections import Counter
     decks = json.load(open(Path(__file__).resolve().parent.parent / "data" / "replay_db" / "decks.json", encoding="utf-8"))
-    return max(decks, key=lambda d: d.get("n_games", 0))["deck"]
+    ex = Counter(exclude_deck) if exclude_deck is not None else None
+    cand = [d for d in decks if d.get("n_games", 0) >= min_games and (ex is None or Counter(d["deck"]) != ex)]
+    if not cand:
+        cand = decks
+    return max(cand, key=lambda d: d.get("n_games", 0))["deck"]
 
 
 def mk_our(opp_prior):
@@ -91,7 +98,7 @@ def main():
         print("\nRead: if more determinizations clear 0.50 (Wilson lower bound > 0.5), bump N_DETERM; "
               "else keep 4 (cheaper) and move to the next knob (rollout / belief / continuation).", flush=True)
     elif args.experiment == "belief":
-        meta = load_meta_deck()
+        meta = load_meta_deck(exclude_deck=M.DECK)   # a DIFFERENT archetype, else opp_prior==our deck (no-op)
         opp = mk_meta_opp(meta)
         print(f"belief-determinization A/B: our search (M.DECK) vs a META-deck opponent (first_agent on the\n"
               f"top replay deck). best-case belief (opp hidden zones filled from the META deck) vs same-deck\n"
