@@ -4,6 +4,11 @@ Canonical record of the competition rules, data facts, and host (Paul Ritsche) f
 do not re-derive or misremember them. Sourced from the Kaggle dataset description and the discussion
 threads (captured 2026-06-09). Where a fact changes what we should DO, it is flagged **ACTION**.
 
+Current orientation note (2026-06-14): this file is the host/device-facts reference, not the living
+plan. The live leaderboard state and next submission order are in `docs/CURRENT_STATE.md`. In
+particular, broad scale overrides are not the current recommendation, and the live public lever is FL
+global calibration.
+
 ## 1. Task and targets
 
 - One case = one single B-mode ultrasound image. Predict three values per image.
@@ -40,7 +45,7 @@ threads (captured 2026-06-09). Where a fact changes what we should DO, it is fla
   just the leaderboard number. A high score from a non-reproducible pipeline does not win.
 - Classic CV and DL are both allowed. The provided training labels may or may not be used.
 
-## 3. Scale / calibration  (the #1 leaderboard lever)
+## 3. Scale / calibration
 
 - **Pixels are ALWAYS square**, in both train and test. The host confirmed there are NO images with
   different horizontal/vertical resolution. => a single horizontal tick-mark scale also fixes the
@@ -58,9 +63,9 @@ threads (captured 2026-06-09). Where a fact changes what we should DO, it is fla
 - Full-UI images (e.g. IMG_00001, 800x1200) have a left depth ruler + "X.X cm" label (Codex's
   png_left_ruler path handles this family).
 - Some **training** images genuinely have no scale info (host). Test images appear to all carry ticks.
-- **ACTION (highest value):** build a bottom-edge tick detector - read the last ~2 rows, find the
-  periodic bright marks, assume 1 cm spacing, derive px/cm. This is the real fix for the 251 TIFFs and
-  the actual leaderboard bottleneck, larger than any FL/segmentation refinement.
+- **ACTION (historical, completed in large part):** build the bottom-edge tick detector family. That
+  work is now wired into the router; the remaining scale problem is trusted pixel span on the hard
+  cases, not rediscovering that bottom ticks exist.
 
 ### 3a. Scale is FOUR device families, not one (empirical, 2026-06-09)
 
@@ -69,22 +74,21 @@ Shape distribution of the 309 test images: (800,1200) x239, (644,1088) x50, (853
 
 | family | count | scale source | detector status (exp11, scale_qa.py) |
 | --- | ---: | --- | --- |
-| PNG left numbered ruler | 58 | left edge numbered ruler | png_left_ruler works (conf ~1.0); gives 150-172 px/cm BUT this may be **2x too high** - tick_mm is assumed 5 mm, and if the ruler ticks are 1 cm the true scale is ~75-85. The benchmark validation showed exactly this 2x (implied x0.5 -> MAE 1.7 px/cm). **OPEN: confirm the PNG ruler tick interval; the current 1.09 submission's PNG MT may be 2x off.** |
+| PNG left numbered ruler | 58 | left edge numbered ruler | png_left_ruler works (conf ~1.0). This was the old "possible 2x" concern, but it was later resolved: the ruler really is 5 mm minor ticks, so 150-172 px/cm is the correct family scale. |
 | Siemens 800x1200 (German UI, "12L3 Quadriceps") | ~181 | bottom ticks + "X.X cm" label | left strip is a TEXT panel, not a ruler (ungating png_left_ruler reads text-as-ruler = garbage). side/bottom detection is low-confidence (conf 0.27-0.44). Needs a clean bottom-tick reader. |
 | 644x1088 (left depth ruler, "50" mm) | 50 | left edge depth ruler to 50 mm | **0 detected** - ticks are fainter than the >150 threshold. Needs a lower-threshold left-ruler reader. |
 | cropped (853x1069, 513x465, ...) | ~20 | bottom ticks (1 cm) | bottom-tick detector (scale_ticks.py) works on CLEAN ones (IMG_00040 -> 78 px/cm conf 0.99, green ticks land on the real marks) but fails on faint/content-cluttered ones (IMG_00036 -> garbage 10 px/cm). |
 
 What is SOLID: where a ruler/ticks are cleanly found, spacing detection is accurate (benchmark MAE
 1.7 px/cm after the per-family mm-factor; IMG_00040 bottom ticks 78 px/cm validated by eye). What is
-HARD: coverage (each family needs its own reader) and pinning the mm-per-tick factor per family
-(the 2x trap). No test-set scale labels exist, so per-family readers must be QA'd visually
-(results/calibration_qa/). Tools built: scale_ticks.py (bottom-tick reader), experiments/exp11
-(coverage), experiments/scale_qa.py (overlays), experiments/scale_probe.py.
+HARD: coverage on the last stragglers and trusting the pixel span on hard cases. No test-set scale
+labels exist, so per-family readers must be QA'd visually (`results/calibration_qa/`). Tools built:
+`scale_ticks.py` (bottom-tick reader), `experiments/exp11` (coverage), `experiments/scale_qa.py`
+(overlays), `experiments/scale_probe.py`.
 
-**Per-family build plan:** (1) clean bottom-tick reader for Siemens-800x1200 + cropped (~200 imgs,
-the bulk) - host says 1 cm so tick_mm=10; (2) lower-threshold left-ruler reader for the 644 family
-(50 imgs, depth to 50 mm); (3) re-confirm the PNG ruler interval and fix the possible 2x; (4) gate
-each by visual QA overlay before wiring into the submission - a 2x-off scale would tank MT/FL.
+**Historical build plan:** most of this is now done. The remaining scale work is better span
+validation on the hard rows and avoiding broad field-height overrides until the span is independently
+trusted.
 
 ### 3b. Validated scale coverage - router built (`scale_ticks.recover_for_image`)
 
@@ -111,10 +115,10 @@ Remaining unscaled **14**: mostly cropped/awkward stragglers and a few failed ru
 back to the constant prior.
 
 **Status: wired** into `segment_then_measure.calibrate_image` (`UMUD_SCALE_ROUTER`, default on).
-The latest handoff/context public score after the scale work is **0.619**. Submission-ready changes
-are locally auditable but hidden-test gain is not locally decomposable (no test labels). Tools:
-scale_ticks.py, experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py (overlays in
-results/calibration_qa/).
+This section explains the scale facts behind that router. The score later improved beyond the initial
+`0.61918` scale-router stage; use `docs/CURRENT_STATE.md` for the live public score and submission
+ordering. Tools: `scale_ticks.py`, `experiments/{scale_coverage,scale_qa,siemens_ruler,check_submission}.py`
+(overlays in `results/calibration_qa/`).
 
 ## 4. Training data structure
 

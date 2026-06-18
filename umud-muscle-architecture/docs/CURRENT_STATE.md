@@ -1,80 +1,72 @@
 # UMUD current state (canonical, undated)
 
-This is the single source of truth. When any other doc disagrees with this file or with
-`../VERIFIED_FACTS.md`, this file wins and the other doc is stale. Rule: a claim may drive a decision
-only if it carries a code `file:line` or an exact leaderboard number. Everything else is a hypothesis.
+Terse decision-driver. For the full self-contained narrative read `HANDOFF.md`. Rule: a claim may
+drive a decision only if it carries a code `file:line` or an exact leaderboard number. Everything else
+is a hypothesis.
 
 ## Best score
 
-**Confirmed public best: `0.52570`** = global FL scale x1.05 on the PA+2.5 base
-(`results/submission_fl_x105.csv`). References: leader 0.378, by-hand human 0.459, DL-Track 0.679.
+**Confirmed public best: `0.46041`** = aponeurosis band-fix + FL x1.05 (`results/submission_bandfix_flx105.csv`).
+This is a CSV stack. The reproducible one-run pipeline (`local_infer.py`, median FL) is `0.47473`
+(`submission_reproduced.csv`); the ~0.014 gap is old per-row CSV residue, not a model difference.
 
-Note: this win was found 2026-06-14 by direct leaderboard probing. Older docs that say 0.58910 or
-0.55075 are stale; they predate it.
+Older docs that say 0.52570 or 0.55075 are stale; they predate the family_b scale fix and the band fix.
 
 ## Leaderboard ledger (the only proven oracle)
 
-| change (isolated, one variable) | public |
+| change (isolated) | public |
 |---|---:|
-| burn_13 base | 0.58910 |
-| PA +2.0 flat | 0.55075 |
-| PA +2.5 flat | 0.55033 |
-| PA +3.0 flat | 0.55168 |
-| FL x1.05 on PA+2.5 base | **0.52570** |
-| FL x1.10 / x1.15 / x1.20 / x1.25 | built, unscored |
-| MT x0.95 / x1.05 | built, unscored |
+| scale router + inner-edge MT + fragment FL | 0.61918 |
+| temporal smoothing | 0.60961 |
+| shape-neighbor fallback scale | 0.58910 |
+| PA +2.0 / +2.5 / +3.0 flat | 0.55075 / 0.55033 / 0.55168 |
+| FL x1.05 on PA+2.5 | 0.52570 |
+| family_b scale 134.5 -> 147 px/cm (41 rows) | ~0.488 |
+| aponeurosis band fix | 0.46076 |
+| band fix + FL x1.05 | **0.46041** |
+| median pipeline, one run (`submission_reproduced.csv`) | 0.47473 |
+| min_extrap_top3 FL (`submission_minextrap.csv`) | 0.49983 (REFUTED) |
+| MT x0.95 on best (`submission_mtx095_on_best.csv`) | 0.53395 (MT bracketed, x1.0 optimal) |
+| FL x1.10 on best (`submission_flx110_on_best.csv`) | 0.48369 (FL bracketed, ~x1.05 optimal) |
 
-## Per-term truth (code + LB grounded)
+**All three global levers are now bracketed two-sided** (PA +2.4 via +2/+2.5/+3; MT x1.0 via x0.95 wall;
+FL x1.05 via x1.00/x1.05/x1.10), so **0.46041 is the confirmed floor of global tuning** — no global probe
+left with a rationale. The mechanistic wins (scale router, family_b constant, band fix) are real and
+per-image; the PA/FL/MT global shifts only move a column mean and are spent.
 
-- **PA — tapped.** Model PA mean 14.627 deg (`results/calibration_measurement_debug.csv`). Flat-PA
-  optimum is ~+2.4 (interpolated; +2.5 is the best *scored* point, +3 regresses). The shift lives only
-  in post-run probe CSVs, not in the pipeline. No further global PA gain expected.
-- **FL — the live lever.** Raw per-image geometry FL mean = 91.596 mm, std 27.07 mm (= 2.26 FL
-  tolerances). `USE_FL_RECENTER` (default ON, `segment_then_measure.py:1144-1145`) multiplies every FL
-  by `PRIOR/mean` ~= 0.81, shrinking the column to pin its mean to PRIOR=74.424. **This is an active
-  ~19% shortening of FL, not a no-op.** The LB proves FL must be longer (x1.05 best, still climbing
-  toward the raw 91.6 mm, which is ~x1.23 of the pin). After x1.05 the shipped FL mean is 78.9 mm, so
-  both global-mean headroom AND per-image spread (the 2.26-tol std) remain.
-- **MT — best term, untested global lever.** Mean 21.836 mm, measured on all 309, NOT recentered
-  (no MT pin exists in code). A single MT global-scale LB probe will confirm or rule out a hidden bias.
-- **Scale — reader strong, absolute scale unproven.** 295/309 rows get a recovered px/mm via the
-  per-family router; 14 fall back to prior. Per-family detection is solid, but absolute per-image
-  correctness is not validated against any test label; part of the FL undershoot is residual scale.
+## Per-term truth (code + LB + benchmark grounded)
 
-## Validation instruments are blind to global/scale errors
+- **Benchmark with true scale, no recenter** (`benchmark_lab/honest_validate.py`): PA 0.1505 (below the
+  0.2445 human floor), MT 0.0840 (at the 0.0810 floor), FL 0.5218 (floor 0.4026, over-reads +5.8 mm).
+  So given correct scale, PA and MT measurement are at the human limit and FL over-reads. **This does
+  NOT predict the LB** (min_extrap proved it again: benchmark 0.39, LB 0.49983).
+- **MT is a clean scale probe**: it has no fascicle and no extrapolation and is at the human floor with
+  true scale, so test MT error is almost entirely scale, not anatomy.
+- **PA and FL are not "tapped".** Only their global means were nudged on the LB. Per-image PA and FL
+  error is unmeasured on the test set (no test truth except the UI hand-labels).
+- **Scale**: 295/309 rows get a recovered px/mm; 14 fall back. Per-family detection is solid;
+  absolute per-image correctness is unvalidated except where the user hand-read ticks (family_b).
 
-Both local validators, by construction, remove the exact degree of freedom the FL win exploited:
+## Validation discipline
 
-- The 35-image benchmark feeds TRUE scale (`experiments/score_weights.py:42`) and recenters predicted
-  FL to its own truth mean (`:54`). It is mathematically incapable of seeing a global FL scale/mean error.
-- The 19 hand labels are self-measured by the same geometry engine and reported FL ~unbiased
-  (-0.46 mm). They MISSED the 0.025 FL win.
+1. The leaderboard is the only valid gate for global/calibration quantities (scale level, FL/PA
+   shift), and it is distribution-specific. Use it a few times to confirm, never to search.
+2. The 35-image benchmark does NOT predict this LB, even un-blinded. Use it to catch a measurement
+   bug, not to decide a submission. `score_weights.py` is doubly blind (feeds true scale `:42`,
+   recenters FL `:54`); `honest_validate.py` removes the recenter but is still the wrong distribution.
+3. The only per-image TEST truth is the user's corrections on the 309 images (the correction UI).
+4. For model/segmentation changes: GroupKFold by subject/device/muscle (recover sequence groups
+   first). Never gate model changes on the benchmark or on visual plausibility.
 
-Do not gate any global or calibration quantity on either. See `../VERIFIED_FACTS.md` and the playbook below.
+## Plan (methodology reset, 2026-06-15)
 
-## Go-forward playbook (validation discipline)
+Stop leaderboard-hacking global multipliers. Build a real loop (see `HANDOFF.md` sec 8):
 
-1. The leaderboard is the ONLY valid gate for any global/calibration quantity (FL scale, MT scale, PA
-   shift). The two local instruments are retired for that purpose.
-2. Quantify the LB noise floor first (SE ~ 0.5/sqrt(public-subset-n)); treat any LB move under ~2x SE
-   as noise. Stop fine-tuning an axis once gains enter the noise band.
-3. One isolated global multiplier per submission, with a written accept/reject rule before submitting.
-4. A change is robust only if it is one degree of freedom with a mechanistic reason AND large vs noise
-   (the FL global scale qualifies; visual plausibility and oracle-fed CV do not). Do not tune many
-   parameters to the public LB (private-LB shakeup risk).
-5. Two-tier every claim: VERIFIED (code line or LB number) vs HYPOTHESIS. Only VERIFIED drives decisions.
-6. Keep a falsified/dead-ends record; never silently drop a refuted claim (this repo re-asserted the
-   "recenter no-op" across 5+ docs because it was dropped, not killed).
-7. For model CV (segmentation retrain), use GroupKFold by subject/device, stratified on muscle/disease,
-   to mirror the shifted test distribution. Do not gate model changes on the oracle-fed benchmark.
+1. Error decomposition, no LB slot: run `measure()` on expert train masks vs predicted train masks on
+   a held-out fold; the gap is the per-term segmentation cost. Pairs with the benchmark result (PA/MT
+   at floor, FL over-reads) to give an error budget.
+2. Build the test-distribution gate from the UI hand-labels.
+3. Choose the strategic direction with the user (route-by-class vs new segmentation target vs rebuild
+   measurement on apo + orientation objects), then improve the largest real source and validate on CV.
 
-## Immediate plan (next free submissions, then code)
-
-1. Finish the FL-scale bracket on the LB: x1.10, x1.15, x1.20, x1.25 (built). Stop when two
-   consecutive points fail to clear the noise floor.
-2. One MT global-scale probe on the best FL base.
-3. Stack the winners (PA+2.5 + FL_opt + MT_opt) into one submission and confirm on the LB.
-4. Bake the FL optimum into `segment_then_measure.py` (raise `PRIOR['fl_mm']` at `:96` or set
-   `USE_FL_RECENTER` default off at `:109`) so the win regenerates from the pipeline, not a CSV patch.
-5. Only after free LB slots are spent: GPU fragment-selection / fascicle-recall work to cut the FL
-   spread (2.26 tol) and the PA aggregation under-read. Gate with GroupKFold, never the benchmark.
+Best submission to keep for final selection: `results/submission_bandfix_flx105.csv` (0.46041).

@@ -8,8 +8,9 @@ Caveat throughout: the 35 benchmark images are different devices than the Kaggle
 *magnitudes* do not transfer cleanly. After the 2026-06-12/13 public burns, even local geometry
 rankings must be treated as diagnostic rather than submission evidence: robust triangle,
 visibility/support FL, and vertical-MT proxies all looked locally plausible and regressed publicly.
-Use this README as chronological experiment history, then check `../docs/CURRENT_STATE_2026-06-13.md`
-before deciding what to submit.
+Use this README as chronological experiment history. Before deciding what to submit, check
+`../docs/CURRENT_STATE.md`: the current best is `0.52570` from the PA+2.5 base plus FL x1.05, so the
+immediate live lever is the remaining leaderboard calibration bracket, not a fresh segmentation guess.
 
 ## exp01 - fascicle-length estimators (`exp01_fl_estimators.py`)
 

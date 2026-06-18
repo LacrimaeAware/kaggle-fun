@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UMUD correction</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div id="counter">loading...</div>
+    <label class="chk">view <select id="view">
+      <option value="priority">priority batch</option>
+      <option value="all" selected>all</option>
+      <option value="multiband">multiband flagged</option>
+      <option value="noscale">no-scale rows</option>
+    </select></label>
+    <label class="chk"><input type="checkbox" id="undoneOnly"> undone only</label>
+    <ul id="list"></ul>
+  </aside>
+
+  <main id="main">
+    <div id="topbar">
+      <span id="imgtitle">-</span>
+      <span id="status" class="pill">idle</span>
+      <span id="scaleread">scale -</span>
+      <button id="exportBtn" title="download all your corrections as a JSON backup">Export backup</button>
+    </div>
+
+    <div id="banner">-</div>
+
+    <div id="controls">
+      <button data-tool="scale" class="tool">1 Scale</button>
+      <button data-tool="apo" class="tool">2 Apo</button>
+      <button data-tool="reject" class="tool">3 Reject</button>
+      <button data-tool="add" class="tool">4 Add</button>
+      <span class="sep"></span>
+      <button id="fitBtn" title="reset zoom">Fit</button>
+      <span class="ovl">overlay <input id="opacity" type="range" min="0" max="100" value="100"><span id="opval">100%</span> <span class="hint">(shift+wheel)</span></span>
+      <span class="sep"></span>
+      <label class="lyr"><input type="checkbox" id="lyApo" checked> apo</label>
+      <label class="lyr"><input type="checkbox" id="lyFasc" checked> fascicles</label>
+      <label class="lyr"><input type="checkbox" id="lyMt" checked> MT</label>
+      <span class="sep"></span>
+      <label class="lyr"><input type="checkbox" id="apoCurve"> curved top (apo)</label>
+      <span class="sep"></span>
+      <span id="anglehud">line: <b id="angleInfo">none selected</b>
+        set <input id="angleInput" type="number" step="0.5" style="width:64px"> deg
+        <button id="angleApply">apply</button>
+        <button id="snapBtn">snap 0/90</button></span>
+      <button id="flagBtn" title="flag this image as multiband (3+ aponeurosis bands) [M]">&#9873; multiband</button>
+      <button id="resetBtn">Reset image</button>
+    </div>
+
+    <div id="scalechoose" class="hidden">spacing between those two ticks:
+      <button data-mm="2">2 mm</button>
+      <button data-mm="5">5 mm (0.5 cm)</button>
+      <button data-mm="10">10 mm (1 cm)</button>
+      <button id="scaleCancel">cancel</button>
+    </div>
+
+    <div id="stage"><canvas id="canvas"></canvas></div>
+
+    <div id="scorebox">
+      <div class="srow"><b>pipeline</b> <span id="sc-base">-</span></div>
+      <div class="srow"><b>your correction</b> <span id="sc-corr">-</span></div>
+      <div class="srow"><b>error by channel</b> <span id="sc-contrib">-</span></div>
+    </div>
+
+    <div id="navbar">
+      <button id="prevBtn">&larr; back</button>
+      <button id="skipBtn">skip &rarr;</button>
+      <button id="nextBtn">Save &amp; next (Q / D / Enter)</button>
+      <span id="navhint">arrows = move without saving &middot; wheel = zoom &middot; shift+wheel = overlay</span>
+    </div>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

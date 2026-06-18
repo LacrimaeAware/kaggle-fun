@@ -232,7 +232,7 @@ def recover_scale_faint_left(gray, x_max=70, win=16, tick_cm=0.5, min_strength=0
     return dict(scale_px_per_cm=float(scale), conf=float(best[1]), spacing_px=float(period))
 
 
-def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=134.5):
+def recover_scale_family_b_signature(gray, sig=(73, 82, 293, 302), tol=4, scale=147.0):  # was 134.5; hand tick-reading + LB confirm ~147 (2026-06-14)
     """Recognize the family-B instrument by its FIXED left-margin UI marks (focus markers/labels at
     fixed canvas rows, independent of depth) and return its validated fixed scale. The faint ruler on
     these images is not robustly periodic (autocorrelation false-positives); but the 49 family-B images
@@ -287,6 +287,7 @@ def recover_for_image_detail(gray, name=""):
     # bottom ticks: only trust HIGH confidence (Telemed 800x1200 + clean cropped).
     d = recover_scale(gray, tick_cm=1.0)
     if d and d["conf"] >= 0.9 and 50 <= d["scale_px_per_cm"] <= 200:
+        d["scale_px_per_cm"] *= 1.095  # hand tick-readings ran ~10% above this reader (2026-06-14, 3/3 images); root cause in the tick detector TBD
         return _detail("bottom_ticks", d)
     if (h, w) == (800, 1200):  # German Siemens: faint right-edge 5 mm depth ruler (-> ~136 px/cm)
         d = recover_scale_right_ruler(gray, tick_cm=0.5)

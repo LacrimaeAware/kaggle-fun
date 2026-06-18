@@ -52,7 +52,7 @@ def main():
             print(f"  measure failed {p.name}: {e}", flush=True)
             geom = None
         pa = geom["pa_deg"] if geom else None
-        pa = float(np.clip(pa if pa is not None else M.PRIOR["pa_deg"], M.PA_MIN, M.PA_MAX))
+        pa = float(np.clip((pa if pa is not None else M.PRIOR["pa_deg"]) + M.PA_SHIFT, M.PA_MIN, M.PA_MAX))
         fl_mm, mt_mm = M.PRIOR["fl_mm"], M.PRIOR["mt_mm"]
         cand = M.calibrate_image(p) if (M.USE_CALIBRATED_MT or M.USE_CALIBRATED_FL) else None
         px_per_mm = cand.px_per_mm if (cand is not None and cand.confidence >= M.CALIBRATION_MIN_CONF) else None

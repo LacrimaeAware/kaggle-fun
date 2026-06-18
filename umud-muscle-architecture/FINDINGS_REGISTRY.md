@@ -31,14 +31,18 @@ Status is judged against code + the leaderboard, **not** against what the source
 - **[LIVE]** Two-cue cross-check (114 imgs) agrees within ~0.3% after sub-pixel refinement — weakens a broad 2x-router-failure fear, but proves consistency, not correctness. Residual risk concentrated in single-cue `right_ruler_5mm` and the 14 `none` rows.
 - **[UNTESTED]** Narrow 3cm scale candidates (burns #18/#19/#20/#21/#24/#25/#26/#27) for the IMG_00198–00200(+251) rows at 159.33 px/cm — built, never scored; #26==#19 and #27==#21 byte-for-byte.
 - **[REJECTED]** Every **broad** scale override regressed: bar-only 3cm tail 0.66711; broad field-depth (burn #22) 0.66197; local-benchmark proxy + missing-scale (burn #28) 0.65917. Lesson: never broad-override an existing per-image scale; the field-rectangle heuristic overcounts UI height.
-- **[FALSE]** "Scale is the bottleneck / a better field-span detector is the next major lever." The biggest win was a non-scale output lever (FL ×1.05). Scale recovery is largely banked.
+- **[FACT/CORRECTED]** Scale was NOT "banked". After FL ×1.05, the two biggest wins were a **scale constant** fix (family_b 134.5→147 px/cm, ~0.526→~0.488, found by the user hand-reading ticks; bottom_ticks corrected ~+9.5% the same way) and the aponeurosis band fix (→0.46076). The live risk is absolute per-image scale correctness on the constant-scale families (family_b 41, left_ruler_1cm 50), validated only where the user hand-checked. MT is at the human floor with true scale, so residual test MT error is scale: MT is the clean scale probe.
 - **[FALSE]** The 116-row field-height "disagreement set" as scale-correction candidates — EXP64 reclassified them as pixel-span (not depth) false positives.
 - **[PAST]** Calibration detector originally read the right UI **text panel** not the ruler (constant 13.40 px/mm, +50% MT error at 3cm); fixed by the per-family router + `png_left_ruler` path. EXP60/61 human scale-oracle review tooling (no LB impact; production never reads the notes).
 - **[PAST]** Sub-pixel scale refinement is below the metric noise floor (FL Δ ~0.094mm vs 12mm tol); off by default, cannot move the score.
 
-## FL (the live lever)
+## FL
 
-- **[LIVE]** **FL global scale is the biggest lever and is under-tapped.** On the PA+2.5 base, FL ×1.05 → **0.52570** (current best), still climbing. Raw geometry FL mean is 91.6mm (= ~×1.23 of the pin), so likely more headroom. Bracket x1.10/1.15/1.20/1.25 (built), then bake into the pipeline.
+- **[PAST]** "FL global scale is the biggest lever / under-tapped" — superseded. FL x1.05 (0.52570) was one
+  rung; the later mechanistic wins (family_b scale 147, aponeurosis band fix) carried the best to **0.46041**.
+  Global FL scale only moves the column mean and is now spent. FL is **not** tapped per-image: per-image FL
+  error on the test set is unmeasured (no test truth except the UI labels). With true scale on the benchmark,
+  FL over-reads +5.8 mm and is the only term above the human floor (0.52 vs 0.40).
 - **[FALSE]** "FL recenter is a no-op (0/309 rows)." It is an **active ~0.81× shrink** (raw FL mean 91.6mm pinned to PRIOR 74.424), 308/309 rows by ~17mm. The "0/309" came from re-applying the pin to an already-pinned file. `segment_then_measure.py:1144-1145`.
 - **[FALSE]** "FL recenter masks a +6mm overshoot, do NOT delete it" (EXP79) — **direction backwards**; the LB wants FL *longer*, so the recenter shortens it the wrong way. The +6mm "overshoot" is a benchmark artifact (the benchmark recenters FL to its own truth mean).
 - **[FALSE]** "FL is unbiased on the test labels, leave it." The ~-0.46mm bias was measured on blind validators; the LB shows a large global FL undershoot.
@@ -50,10 +54,10 @@ Status is judged against code + the leaderboard, **not** against what the source
 - **[FACT]** With TRUE scale, benchmark FL is still ~1.19 (no better than a constant) — on the *benchmark* FL is geometry/extrapolation-limited, not scale-limited. (Note: on the hidden test the global mean was the dominant error, which the benchmark cannot see.)
 - **[FACT]** PRIOR FL=74.424 (sample-submission mean) is 13.6mm — more than one tolerance — above the benchmark-true FL mean 60.835. The pin target was never validated.
 - **[LIVE]** Projected-FL p25 / robust-triangle aggregation cuts benchmark FL 0.519→0.281 with no new model (benchmark-only; the recenter would erase its mean effect — re-examine now that the recenter is understood).
-- **[REJECTED]** Every per-image FL *reshaping* regressed: identity blend 0.63905, top-3 minimal-extrapolation 0.62994, visibility/support-weighted 0.64511, facing FL 0.66459, robust-triangle geometry 0.60102. (These are shape changes, distinct from the global scale that worked.)
+- **[REJECTED]** Every per-image FL *reshaping* regressed: identity blend 0.63905, top-3 minimal-extrapolation 0.62994, visibility/support-weighted 0.64511, facing FL 0.66459, robust-triangle geometry 0.60102. (These are shape changes, distinct from the global scale that worked.) **Re-confirmed 2026-06-15:** min_extrap_top3 on the clean pipeline scored **0.49983** vs median 0.47473, after looking best on the benchmark (FL 0.39, below the human floor). The benchmark does not predict the LB.
 - **[PAST]** Curved-fascicle / arc-length FL as the "novel contribution" — superseded by the straight-line-convention finding. Straight-all-fragments FL overshoots +24mm on the benchmark (minimize-extrapolation was the bench cure; LB direction is the opposite, so treat bench FL direction with care).
 
-## PA (tapped)
+## PA (global mean nudged on the LB; per-image error on test is unmeasured, NOT "tapped")
 
 - **[FACT]** PA flat-shift optimum is ~+2.4 and we are on it. LB: +0=0.58910, +2=0.55075, +2.5=0.55033 (best), +3=0.55168. The shift lives only in post-run CSVs, not in `segment_then_measure.py`.
 - **[FACT]** PA is solved in-distribution (benchmark term ~0.15 ≈ 0.9° MAE, below ~1.6° inter-rater SD; hand-drawn check within 1.8°). Method: TLS/PCA fragment orientation + min-6°/min-40px filters + length-weighted median.
@@ -64,7 +68,7 @@ Status is judged against code + the leaderboard, **not** against what the source
 - **[FALSE]** Lower/upper/average-boundary tangent PA conventions, plain smoothing, circular means/RANSAC/endpoint axes — all worsen PA. Keep PCA + area-weighted median relative to the **deep** boundary.
 - **[PAST]** Per-band fragment-count PA/MT averaging: tiny real gain (PA 0.150→0.146) but only as routing for known multi-band images, never a global average. PA conflict-gate is the only small positive boundary signal (benchmark-only). Temporal smoothing across sequence clips contributed to the old 0.58910 (now superseded).
 
-## MT (done)
+## MT (at the human floor given true scale; residual test error is scale, not geometry)
 
 - **[FACT]** Inner-edge aponeurosis-gap MT (`UMUD_APO_INNER`, muscle-facing edges not centroids) is the banked win: benchmark MT 0.49→0.18 (~0.25mm MAE, below ~1.0mm inter-rater SD). MT is **not** recentered in code. Residual MT error is scale, not geometry.
 - **[UNTESTED]** MT global-scale probes built (×0.95/×1.05) — fire one on the best FL base to confirm/rule out a hidden MT bias (same instrument-blindness that hid FL could hide a smaller MT one).
@@ -93,6 +97,8 @@ Status is judged against code + the leaderboard, **not** against what the source
 
 - **[FACT]** **The leaderboard is the only signal proven to predict the leaderboard.** Every "principled" local/benchmark win regressed (FL blend, MT vertical-3, scale-tail, facing FL, robust triangle). Gate global/calibration quantities on isolated single-variable LB probes only.
 - **[FACT]** The 35-image benchmark is **blind to scale and global FL bias**: it feeds TRUE scale (`score_weights.py:42`) and recenters FL to the truth mean (`:54`). It looks ~3× better than the LB and mispredicted the LB direction 4+ times. A logic/convention sanity tool, not an oracle.
+- **[FACT]** Even **un-blinded**, the benchmark does not predict the LB. `benchmark_lab/honest_validate.py` (no recenter, true scale, per-image vs 7-rater consensus + human floor) ranked min_extrap_top3 best (FL 0.39, below the 0.40 floor); that submission then regressed the LB to 0.49983. It is a different distribution than test. Use it to catch a measurement bug, not to gate a submission.
+- **[LIVE]** Methodology reset (2026-06-15): stop optimizing the LB scalar with global multipliers (curve-fitting one hidden statistic). Build (1) a validation protocol = GroupKFold by subject/device on train + UI hand-labels on test images + LB as final check only; (2) an error decomposition (run `measure()` on expert train masks vs predicted masks for the per-term segmentation cost); (3) fix the largest real source, re-validate on CV. See `docs/HANDOFF.md`.
 - **[FALSE]** "The 19 hand labels are a usable directional gate." They are self-measured by the same geometry engine and **missed the 0.025 FL win**; not a gate for any global/scale quantity. Keep them only for in-distribution PA sanity and per-image shape after the mean is removed.
 - **[FACT]** Proxy machinery (EXP48–56) is multiple-comparisons overfitting: >2000 configs scored on the same 35 images, reporting the minimum as "headroom." The 0.170→0.131 chase is ~1.1 SE of label noise — statistically meaningless; the code itself says "intentionally overfit-prone." Every piece submitted (burns 15/16/17) regressed.
 - **[FACT]** The deferral pattern: cheap decisive tests get named then skipped for expensive virtuous-looking work (Dice-vs-angle never run as designed; orientation-correctness audit deferred for 4 commits; human-row gating built then bypassed).
@@ -105,8 +111,9 @@ Status is judged against code + the leaderboard, **not** against what the source
 
 ## Submission results (verdicts; full chronology in EXPERIMENT_LOG.md)
 
-- **[LIVE]** Best = **0.52570** (FL ×1.05 on PA+2.5).
-- **[FACT]** Wins ladder: 1.09 (pre-router) → 0.61918 (scale router) → 0.60961 (temporal) → 0.60936 (subpixel) → 0.58910 (shape-neighbor scale) → 0.55075 (PA+2) → 0.55033 (PA+2.5) → 0.52570 (FL ×1.05).
+- **[LIVE]** Best = **0.46041** (band fix + FL ×1.05, `submission_bandfix_flx105.csv`). Reproducible one-run pipeline (median FL) = 0.47473.
+- **[FACT]** Wins ladder: 1.09 (pre-router) → 0.61918 (scale router) → 0.60961 (temporal) → 0.58910 (shape-neighbor scale) → 0.55075 (PA+2) → 0.55033 (PA+2.5) → 0.52570 (FL ×1.05) → ~0.488 (family_b scale 134.5→147) → 0.46076 (band fix) → **0.46041** (band fix + FL ×1.05).
+- **[REJECTED]** min_extrap_top3 FL on the clean pipeline: 0.49983 (2026-06-15); benchmark mirage, did not transfer.
 - **[REJECTED]** burn #14 top-3 FL 0.62994; #15 robust triangle 0.60102; #16 visibility FL 0.64511; #17 vertical MT 0.60720; #22 broad field-depth scale 0.66197; #28 proxy stack 0.65917 (mislabeled "burn #15 + scale"; actually #16 FL + #17 MT proxies); FL identity blend 0.63905; facing FL 0.66459; MT vertical-3 0.62561; bar-only scale tail 0.66711.
 - **[PAST]** burns #4/#6/#11/#13 (0.609→0.58910) and the 0.61918 protected baseline — all superseded by the PA/FL shifts.
 - **[FACT]** Submission format: comma CSV `image_id,pa_deg,fl_mm,mt_mm` with real suffixes (IMG_00001.tif..251, IMG_00252.png..309). Semicolon, TIFF-only 251 rows, and page-style IDs all fail.

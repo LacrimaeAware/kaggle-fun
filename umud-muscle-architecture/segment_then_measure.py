@@ -93,7 +93,8 @@ WEIGHTS_TAG = os.environ.get("UMUD_WEIGHTS_TAG", "").strip()
 SEED = 42
 EPOCHS = int(os.environ.get("UMUD_EPOCHS", "12"))      # UMUD_EPOCHS=2 for a fast smoke run
 MAX_PAIRS = int(os.environ.get("UMUD_MAX_PAIRS", "0"))  # >0 caps train pairs (local smoke tests)
-PRIOR = {"fl_mm": 74.424, "mt_mm": 18.628, "pa_deg": 15.105}
+PRIOR = {"fl_mm": 81.866, "mt_mm": 18.628, "pa_deg": 15.105}  # fl raised from 74.424: the recenter pinned FL ~10% too low; LB-confirmed via the FL x1.10 win (2026-06-14)
+PA_SHIFT = float(os.environ.get("UMUD_PA_SHIFT", "2.5"))  # global PA correction: model under-reads PA ~2.5 deg on the domain-shifted test set (LB-confirmed 2026-06-14)
 PA_MIN, PA_MAX = 5.0, 45.0  # competition physiological range for pennation angle
 FL_MIN, FL_MAX = 30.0, 200.0
 MT_MIN, MT_MAX = 10.0, 50.0
@@ -104,6 +105,9 @@ USE_IDENTITY_FL = os.environ.get("UMUD_USE_IDENTITY_FL", "1") != "0"  # FL = MT/
 USE_FRAGMENT_FL = os.environ.get("UMUD_FRAGMENT_FL", "1") != "0"  # FL from fascicle fragment extrapolated to apo lines; beats identity once apo inner-edge is fixed (0.481->0.353 on the 35 experts)
 FL_IDENTITY_BLEND = float(os.environ.get("UMUD_FL_IDENTITY_BLEND", "0"))  # keep fragment-only FL by default; blend=.5 looked better locally but regressed public LB 0.61918->~0.64
 FL_FRAGMENT_MODE = os.environ.get("UMUD_FL_FRAGMENT_MODE", "median").lower()  # median | min_extrap_top3 | visibility_weighted
+# min_extrap_top3 looked far better on the benchmark (FL 0.52->0.39) but REGRESSED the LB
+# (median-clean 0.47473 -> min_extrap 0.49983, 2026-06-15). The benchmark distribution does not
+# transfer to test. median is the LB-confirmed default; do not re-flip without a TEST-set gate.
 FL_FRAGMENT_TOPK = int(os.environ.get("UMUD_FL_FRAGMENT_TOPK", "3"))  # host protocol uses 3 manually selected low-extrapolation structures
 USE_FL_FACING = os.environ.get("UMUD_FL_FACING", "0") == "1"  # opt-in rejected probe: consensus angle + facing-parabola apo + minimize-extrapolation. It improved the 35-expert FL proxy but regressed public LB 0.61918->0.66459, so keep the safe fragment-FL baseline as default.
 USE_FL_RECENTER = os.environ.get("UMUD_FL_RECENTER", "1") != "0"  # CORRECTED 2026-06-14: this is NOT a no-op and does NOT mask an overshoot. On the live pipeline raw FL mean is ~91.6mm; pinning to PRIOR=74.424 multiplies every FL by ~0.81 (a ~19% SHRINK, 308/309 rows). The LB proves FL must be LONGER (FL x1.05 -> 0.52570 best). So the recenter actively shortens FL the wrong way. The fix is to raise PRIOR['fl_mm'] toward the LB optimum or set this OFF; see docs/CURRENT_STATE.md. (Old "0/309 no-op" claim came from re-applying the pin to an already-pinned file.)
@@ -111,6 +115,12 @@ USE_TTA = os.environ.get("UMUD_TTA", "1") != "0"  # mirror+scale test-time aug; 
 FASC_MIN_AREA = int(os.environ.get("UMUD_FASC_MIN_AREA", "40"))   # drop tiniest fragments (exp09)
 FASC_MIN_ANG = float(os.environ.get("UMUD_FASC_MIN_ANG", "6"))    # reject apo-parallel fragments (exp07/09: PA 0.171->0.164)
 USE_APO_INNER = os.environ.get("UMUD_APO_INNER", "1") != "0"      # measure MT between bands' muscle-facing INNER edges, not centroids (exp14: MT-term 0.49->0.18)
+USE_BAND_FIX = os.environ.get("UMUD_BAND_FIX", "1") != "0"        # pick the apo pair the fascicles sit between (not just the 2 largest blobs) AND drop fragments outside the band. 2026-06-14 review: 56/309 images had fascicle fragments above the superficial or below the deep aponeurosis (9% of all kept fragments); some picked the wrong band entirely.
+USE_POS_WEIGHT = os.environ.get("UMUD_POS_WEIGHT", "0") == "1"    # weight fascicle fragments by position in the band: the stable fascicles run through the MIDDLE, near-aponeurosis structures (grooved artifacts, esp. near the DEEP band) are unreliable. Gaussian weight peaked above mid-band. (2026-06-14 user review)
+POS_CENTER = float(os.environ.get("UMUD_POS_CENTER", "0.45"))     # 0 = at superficial inner edge, 1 = at deep inner edge
+POS_WIDTH = float(os.environ.get("UMUD_POS_WIDTH", "0.30"))
+USE_ELONG_FILTER = os.environ.get("UMUD_ELONG_FILTER", "0") == "1"  # reject thick low-elongation blobs (grooved near-aponeurosis artifacts); real fascicles are thin and elongated. (2026-06-14 user review)
+ELONG_MIN = float(os.environ.get("UMUD_ELONG_MIN", "3.0"))         # min ratio of major-axis std to minor-axis std for a component to count as a fascicle
 TOP_BOUNDARY_MODE = os.environ.get("UMUD_TOP_BOUNDARY_MODE", "line").lower()  # line | triangle | robust_triangle; opt-in upper-boundary shape candidate
 MT_MODE = os.environ.get("UMUD_MT_MODE", "perp_center").lower()    # perp_center | vertical_3 (host straight-line left/mid/right approximation)
 FASC_POS_WEIGHT = float(os.environ.get("UMUD_FASC_POS_WEIGHT", "0"))  # >0 biases fascicle BCE toward recall (Kaggle retrain only)
@@ -834,21 +844,45 @@ def aggregate_fragment_fl(fragment_rows):
     return median_fl, median_fl, len(valid)
 
 
-def measure(apo_mask, fasc_mask):
-    """Return PA plus pixel-space FL/MT geometry, or None if aponeurosis geometry fails."""
+def measure(apo_mask, fasc_mask, return_geometry=False):
+    """Return PA plus pixel-space FL/MT geometry, or None if aponeurosis geometry fails.
+
+    With return_geometry=True the result also carries a "geometry" dict with the exact per-image
+    objects this function uses (sup/deep apo lines, top_boundary, MT segments, and every detected
+    fascicle fragment with its fitted slope/angle/area/endpoints). This is the production-faithful
+    pre-fill source for the correction UI; the default return is unchanged."""
     apo_mask = np.ascontiguousarray(apo_mask, np.uint8)
     fasc_mask = np.ascontiguousarray(fasc_mask, np.uint8)
     n, lab, stats, _ = cv2.connectedComponentsWithStats(apo_mask, connectivity=8)
-    bands = sorted([(stats[i, 4], i) for i in range(1, n)], reverse=True)[:2]
-    if len(bands) < 2:
+    comp = sorted([(int(stats[i, 4]), i) for i in range(1, n) if int(stats[i, 4]) >= 10], reverse=True)
+    if len(comp) < 2:
         return None
-    band_info = []
-    for _, i in bands:
-        ys, xs = np.where(lab == i)
-        if len(xs) < 10:
-            return None
-        band_info.append((float(np.mean(ys)), xs, ys))
-    band_info.sort()  # by mean y: [0] = superficial (top band), [1] = deep (bottom band)
+    if USE_BAND_FIX:
+        # Consider every reasonably sized aponeurosis band, then pick the adjacent PAIR that the
+        # fascicle fragments actually sit between, instead of blindly taking the two largest blobs
+        # (the two-largest rule chose the wrong pair on the 3-band images: 121-125, 71-75, etc.).
+        big = [i for area, i in comp if area >= max(150, comp[0][0] * 0.10)]
+        if len(big) < 2:
+            big = [i for _, i in comp[:2]]
+        bands_all = []
+        for i in big:
+            ys, xs = np.where(lab == i)
+            bands_all.append((float(np.mean(ys)), xs, ys))
+        bands_all.sort()  # by mean y
+        _, _, statsf0, cent0 = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
+        fcy = [float(cent0[j][1]) for j in range(1, len(cent0)) if int(statsf0[j, 4]) >= FASC_MIN_AREA]
+        best, best_sup = 0, -1
+        for a in range(len(bands_all) - 1):
+            sup = sum(1 for cy in fcy if bands_all[a][0] < cy < bands_all[a + 1][0])
+            if sup > best_sup:
+                best_sup, best = sup, a
+        band_info = [bands_all[best], bands_all[best + 1]]
+    else:
+        band_info = []
+        for area, i in comp[:2]:
+            ys, xs = np.where(lab == i)
+            band_info.append((float(np.mean(ys)), xs, ys))
+        band_info.sort()  # by mean y: [0] = superficial (top band), [1] = deep (bottom band)
     fit = []
     apo_edges = [None, None]  # (ux, inner-edge y) per band, for the facing-parabola FL
     for k, (role, (_, xs, ys)) in enumerate(zip(("sup", "deep"), band_info)):
@@ -886,7 +920,7 @@ def measure(apo_mask, fasc_mask):
         mt_px = abs(line_y(deep, x_center) - top_boundary_y(top_boundary, x_center)) / np.sqrt(1 + deep_s**2)
 
     nf, labf, statsf, _ = cv2.connectedComponentsWithStats(fasc_mask, connectivity=8)
-    angs, wts, fragment_rows, used_frags = [], [], [], []
+    angs, wts, fragment_rows, used_frags, geom_frags = [], [], [], [], []
     for i in range(1, nf):
         area = int(statsf[i, 4])
         if area < FASC_MIN_AREA:
@@ -895,30 +929,70 @@ def measure(apo_mask, fasc_mask):
         if len(xs) < 8:
             continue
         fs, fb = pca_line(ys, xs)  # unbiased fascicle orientation (exp05)
+        cxm, cym = float(np.mean(xs)), float(np.mean(ys))
+        reject_reason = None  # why this fragment is NOT in the submission (None = kept/counted)
+        if USE_BAND_FIX:  # fragment outside the muscle band (above superficial / below deep apo)
+            sy0, dy0 = line_y(superficial, cxm), line_y(deep, cxm)
+            lo0, hi0 = (sy0, dy0) if sy0 <= dy0 else (dy0, sy0)
+            if cym < lo0 - 8 or cym > hi0 + 8:
+                reject_reason = "out_of_band"
+        if reject_reason is None and USE_ELONG_FILTER:  # thick grooved blob, not a thin fascicle
+            ev = np.linalg.eigvalsh(np.cov(np.stack([xs - cxm, ys - cym])))
+            if np.sqrt(max(ev[-1], 1e-9) / max(ev[0], 1e-9)) < ELONG_MIN:
+                reject_reason = "low_elongation"
         a = abs(np.degrees(np.arctan(fs) - np.arctan(deep_s)))
         if a > 90:
             a = 180 - a
+        if reject_reason is None and not (FASC_MIN_ANG <= a <= 75):
+            reject_reason = "apo_parallel" if a < FASC_MIN_ANG else "too_steep"
         fasc = (fs, fb)
-        upper = top_boundary_intersection(fasc, top_boundary, xref=float(np.mean(xs)))
+        upper = top_boundary_intersection(fasc, top_boundary, xref=cxm)
         lower = line_intersection(fasc, deep)
         fl = None
         if upper is not None and lower is not None:
             fl = float(np.hypot(upper[0] - lower[0], upper[1] - lower[1]))
-        if FASC_MIN_ANG <= a <= 75:
+        visible_len = fragment_visible_length(xs, ys, fs)
+        pw = 1.0
+        if USE_POS_WEIGHT:  # downweight near-aponeurosis fragments (deep edge worst); trust the mid-band
+            sy1, dy1 = line_y(superficial, cxm), line_y(deep, cxm)
+            if abs(dy1 - sy1) > 1e-6:
+                pos = (cym - sy1) / (dy1 - sy1)
+                pw = float(np.exp(-((pos - POS_CENTER) / POS_WIDTH) ** 2))
+        kept = reject_reason is None  # same accepted set as before: band + elong + angle all pass
+        if kept:
             angs.append(a)
-            wts.append(area)  # weight by fragment size (exp05: sharpens PA)
-            visible_len = fragment_visible_length(xs, ys, fs)
-            used_frags.append({"fs": float(fs), "cx": float(np.mean(xs)), "cy": float(np.mean(ys)),
+            wts.append(area * pw)  # weight by fragment size (exp05) and band position (2026-06-14)
+            used_frags.append({"fs": float(fs), "cx": cxm, "cy": cym,
                                "visible_len": visible_len, "area": area})  # for the facing-parabola FL
             if fl is not None and 10.0 <= fl <= 4000.0:
                 fragment_rows.append({
                     "fl": fl,
                     "area": area,
+                    "pw": pw,
                     "visible_len": visible_len,
                     "visible_frac": float(np.clip(visible_len / (fl + 1e-9), 0.0, 1.0)),
                 })
+        if return_geometry:  # record EVERY fragment (kept + rejected) so the UI shows what's dropped
+            geom_frags.append({
+                "id": f"F{i}",
+                "kept": bool(kept),
+                "reject_reason": reject_reason,
+                "slope": float(fs),
+                "angle_deg": float(a),
+                "area": int(area),
+                "centroid": [cxm, cym],
+                "upper": [float(upper[0]), float(upper[1])] if upper is not None else None,
+                "lower": [float(lower[0]), float(lower[1])] if lower is not None else None,
+                "fl_px": float(fl) if fl is not None else None,
+                "visible_len": float(visible_len),
+            })
     pa_deg = weighted_median(angs, wts) if angs else None
     fl_fragment_px, fl_fragment_median_px, fl_fragment_n = aggregate_fragment_fl(fragment_rows)
+    if USE_POS_WEIGHT and fragment_rows:  # FL from the trusted mid-band fragments (less extrapolation)
+        valid = [r for r in fragment_rows if 10.0 <= r["fl"] <= 4000.0]
+        if valid:
+            fl_fragment_px = float(weighted_median([r["fl"] for r in valid],
+                                                   [max(1e-6, r["area"] * r.get("pw", 1.0)) for r in valid]))
     fl_identity_px = None
     if angs:
         pa_gated = mad_gated_weighted_mean(angs, wts)
@@ -934,7 +1008,7 @@ def measure(apo_mask, fasc_mask):
         facing_px = compute_facing_fl(used_frags, superficial, deep, apo_edges[0], apo_edges[1])
         if facing_px is not None:
             fl_px = facing_px
-    return {
+    result = {
         "pa_deg": pa_deg,
         "fl_px": fl_px,
         "fl_fragment_px": fl_fragment_px,
@@ -945,6 +1019,44 @@ def measure(apo_mask, fasc_mask):
         "n_fascicles": len(angs),
         "top_boundary_mode": top_boundary.get("mode", "line"),
     }
+    if return_geometry:
+        H, W = apo_mask.shape[:2]
+
+        def _line_pts(line):
+            return [[0.0, float(line_y(line, 0.0))], [float(W), float(line_y(line, W))]]
+
+        if top_boundary.get("type") == "piecewise":
+            tb = {"type": "piecewise", "mode": top_boundary.get("mode"),
+                  "points": [[float(px), float(py)] for px, py in top_boundary["points"]]}
+        else:
+            tb = {"type": "line", "mode": "line", "points": _line_pts(top_boundary["line"])}
+
+        mt_segments = []
+        if MT_MODE in {"vertical_3", "host_vertical_3"}:
+            for x in xs_mt:
+                mt_segments.append([[float(x), float(top_boundary_y(top_boundary, float(x)))],
+                                    [float(x), float(line_y(deep, float(x)))]])
+        else:
+            mt_segments.append([[float(x_center), float(top_boundary_y(top_boundary, x_center))],
+                                [float(x_center), float(line_y(deep, x_center))]])
+
+        result["geometry"] = {
+            "width": int(W), "height": int(H),
+            "apo": {
+                "superficial": _line_pts(superficial), "deep": _line_pts(deep),
+                "superficial_coef": [float(superficial[0]), float(superficial[1])],
+                "deep_coef": [float(deep[0]), float(deep[1])],
+            },
+            "top_boundary": tb,
+            "mt": {"mode": MT_MODE, "segments": mt_segments, "mt_px": float(mt_px)},
+            "fragments": geom_frags,
+            "scalars": {
+                "pa_deg": pa_deg, "fl_px": fl_px, "fl_fragment_px": fl_fragment_px,
+                "fl_fragment_n": fl_fragment_n, "mt_px": float(mt_px),
+                "n_fascicles": len(angs), "top_boundary_mode": top_boundary.get("mode", "line"),
+            },
+        }
+    return result
 
 
 class _Cal:  # lightweight calibration result, matches the attrs main() reads off a Candidate

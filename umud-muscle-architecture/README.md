@@ -1,10 +1,12 @@
 # UMUD Muscle Architecture
 
-Current public best: **`0.52570`** (global FL scale x1.05 on the PA+2.5 base, `results/submission_fl_x105.csv`; 2026-06-14).
+Current public best: **`0.46041`** (aponeurosis band fix + FL x1.05, `results/submission_bandfix_flx105.csv`).
+Reproducible one-run pipeline (`local_infer.py`, median FL) = `0.47473`; the ~0.014 gap is old CSV residue.
 
-Start here (these five are the living docs; everything else is in `archive/`):
+Start here:
 
-- `docs/CURRENT_STATE.md` - **canonical single source of truth** (undated). Read this first.
+- `docs/HANDOFF.md` - **full self-contained state**, written to be read cold. Read this first.
+- `docs/CURRENT_STATE.md` - terse canonical decision-driver (undated).
 - `VERIFIED_FACTS.md` - code/LB-grounded facts only; nothing unproven.
 - `FINDINGS_REGISTRY.md` - every idea/feature/experiment by concept, each tagged LIVE / FACT / UNTESTED / REJECTED / FALSE / PAST. The merged replacement for the old front-door and EXP journals.
 - `EXPERIMENT_LOG.md` - chronological public-submission changelog.
@@ -17,11 +19,15 @@ Start here (these five are the living docs; everything else is in `archive/`):
 
 ## Current Work
 
-The live lever is **FL global scale** (FL x1.05 -> 0.52570, still climbing; bracket x1.10/1.15/1.20/1.25,
-then bake the optimum into `segment_then_measure.py`). PA is tapped at ~+2.4. The next non-LB work is a
-classical Frangi+Radon fascicle-orientation extractor (no GPU). The GPU segmentation pivot is on hold:
-its premise ("FL is mask-limited") was falsified by the FL scale win. See `docs/CURRENT_STATE.md` for the
-full plan. The segmentation notebooks below remain available but EXP77 was never run.
+**Methodology reset (2026-06-15).** The leaderboard-multiplier loop is retired: global PA/FL shifts only
+move a column mean, and the 35-image benchmark does not predict the LB (min_extrap_top3 scored 0.39 on
+the benchmark and regressed the LB to 0.49983). The plan is to build a real validation loop instead:
+an error decomposition (run `measure()` on expert train masks vs predicted masks for the per-term
+segmentation cost), a test-distribution gate from the user's correction-UI hand-labels, and GroupKFold
+by subject/device for any model change. See `docs/HANDOFF.md` (full) and `docs/CURRENT_STATE.md` (terse).
+The strategic direction (route-by-class vs new segmentation target vs rebuild measurement on apo +
+orientation objects) is an open question for the user. The segmentation notebooks below remain available
+but EXP77 was never run.
 
 Kaggle notebooks:
 
@@ -36,19 +42,19 @@ Kaggle notebooks:
 - `kaggle_seg77_best_effort_heavy_auto.ipynb` - current recommended overnight run; strongest
   implemented segmentation candidate first, then serious alternates if wall time remains.
 
-Current segmentation docs:
+Current segmentation docs (all archived under `archive/exp/`; keep them chronological rather than editing them in place):
 
-- `EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` - deeper audit of EXP72 and the current pipeline.
-- `EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md` - next notebook design: instrumentation
+- `archive/exp/EXP73_SEGMENTATION_METHOD_AUDIT_2026-06-13.md` - deeper audit of EXP72 and the current pipeline.
+- `archive/exp/EXP74_CONTROLLED_SEGMENTATION_ABLATION_PLAN_2026-06-13.md` - next notebook design: instrumentation
   and one-axis ablations before another long GPU run.
-- `EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - external research synthesis:
+- `archive/exp/EXP75_EXTERNAL_ULTRASOUND_AND_KAGGLE_METHOD_REVIEW_2026-06-14.md` - external research synthesis:
   muscle-ultrasound line extraction, Kaggle segmentation practice, masked pretraining, pseudo-label
   discipline, and scale auxiliary modeling.
-- `EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - controlled diagnostic notebook rationale; secondary
+- `archive/exp/EXP76_TONIGHT_NOTEBOOK_AUDIT_2026-06-14.md` - controlled diagnostic notebook rationale; secondary
   after EXP77 if the goal is immediate best candidate first.
-- `EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md` - rationale for the current best-effort
+- `archive/exp/EXP77_BEST_EFFORT_SEGMENTATION_NOTEBOOK_2026-06-14.md` - rationale for the current best-effort
   overnight notebook.
-- `EXP78_SCALE_REVIEW_AND_RECALL_SEGMENTATION_STATE_2026-06-14.md` - compact synthesis of the full
+- `archive/exp/EXP78_SCALE_REVIEW_AND_RECALL_SEGMENTATION_STATE_2026-06-14.md` - compact synthesis of the full
   309-image depth review, failed scale submissions, and the recall-heavy segmentation follow-up.
 
 Current recommended Kaggle notebook:
@@ -61,9 +67,12 @@ all cells.
 
 ## Current Public Submission Read
 
-- Current best: `results/submission_fl_x105.csv` at `0.52570` (FL x1.05 on the PA+2.5 base). The
-  burn_11/burn_13 files (`0.58910`) and the PA-shift files (`0.55075`/`0.55033`) are superseded.
-- Rejected: robust triangle (#15), visibility-weighted FL (#16), vertical MT (#17), broad field-depth scale (#22), and local-benchmark proxy stack (#28).
+- Current best: `results/submission_bandfix_flx105.csv` at `0.46041` (band fix + FL x1.05). The
+  family_b scale fix (~0.488), FL x1.05 (0.52570), PA-shift (0.55x), and burn_11/13 (0.58910) are
+  superseded steps on the ladder.
+- Rejected: min_extrap_top3 FL (0.49983, and earlier #14 0.62994), robust triangle (#15 0.60102),
+  visibility-weighted FL (#16 0.64511), vertical MT (#17 0.60720), broad field-depth scale (#22 0.66197),
+  local-benchmark proxy stack (#28 0.65917).
 - Scale status: displayed depth is audited on all 309 test images and algorithmically recovered
   309/309 after EXP63/EXP64 repairs; the unsolved part is trusted `px/cm` span detection.
 

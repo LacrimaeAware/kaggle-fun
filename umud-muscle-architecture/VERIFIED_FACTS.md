@@ -12,25 +12,31 @@ hypothesis note, not here. Pair with `docs/CURRENT_STATE.md`.
   `refs/umud-score.ipynb`. (Per-image assumed; not re-confirmed on the live host.)
 - Consequence: a global mean shift on any term is a first-order lever.
 
-## Leaderboard results (2026-06-14, the only oracle)
+## Leaderboard results (the only oracle)
 
 - PA flat shift on burn_13 base: +0 -> 0.58910, +2 -> 0.55075, +2.5 -> 0.55033, +3 -> 0.55168.
-- FL global scale on the PA+2.5 base (0.55033 at x1.00): **x1.05 -> 0.52570** (current best).
-- FL x1.10/x1.15/x1.20/x1.25 and MT x0.95/x1.05 are built (`results/submission_fl_x*.csv`,
-  `results/submission_mt_x*.csv`) but not yet scored.
+- FL global scale on the PA+2.5 base: x1.05 -> 0.52570.
+- family_b scale constant 134.5 -> 147 px/cm (41 rows; found by the user hand-reading ticks): ~0.488.
+- aponeurosis band fix: 0.46076; band fix + FL x1.05: **0.46041 (current best, `submission_bandfix_flx105.csv`)**.
+- reproducible median pipeline, one `local_infer.py` run: 0.47473 (`submission_reproduced.csv`); the
+  ~0.014 gap to 0.460 is old per-row CSV residue, not a model difference.
+- min_extrap_top3 FL on that pipeline: **0.49983 (REFUTED 2026-06-15)**. The benchmark scored it 0.39
+  (below the human floor) and it regressed the LB by 0.025: the benchmark does not predict the LB.
 
 ## Pipeline (segment_then_measure.py)
 
-- `PRIOR = {fl_mm:74.424, mt_mm:18.628, pa_deg:15.105}` `:96`. Clips PA[5,45] `:97`, FL[30,200] `:98`,
-  MT[10,50] `:99`.
-- `USE_FL_RECENTER` default ON `:109`; applied `:1144-1145` as `fl_mm *= PRIOR['fl_mm']/mean(fl_mm)`.
-  On the live pipeline the raw FL mean is 91.596 so the factor is ~0.81252 (a ~19% shrink) and it
-  changes 308/309 rows by mean ~17 mm. It is an active shortening device. (The "0/309 no-op" in older
-  docs came from re-applying the pin to an already-pinned file, where the factor is ~1.)
+- `PRIOR = {fl_mm:81.866, mt_mm:18.628, pa_deg:15.105}` `:96` (fl raised from 74.424 to bake in the
+  LB-fitted FL level). Clips PA[5,45], FL[30,200], MT[10,50].
+- `USE_FL_RECENTER` default ON; applied in main() as `fl_mm *= PRIOR['fl_mm']/mean(fl_mm)`, and
+  `local_infer.py:98` applies the same pin regardless of the flag. Raw FL mean ~91.6, so the factor is
+  ~0.89 (a ~11% shrink to mean 81.866). It is an active shortening device. (The old "0/309 no-op" came
+  from re-applying the pin to an already-pinned file.)
+- `FL_FRAGMENT_MODE` default `median` `:107`. `min_extrap_top3` was tried and REFUTED on the LB
+  (0.49983 vs median 0.47473, 2026-06-15); do not re-flip without a test-distribution gate.
 - MT path: `mt_px / px_per_mm`, clip [10,50] `:1104-1107`. There is NO MT recenter anywhere in main().
-- Scale router `USE_SCALE_ROUTER` default ON `:102`; `calibrate_image` `:993-1011`; per-family logic in
-  `scale_ticks.py:264-298`, incl. `family_b_signature` fixed 134.5 px/cm at conf 1.0 `:235,295`.
-  (Stale inline comment at `:102` says "54% coverage"; real coverage is 295/309.)
+- Scale router `USE_SCALE_ROUTER` default ON; `calibrate_image`; per-family logic in `scale_ticks.py`,
+  incl. `family_b_signature` now **147 px/cm** (was 134.5; the user hand-read ticks at ~147 and the LB
+  confirmed the fix, ~0.488). bottom_ticks reads were corrected ~+9.5% the same way. Real coverage 295/309.
 
 ## Live per-image data (results/calibration_measurement_debug.csv, 309 rows)
 
@@ -41,11 +47,15 @@ hypothesis note, not here. Pair with `docs/CURRENT_STATE.md`.
 
 ## Validation surfaces (why they are blind to global FL/scale)
 
-- 35-image benchmark scorer feeds TRUE scale `experiments/score_weights.py:42` and recenters predicted
-  FL to truth mean `:54` -> structurally cannot see a global FL scale/mean error.
+- 35-image benchmark scorer `experiments/score_weights.py` feeds TRUE scale `:42` and recenters
+  predicted FL to truth mean `:54` -> structurally cannot see a global FL scale/mean error.
+- `benchmark_lab/honest_validate.py` (built 2026-06-15) removes the recenter and reports per-image vs
+  the 7-rater consensus + per-term human floor. With true scale: PA 0.1505 (floor 0.2445), MT 0.0840
+  (floor 0.0810), FL 0.5218 (floor 0.4026, over-reads +5.8 mm). EVEN un-blinded it did not predict the
+  LB: it ranked min_extrap_top3 best (FL 0.39) and that submission regressed to 0.49983. Different
+  distribution than test. Use for measurement-bug detection, not submission gating.
 - 19 hand labels are self-measured by the same geometry engine; reported FL bias ~-0.46 mm (~unbiased)
-  and did not surface the 0.025 FL win. `results/human_benchmark/target_scores.csv`,
-  `benchmark_lab/score_labels.py`.
+  and did not surface the 0.025 FL win. The only per-image TEST truth is the correction-UI labels.
 
 ## External reference points (recorded, not host-verified)
 
