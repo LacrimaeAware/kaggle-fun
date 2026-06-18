@@ -24,6 +24,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "agent"))
 import features as FT  # noqa: E402
+import search as S  # noqa: E402  (forward-model option_deltas: the consequence signal)
+import time
+
+DELTA_KEYS = ["prizes_taken", "opp_prizes_taken", "opp_ko", "dmg_dealt", "cards_drawn",
+              "energy_attached", "board_dev", "deck_used", "discard_gain", "ends_turn",
+              "wins_now", "loses_now"]
 
 CF = json.load(open(ROOT / "agent" / "card_features.json", encoding="utf-8"))
 CE = json.load(open(ROOT / "agent" / "card_effects.json", encoding="utf-8"))
@@ -123,6 +129,7 @@ def main():
     # pass 2: emit action-conditioned rows for winners playing the chosen deck
     rows = []
     gid = 0
+    t0 = time.time()
     for fp in files:
         try:
             d = json.load(open(fp, encoding="utf-8"))
@@ -155,12 +162,24 @@ def main():
                 root = FT.vectorize(FT.encode_state(obs))
             except Exception:
                 continue
+            # forward-model one-step consequence per option (shared determinization within the decision)
+            try:
+                deltas = S.option_deltas(obs, deck)
+            except Exception:
+                deltas = None
             for j, o in enumerate(opts):
                 if not isinstance(o, dict):
                     continue
                 af = option_features(o, cur, me)
-                rows.append({"gid": gid, "chosen": 1 if j == chosen_idx else 0, "root": root, **af})
+                dd = deltas[j] if (deltas and j < len(deltas) and deltas[j]) else {}
+                for k in DELTA_KEYS:
+                    af["d_" + k] = float(dd.get(k, 0.0))
+                af["has_delta"] = 1 if dd else 0
+                rows.append({"gid": gid, "chosen": 1 if j == chosen_idx else 0,
+                             "dev": 1 if chosen_idx != 0 else 0, "root": root, **af})
             gid += 1
+            if gid % 1000 == 0:
+                print(f"  [build] {gid} decisions, {len(rows)} rows, {time.time()-t0:.0f}s", flush=True)
     OUT.mkdir(parents=True, exist_ok=True)
     out = OUT / "action_imit.jsonl"
     with open(out, "w", encoding="utf-8") as fh:

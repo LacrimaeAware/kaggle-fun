@@ -13,13 +13,15 @@ Updated: 2026-06-18
   (root + action descriptor + card embedding + decoded effects + state x effect interactions +
   option_deltas) ranks SIBLING actions within a decision better than the hand evaluator, with a
   NON-CIRCULAR target, judged within-decision then by win-rate.
-- **Phase / status:** Phase 1 `offline-evaluated` (leaf-only data can't rank; centering doesn't fix it,
-  below option-0). Phase 2 `data-generated`: single deck = KanNinomiya (top by winner-decisions),
-  action-conditioned imitation dataset `data/replay_db/action_imit.jsonl` (96,561 option-rows /
-  11,628 winner-decisions; root + action descriptor + card_id + 11 decoded effects; target = the
-  winner's actual move, non-circular). Phase 4 `trained/training` (tools/train_action_ranker.py): torch
-  ranker = card EMBEDDING + effects + action + root -> listwise per decision, with no-embedding /
-  no-effects / no-root ablations. Awaiting offline within-decision metrics vs option-0.
+- **Phase / status:** A first sim-free run was a STATIC-IMITATION SMOKE TEST (not a ceiling): static
+  features only, evaluated over ALL decisions -> tied option-0 (0.549 vs 0.553). It skipped the two
+  things the plan requires: forward-model DELTAS and CRITICALITY/non-option-0 stratification. Now doing
+  the REAL Phase 2: `action_imit.jsonl` rebuilt WITH one-step option_deltas (prizes/KO/dmg/draw/board)
+  per option, and the ranker (tools/train_action_ranker.py) reports STRATIFIED top-1 (all / non-option-0
+  / high-criticality) with no-deltas / no-effects / no-embedding ablations. Training (Phase 4).
+- **LANGUAGE RULE (from the methodology reviews):** do NOT call a direction failed / a "ceiling" /
+  "the exact stack" until the experiment includes the consequence signal (forward-model deltas) and is
+  reported on the non-option-0 + high-criticality strata. Aggregate top-1 vs option-0 is not the headline.
 - **Exact next command:** Phase 2 -- build the proper ACTION-CONDITIONED dataset: rewrite
   `tools/datagen_actions.py` (or a v2) to log per option: root features + action descriptor (type,
   card/attack id, target, draws/tutors/evolves/attacks/ends, immediate KO/survival) + leaf features +
