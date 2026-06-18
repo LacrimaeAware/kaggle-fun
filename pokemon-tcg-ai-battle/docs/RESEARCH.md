@@ -84,8 +84,76 @@ RQ5. Neuro-symbolic / learned interpretable policies (idea 4): differentiable ru
 RQ6. Practical combination: ensembling a hand eval + learned value + policy prior at search
   leaves; value-as-prior PUCT; how to weight/trust options when evaluators agree vs disagree.
 
+## Research findings (2026-06-17 deep-research pass; 23/25 claims verified 2-3 votes)
+
+All sources are peer-reviewed / competition reports; NONE is on Pokemon TCG, so treat as
+strongly-motivated transfers, not proven-on-our-game. Confidence noted per item.
+
+- [HIGH, direct hit on our symptom] Monte-Carlo-outcome value targets CAUSE "good global AUC but
+  poor local sibling ranking": the self-play outcome target bakes in exploration, is biased, and
+  fails to rank greedy continuations. FIX = search-bootstrapped, off-policy targets: A0GB (back up
+  the value found by descending the MCTS tree GREEDILY by visit count to a leaf/terminal), or
+  soft-Z / A0C. All three trained faster and stronger than the MC target on Connect-Four /
+  Breakthrough. (Willemsen et al. 2022.) This is the single most-supported fix for our exact bug.
+- [HIGH] Imperfect-info workhorse = ENSEMBLE determinized MCTS (a tree per determinization,
+  aggregate by total visit count). Spend budget on MORE determinizations (~20-100), not deeper
+  per-tree (per-tree sweet spot 100-1000 sims). We average N_DETERM=4 -> go higher. (Cowling et
+  al. 2012, MtG.)
+- [HIGH, counterintuitive, bears on my recent change] A WEAKER, partly-random rollout policy makes
+  a STRONGER MCTS player than rollouts driven by the strong expert policy (expert rollouts rigidly
+  fix outcomes and bias the stats). Same as the classic Go result. So my "aggressive opponent
+  rollout" may not be optimal; TEST weaker/random rollouts. (Cowling 2012; Gelly & Silver 2007.)
+- [HIGH] Move decomposition: turn a compound multi-card move into a binary play-or-not tree per
+  card so MCTS accrues partial-decision stats; big speed+strength win; without it, extra budget is
+  wasted on a huge branching factor. Relevant if/when our action space has subset choices.
+- [HIGH] Representation: judge embeddings on GENERALIZATION / local discrimination, NOT in-sample
+  fit (~67% seen accuracy was flat across representations; unseen ranged 24%->43%). Continuous,
+  magnitude-aware, multi-attribute card vectors (numeric+categorical+card-TEXT embedding) beat
+  binary role tags for generalization. This confirms the draw-2 != draw-7 idea. (Bertram et al.
+  2024, MtG draft.)
+- [HIGH] TRAIN embeddings by outcome/decision-supervised CONTRASTIVE learning (triplet / InfoNCE),
+  NOT co-occurrence (which only rediscovers deck membership, as suspected). (Bertram 2024.)
+- [HIGH] Scale/RL viability: pure end-to-end RL (ByteRL, optimistic smooth fictitious play, NO
+  search) was SOTA on a short stochastic imperfect-info card game (Legends of Code & Magic) but is
+  EXPLOITABLE by a tailored opponent. Historical arc: forward-search agents won early LOCM; RL/NN
+  overtook later. So SEARCH is the stronger near-term bet; heavy RL pays off later. (Xi & Zhang
+  2023; Kowalski & Miernik 2023; Krupnik 2024.)
+- [HIGH, frontier, heavy] Principled hidden-info search with a learned value: ReBeL (search over
+  public belief states, value/policy trained by self-play + CFR, learned value as the search leaf
+  eval) and Player/Student of Games (unified search + self-play + GT-CFR). The template for
+  marrying our forward model with a learned value under hidden info, but expensive and 2-player
+  zero-sum. (Brown et al. 2020; Schmid et al. 2021/2023.)
+
+REFUTED (do not rely on): "training on internal tree nodes cuts self-play games needed" (1-2);
+"ByteRL beat champions by >20%" (0-3).
+UNANSWERED (needs a dedicated follow-up pass): the neuro-symbolic / learned-interpretable-heuristic
+direction (idea 4, the pseudo-linguistic rules) - NO verified claim surfaced; it remains
+speculative. Also unquantified: the self-play/compute budget for AlphaZero/ReBeL on a small-deck
+game, and the exact 3-way (hand+value+prior) ensemble recipe.
+
+## Implied plan (priority order, evidence-backed)
+
+1. COMBINE v1 (cheap, immediate, repeatedly requested): floor search with the clean heuristics
+   (always take a listed lethal; go first), and blend the leaf eval = hand_eval + lambda*value on
+   ONE [0,1] scale. Measure n>=800 with CIs vs hand search AND heuristic. (Our diagnosis + user.)
+2. VALUE-TARGET FIX (highest-leverage for the symptom): retrain the value on SEARCH-BOOTSTRAPPED
+   targets (greedy-backup / the search's own leaf value), and/or train a candidate-leaf ADVANTAGE
+   / RANKING model over sibling actions instead of a global state classifier. (Willemsen 2022;
+   sibling-ranking framing.)
+3. SEARCH KNOBS (cheap): raise N_DETERM (4 -> 20-40); TEST a weaker/random rollout vs the current
+   aggressive one. (Cowling 2012.)
+4. REPRESENTATION: continuous magnitude-aware card features + outcome-supervised contrastive
+   embeddings; evaluate on generalization, not in-sample AUC. (Bertram 2024.)
+5. EXPERT ITERATION loop: self-play with current-best -> search-bootstrapped targets -> retrain ->
+   repeat. Consider game-theoretic self-play (fictitious play) as an alternative to search-target
+   RL. ReBeL / Player-of-Games are the principled frontier if we go deep.
+6. FOLLOW-UP RESEARCH: the neuro-symbolic / pseudo-linguistic learned-heuristics idea (unanswered).
+
 ## Note for the next model
 
 The other model's MODEL_COMMUNICATION "Methodology cautions" are good and aligned (sibling-ranking
 vs global value, candidate-leaf data, magnitude collapse, outcome-supervised embeddings, belief
 model first, evaluate RL by head-to-head not AUC). Treat them as inputs, re-verify before relying.
+Full cited findings live in the deep-research output; key papers: Willemsen 2022 (value targets),
+Cowling 2012 (ensemble determinization + weak rollouts), Bertram 2024 (card embeddings), Brown
+2020 (ReBeL), Schmid 2021/2023 (Player/Student of Games), Xi & Zhang 2023 (ByteRL/LOCM).

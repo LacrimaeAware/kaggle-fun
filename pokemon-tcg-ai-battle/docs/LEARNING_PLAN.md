@@ -171,10 +171,24 @@ L2 v1 THE REAL LOOP built + robust (2026-06-17, registry H023/E008), on the CORR
   search (AlphaZero policy+value, bootstrapped targets) not 1-ply leaf scoring; complex decks. Ship
   agent_search (hand eval), NOT search_v.
 
-NEXT (cheaper untried variants before any rejection, per rule 6):
-- B1.1: use the HEURISTIC (main._choose), not engine-default order, as the rollout policy, and
-  always take a confirmed lethal. This should make search dominate the heuristic it can't yet beat.
-- B1.2: sample several determinizations per decision and average leaf evals (cut single-sample
-  variance); tune eval weights (eval.py constants) against the heuristic.
-- Then B2 (behavior-clone a net), Stage C (RL), Stage D (decks). H015 (heuristic-as-prior),
-  H004 (expectimax > heuristic), H008/H022 (archetype determinization) are the live questions.
+NEXT (priority order, now evidence-backed by the 2026-06-17 deep-research pass; full findings +
+citations in docs/RESEARCH.md):
+1. COMBINE v1: floor search with the clean heuristics (always take a listed lethal; go first) AND
+   blend leaf eval = hand_eval + lambda*value on ONE [0,1] scale. Measure n>=800 with CIs vs hand
+   search AND heuristic. (Cheapest test of the user's "combine them" + our local-ranking diagnosis.)
+2. VALUE-TARGET FIX (highest-leverage for the measured symptom): retrain the value on SEARCH-
+   BOOTSTRAPPED targets (greedy backup / the search's own leaf value), and/or a candidate-leaf
+   ADVANTAGE/RANKING model over sibling actions, not a global state classifier. (Willemsen 2022:
+   MC-outcome targets cause exactly our good-AUC/poor-ranking failure; off-policy bootstrapped
+   targets train faster + stronger.)
+3. SEARCH KNOBS (cheap): raise N_DETERM 4 -> 20-40 (spend budget on breadth, not depth); TEST a
+   weaker/random rollout vs the current aggressive one (weak rollouts beat strong-expert rollouts:
+   Cowling 2012, Gelly-Silver 2007).
+4. REPRESENTATION: continuous magnitude-aware card features + outcome-supervised CONTRASTIVE
+   embeddings (draw-2 != draw-7); judge on generalization, not in-sample AUC (Bertram 2024).
+5. EXPERT ITERATION: self-play with current-best -> search-bootstrapped targets -> retrain ->
+   repeat. Game-theoretic self-play (fictitious play, ByteRL) is an alternative; ReBeL /
+   Player-of-Games are the principled hidden-info frontier. Evaluate RL by head-to-head, not AUC.
+6. FOLLOW-UP RESEARCH: neuro-symbolic / pseudo-linguistic learned heuristics (idea 4) is unanswered.
+Live registry questions: H015 (heuristic-as-prior), H004 (expectimax > heuristic), H022 (archetype
+determinization), H023 (learned value).
