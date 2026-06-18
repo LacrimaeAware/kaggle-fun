@@ -5,7 +5,7 @@ Updated: 2026-06-18
 - **Branch:** claude/optimistic-proskuriakova-8800d3
 - **Strongest agent:** `agent_search` (1-ply forward search + hand leaf eval, N_DETERM=8). Nothing beats
   it. It is the submission default and the baseline every learned thing must beat. Anchor this turn:
-  search 0.75 vs heuristic (n=20, harness sound).
+  search 0.833 vs heuristic (50-10, n=60, harness sound).
 - **Agents (arena keys in cabt_arena.AGENTS):** random, first, heuristic, search (STRONGEST), search2
   (2-ply, loses), search_v / combine / eff (all lose), `rank` (distilled net, loses), `rankh` (net on
   strategic decisions only, loses). See the distillation result below.
@@ -40,7 +40,8 @@ embedding now has 16 cards (see the fixed feature bug below).
 
 **Arena (the payoff test) -> it FAILS.** Deployed via `agent/ranker.py` (torch-free numpy, instant):
 `agent_rank` (net everywhere) 0.117 vs heuristic / 0.233 vs first; `agent_rank_hybrid` (net on strategic
-decisions only, heuristic else) 0.150 vs heuristic / 0.200 vs first. Both BELOW option-0.
+decisions only, heuristic else) 0.150 vs heuristic / 0.200 vs first. Both BELOW option-0 (anchor:
+search 0.833 vs heuristic, 50-10).
 **VERIFIED this is NOT an inference bug** -- ranker.predict's features match the trainer's exactly (max
 abs diff 0.0 over 285 options, 0 card_id mismatches). Cause: covariate shift + imperfect per-decision
 fidelity -- ~0.5 distill top-1 does not compound into a policy, and self-play drifts off the training
