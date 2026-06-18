@@ -6,7 +6,32 @@ into a decision or a result, MOVE it into the permanent home (docs/LEARNING_PLAN
 registry for hypotheses/results, AGENTS.md/conventions for rules) and delete it here. Do not let
 this become a second source of truth.
 
-## Where we are (2026-06-17)
+## CURRENT RESULTS (2026-06-18) — read first, baseline named in every row
+
+Local cabt, same deck both sides (now DENPA92's), seats swapped. Small-n directional reads.
+
+| matchup (A vs B) | A win-rate | n | read |
+| --- | --- | --- | --- |
+| heuristic vs random | 0.835 | 200 | heuristic = KO/energy rules, no search |
+| agent_search vs first_agent | 0.585 | 800 | search beats the contest baseline opponent |
+| combine vs heuristic | 0.831 | 160 | combine = search + hand/learned blend leaf; mostly the SEARCH |
+| combine vs agent_search | 0.37 | 60 | blend leaf WORSE than hand leaf -> do not submit combine |
+| search vs heuristic | (rerunning) | 50 | attribution for the combine result |
+| search_v vs search | (rerunning) | 50 | learned-value-leaf vs hand-leaf search |
+
+Imitation diagnostics (predict the winner's option; top-1; baseline = chose-option-0):
+- Gate 1 static-feature listwise: mixed 0.327 vs option-0 0.435 -> below.
+- Gate 2 action-delta listwise: mixed 0.354 vs option-0 0.435 -> below; top-3 mixed 0.670 (signal present).
+- Imitation top-1 is dominated by engine option-ordering; it is a probe, not the deciding metric.
+
+STATUS: `agent_search` (hand-eval 1-ply) is the best local agent. The learned VALUE at the search leaf
+is worse than the hand leaf (combine, search_v). Win-rate vs `agent_search` is the deciding gate, not
+imitation. NEXT: clean determinization/time-budget issues (audit), then 2-ply/expectimax search;
+learned path continues as a gated action-ranker (card-effect + delta features) used as a search
+prior/tie-breaker, promoted only if it beats `agent_search` on win-rate. Decks: DENPA92's adopted
+(8 basics, fixes the mulligan-prone old 6-basic deck).
+
+## Where we are (2026-06-17, superseded by the table above)
 
 - Strongest agent = `agent_search` (forward search + hand eval): 0.585 vs first, 0.543 vs heuristic.
 - `agent_search_v` (search + learned gradient-boosted-tree value, AUC 0.735) LOSES: 0.427 vs the
