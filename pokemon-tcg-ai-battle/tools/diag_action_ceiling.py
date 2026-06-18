@@ -78,7 +78,7 @@ def option_features(o, cur, me, levels):
         opp = 1 - me  # two-player
         oa = ((cur.get("players") or [{}, {}])[opp]).get("active") or [None]
         oa = oa[0] if oa else None
-        opp_hp_left = (float(oa.get("hp", 0) or 0) - float(oa.get("damage", 0) or 0)) if isinstance(oa, dict) else 0.0
+        opp_hp_left = float(oa.get("hp", 0) or 0) if isinstance(oa, dict) else 0.0   # api.py: hp is CURRENT HP
         dmg = float(ATK.get(str(o.get("attackId")), {}).get("d", 0) or 0) if t == 13 else 0.0
         f["opp_active_hp_left"] = opp_hp_left
         f["ko_opp"] = 1.0 if (dmg > 0 and opp_hp_left > 0 and dmg >= opp_hp_left) else 0.0

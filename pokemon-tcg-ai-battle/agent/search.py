@@ -295,6 +295,116 @@ def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", w
     return val
 
 
+def _snapshot(cur: dict, me: int) -> dict:
+    """Public, perspective-stable scalars of the board from MY fixed seat (counts + opp-active HP are
+    visible in either player's view, so this is robust to whose turn the post-option obs belongs to)."""
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return {}
+    P, O = players[me], players[1 - me]
+
+    def slots(p):
+        return ([(p.get("active") or [None])[0]] + list(p.get("bench") or []))
+
+    def n_inplay(p):
+        return sum(1 for s in slots(p) if s)
+
+    def attached(p):
+        return sum(len(s.get("energyCards") or []) for s in slots(p) if s)
+
+    oa = (O.get("active") or [None])
+    oa = oa[0] if oa else None
+    opp_hp_left = float(oa.get("hp", 0) or 0) if isinstance(oa, dict) else 0.0   # api.py: hp is CURRENT HP
+    return {
+        "my_prize": len(P.get("prize") or []),
+        "opp_prize": len(O.get("prize") or []),
+        "my_hand": P.get("handCount", len(P.get("hand") or [])) or 0,
+        "my_attached": attached(P),
+        "my_inplay": n_inplay(P),
+        "opp_inplay": n_inplay(O),
+        "opp_hp_left": opp_hp_left,
+        "my_deck": P.get("deckCount", 0) or 0,
+        "my_discard": len(P.get("discard") or []),
+        "result": cur.get("result", -1),
+        "your_turn": 1.0 if cur.get("yourIndex") == me else 0.0,
+    }
+
+
+def _delta(base: dict, snap: dict, me: int) -> dict:
+    """Consequence of ONE option = post-option snapshot minus root snapshot, from my seat."""
+    return {
+        "prizes_taken": base["my_prize"] - snap["my_prize"],            # KO -> I take a prize
+        "opp_prizes_taken": base["opp_prize"] - snap["opp_prize"],      # I let opp take prizes (bad)
+        "opp_ko": 1.0 if snap["opp_inplay"] < base["opp_inplay"] else 0.0,
+        "dmg_dealt": max(0.0, base["opp_hp_left"] - snap["opp_hp_left"]),   # opp active HP dropped
+
+        "cards_drawn": snap["my_hand"] - base["my_hand"],
+        "energy_attached": snap["my_attached"] - base["my_attached"],
+        "board_dev": snap["my_inplay"] - base["my_inplay"],
+        "deck_used": base["my_deck"] - snap["my_deck"],
+        "discard_gain": snap["my_discard"] - base["my_discard"],
+        "ends_turn": 1.0 - snap["your_turn"],
+        "wins_now": 1.0 if snap["result"] == me else 0.0,
+        "loses_now": 1.0 if snap["result"] == (1 - me) else 0.0,
+    }
+
+
+def option_deltas(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET):
+    """For one single-pick decision, return per option a dict of FORWARD-MODEL CONSEQUENCE features:
+    apply ONLY that option one ply (no rollout) and diff the resulting public board against the root.
+    Captures what the move DID (prizes taken, KO, damage, cards drawn, energy attached, board dev) --
+    the action-level signal static state features structurally cannot encode. Returns a list indexed
+    by option (None where the step failed), or None if search/sim does not apply. Never raises."""
+    A = _api()
+    if A is None:
+        return None
+    sel, cur = obs.get("select"), obs.get("current")
+    if not sel or not cur or (sel.get("maxCount") or 0) != 1 or len(sel.get("option") or []) < 2:
+        return None
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return None
+    me = cur.get("yourIndex", 0)
+    P, O = players[me], players[1 - me]
+    oa = O.get("active") or []
+    if oa and oa[0] is None:
+        return None
+    base = _snapshot(cur, me)
+    if not base:
+        return None
+    n_my_deck, n_op_deck = P.get("deckCount", 0) or 0, O.get("deckCount", 0) or 0
+    n_my_prize, n_op_prize = len(P.get("prize") or []), len(O.get("prize") or [])
+    n_op_hand = O.get("handCount", 0) or 0
+    obsd = A.to_observation_class(obs)
+    mp = _hidden_pool(deck, P, exclude_hand=False); mp += [3] * max(0, (n_my_deck + n_my_prize) - len(mp))
+    op = _hidden_pool(deck, O, exclude_hand=True); op += [3] * max(0, (n_op_deck + n_op_prize + n_op_hand) - len(op))
+    try:
+        root = A.search_begin(obsd, your_deck=mp[:n_my_deck], your_prize=mp[n_my_deck:n_my_deck + n_my_prize],
+                              opponent_deck=op[n_op_hand + n_op_prize:n_op_hand + n_op_prize + n_op_deck],
+                              opponent_prize=op[n_op_hand:n_op_hand + n_op_prize], opponent_hand=op[:n_op_hand],
+                              opponent_active=[])
+    except Exception:
+        return None
+    nn = len(root.observation.select.option)
+    out = [None] * nn
+    try:
+        for i in range(nn):
+            try:
+                st = A.search_step(root.searchId, [i])
+                post = _obs_dict(st.observation).get("current") or {}
+                snap = _snapshot(post, me)
+                if snap:
+                    out[i] = _delta(base, snap, me)
+            except Exception:
+                continue
+    finally:
+        try:
+            A.search_end()
+        except Exception:
+            pass
+    return out if any(o is not None for o in out) else None
+
+
 def option_evals(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
     """For one single-pick decision, return per legal option (mean_leaf_value, mean_leaf_features)
     over N_DETERM determinizations -- the CANDIDATE-ACTION data the action-ranking model trains on
