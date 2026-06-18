@@ -15,7 +15,11 @@ The weights are named constants so Gate A can tune them without touching the str
 """
 from __future__ import annotations
 
+import math
+
 WIN, LOSS = 1_000_000.0, -1_000_000.0
+BLEND_LAMBDA = 0.4    # weight of the learned value in the blended leaf eval (hand gets 1-lambda)
+BLEND_SCALE = 2000.0  # squash scale: maps the hand score (prize-dominated) into (0,1)
 W_PRIZE = 1000.0      # prizes win the game -> dominates
 W_HP = 1.0            # damage race (hp is 0..340-ish)
 W_BODY = 30.0         # board presence; a KO costs the opponent a body
@@ -98,3 +102,29 @@ def evaluate_learned(obs: dict, me: int) -> float:
     if cur.get("yourIndex", me) != me:        # value is from the to-move side; flip if not me
         p = 1.0 - p
     return p
+
+
+def _sigmoid(x: float) -> float:
+    if x <= -60:
+        return 0.0
+    if x >= 60:
+        return 1.0
+    return 1.0 / (1.0 + math.exp(-x))
+
+
+def evaluate_blend(obs: dict, me: int, lam: float = BLEND_LAMBDA) -> float:
+    """Combine the hand eval (sharp LOCAL ranking of nearby leaves) with the learned value
+    (global positional judgment) on ONE [0,1] scale: (1-lam)*sigmoid(hand) + lam*P(win).
+    Terminal states map to 1/0/0.5 so they stay comparable. Falls back to the squashed hand
+    eval alone if no learned weights are present."""
+    cur = obs.get("current") or {}
+    t = _terminal(cur, me)
+    if t is not None:
+        return 1.0 if t == WIN else (0.0 if t == LOSS else 0.5)
+    hand01 = _sigmoid(evaluate(cur, me) / BLEND_SCALE)
+    p = VM.score_obs(obs)
+    if p is None:
+        return hand01
+    if cur.get("yourIndex", me) != me:
+        p = 1.0 - p
+    return (1.0 - lam) * hand01 + lam * p

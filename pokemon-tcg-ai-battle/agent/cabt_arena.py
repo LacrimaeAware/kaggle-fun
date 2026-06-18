@@ -43,6 +43,7 @@ AGENTS = {
     "heuristic": agent_mod.agent,
     "search": agent_mod.agent_search,
     "search_v": agent_mod.agent_search_v,
+    "combine": agent_mod.agent_combine,
 }
 
 

@@ -140,7 +140,7 @@ def _hidden_pool(deck: list, player: dict, exclude_hand: bool) -> list:
     return pool
 
 
-def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, use_learned: bool = False):
+def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
     A = _api()
     if A is None:
         return None
@@ -207,7 +207,7 @@ def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, use_
                 if time.time() - t0 > time_budget:
                     break
                 try:
-                    v = _simulate(A, root.searchId, i, me, use_learned)
+                    v = _simulate(A, root.searchId, i, me, leaf_mode)
                 except Exception:
                     continue
                 sums[i] += v
@@ -229,14 +229,15 @@ def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, use_
     return [best_i] if best_i is not None else None
 
 
-def _simulate(A, root_id, first_choice: int, me: int, use_learned: bool) -> float:
+def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand") -> float:
     """Take `first_choice`, then play out my turn AND the opponent's reply with the engine
     default policy, and evaluate the state at the start of my next turn (so the score reflects
     the opponent's punish, not just how my board looks before they answer).
 
-    The learned value is only queried on a CLEAN leaf (a non-terminal start-of-my-turn state with
-    a real select), which is the state class it was trained on; degenerate exits (sel is None,
-    depth cap, opponent to move) fall back to the seat-absolute hand eval."""
+    leaf_mode: "hand" -> seat-absolute hand eval (its own scale, terminal +/-1e6).
+               "learned"/"blend" -> a [0,1] scale (terminals 1/0/0.5) so the determinization
+               average is a real mean; the learned/blended value is only queried on a CLEAN
+               non-terminal start-of-my-turn leaf (its training distribution), else neutral 0.5."""
     st = A.search_step(root_id, [first_choice])
     saw_opp = False
     for _ in range(DEPTH_CAP):
@@ -256,15 +257,16 @@ def _simulate(A, root_id, first_choice: int, me: int, use_learned: bool) -> floa
     obs = _obs_dict(st.observation)
     cur = obs.get("current") or {}
     res = cur.get("result", -1)
-    if use_learned:
-        # keep EVERY leaf on one [0,1] scale so the determinization average is a real mean P(win)
-        # (mixing terminal +/-1e6 hand-eval values into a P(win) argmax silently overrode the value)
-        if res == me:
-            return 1.0
-        if res == (1 - me):
-            return 0.0
-        if res == 2:
-            return 0.5
-        clean = (st.observation.select is not None) and cur.get("yourIndex") == me
-        return EV.evaluate_learned(obs, me) if clean else 0.5    # neutral on off-distribution leaves
-    return EV.evaluate_obs(obs, me)
+    if leaf_mode == "hand":
+        return EV.evaluate_obs(obs, me)
+    # learned / blend: one [0,1] scale
+    if res == me:
+        return 1.0
+    if res == (1 - me):
+        return 0.0
+    if res == 2:
+        return 0.5
+    clean = (st.observation.select is not None) and cur.get("yourIndex") == me
+    if not clean:
+        return 0.5                                      # neutral on off-distribution leaves
+    return EV.evaluate_blend(obs, me) if leaf_mode == "blend" else EV.evaluate_learned(obs, me)

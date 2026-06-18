@@ -138,29 +138,60 @@ def agent(obs: dict) -> list[int]:
         return list(range(min(max(k, 1), n))) if n else []
 
 
-def agent_search(obs: dict) -> list[int]:
-    """Forward-model search with the HAND leaf eval; heuristic elsewhere. Never raises."""
+def _forced_move(obs: dict):
+    """Clean, always-correct overrides to bake into search (no lookahead needed): take a listed
+    lethal/KO attack, or go first when offered. Returns [i] or None. (Energy-to-active is left to
+    search/heuristic since it is borderline and worth learning.)"""
+    sel = obs.get("select")
+    if not sel or (sel.get("maxCount") or 0) != 1:
+        return None
+    opts = sel.get("option") or []
+    if not opts:
+        return None
+    cur = obs.get("current") or {}
+    players = cur.get("players") or []
+    yi = cur.get("yourIndex", 0)
+    me = players[yi] if yi < len(players) else {}
+    opp = players[1 - yi] if len(players) > 1 else {}
+    attacks = [(i, o) for i, o in enumerate(opts) if o.get("type") == ATTACK]
+    if attacks:
+        i, o = max(attacks, key=lambda io: _attack_value(io[1], me, opp))
+        if _attack_value(o, me, opp) >= 8000:            # knockout / game-winning attack
+            return [i]
+    if sel.get("context") == IS_FIRST_CTX:               # go first
+        for i, o in enumerate(opts):
+            if o.get("type") == YES:
+                return [i]
+    return None
+
+
+def _agent_search(obs: dict, leaf_mode: str) -> list[int]:
     try:
         if obs.get("select") is None:
             return list(DECK)
+        mv = _forced_move(obs)                            # bake in the clean heuristics first
+        if mv is not None:
+            return mv
         import search
-        mv = search.best_option(obs, DECK, use_learned=False)
+        mv = search.best_option(obs, DECK, leaf_mode=leaf_mode)
         if mv is not None:
             return mv
     except Exception:
         pass
     return agent(obs)
+
+
+def agent_search(obs: dict) -> list[int]:
+    """Forward-model search with the HAND leaf eval; heuristic floor + fallback. Never raises."""
+    return _agent_search(obs, "hand")
 
 
 def agent_search_v(obs: dict) -> list[int]:
-    """Forward-model search with the LEARNED value at the leaves (L2); heuristic elsewhere."""
-    try:
-        if obs.get("select") is None:
-            return list(DECK)
-        import search
-        mv = search.best_option(obs, DECK, use_learned=True)
-        if mv is not None:
-            return mv
-    except Exception:
-        pass
-    return agent(obs)
+    """Forward-model search with the LEARNED value at the leaves (L2); heuristic floor + fallback."""
+    return _agent_search(obs, "learned")
+
+
+def agent_combine(obs: dict) -> list[int]:
+    """Combine v1: clean heuristic floor + forward-model search with the BLENDED leaf eval
+    (hand eval for local ranking + learned value for global judgment). Never raises."""
+    return _agent_search(obs, "blend")
