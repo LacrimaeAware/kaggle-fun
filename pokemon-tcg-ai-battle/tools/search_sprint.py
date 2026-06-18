@@ -76,12 +76,51 @@ def mk_meta_opp(meta):
     return ag
 
 
-def mk_cont(policy):
-    """agent_search with MY_CONT = policy (the my-turn rollout continuation; opponent stays aggressive)."""
+# Praxel (leaderboard #1 as of 2026-06-18): Mega Lucario ex Fighting deck (10 basics, 13 energy).
+PRAXEL_DECK = ([6] * 13 + [678] * 4 + [1102] * 4 + [1141] * 4 + [1142] * 4 + [1152] * 4 + [1192] * 4 +
+               [1227] * 4 + [676] * 3 + [677] * 3 + [673] * 2 + [674] * 2 + [675] * 2 + [1123] * 2 +
+               [1182] * 2 + [1252] * 2 + [1159])
+
+
+def mk_deck(deck):
+    """Our search piloting an arbitrary deck (deck-select returns `deck`; decisions use best_option)."""
+    def ag(obs):
+        if obs.get("select") is None:
+            return list(deck)
+        try:
+            mv = M._forced_move(obs)
+            if mv is not None:
+                return mv
+            mv = S.best_option(obs, deck)
+            if mv is not None:
+                return mv
+        except Exception:
+            pass
+        return M.agent(obs)
+    return ag
+
+
+def mk_cont(policy, determ=None, budget=None):
+    """agent_search with MY_CONT = policy. determ/budget (when set) FIX the determinization count and use
+    a generous time cap so both arms complete the SAME number of worlds -- isolating continuation QUALITY
+    from setup's slower (fewer-worlds-under-the-cap) rollout. None = the real-budget agent_search."""
     def ag(obs):
         if obs.get("select") is None:
             return list(M.DECK)
         S.MY_CONT = policy
+        if determ is not None:
+            S.N_DETERM = determ
+        if budget is not None:
+            try:
+                mv = M._forced_move(obs)
+                if mv is not None:
+                    return mv
+                mv = S.best_option(obs, M.DECK, time_budget=budget)
+                if mv is not None:
+                    return mv
+            except Exception:
+                pass
+            return M.agent(obs)
         return M.agent_search(obs)
     return ag
 
@@ -97,7 +136,7 @@ def ab(label, a, b, games, progress):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("experiment", choices=["determ", "belief", "continuation"])
+    ap.add_argument("experiment", choices=["determ", "belief", "continuation", "cont-clean", "deck"])
     ap.add_argument("--games", type=int, default=40)
     ap.add_argument("--progress", type=int, default=10)
     args = ap.parse_args()
@@ -124,6 +163,21 @@ def main():
         ab("setup vs aggro (A=setup)", mk_cont("setup"), mk_cont("aggro"), args.games, args.progress)
         print("\nRead: if setup's Wilson lower bound > 0.5 it finishes my turn more realistically -> set\n"
               "agent/search.py MY_CONT='setup'; if it loses, the aggressive finish was already fine.", flush=True)
+    elif args.experiment == "cont-clean":
+        print(f"continuation QUALITY A/B, determinization count FIXED at 4 (generous 10s cap so both arms\n"
+              f"complete all 4 worlds) -- isolates continuation quality from setup's slower rollout.\n"
+              f"setup vs aggro, head-to-head, {args.games} games.\n", flush=True)
+        ab("setup vs aggro @ fixed N=4 (A=setup)", mk_cont("setup", 4, 10.0), mk_cont("aggro", 4, 10.0),
+           args.games, args.progress)
+        print("\nRead: this removes the determinization-budget confound. If setup still leads, the develop-\n"
+              "first continuation is genuinely better and worth adopting (then address its match-time cost).", flush=True)
+    elif args.experiment == "deck":
+        print(f"DECK A/B: our SAME search piloting Praxel's Mega-Lucario-ex deck (leaderboard #1) vs our\n"
+              f"DENPA92 deck, head-to-head, {args.games} games. Tests whether adopting the #1 deck (under\n"
+              f"OUR search) is better -- deck swaps have moved our LB score the most.\n", flush=True)
+        ab("Praxel-deck vs DENPA92 (A=Praxel)", mk_deck(PRAXEL_DECK), mk_deck(M.DECK), args.games, args.progress)
+        print("\nRead: if Praxel-deck's Wilson lower bound > 0.5, our search plays it better -> swap DECK and\n"
+              "submit. (Deck value is policy-coupled; this is our-search-on-both, the relevant comparison.)", flush=True)
 
 
 if __name__ == "__main__":
