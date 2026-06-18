@@ -29,6 +29,7 @@ import time
 from collections import Counter
 
 import eval as EV
+import features as FT
 
 DEPTH_CAP = 80            # max sub-decisions to roll out my turn + the opponent's reply
 DEFAULT_BUDGET = 0.6      # seconds/decision hard cap (measured need ~0.14s max; bounds match-time forfeit risk)
@@ -246,7 +247,7 @@ def best_option_value(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET
     return ([i] if i is not None else None), v
 
 
-def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand") -> float:
+def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", want_features: bool = False):
     """Take `first_choice`, then play out my turn AND the opponent's reply with the engine
     default policy, and evaluate the state at the start of my next turn (so the score reflects
     the opponent's punish, not just how my board looks before they answer).
@@ -275,15 +276,87 @@ def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand") -
     cur = obs.get("current") or {}
     res = cur.get("result", -1)
     if leaf_mode == "hand":
-        return EV.evaluate_obs(obs, me)
-    # learned / blend: one [0,1] scale
-    if res == me:
-        return 1.0
-    if res == (1 - me):
-        return 0.0
-    if res == 2:
-        return 0.5
-    clean = (st.observation.select is not None) and cur.get("yourIndex") == me
-    if not clean:
-        return 0.5                                      # neutral on off-distribution leaves
-    return EV.evaluate_blend(obs, me) if leaf_mode == "blend" else EV.evaluate_learned(obs, me)
+        val = EV.evaluate_obs(obs, me)
+    elif res == me:
+        val = 1.0
+    elif res == (1 - me):
+        val = 0.0
+    elif res == 2:
+        val = 0.5
+    else:
+        clean = (st.observation.select is not None) and cur.get("yourIndex") == me
+        val = (EV.evaluate_blend(obs, me) if leaf_mode == "blend"
+               else EV.evaluate_learned(obs, me)) if clean else 0.5   # neutral off-distribution
+    if want_features:                                   # data-gen path: also return the leaf features
+        try:
+            return val, FT.vectorize(FT.encode_state(obs))
+        except Exception:
+            return val, None
+    return val
+
+
+def option_evals(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+    """For one single-pick decision, return per legal option (mean_leaf_value, mean_leaf_features)
+    over N_DETERM determinizations -- the CANDIDATE-ACTION data the action-ranking model trains on
+    (sibling leaves of the same decision). Returns None if search does not apply."""
+    A = _api()
+    if A is None:
+        return None
+    sel, cur = obs.get("select"), obs.get("current")
+    if not sel or not cur or (sel.get("maxCount") or 0) != 1 or len(sel.get("option") or []) < 2:
+        return None
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return None
+    me = cur.get("yourIndex", 0)
+    P, O = players[me], players[1 - me]
+    oa = O.get("active") or []
+    if oa and oa[0] is None:
+        return None
+    n_my_deck, n_op_deck = P.get("deckCount", 0) or 0, O.get("deckCount", 0) or 0
+    n_my_prize, n_op_prize = len(P.get("prize") or []), len(O.get("prize") or [])
+    n_op_hand = O.get("handCount", 0) or 0
+    obsd = A.to_observation_class(obs)
+    vsum = fsum = counts = None
+    t0 = time.time()
+    for _ in range(N_DETERM):
+        if time.time() - t0 > time_budget:
+            break
+        mp = _hidden_pool(deck, P, exclude_hand=False); mp += [3] * max(0, (n_my_deck + n_my_prize) - len(mp))
+        op = _hidden_pool(deck, O, exclude_hand=True); op += [3] * max(0, (n_op_deck + n_op_prize + n_op_hand) - len(op))
+        try:
+            root = A.search_begin(obsd, your_deck=mp[:n_my_deck], your_prize=mp[n_my_deck:n_my_deck + n_my_prize],
+                                  opponent_deck=op[n_op_hand + n_op_prize:n_op_hand + n_op_prize + n_op_deck],
+                                  opponent_prize=op[n_op_hand:n_op_hand + n_op_prize], opponent_hand=op[:n_op_hand],
+                                  opponent_active=[])
+        except Exception:
+            continue
+        nn = len(root.observation.select.option)
+        if vsum is None:
+            vsum, counts = [0.0] * nn, [0] * nn
+            fsum = [None] * nn
+        try:
+            for i in range(min(len(vsum), nn)):
+                if time.time() - t0 > time_budget:
+                    break
+                try:
+                    v, fv = _simulate(A, root.searchId, i, me, leaf_mode, want_features=True)
+                except Exception:
+                    continue
+                if fv is None:
+                    continue
+                vsum[i] += v
+                counts[i] += 1
+                fsum[i] = fv if fsum[i] is None else [a + b for a, b in zip(fsum[i], fv)]
+        finally:
+            try:
+                A.search_end()
+            except Exception:
+                pass
+    if not vsum or not any(counts):
+        return None
+    out = [None] * len(vsum)                            # indexed by option; None = not simulated
+    for i in range(len(vsum)):
+        if counts[i] > 0 and fsum[i] is not None:
+            out[i] = (vsum[i] / counts[i], [x / counts[i] for x in fsum[i]])
+    return out if any(o is not None for o in out) else None
