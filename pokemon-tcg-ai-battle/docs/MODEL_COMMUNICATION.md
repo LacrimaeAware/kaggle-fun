@@ -19,18 +19,18 @@ prior model calling something "fixed" or "fine" has been wrong before.
   Verified the engine accepts empty zones and arena runs error-free. RE-VERIFY.
 - features.py Team Rocket Energy (11) = full wildcard: VERIFIED REAL (api.py: TEAM_ROCKET =
   Psychic/Darkness, not all types; Rainbow=10 is the true wildcard). No impact on the current
-  Mega-Abomasnow deck (no TR energy); FIX-PENDING and a PREREQUISITE before any TR-energy deck.
+  Dudunsparce/Alakazam deck (no TR energy); FIX-PENDING and a PREREQUISITE before any TR-energy deck.
 - search.py determinization does not strip the public `current.stadium`: VERIFIED REAL,
   FIX-PENDING (low impact unless a Stadium is in play; fix when next touching determinization).
-- main.py default-submitted policy: OUTDATED/CORRECTED. The file now defines `agent_search_v`
-  LAST, so by the Kaggle last-callable rule the WEAKEST agent would ship. Must pin `agent_search`
-  (the strongest, see below) before any submission. See agent/README.md packaging note.
+- main.py default-submitted policy: the file now defines `agent_eff` LAST, so a DIRECT last-callable
+  load of main.py would pick agent_eff. This does not affect submissions: `tools/build_submission.sh`
+  wraps a chosen agent explicitly (sub_search delegates to agent_search), so the shipped policy is
+  pinned regardless of definition order. agent_search is the strongest; submit that.
 - per-decision time budget: PARTIALLY ADDRESSED (lowered to 0.6s; measured max ~0.14s). Still
   does NOT read `remainingOverageTime`; do not promote search to default until match-time
   semantics are settled or a budget governor is added.
-- train_value.py needs sklearn while requirements.txt lists only kaggle-environments: VERIFIED
-  (sklearn IS importable in the repo .venv, training works; INFERENCE is sklearn-free, exported
-  GBM verified bit-exact vs sklearn). FIX-PENDING: add sklearn+numpy to requirements for repro.
+- train_value.py needs sklearn: RESOLVED. requirements.txt now pins scikit-learn + numpy (training
+  deps); INFERENCE (agent/value_model.py) is sklearn-free, exported GBM verified bit-exact vs sklearn.
 - submission/ is a stale type-14 baseline: VERIFIED REAL. Do not ship it.
 - legacy tags wall_tank/disruption: NEEDS-VERIFICATION. The CORRECTED classifier (1267 audited)
   does emit `wall_tank` (seen in the rebuild), so it may now be a sanctioned class; confirm
@@ -49,10 +49,8 @@ prior model calling something "fixed" or "fine" has been wrong before.
 
 ## Current concrete issues to keep in view
 
-- `agent/search.py` still contains the hidden-zone fallback pattern `zone or [3]` when calling
-  `search_begin`. This can inject a fake Water Energy into an actually empty hidden zone.
-  Official `cg/api.py` says the predicted hidden-zone lists must match the hidden-zone counts.
-  Empty zones should stay empty.
+- (RESOLVED) `agent/search.py` no longer uses the `zone or [3]` fallback; empty hidden zones are
+  passed as `[]` to `search_begin` (the api requires zone lengths to match the hidden-zone counts).
 - `tools/build_stats.py` attributes `LogType.PLAY` events to the observation owner index rather
   than `log.playerIndex`, and can double-count repeated logs across observations. Replay-derived
   played-card stats are therefore not trustworthy yet.
@@ -62,9 +60,9 @@ prior model calling something "fixed" or "fine" has been wrong before.
 - `tools/ingest_labels.py` filters imported tags against `review_server.TAXONOMY` only. User-added
   taxonomy classes saved in `card_review.json` can be dropped on re-ingest unless the saved
   taxonomy is merged into the accepted tag set.
-- `agent/main.py` exports the conservative heuristic as `agent`. `agent_search` and
-  `agent_search_v` exist, but are not the default submitted policy unless packaging or naming is
-  changed deliberately.
+- `agent/main.py` defines six agents: agent (heuristic), agent_search, agent_search2, agent_search_v,
+  agent_combine, agent_eff. The submitted policy is pinned by `tools/build_submission.sh` (it wraps a
+  chosen agent explicitly), not by which agent is defined last.
 - Search currently uses a fixed per-decision budget and does not adapt to `remainingOverageTime`.
   Do not promote it to the default submitted policy until the match/per-move time semantics are
   settled or a budget governor is added.

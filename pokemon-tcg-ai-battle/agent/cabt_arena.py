@@ -45,6 +45,7 @@ AGENTS = {
     "search2": agent_mod.agent_search2,
     "search_v": agent_mod.agent_search_v,
     "combine": agent_mod.agent_combine,
+    "eff": agent_mod.agent_eff,
 }
 
 

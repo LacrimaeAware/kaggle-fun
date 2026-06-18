@@ -1,0 +1,121 @@
+Overview
+
+This Strategy Category competition aims to explore methods for enhancing the performance of AI Training Agents with the Pokémon Trading Card Game (TCG). Participants are invited to share the ideas and approaches behind their AI Training Agents, focusing on systems where dynamic gameplay conditions are key factors for success.
+
+Start
+2 days ago
+
+Close
+3 months to go
+Merger & Entry
+Description
+
+Note: Participation in the Simulation Category of the Pokémon TCG AI Battle Challenge is required to enter this Strategy Category competition. Participants must enter in both the Simulation Category and Strategy Category for a complete submission. Please refer to the Competition page for full details.
+
+The Pokémon Trading Card Game is a strategic game where players may face many strategic considerations. The Strategy Category competition runs alongside the Simulation Category competition and focuses on analyzing, explaining, and documenting the systems and strategies developed for battle.
+
+While the Simulation Category competition evaluates an AI Training Agent’s win rate and performance, the Strategy Category competition evaluates the participant’s strategic logic behind its AI Training Agent. Why was a particular strategy chosen? What hypotheses were tested? How does the design reflect an understanding of the game’s mechanics and structure?
+
+Building AI Training Agents for a card game requires more considerations than just optimization. Participants will need to consider intentional deck construction, various strategies, strength across matchups, and the ability to keep winning. In this Strategy Category competition, participants are expected to clearly communicate these elements in a way that others can understand and learn from.
+
+High leaderboard ranking may provide an advantage in performance scoring, but it does not guarantee a strong result in the Strategy Category. Participants in middle or lower tiers of the competition can still achieve high overall scores through deep analysis, originality, and well-structured reporting.
+
+This Strategy Category competition exists to analyze, to structure, and to share the insights behind the Pokémon TCG AI Battle Challenge submissions. By sharing the reasoning behind their approach, participants contribute to a deeper understanding of strategic learning when dealing with unknowns.
+Timeline
+
+    June 16, 2026 11:00 am UTC - Start Date
+
+    September 6, 2026 - Entry Deadline. You must accept the competition rules before this date in order to compete.
+
+    September 6, 2026 - Team Merger Deadline. This is the last day participants may join or merge teams.
+
+    September 13, 2026 - Final Submission Deadline.
+
+    September 14, 2026 - October 11, 2026 - Judging Period*
+
+    TBD - Anticipated Results Announcement.
+
+*Note - Judging period subject to change based on the number of submissions received
+
+All deadlines are at 11:59 PM UTC on the corresponding day unless otherwise noted. The competition organizers reserve the right to update the contest timeline if they deem it necessary.
+Submission Requirements
+
+A valid submission must contain the following:
+
+    Kaggle Writeup
+        Media Gallery
+
+Your final Submission must be made prior to the deadline. Any un-submitted or draft Writeups by the competition deadline will not be considered by the Judges.
+
+To create a new Writeup, click on the "New Writeup" button here After you have saved your Writeup, you should see a "Submit" button in the top right corner.
+
+Note: If you attach a private Kaggle Resource to your public Kaggle Writeup, your private Resource will automatically be made public after the deadline.
+1. Kaggle Writeup
+
+The Kaggle Writeup serves as your project report. This should include a title, subtitle, and a detailed analysis of your submission. You must select a Track for your Writeup in order to submit.
+
+Your Writeup should not exceed 2000 words. Submissions over this limit may be subject to penalty.
+
+The below assets must be attached to the Writeup to be eligible. Other assets may optionally be attached like code repositories, Kaggle notebooks, or external links.
+a. Media Gallery
+
+This is where you should attach any images and/or videos associated with your submission. Ensure all content aligns with the license agreement noted in the Competition Rules.
+
+Submissions containing images that violate the license granted for Pokémon Elements will not be evaluated and are subject to disqualification.
+Evaluation
+Category 	Description 	Weight
+Model Score 	• How clearly is the chosen approach articulated, and how well is the rationale for the model and methods explained?
+• How original and technically sound is the proposed approach?
+• How consistently does the model perform under repeated matches and stable conditions?
+• How well does the strategy avoid over-reliance on specific initial states, matchups, or situational advantages?
+• Performance within the competition track. 	70%
+Deck Score 	• How clearly is the deck concept articulated, and how well does it align with the intended strategy?
+• How effectively are the key cards selected and utilized to support the deck’s overall game plan? 	20%
+Report Score 	• How logically and clearly is the report structured and written?
+• How effectively are figures, charts, tables, or other visual elements used to support the explanation? 	10%
+Tracks and Awards
+Main Track · $240,000
+
+Eight (8) Finalists will receive $30,000 each. Finalists may also be invited to an in-person tournament, hosted by The Pokémon Company in Tokyo, Japan, held TBD.
+
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+    Finalist
+
+    $30,000
+
+Judges
+
+    shige
+    Data Scientist, MI
+    choya
+    Data Scientist, MI
+    The Pokémon Company 01
+    The Pokémon Company 02
+    The Pokémon Company 03
+
+Trademark Note
+
+©Pokémon/Nintendo/Creatures/GAME FREAK TM, ®, and character names are trademarks of Nintendo
+Citation
+
+The Pokémon Company, HEROZ, Matsuo Institute, Addison Howard, Bovard Doerschuk-Tiberi. The Pokémon Company - PTCG AI Battle Challenge Strategy. https://kaggle.com/competitions/pokemon-tcg-ai-battle-challenge-strategy, 2026. Kaggle.See, hopefully that also gives you context to the write-up.

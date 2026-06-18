@@ -34,7 +34,7 @@ Updated: 2026-06-18
 - **Known blockers / confounders to close:** Team Rocket Energy wildcard semantics; public Stadium
   possibly duplicated in hidden-zone sampling; optional selections may be forced not declined; replay
   attribution. Simulator wall-clock is the bottleneck -> train OFFLINE on cached replay decisions.
-- **Data:** ~275+ replays in `data/external/replays/` (gitignored); `tools/fetch_episodes.py
+- **Data:** ~622 replays in `data/external/replays/` (gitignored; see that folder for the live count); `tools/fetch_episodes.py
   --top-teams N` auto-pulls more (no manual linking). `agent/card_effects.json` decoded (581/1267).
 
 ## Status vocabulary (no more "done" = script ran)

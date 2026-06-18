@@ -108,7 +108,7 @@ the REAL `cg/api.py`. This corrects several earlier claims. All `verified` from 
   11 DISCARD, 12 RETREAT, 13 ATTACK, 14 END, 15 SKILL, 16 SPECIAL_CONDITION.
 - Prize rules matter for evaluation: a Pokemon ex Knock Out gives the opponent 2 prizes; a
   Mega Evolution ex gives 3; Tera Pokemon take no damage on the Bench; ACE SPEC max 1 per
-  deck. (Our default deck's attacker, Mega Abomasnow ex, is a 3-prize liability.)
+  deck. (A Mega-ex attacker is a 3-prize liability; the current deck is DENPA92's Dudunsparce/Alakazam.)
 - Deck-building is allowed, `verified` by Kaggle staff (Addison Howard): "Participants can
   build their own decks based on the available cards listed on the Data tab." Not required.
 - Rules differences (host, engine is authoritative): a few edge-case attacks are
@@ -118,8 +118,8 @@ the REAL `cg/api.py`. This corrects several earlier claims. All `verified` from 
 - Four sample decks ship as rule-based starter agents: Iono, Dragapult ex, Mega Abomasnow
   ex, Mega Lucario ex, plus a Reinforcement Learning & MCTS sample. A third-place competitor
   (ISAKA) measured them: Mega Lucario 60.4%, Dragapult 55.6%, Iono 43.8%, Mega Abomasnow
-  40.2% over ~15k games, RPS-like (registry H21, third-party). Our agent runs the worst of
-  these (registry H20).
+  40.2% over ~15k games, RPS-like (registry H21, third-party). Our agent previously ran Mega
+  Abomasnow; the current deck is DENPA92's Dudunsparce/Alakazam, adopted by measurement (agent/main.py).
 
 ## Format and mechanics
 

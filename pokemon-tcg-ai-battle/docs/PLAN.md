@@ -8,8 +8,10 @@ notebook digest in `research/notebooks/SUMMARY.md`.
 - The competition gives us their simulator (the `cabt` engine), installed and running here.
 - It has a forward-model SEARCH API (`search_begin`/`search_step`), so in-match tree search
   IS possible. The full card pool (1267 cards) and all card art are now downloaded.
-- We have a basic always-legal agent (beats random 0.835, ties the dumb baseline). It runs
-  the worst sample deck (Mega Abomasnow ex).
+- We have several always-legal agents in `agent/main.py` (agent, agent_search, agent_search2,
+  agent_search_v, agent_combine, agent_eff). Strongest = agent_search (1-ply forward search + hand
+  leaf), which beats first_agent (0.585/800). Current deck = DENPA92's Dudunsparce/Alakazam (8 basics).
+  (Stages below are the original plan; current plan of record is `docs/CURRENT.md` + `docs/ACTION_RANKER_PLAN.md`.)
 - We downloaded 1667 human decklists, 3746 tournament match results, 21 competitor notebooks
   (digested), and the official card data + sample submission.
 - A card / deck / stats / replay viewer is built (`viewer.html`).
@@ -54,8 +56,8 @@ Done and usable:
 - [x] Docs corrected (forward model exists, card data, deck-building) and registry updated
 
 Built but data-limited (not a code gap, a data gap):
-- [data] Stats view and Replays view work, but we have only ONE replay (the self-play
-  validation game). They fill in as real ranked-match replays are downloaded into
+- [data] Stats view and Replays view work; ~622 ranked-match replays are now in
+  `data/external/replays/` (gitignored; `tools/fetch_episodes.py --top-teams`). They fill in as more are downloaded into
   `data/external/replays/` and `tools/build_stats.py` + `tools/build_viewer.py` are re-run.
 
 Tried and measured, NOT shipped as an improvement:

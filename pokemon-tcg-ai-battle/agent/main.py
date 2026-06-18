@@ -28,7 +28,9 @@ import os
 import features as FT        # L1 state encoder (card_features.json bundled alongside)
 
 ATTACK, YES, ATTACH = 13, 1, 8   # OptionType
+PLAY, EVOLVE, ABILITY, END = 7, 9, 10, 14   # OptionType (play hand card / evolve / ability / end turn)
 A_ACTIVE = 4                 # AreaType.ACTIVE (attach target)
+A_HAND = 2                   # AreaType.HAND (an option that plays from hand -> index into hand)
 IS_FIRST_CTX = 41            # SelectContext.IS_FIRST
 
 
@@ -45,6 +47,7 @@ def _load(fn: str) -> dict:
 
 CDB = _load("card_stats.json")     # id(str) -> {n,hp,ex,mega,wk,rs,ty,atk:[...]}
 ATK = _load("attack_stats.json")   # attackId(str) -> {d(dmg),c(cost),n(name)}
+CEFF = _load("card_effects.json")  # id(str) -> {draw,search,energy_accel,heal,...} (decoded effects)
 
 # Deck = DENPA92's Dudunsparce/Alakazam list, lifted from the replay DB (tools/build_replay_db.py).
 # Chosen by measurement, not by ladder rank: deck strength is policy-coupled. The #1 player's
@@ -209,3 +212,100 @@ def agent_combine(obs: dict) -> list[int]:
     """Combine v1: clean heuristic floor + forward-model search with the BLENDED leaf eval
     (hand eval for local ranking + learned value for global judgment). Never raises."""
     return _agent_search(obs, "blend")
+
+
+def _opt_card_id(o: dict, me: dict):
+    """The card a hand-option plays: area==HAND -> me.hand[index].id (the reliable join)."""
+    if o.get("area") == A_HAND:
+        idx = o.get("index")
+        hand = me.get("hand") or []
+        if isinstance(idx, int) and 0 <= idx < len(hand):
+            c = hand[idx]
+            return (c.get("id") if isinstance(c, dict) else c)
+    return None
+
+
+def _eff_score(o: dict, me: dict, opp: dict, obs: dict) -> float:
+    """Effect-aware score for one option, using decoded card effects (CEFF) + floor rules. Scale is
+    shared with _attack_value so setup plays can outrank a weak attack but never a KO (>=8000)."""
+    t = o.get("type")
+    if t == ATTACK:
+        return _attack_value(o, me, opp)
+    if t == END:
+        return -1000.0
+    if t == ABILITY:
+        cid = _opt_card_id(o, me)
+        return 3000.0 if CEFF.get(str(cid), {}).get("energy_accel") else 1500.0   # use engine abilities
+    if t == ATTACH and o.get("inPlayArea") == A_ACTIVE:
+        f = FT.encode_state(obs)
+        return 3000.0 if (f.get("active_energy_short", 0) > 0 and not f.get("energy_attach_done")) else 600.0
+    if t == EVOLVE:
+        return 3500.0                                       # evolve toward the attacker
+    cid = _opt_card_id(o, me)
+    if cid is None:
+        return 0.0
+    e = CEFF.get(str(cid), {})
+    cs = _cs(cid)
+    s = 0.0
+    if e.get("search_to_bench"):
+        s += 4000.0                                         # Poffin-class: fetch basics, develop
+    elif e.get("search"):
+        s += 3000.0 + 80.0 * e.get("search", 0)
+    if e.get("draw"):
+        s += 2200.0 + 150.0 * e.get("draw", 0)
+    if e.get("energy_accel"):
+        s += 2600.0
+    if e.get("recover_discard"):
+        s += 1500.0
+    if e.get("switch_gust"):
+        s += 1200.0
+    if s == 0.0 and cs.get("hp"):                           # a plain Pokemon: play it to develop board
+        s = 2500.0 if not _active(me) else 1800.0
+    return s
+
+
+def _choose_eff(obs: dict) -> list[int]:
+    """Effect-aware heuristic: KO/lethal floor, then pick the option with the best effect-aware score
+    (setup plays valued via CEFF), else the safe default order. Tests whether decoded card effects let
+    a no-search policy pilot engine decks better."""
+    sel = obs.get("select")
+    if sel is None:
+        return list(DECK)
+    opts = sel.get("option") or []
+    k = sel.get("maxCount") or 0
+    mn = sel.get("minCount") or 0
+    n = len(opts)
+    if n == 0 or k <= 0:
+        return []
+    cur = obs.get("current") or {}
+    players = cur.get("players") or []
+    yi = cur.get("yourIndex", 0)
+    me = players[yi] if yi < len(players) else {}
+    opp = players[1 - yi] if len(players) > 1 else {}
+    if k == 1:
+        attacks = [(i, o) for i, o in enumerate(opts) if o.get("type") == ATTACK]
+        if attacks:
+            i, o = max(attacks, key=lambda io: _attack_value(io[1], me, opp))
+            if _attack_value(o, me, opp) >= 8000:           # take a KO / game-winning attack
+                return [i]
+        if sel.get("context") == IS_FIRST_CTX:
+            for i, o in enumerate(opts):
+                if o.get("type") == YES:
+                    return [i]
+        best_i, best_s = None, 0.0
+        for i, o in enumerate(opts):
+            s = _eff_score(o, me, opp, obs)
+            if best_i is None or s > best_s:
+                best_s, best_i = s, i
+        if best_i is not None and best_s > 0.0:
+            return [best_i]
+    return list(range(max(min(k, n), min(mn, n))))
+
+
+def agent_eff(obs: dict) -> list[int]:
+    """Effect-aware heuristic (no search): uses decoded card effects (card_effects.json) to value
+    setup plays. Never raises."""
+    try:
+        return _choose_eff(obs)
+    except Exception:
+        return agent(obs)

@@ -6,7 +6,7 @@ Live hypotheses, generated from the registry. `supported` = a current working
 truth (still falsifiable). `open` = untested or in progress. `parked` = set aside
 with a re-open gate. Refuted and superseded hypotheses are in [GRAVEYARD.md](GRAVEYARD.md).
 
-Counts: 24 total, 23 live, 1 in the graveyard.
+Counts: 24 total, 22 live, 2 in the graveyard.
 
 ## Supported (current working truths)
 
@@ -15,7 +15,7 @@ Counts: 24 total, 23 live, 1 in the graveyard.
 | H001 | The cabt harness exposes a clonable, steppable forward model usable for search (clone state, step from an arbitrary node). | high | CORRECTED: the official sample_submission/cg/api.py exposes search_begin/search_step/search_end. search_begin takes your PREDICTED opponent deck/hand/prizes/active = determinized forward search built for ISMCTS. The earlier refutation was against the stripped installed kaggle_environments package, not the real competition cg module. In-match tree search is the intended design. |  | 2026-06-17 |
 | H002 | A heuristic agent that returns only select-offered indices with a safe default never emits an illegal move and never times out. | high | 0 illegal-action/timeout errors across 600+ real cabt games (cabt_arena.py); agent is O(n log n) per decision, microseconds, so timeout is implausible (not stress-tested at the 600s cap). |  | 2026-06-16 |
 | H003 | The Step-0 heuristic beats random_agent with a Wilson lower bound well above 0.5. | high | win rate 0.835 (167/200) vs random_agent in the real engine, Wilson lower bound ~0.78 >> 0.5. Caveat: first_agent reaches 0.830, so the win is consistency beating random, not this heuristic. | win_rate=0.835 vs 0.5, n=200 -> supports [local-sim] | 2026-06-16 |
-| H019 | The cabt card-id to real-card-name mapping can be recovered from the engine's visualizer/render data or the matsuo docs, unlocking the link between opponent cabt decks and our human decklist meta | high | Official EN_Card_Data.csv (2102 cards: id,name,HP,type,weakness,resistance,retreat,attacks,cost,damage,effect) shipped in the competition download, plus all_card_data()/all_attack() in cg/api.py. Full card knowledge available. |  | 2026-06-17 |
+| H019 | The cabt card-id to real-card-name mapping can be recovered from the engine's visualizer/render data or the matsuo docs, unlocking the link between opponent cabt decks and our human decklist meta | high | Official EN_Card_Data.csv (1267 cards: id,name,HP,type,weakness,resistance,retreat,attacks,cost,damage,effect) shipped in the competition download, plus all_card_data()/all_attack() in cg/api.py. Full card knowledge available. |  | 2026-06-17 |
 
 ## Open / parked
 
@@ -35,7 +35,6 @@ Counts: 24 total, 23 live, 1 in the graveyard.
 | H015 | open | ISMCTS with the Step-0 policy as prior plus leaf eval reaches the same strength as vanilla ISMCTS with roughly 10x fewer playouts. (Conditional on the forward model.) | medium | Fix a strength target (self-play win rate vs a frozen reference); measure playouts to reach it, prior vs vanilla. |  | 2026-06-16 |
 | H017 | open | A ranked-match replay records each agent's 60-card deck-selection action, so the opponent's full deck (in cabt card IDs) is readable from it | medium | parse a real ranked-match replay with tools/parse_replay.py and read agent 1's deck |  | 2026-06-17 |
 | H018 | open | The cabt ladder is dominated by a small number of easy-to-pilot decks (Crustle prominent), so counter-deck selection is high value | low | parse a batch of ranked replays, tally opponent archetypes |  | 2026-06-17 |
-| H020 | open | Our default deck is the Mega Abomasnow ex sample deck (worst of 4 samples, ~40% per ISAKA); swapping to the Mega Lucario ex sample deck (~60%) raises win rate with no pilot change | medium | run both decks with the same agent in self-play vs the sample agents; or submit and compare ladder rating |  | 2026-06-17 |
 | H021 | open | Among the 4 sample decks the meta is RPS-like: Mega Lucario 60.4%, Dragapult 55.6%, Iono 43.8%, Mega Abomasnow 40.2% (overall), but Iono beats Abomasnow 74%; first-player edge 51.5% | medium | reproduce ISAKA's ~15k-game round-robin locally with the sample agents |  | 2026-06-17 |
 | H022 | open | Seeding search_begin's opponent_deck/hand/active from a real meta prior (e.g. ISAKA's archetypes) beats the placeholder/self-mirror fill that every downloaded notebook uses | medium | A/B two agents identical except the determinization prior (meta-prior vs placeholder), self-play + ladder |  | 2026-06-17 |
 | H024 | open | Training the leaf model with a WITHIN-DECISION ranking/advantage objective (rank the candidate moves out of one state) yields a search agent that beats the hand-eval search and the heuristic, where the state-value objective (predict a position's win prob) did not. | low | candidate-action data (per decision: each option's leaf features + per-option search value); train on per-decision-centered advantage; search with it; n>=800 vs hand search AND heuristic |  | 2026-06-17 |

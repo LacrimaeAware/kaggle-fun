@@ -63,8 +63,9 @@ prior/tie-breaker, promoted only if it beats `agent_search` on win-rate. Decks: 
 
 ## Replay-DB findings + deck decision (2026-06-18, READ THIS — newest)
 
-Built a replay database from real ladder games: `tools/build_replay_db.py` over 135 downloaded
-replays -> 133 games, 14,442 outcome-labelled decisions, 57 distinct decks. Artifacts under
+Built a replay database from real ladder games: `tools/build_replay_db.py` over the downloaded
+replays (135 at build time; ~622 now, see `data/external/replays/`) -> 133 games, 14,442
+outcome-labelled decisions, 57 distinct decks (rerun the tool to refresh). Artifacts under
 `data/replay_db/` (games.jsonl, decks.json, decisions.jsonl; gitignored). Source: top-3 public
 teams (onechan1, DENPA92, Kyo_s_s) + given submissions, pulled with `fetch_episodes.py --team`.
 
@@ -210,8 +211,8 @@ Its ranked priorities and the cautions that change how we build:
    not absolute value regression. Validate ONLY by head-to-head vs agent_search at n=800-1600 with
    Wilson CIs + a second seed. (This is exactly the user's "label positions/actions good/bad by the
    OUTCOME, naive-correlation" idea: outcome is the non-circular label.) Refs: Bertram 2023/2024.
-2. BELIEF-CONDITIONED DETERMINIZATION (= H022). We now HAVE the data: 37 replays downloaded
-   (tools/fetch_episodes.py), each exposing both players' decks. Build a replay ETL -> deck/meta
+2. BELIEF-CONDITIONED DETERMINIZATION (= H022). We now HAVE the data: the downloaded replays
+   (~622, see data/external/replays/; tools/fetch_episodes.py --top-teams), each exposing both players' decks. Build a replay ETL -> deck/meta
    priors -> seed search_begin with realistic opponent hidden states. Validate first on replay
    hidden-card likelihood (held-out), then head-to-head. Refs: Cowling 2012, Dockhorn (Hearthstone).
 3. SEARCH-BUDGET SWEEP (cheap, high-info): N_DETERM {4,8,16,32}, rollout {aggressive, weak/random,
@@ -231,7 +232,7 @@ matchup-robust evaluation is the principled guard against the overfitting the us
 WAY FORWARD (build order, supersedes the to-try list above where they overlap):
 1. Action ranker, OUTCOME-aware + within-decision pairwise/listwise objective, on the grouped
    candidate-action data; head-to-head validation. (Fixes attempt-1's circularity.)
-2. Replay ETL: extract opponent decks + outcomes from the 37 replays -> deck/meta table + an
+2. Replay ETL: extract opponent decks + outcomes from the downloaded replays (~622) -> deck/meta table + an
    outcome-labeled position/action dataset (real-ladder, not just self-play). KEY non-circular
    signal: the WINNING side's move choices in top-agent replays (onechan1 etc., score ~1300) are a
    STRONGER policy than our 1-ply search, so IMITATION-LEARNING a policy/ranker from strong winners'
