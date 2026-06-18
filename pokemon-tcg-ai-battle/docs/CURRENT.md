@@ -3,67 +3,79 @@
 Updated: 2026-06-18
 
 - **Branch:** claude/optimistic-proskuriakova-8800d3
-- **Strongest agent:** `agent_search` (1-ply forward search + hand leaf eval). Nothing beats it. It is
-  the submission default and the baseline every learned thing must beat.
-- **Live weights:** `agent/value_weights.json` = the OLD board-summary value (used by search_v/combine,
-  which LOSE). NOT used by the new ranker. The new ranker has no weights yet.
-- **Submission ready:** `submissions/sub_search.tar.gz` = agent_search + DENPA92 deck (verified, 8/8 vs
-  first). Upload is the user's call.
-- **Active hypothesis:** H024-v2 (see `docs/ACTION_RANKER_PLAN.md`) — an action-CONDITIONED ranker
-  (root + action descriptor + card embedding + decoded effects + state x effect interactions +
-  option_deltas) ranks SIBLING actions within a decision better than the hand evaluator, with a
-  NON-CIRCULAR target, judged within-decision then by win-rate.
-- **Phase / status:** A first sim-free run was a STATIC-IMITATION SMOKE TEST (not a ceiling): static
-  features only, evaluated over ALL decisions -> tied option-0 (0.549 vs 0.553). It skipped the two
-  things the plan requires: forward-model DELTAS and CRITICALITY/non-option-0 stratification. Now doing
-  the REAL Phase 2: `action_imit.jsonl` rebuilt WITH one-step option_deltas (prizes/KO/dmg/draw/board)
-  per option, and the ranker (tools/train_action_ranker.py) reports STRATIFIED top-1 (all / non-option-0
-  / high-criticality) with no-deltas / no-effects / no-embedding ablations. Training (Phase 4).
-- **LABEL AUDIT (2026-06-18, tools/audit_action_labels.py) -- the prior imitation result was on
-  CONFOUNDED labels:** the KanNinomiya-"deck" winner set mixes 18 distinct players (not one policy);
-  72% of decisions have an EQUIVALENT sibling to the chosen option (exact top-1 mislabels them); only
-  57% are genuinely strategic. On the STRATEGIC subset option-0 is 0.322 (NOT the 0.55 wall; 0.55 was
-  inflated by trivial decisions). So "imitation ties option-0" is not a clean result. Clean version
-  (one coherent player + canonicalized options + strategic-only, bar 0.322) is the next test. Per the
-  other model's plan: imitation is an AUXILIARY prior, not the sole target; the main learned object is
-  action-ADVANTAGE from multi-turn counterfactual search values. Performance lane = a bounded search
-  sprint (determinizations / rollout / belief / continuation) frozen as the teacher first.
-- **CLEAN RE-TEST (KanNinomiya only, strategic-only, canonical top-1; the audit's fix):** on the
-  winner's DEVIATIONS (non-option-0) the model beats option-0 + random (FULL 0.265 / no-deltas 0.271
-  vs option-0 0.217, random 0.139) -- the first positive learned signal on clean labels (n=166, rough).
-  But on ALL strategic decisions (0.37 vs option-0 0.467) and high-crit (0.36 vs 0.479) it loses to the
-  canonically-strong option-0. Deltas/effects don't carry it; the embedding adds a little. Imitation has
-  a small deviation edge on clean labels; "trust the engine ordering" (option-0) is still the strongest
-  simple policy overall. NEXT per the plan: bounded search sprint (determinization / rollout / belief /
-  continuation) to freeze a stronger teacher; then action-ADVANTAGE from multi-turn search (not pure imitation).
-- **SEARCH SPRINT exp 1 (determinization budget): N=8 beats N=4 (0.675 [0.52,0.80], n=40); N=16 lost
-  (the 0.6s/decision budget caps it). Set `agent/search.py` N_DETERM = 8** -- a real bump to the
-  strongest agent. sub_search rebuilt with it. Remaining sprint knobs: rollout policy, replay-derived
-  opponent belief, continuation quality (use a prior for sub-decisions instead of the crude default rollout).
-- **LANGUAGE RULE (from the methodology reviews):** do NOT call a direction failed / a "ceiling" /
-  "the exact stack" until the experiment includes the consequence signal (forward-model deltas) and is
-  reported on the non-option-0 + high-criticality strata. Aggregate top-1 vs option-0 is not the headline.
-- **Exact next command:** Phase 2 -- build the proper ACTION-CONDITIONED dataset: rewrite
-  `tools/datagen_actions.py` (or a v2) to log per option: root features + action descriptor (type,
-  card/attack id, target, draws/tutors/evolves/attacks/ends, immediate KO/survival) + leaf features +
-  leaf-minus-root delta + values across K SHARED determinizations + hand score + eventual result +
-  criticality spread. Then Phase 4 model (centered-advantage GBM / pairwise logistic / small
-  action-conditioned MLP with card embeddings + effects), reported with the component ablations.
-- **Next acceptance gate:** offline within-decision top-1 / pairwise / regret on HIGH-CRITICALITY
-  decisions, beating option-0 AND the hand-eval teacher, WITH ablations (no-effects / no-embedding /
-  no-deltas). Only then a frozen win-rate A/B vs agent_search + heuristic.
-- **Known blockers / confounders to close:** Team Rocket Energy wildcard semantics; public Stadium
-  possibly duplicated in hidden-zone sampling; optional selections may be forced not declined; replay
-  attribution. Simulator wall-clock is the bottleneck -> train OFFLINE on cached replay decisions.
-- **Data:** ~622 replays in `data/external/replays/` (gitignored; see that folder for the live count); `tools/fetch_episodes.py
-  --top-teams N` auto-pulls more (no manual linking). `agent/card_effects.json` decoded (581/1267).
+- **Strongest agent:** `agent_search` (1-ply forward search + hand leaf eval, N_DETERM=8). Nothing beats
+  it. It is the submission default and the baseline every learned thing must beat. Anchor this turn:
+  search 0.75 vs heuristic (n=20, harness sound).
+- **Agents (arena keys in cabt_arena.AGENTS):** random, first, heuristic, search (STRONGEST), search2
+  (2-ply, loses), search_v / combine / eff (all lose), `rank` (distilled net, loses), `rankh` (net on
+  strategic decisions only, loses). See the distillation result below.
+- **Submission ready:** `submissions/sub_search.tar.gz` = agent_search + DENPA92 deck (verified). Upload
+  is the user's call.
+
+## What happened this turn (the two lanes the plan called for)
+
+### 1. Search sprint, knob = opponent belief (H022/H008) -> PARKED, not refuted
+Belief-conditioned determinization (`opp_prior=meta`, fill the opponent's hidden zones from a DIFFERENT
+archetype) did NOT beat the same-deck placeholder (0.800 [0.652,0.895] vs 0.925 [0.801,0.974], n=40).
+This is NOT a refutation: an adversarial code review confirmed the 1-ply hand-leaf search evaluates the
+START OF MY NEXT TURN, which barely depends on the opponent's hidden cards (search.py's own docstring),
+so a tie is the EXPECTED null; and the A/B was unpaired + unseeded. The first run was also an accidental
+no-op (the top corpus deck IS our deck; fixed via `load_meta_deck(exclude_deck=M.DECK)`). Reopen gate
+(registry H022): a paired+seeded A/B AND an opponent-sensitive leaf (opp_k>0 2-ply, or deeper horizon).
+The determinization lever that DID work earlier was N_DETERM 4->8.
+
+### 2. Research lane, the LEARNED model (H024) -> OFFLINE-FAITHFUL but a POOR POLICY
+Built the action-CONDITIONED ranker the user asked for since day one: card-id EMBEDDING + decoded card
+EFFECTS + action descriptor + root-state features + forward-model one-step DELTAS -> shared MLP ->
+listwise softmax per decision. Trained two ways with a non-circular target:
+- **distill** (best): reproduce the frozen SEARCH teacher's per-option multi-turn value (S.option_evals).
+- **imit**: predict the human winner's move (auxiliary prior). The search and the human are DIFFERENT
+  policies (agreement only ~0.18-0.28), so distill and imit are antagonistic; pure distill wins.
+
+**Offline (held-out, canonical eq-class), distill:** DISTILL top-1 all 0.570 / teacher-deviation 0.494
+(the slice where option-0 is NOT the teacher's pick, baseline 0.000) / high-crit 0.564. So the net
+reproduces the search far above the positional prior. FULL beats no-deltas/no-effects/no-embedding by
+~0.03-0.05 on the deviation slice (within small-n noise, n=158). Deltas + effects carry a little; the
+embedding now has 16 cards (see the fixed feature bug below).
+
+**Arena (the payoff test) -> it FAILS.** Deployed via `agent/ranker.py` (torch-free numpy, instant):
+`agent_rank` (net everywhere) 0.117 vs heuristic / 0.233 vs first; `agent_rank_hybrid` (net on strategic
+decisions only, heuristic else) 0.150 vs heuristic / 0.200 vs first. Both BELOW option-0.
+**VERIFIED this is NOT an inference bug** -- ranker.predict's features match the trainer's exactly (max
+abs diff 0.0 over 285 options, 0 card_id mismatches). Cause: covariate shift + imperfect per-decision
+fidelity -- ~0.5 distill top-1 does not compound into a policy, and self-play drifts off the training
+distribution (classic behavior-cloning failure). The OFFLINE ranking objective works; turning it into a
+winning policy is the open part.
+
+**Fixed a dead-feature bug along the way:** `opt_card_id` only extracted a card id for area==2 options,
+so PLAY options (type 7, no area field) had card_id=-1 -> card stats/effects/embedding were dead and
+`opt_key` collapsed all PLAY options into one eq-class. Now it extracts the acting-card identity per
+option type. Embedding vocab 4 -> 16; card-identity rows 6185 -> 11375 / 13115.
+
+## Decision needed (per "agree before building a new hard approach")
+The learned model is real and offline-validated; making it a WINNING policy needs one of:
+- (a) **DAgger** -- label the net's OWN self-play states with the search teacher, retrain iteratively
+  (fixes covariate shift). Sim-heavy, iterative.
+- (b) **Net as a search-INTERNAL ordering prior** -- prune to the top-K net options, the SEARCH still
+  decides (no covariate shift); the saved budget buys more determinizations/depth. Most likely to ADD
+  arena value while keeping the search's strength.
+- (c) Train on ALL decisions, not just the strategic subset (covers the whole game).
 
 ## Status vocabulary (no more "done" = script ran)
 specified -> implemented -> data-generated -> trained -> offline-evaluated -> arena-evaluated ->
-accepted | refuted | inconclusive
+accepted | refuted | inconclusive | parked
 
 ## Binding rules (full list in ACTION_RANKER_PLAN.md)
 1 card-effect claim needs card_effects.json consumed live. 2 action-ranking needs grouping + ranking
 loss + within-decision metrics. 3 embedding claim needs trainable vectors in the scorer. 4 no
-"validated" without the ablation. 5 AUC/Pearson are diagnostics only. 6 hand-eval-only labels cannot
-beat hand search. 7 the objective is RANK SIBLING ACTIONS, never score a state (objective slippage).
+"validated" without the ablation. 5 AUC/Pearson are diagnostics only. 6 hand-eval-only labels (and a
+hand-search teacher) cap the learner AT the teacher -- distillation buys SPEED, not strength; a swap
+still needs a win-rate A/B. 7 the objective is RANK SIBLING ACTIONS, never score a state. 8 offline
+within-decision fidelity is NECESSARY but NOT sufficient -- per-decision accuracy does not compound into
+a policy (covariate shift); only a frozen seat-swapped win-rate A/B accepts a policy.
+
+## Data
+~622 replays in `data/external/replays/` (gitignored). `tools/fetch_episodes.py --top-teams N` pulls
+more. `agent/card_effects.json` decoded. Distill set: `tools/build_action_dataset.py --player
+KanNinomiya --strategic-only --values` -> `data/replay_db/action_adv.jsonl` (1218 decisions, full
+search-value coverage). Deploy model: `agent/ranker_model.json`.
