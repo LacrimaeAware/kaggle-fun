@@ -33,7 +33,9 @@ import features as FT
 
 DEPTH_CAP = 80            # max sub-decisions to roll out my turn + the opponent's reply
 DEFAULT_BUDGET = 0.6      # seconds/decision hard cap (measured need ~0.14s max; bounds match-time forfeit risk)
-N_DETERM = 4              # determinization samples averaged per decision (cuts single-world noise)
+N_DETERM = 8              # determinization samples averaged per decision (cuts single-world noise).
+# Sprint A/B (tools/search_sprint.py determ): N=8 beat N=4 0.675 [0.52,0.80] n=40; N=16 lost (the 0.6s
+# per-decision budget caps it, so the extra worlds don't land). 8 is the sweet spot under the budget.
 ATTACK_OPT = 13           # OptionType.ATTACK
 
 _API = None

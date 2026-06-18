@@ -36,6 +36,10 @@ Updated: 2026-06-18
   a small deviation edge on clean labels; "trust the engine ordering" (option-0) is still the strongest
   simple policy overall. NEXT per the plan: bounded search sprint (determinization / rollout / belief /
   continuation) to freeze a stronger teacher; then action-ADVANTAGE from multi-turn search (not pure imitation).
+- **SEARCH SPRINT exp 1 (determinization budget): N=8 beats N=4 (0.675 [0.52,0.80], n=40); N=16 lost
+  (the 0.6s/decision budget caps it). Set `agent/search.py` N_DETERM = 8** -- a real bump to the
+  strongest agent. sub_search rebuilt with it. Remaining sprint knobs: rollout policy, replay-derived
+  opponent belief, continuation quality (use a prior for sub-decisions instead of the crude default rollout).
 - **LANGUAGE RULE (from the methodology reviews):** do NOT call a direction failed / a "ceiling" /
   "the exact stack" until the experiment includes the consequence signal (forward-model deltas) and is
   reported on the non-option-0 + high-criticality strata. Aggregate top-1 vs option-0 is not the headline.
