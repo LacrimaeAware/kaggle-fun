@@ -6,7 +6,7 @@ Live hypotheses, generated from the registry. `supported` = a current working
 truth (still falsifiable). `open` = untested or in progress. `parked` = set aside
 with a re-open gate. Refuted and superseded hypotheses are in [GRAVEYARD.md](GRAVEYARD.md).
 
-Counts: 23 total, 22 live, 1 in the graveyard.
+Counts: 24 total, 23 live, 1 in the graveyard.
 
 ## Supported (current working truths)
 
@@ -39,4 +39,5 @@ Counts: 23 total, 22 live, 1 in the graveyard.
 | H021 | open | Among the 4 sample decks the meta is RPS-like: Mega Lucario 60.4%, Dragapult 55.6%, Iono 43.8%, Mega Abomasnow 40.2% (overall), but Iono beats Abomasnow 74%; first-player edge 51.5% | medium | reproduce ISAKA's ~15k-game round-robin locally with the sample agents |  | 2026-06-17 |
 | H022 | open | Seeding search_begin's opponent_deck/hand/active from a real meta prior (e.g. ISAKA's archetypes) beats the placeholder/self-mirror fill that every downloaded notebook uses | medium | A/B two agents identical except the determinization prior (meta-prior vs placeholder), self-play + ladder |  | 2026-06-17 |
 | H023 | open | A value model trained on self-play outcomes over the L1 feature representation, used as the search leaf eval, beats the hand-typed eval (and the heuristic) in self-play. | low | search with learned value vs search with hand eval, and vs heuristic, n>=400 self-play, same deck | winrate_vs_heuristic=0.49 vs 0.5, n=400 -> inconclusive [local-sim] | 2026-06-17 |
+| H024 | open | Training the leaf model with a WITHIN-DECISION ranking/advantage objective (rank the candidate moves out of one state) yields a search agent that beats the hand-eval search and the heuristic, where the state-value objective (predict a position's win prob) did not. | low | candidate-action data (per decision: each option's leaf features + per-option search value); train on per-decision-centered advantage; search with it; n>=800 vs hand search AND heuristic |  | 2026-06-17 |
 

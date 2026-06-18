@@ -15,6 +15,35 @@ this become a second source of truth.
 - We are NOT yet doing reinforcement learning. The value is supervised (predict win/loss from
   features). The agreed direction is to move to RL / expert-iteration.
 
+## PROGRESS RECKONING + DIAGNOSIS (2026-06-17, latest; read this for current status)
+
+ACHIEVED:
+- Infrastructure end to end: local engine, forward model (search_begin/step), full pipeline
+  features -> value -> forward-model search -> expert-iteration loop; crash-safe; measurement
+  discipline (Wilson CIs, n>=400-800, registry); many bugs fixed; submissions load on Kaggle.
+- Signal exists: the representation + a model predict the eventual winner from a mid-game state at
+  AUC ~0.74, and predict the search's state value at Pearson ~0.9.
+- Decision content measured: of 400 of my decisions, 82% are real choices (>=2 options), 18%
+  forced. The deck is NOT forced.
+
+NOT ACHIEVED:
+- No learned agent beats the hand-eval search in play; all cluster ~0.50 vs heuristic/hand-search.
+- Learned value progression vs heuristic: 0.347 (logistic) -> 0.427 (tree, MC outcome) -> 0.517
+  (tree, search-bootstrapped pass 1) -> 0.490 (pass 2, learned-value leaves). All CIs span 0.5.
+  Two expert-iteration passes gave no measurable gain.
+- The predictive signal does not convert into better move selection.
+
+THE GAP (data-grounded): the three policies disagree on 45-65% of real choices (hand-search ==
+heuristic 55%, learned == hand 63%, all three agree 35%) yet outcomes stay ~0.50. So most single
+decisions are LOW-IMPACT on the win (different move, same result); leverage is the few high-impact
+decisions, which we do not isolate. Mechanically: (1) at 1-ply one move barely changes the leaf, so
+the value cannot separate sibling moves (good GLOBAL accuracy, poor LOCAL resolution); (2) we have
+only ever trained a STATE VALUE (rank positions), never an ACTION objective (rank the moves out of
+one position). It is OUR conversion gap, not the deck being empty.
+
+COMPLEX DECK: data argues against it as the next move. This deck already has 82% real choices; a
+complex deck adds decisions but carries the same value-to-action conversion gap. Work this deck.
+
 ## Ideas to keep (from the user, do not lose these)
 
 1. BAKE THE OBVIOUS HEURISTICS INTO EVERY AGENT (including search_v). Some rules are clean enough
@@ -174,23 +203,26 @@ direction (idea 4, the pseudo-linguistic rules) - NO verified claim surfaced; it
 speculative. Also unquantified: the self-play/compute budget for AlphaZero/ReBeL on a small-deck
 game, and the exact 3-way (hand+value+prior) ensemble recipe.
 
-## Implied plan (priority order, evidence-backed)
+## Implied plan (priority order, UPDATED 2026-06-17 after the decision-content diagnosis)
 
-1. COMBINE v1 (cheap, immediate, repeatedly requested): floor search with the clean heuristics
-   (always take a listed lethal; go first), and blend the leaf eval = hand_eval + lambda*value on
-   ONE [0,1] scale. Measure n>=800 with CIs vs hand search AND heuristic. (Our diagnosis + user.)
-2. VALUE-TARGET FIX (highest-leverage for the symptom): retrain the value on SEARCH-BOOTSTRAPPED
-   targets (greedy-backup / the search's own leaf value), and/or train a candidate-leaf ADVANTAGE
-   / RANKING model over sibling actions instead of a global state classifier. (Willemsen 2022;
-   sibling-ranking framing.)
-3. SEARCH KNOBS (cheap): raise N_DETERM (4 -> 20-40); TEST a weaker/random rollout vs the current
-   aggressive one. (Cowling 2012.)
+DONE (no gain on this deck, all CIs span 0.5): combine v1 (blend); value-target fix (bootstrap
+passes 1+2). The state-value path has hit its 1-ply ceiling here. CURRENT TARGETS:
+
+1. ACTION OBJECTIVE (the untried thing the diagnosis points at): stop ranking STATES, learn to
+   rank the MOVES out of a state. Log candidate-action data per decision (root features, each
+   candidate's leaf features, the per-option search value, the chosen move, outcome) and train
+   with a WITHIN-DECISION ranking objective (softmax/pairwise over the options), not absolute
+   state-value regression. Measure search using the ranker vs hand search AND heuristic, n>=800.
+2. OPTION / "future-options" SIGNAL as first-class (user idea 6): add my option count, opponent
+   option count, one-ply option-count delta; these have a per-move gradient win-rate lacks.
+3. DEEPER SEARCH HORIZON (complement): 1-ply makes most decisions low-impact; a longer horizon lets
+   the value compound across a move sequence (the causal chain). Test multi-ply / longer rollout.
 4. REPRESENTATION: continuous magnitude-aware card features + outcome-supervised contrastive
    embeddings; evaluate on generalization, not in-sample AUC. (Bertram 2024.)
-5. EXPERT ITERATION loop: self-play with current-best -> search-bootstrapped targets -> retrain ->
-   repeat. Consider game-theoretic self-play (fictitious play) as an alternative to search-target
-   RL. ReBeL / Player-of-Games are the principled frontier if we go deep.
+5. EXPERT ITERATION loop with the ACTION model (not just state value). ReBeL / Player-of-Games are
+   the principled frontier if we go deep.
 6. FOLLOW-UP RESEARCH: the neuro-symbolic / pseudo-linguistic learned-heuristics idea (unanswered).
+NOTE: complex deck is DEPRIORITIZED (the diagnosis shows the simple deck is not the bottleneck).
 
 ## Note for the next model
 
