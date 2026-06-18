@@ -19,6 +19,15 @@ Updated: 2026-06-18
   the REAL Phase 2: `action_imit.jsonl` rebuilt WITH one-step option_deltas (prizes/KO/dmg/draw/board)
   per option, and the ranker (tools/train_action_ranker.py) reports STRATIFIED top-1 (all / non-option-0
   / high-criticality) with no-deltas / no-effects / no-embedding ablations. Training (Phase 4).
+- **LABEL AUDIT (2026-06-18, tools/audit_action_labels.py) -- the prior imitation result was on
+  CONFOUNDED labels:** the KanNinomiya-"deck" winner set mixes 18 distinct players (not one policy);
+  72% of decisions have an EQUIVALENT sibling to the chosen option (exact top-1 mislabels them); only
+  57% are genuinely strategic. On the STRATEGIC subset option-0 is 0.322 (NOT the 0.55 wall; 0.55 was
+  inflated by trivial decisions). So "imitation ties option-0" is not a clean result. Clean version
+  (one coherent player + canonicalized options + strategic-only, bar 0.322) is the next test. Per the
+  other model's plan: imitation is an AUXILIARY prior, not the sole target; the main learned object is
+  action-ADVANTAGE from multi-turn counterfactual search values. Performance lane = a bounded search
+  sprint (determinizations / rollout / belief / continuation) frozen as the teacher first.
 - **LANGUAGE RULE (from the methodology reviews):** do NOT call a direction failed / a "ceiling" /
   "the exact stack" until the experiment includes the consequence signal (forward-model deltas) and is
   reported on the non-option-0 + high-criticality strata. Aggregate top-1 vs option-0 is not the headline.
