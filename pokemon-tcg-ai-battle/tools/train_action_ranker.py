@@ -57,13 +57,18 @@ def build(use_eff=True, use_root=True):
     return G
 
 
+HIDDEN = 64
+LR = 1e-3
+
+
 class Ranker(nn.Module):
     def __init__(self, n_cards, dense_dim, emb=16, use_emb=True):
         super().__init__()
         self.use_emb = use_emb
         self.emb = nn.Embedding(n_cards, emb)
         inp = (emb if use_emb else 0) + dense_dim
-        self.net = nn.Sequential(nn.Linear(inp, 64), nn.ReLU(), nn.Linear(64, 32), nn.ReLU(), nn.Linear(32, 1))
+        self.net = nn.Sequential(nn.Linear(inp, HIDDEN), nn.ReLU(), nn.Linear(HIDDEN, HIDDEN), nn.ReLU(),
+                                 nn.Linear(HIDDEN, 1))
 
     def forward(self, cidx, dense):
         x = torch.cat([self.emb(cidx), dense], -1) if self.use_emb else dense
@@ -74,7 +79,7 @@ def run(name, use_emb, use_eff, use_root, train, test, mean, std, epochs):
     torch.manual_seed(0)
     dense_dim = len(train[0][1][0])
     m = Ranker(len(CARD_IDS), dense_dim, use_emb=use_emb)
-    opt = torch.optim.Adam(m.parameters(), lr=1e-3)
+    opt = torch.optim.Adam(m.parameters(), lr=LR)
     order = list(range(len(train)))
     print(f"  [{name}] training {epochs} epochs over {len(train)} decisions...", flush=True)
     for ep in range(epochs):
@@ -115,7 +120,12 @@ def run(name, use_emb, use_eff, use_root, train, test, mean, std, epochs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--epochs", type=int, default=25)
+    ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--hidden", type=int, default=64)
+    ap.add_argument("--only-full", action="store_true", help="train only the FULL variant (fast tuning)")
     args = ap.parse_args()
+    global HIDDEN, LR
+    HIDDEN, LR = args.hidden, args.lr
     full = build(True, True)
     rng = np.random.default_rng(0)
     idx = np.arange(len(full)); rng.shuffle(idx)
@@ -135,6 +145,8 @@ def main():
                 ("no embedding", False, True, True),
                 ("no effects", True, False, True),
                 ("no root (action-only)", True, True, False)]
+    if args.only_full:
+        variants = variants[:1]
     for name, ue, uf, ur in variants:
         G = build(uf, ur)
         tr = [G[i] for i in tr_ids]; te = [G[i] for i in te_ids]
