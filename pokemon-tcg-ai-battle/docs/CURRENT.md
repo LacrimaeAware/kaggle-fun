@@ -14,12 +14,12 @@ Updated: 2026-06-18
 
 ## What happened this turn (the two lanes the plan called for)
 
-### 0. Search sprint, knob = continuation policy (the other model's #1 target) -> DIRECTIONAL, not adopted
+### 0. Search sprint, knob = continuation policy (the other model's #1 target) -> CLOSED, no effect
 The rollout finished MY turn by attacking on the first legal attack; `MY_CONT="setup"` develops the board
-first (play/attach/evolve/ability), attack last. Head-to-head setup vs aggro 0.583 (35-25) [0.457,0.699]
-n=60 -- directionally better but the CI spans 0.5, and setup's rollout is ~4x slower so under the 0.6s
-match cap it lands fewer determinizations (and N_DETERM=8 > 4). Kept `aggro` (the validated submission
-config). Clean re-test should hold the determinization count fixed before adopting setup.
+first (play/attach/evolve/ability), attack last. Tested two ways: real-budget setup vs aggro 0.583
+(35-25) [0.457,0.699] n=60, AND confound-removed cont-clean (fixed N=4, no time cap) 0.480 (24-26)
+[0.348,0.615] n=50. BOTH ties with point estimates straddling 0.5 -> continuation policy makes no
+reliable difference. Kept `aggro`. The strongest-named target did not pan out; lever closed.
 
 ### 1. Search sprint, knob = opponent belief (H022/H008) -> PARKED, not refuted
 Belief-conditioned determinization (`opp_prior=meta`, fill the opponent's hidden zones from a DIFFERENT
