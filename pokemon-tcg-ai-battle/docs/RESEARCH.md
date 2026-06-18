@@ -46,6 +46,38 @@ one position). It is OUR conversion gap, not the deck being empty.
 COMPLEX DECK: data argues against it as the next move. This deck already has 82% real choices; a
 complex deck adds decisions but carries the same value-to-action conversion gap. Work this deck.
 
+## DIRECTIONS LEDGER (what we have tried and what we will try) -- keep this current
+
+All win rates are real cabt engine, same deck both sides, Wilson CIs; canonical numbers in the
+registry (BELIEFS.md / results.jsonl). Read: every LEARNED variant clusters near parity; the
+hand-eval search is marginally best; NOTHING decisively separates, so the learned approach is
+close, not beaten. The learned-value-at-1-ply framing is PARKED (registry H023), not abandoned.
+
+TRIED:
+| direction | what it is | result vs heuristic | note |
+| --- | --- | --- | --- |
+| heuristic | hand rules, no search | ~0.51 (ties first) | the floor |
+| hand-eval 1-ply search (agent_search) | search, hand formula at leaves | 0.543 (0.585 vs first) | STRONGEST measured |
+| learned value: logistic | state-value leaf eval | 0.347 | bug-laden (collinearity sign-flip) |
+| learned value: tree, MC-outcome target | state-value | 0.427 | global AUC 0.74, poor local ranking |
+| learned value: tree, search-bootstrapped (pass 1) | A0GB-style target | 0.517 | best learned; imitates hand search |
+| learned value: expert-iteration (pass 2) | leaves = learned value, retrain | 0.490 | no gain over pass 1 |
+| action-ranking: sibling leaves, raw value | rank the moves, not the state | 0.403 | raw target failed (keys on energy_attach_done) |
+| combine = hand eval + learned value (blend) | leaf = (1-l)*hand + l*value | ~0.48-0.53 | value dilutes the hand eval |
+
+TO TRY (not yet run; the learned approach's open paths come first per the user):
+- CENTERED-ADVANTAGE action objective (within-decision ranking, value - decision mean) -- the
+  untried action-model variant (registry H024 re-open gate). Same sibling data, new objective.
+- DEEPER SEARCH horizon (multi-ply): the decision-content diagnosis shows 1-ply is low-resolution;
+  depth is what a leaf value cannot substitute for. Improves hand AND learned leaves.
+- OPPONENT-MODELLED DETERMINIZATION (H022): feed real opponent decks (from downloaded replays) into
+  search_begin instead of the self-mirror. Data now available (tools/fetch_episodes.py).
+- BEHAVIOR CLONING / IL from Kaggle's daily top-episode export (strong agents) -- the data Kaggle is
+  providing for exactly this; pairs with the action/policy model.
+- CONTRASTIVE, magnitude-aware card embeddings (draw-2 != draw-7) as the value/policy input.
+- BELIEF / opponent model for determinization; neuro-symbolic / pseudo-linguistic heuristics (idea 4).
+DEPRIORITIZED: a more complex deck (the diagnosis shows this deck is not the bottleneck).
+
 ## Ideas to keep (from the user, do not lose these)
 
 1. BAKE THE OBVIOUS HEURISTICS INTO EVERY AGENT (including search_v). Some rules are clean enough
