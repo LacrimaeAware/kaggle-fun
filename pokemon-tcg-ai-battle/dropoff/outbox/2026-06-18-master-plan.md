@@ -87,6 +87,30 @@ Train on OUTCOMES, never on the search's own values (circularity).
     forward-model ACTION features for a move-RANKER (B1/Gate 2 -- a different use of the model than a
     leaf value) and search DEPTH/quality (A2/A3). Do not keep tuning the leaf value.
 
+- **B1 / Gate 2 done (2026-06-18): does not pass.** Action-delta listwise ranker (real decks,
+  3,459 decisions): mixed top-1 0.354 vs option-0 0.435; top-3 mixed 0.670 (so the features carry
+  signal, just not enough to beat option ordering at top-1). Top features: dmg_dealt, cards_drawn,
+  is_only_ko (sensible). But a one-step-delta ranker is a SHALLOWER `agent_search`, so a win-rate
+  win over search is structurally unlikely.
+
+## Honest synthesis (after three fair tests)
+The learned-on-current-features track is largely exhausted as a way to BEAT `agent_search`:
+  1. learned value at the leaf -> loses to search (0.37),
+  2. listwise objective on static features -> below option-0,
+  3. listwise on forward-model action deltas -> below option-0; and structurally shallower than search.
+The hand-eval 1-ply search is near the ceiling for THIS feature set at THIS depth. Imitation top-1 is
+also confirmed the wrong yardstick (option-ordering dominates; our agent wins 0.585 at 0.42 imitation).
+
+So the highest-probability lever to beat our OWN best is now SEARCH DEPTH/QUALITY, not a learned
+component on these features:
+  - A3 **2-ply / expectimax over the opponent's reply** (directly attacks the 1-ply weakness),
+  - A2 more determinizations,
+  - and the audit-flagged determinization cleanup (stop padding hidden zones with card 3 / Water).
+The learned/flexible-agent goal is NOT dead, but it needs a genuinely stronger signal than the hand
+eval -- much richer features (full card-effect + sequencing) trained and validated by WIN-RATE, or
+imitation of a stronger-than-ours policy -- which is a larger, higher-variance bet. Decision for the
+human: pursue search depth (likely near-term win) vs invest in the big learned bet vs both.
+
 ## Status / next
-NEXT: B1 (Gate 2 -- option_deltas move-ranking vs option-0) and A2/A3 (determinization + 2-ply search).
-Do NOT submit `agent_combine` (loses to search). `agent_search` stays the best submission.
+`agent_search` stays the best submission (do NOT submit `agent_combine`). NEXT (pending human steer):
+A3 2-ply search, win-rate validated vs `agent_search`.
