@@ -73,5 +73,20 @@ family / one variable at a time. Real per-game decks for replay determinization,
 vs current `hp`. Wilson CIs, seat-swap, multiple decks; no single-split or single-deck conclusions.
 Train on OUTCOMES, never on the search's own values (circularity).
 
+## Results log
+- **A1 done (2026-06-18), and it's a clean negative on the learned VALUE.** Now that the
+  `evaluate_blend` NameError is fixed, `agent_combine` (search + hand/learned blend leaves) was
+  validly measured for the first time:
+  - combine vs heuristic: **0.831** [0.766, 0.881], n=160 -- but this is mostly the SEARCH (plain
+    search also beats the no-search heuristic), not the learned value.
+  - combine vs `agent_search`: **0.37** (22-38, n=60, stopped early) -- combine does NOT beat plain
+    search; the learned-value blend at the leaf is a net negative, not a gain.
+  - Conclusion: the learned-VALUE-at-leaf branch is confirmed a dead end (it was the bug hiding a
+    non-result, not a working method hidden by a bug). `agent_search` (hand eval) remains best.
+    This kills Track-A's A1 as a win path and sharpens the bet: the remaining live levers are
+    forward-model ACTION features for a move-RANKER (B1/Gate 2 -- a different use of the model than a
+    leaf value) and search DEPTH/quality (A2/A3). Do not keep tuning the leaf value.
+
 ## Status / next
-NEXT this turn: A1 (re-measure `agent_combine` vs heuristic and `agent_search`). Then B1 (Gate 2).
+NEXT: B1 (Gate 2 -- option_deltas move-ranking vs option-0) and A2/A3 (determinization + 2-ply search).
+Do NOT submit `agent_combine` (loses to search). `agent_search` stays the best submission.
