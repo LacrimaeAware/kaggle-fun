@@ -46,6 +46,12 @@ def agent(obs):
 PY
 tar -czf "submissions/sub_$V.tar.gz" -C "$D" .
 echo "built submissions/sub_$V.tar.gz ($(du -h "submissions/sub_$V.tar.gz" | cut -f1))"
-# Verify the way Kaggle loads it (exec without __file__). Fails loudly if the package is broken.
+# Verify the way Kaggle loads it (exec without __file__). Needs a python with kaggle_environments
+# (the repo venv). If this python lacks it, SKIP with a note instead of a misleading failure --
+# run `PYTHON=<repo-venv-python> tools/build_submission.sh <variant>` to verify.
 PYTHON="${PYTHON:-python}"
-"$PYTHON" tools/verify_submission.py "$D" || { echo "VERIFY FAILED -- do not submit $D"; exit 1; }
+if "$PYTHON" -c "import kaggle_environments" 2>/dev/null; then
+    "$PYTHON" tools/verify_submission.py "$D" || { echo "VERIFY FAILED -- do not submit $D"; exit 1; }
+else
+    echo "NOTE: '$PYTHON' lacks kaggle_environments; skipped verify. Re-run with PYTHON=<repo venv python>."
+fi
