@@ -174,7 +174,7 @@ def _forced_move(obs: dict):
     return None
 
 
-def _agent_search(obs: dict, leaf_mode: str) -> list[int]:
+def _agent_search(obs: dict, leaf_mode: str, opp_k: int = 0) -> list[int]:
     try:
         if obs.get("select") is None:
             return list(DECK)
@@ -182,7 +182,7 @@ def _agent_search(obs: dict, leaf_mode: str) -> list[int]:
         if mv is not None:
             return mv
         import search
-        mv = search.best_option(obs, DECK, leaf_mode=leaf_mode)
+        mv = search.best_option(obs, DECK, leaf_mode=leaf_mode, opp_k=opp_k)
         if mv is not None:
             return mv
     except Exception:
@@ -193,6 +193,11 @@ def _agent_search(obs: dict, leaf_mode: str) -> list[int]:
 def agent_search(obs: dict) -> list[int]:
     """Forward-model search with the HAND leaf eval; heuristic floor + fallback. Never raises."""
     return _agent_search(obs, "hand")
+
+
+def agent_search2(obs: dict) -> list[int]:
+    """2-ply: hand-eval search that branches on the opponent's best reply (min over top-k punishes)."""
+    return _agent_search(obs, "hand", opp_k=2)
 
 
 def agent_search_v(obs: dict) -> list[int]:

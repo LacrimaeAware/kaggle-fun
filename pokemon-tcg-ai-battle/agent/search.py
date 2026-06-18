@@ -141,11 +141,12 @@ def _hidden_pool(deck: list, player: dict, exclude_hand: bool) -> list:
     return pool
 
 
-def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
+            opp_k: int = 0):
     """Core search. Returns (best_option_index, best_backed_up_value), or (None, None) if search
     is not applicable. The backed-up value is the max over options of the determinization-averaged
     leaf value -- the A0GB-style search-bootstrapped value of this state (used as a learning target
-    by datagen --bootstrap)."""
+    by datagen --bootstrap). opp_k>0 -> 2-ply: branch on the opponent's top-opp_k reply, min leaf."""
     A = _api()
     if A is None:
         return None, None
@@ -212,7 +213,8 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
                 if time.time() - t0 > time_budget:
                     break
                 try:
-                    v = _simulate(A, root.searchId, i, me, leaf_mode)
+                    v = (_simulate2(A, root.searchId, i, me, leaf_mode, opp_k) if opp_k > 0
+                         else _simulate(A, root.searchId, i, me, leaf_mode))
                 except Exception:
                     continue
                 sums[i] += v
@@ -234,9 +236,11 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
     return best_i, best_avg
 
 
-def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
-    """The chosen option as a 1-element list, or None if search does not apply (caller falls back)."""
-    i, _v = _search(obs, deck, time_budget, leaf_mode)
+def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
+                opp_k: int = 0):
+    """The chosen option as a 1-element list, or None if search does not apply (caller falls back).
+    opp_k>0 enables 2-ply opponent-reply branching."""
+    i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k)
     return [i] if i is not None else None
 
 
@@ -403,6 +407,85 @@ def option_deltas(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET):
         except Exception:
             pass
     return out if any(o is not None for o in out) else None
+
+
+def _rollout_topk(sel, k: int) -> list:
+    """Top-k single-pick choices to BRANCH on for the opponent (by attack damage desc). Returns a
+    list of choice-lists. Falls back to one greedy pick for multi-select / non-attack decisions."""
+    if (sel.maxCount or 0) != 1:
+        return [_rollout_pick(sel)]
+    opts = sel.option
+    scored = []
+    for i, o in enumerate(opts):
+        d = ATK.get(str(getattr(o, "attackId", None)), {}).get("d", 0) or 0 if getattr(o, "type", None) == ATTACK_OPT else -1
+        scored.append((d, i))
+    scored.sort(reverse=True)
+    top = [[i] for _, i in scored[:max(1, k)]]
+    return top or [_rollout_pick(sel)]
+
+
+def _greedy_to_me(A, st, me):
+    """Roll out (greedy) from st until control returns to me / the game ends; return the final st."""
+    for _ in range(DEPTH_CAP):
+        cur = st.observation.current
+        if cur is not None and cur.result != -1:
+            break
+        sel = st.observation.select
+        if sel is None:
+            break
+        if cur is not None and cur.yourIndex == me:
+            break
+        st = A.search_step(st.searchId, _rollout_pick(sel))
+    return st
+
+
+def _simulate2(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", opp_k: int = 2):
+    """2-ply: take my move, finish MY turn greedily, then BRANCH on the opponent's first reply
+    (top-`opp_k` by damage) and take the MIN leaf value (worst-case punish). Beyond that first
+    opponent choice the line is greedy. Evaluates at the start of my next turn."""
+    st = A.search_step(root_id, [first_choice])
+    # finish my turn until it becomes the opponent's decision (or the game ends)
+    for _ in range(DEPTH_CAP):
+        cur = st.observation.current
+        if cur is not None and cur.result != -1:
+            return _leaf_val(st, me, leaf_mode)
+        sel = st.observation.select
+        if sel is None:
+            return _leaf_val(st, me, leaf_mode)
+        if cur is not None and cur.yourIndex != me:
+            break                                    # opponent's first decision -> branch
+        st = A.search_step(st.searchId, _rollout_pick(sel))
+    else:
+        return _leaf_val(st, me, leaf_mode)
+    opp_node, opp_sel = st.searchId, st.observation.select
+    vals = []
+    for choice in _rollout_topk(opp_sel, opp_k):
+        try:
+            st2 = A.search_step(opp_node, choice)
+        except Exception:
+            continue
+        st2 = _greedy_to_me(A, st2, me)
+        vals.append(_leaf_val(st2, me, leaf_mode))
+    return min(vals) if vals else _leaf_val(st, me, leaf_mode)
+
+
+def _leaf_val(st, me: int, leaf_mode: str = "hand") -> float:
+    """Leaf evaluation shared by the 2-ply path (mirrors _simulate's leaf scoring)."""
+    obs = _obs_dict(st.observation)
+    cur = obs.get("current") or {}
+    res = cur.get("result", -1)
+    if leaf_mode == "hand":
+        return EV.evaluate_obs(obs, me)
+    if res == me:
+        return 1.0
+    if res == (1 - me):
+        return 0.0
+    if res == 2:
+        return 0.5
+    clean = (st.observation.select is not None) and cur.get("yourIndex") == me
+    if not clean:
+        return 0.5
+    return EV.evaluate_blend(obs, me) if leaf_mode == "blend" else EV.evaluate_learned(obs, me)
 
 
 def option_evals(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
