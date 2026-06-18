@@ -32,6 +32,14 @@ prior model calling something "fixed" or "fine" has been wrong before.
   optional-prompt minCount==0 handling: OPEN, UNVERIFIED by this session (not in the current
   value/search path; revisit if replay-derived stats or optional-effect decks become load-bearing).
 
+- SUBMISSION VALIDATION FAILED 2026-06-17 (FIXED): both submitted agents got ERROR status. Cause:
+  the submission main.py used `os.path.abspath(__file__)` at module scope; Kaggle loads via
+  `exec(code_object, env)` with no `__file__` -> NameError -> agent never loads. Fixed in
+  tools/build_submission.sh (no __file__; hardcoded /kaggle_simulations/agent path) +
+  tools/verify_submission.py (exec without __file__, like Kaggle) which the build now runs. Lesson:
+  test a submission the way Kaggle loads it, not via `import main`. Raw logs:
+  submissions/validation_failures_2026-06-17/.
+
 ## Current concrete issues to keep in view
 
 - `agent/search.py` still contains the hidden-zone fallback pattern `zone or [3]` when calling

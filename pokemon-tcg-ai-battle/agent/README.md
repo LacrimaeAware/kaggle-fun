@@ -63,16 +63,24 @@ dependency-free unit-test fixture for policy logic (heuristic beats random 0.95 
 Its numbers have provenance `local-sim-MOCK` and say nothing about the real game. Prefer
 `cabt_arena.py` for any real measurement.
 
-## Submission packaging (unconfirmed, from a Kaggle snippet, verify on the live page)
+## Submission packaging (use `../tools/build_submission.sh <variant>`)
 
-The agent is NOT just `main.py`. Its import graph needs the runtime modules and data:
-`main.py search.py eval.py value_model.py features.py card_features.json value_weights.json`
-(plus optional `attack_stats.json`, `card_stats.json` for full heuristic strength; these degrade
-to empty gracefully). `cg/` (the forward-model engine) is supplied by the competition input, not
-bundled; `search.py` falls back to the heuristic if it is absent. Bundling only `main.py deck.csv`
-(as an earlier note here wrongly said) ships an agent that cannot import `features` and forfeits.
+`tools/build_submission.sh search|combine|search_v|agent` assembles a self-contained tarball
+under `../submissions/` (gitignored) and self-verifies it. The package contains: a thin `main.py`
+entry, `agent_impl.py` (= this main.py), `search.py eval.py value_model.py features.py`, the data
+`card_features.json value_weights.json card_stats.json attack_stats.json`, and the `cg/`
+forward-model engine. The agent degrades to the heuristic if `cg`/time fails, so it never forfeits.
 
-ENTRY POINT: the Kaggle loader runs the LAST module-level callable, currently `agent_search_v`.
-Decide deliberately which agent ships before submitting (the heuristic `agent` is the validated
-safe baseline; the search variants are not yet validated to beat it) and pin it explicitly.
+HARD RULES (a violation cost a failed validation episode on 2026-06-17):
+- The submission `main.py` is loaded by Kaggle via `exec(code_object, env)` with NO `__file__` in
+  the namespace. DO NOT reference `__file__`/`os.path.abspath(__file__)` at module scope in
+  `main.py`. (Imported modules like `features.py` DO have `__file__`, so their path handling is
+  fine; only the exec'd entry file does not.) The bug: `sys.path.insert(0, os.path.dirname(
+  os.path.abspath(__file__)))` raised `NameError: name '__file__' is not defined` -> ERROR status.
+- ENTRY POINT: Kaggle runs the LAST module-level callable. The submission `main.py` defines a
+  single `agent` so there is no ambiguity (the repo `agent/main.py` defines four agents; do not
+  submit it directly).
+- ALWAYS verify with `tools/verify_submission.py` (build_submission.sh runs it): it `exec`s
+  `main.py` without `__file__` exactly like Kaggle and plays games. A normal `import main` test
+  does NOT catch the `__file__` bug.
 Do not submit without the user's say-so (`../AGENTS.md` section 7).

@@ -20,9 +20,16 @@ cp -r data/external/official/sample_submission/cg "$D/cg"
 rm -rf "$D/cg/__pycache__"
 cat > "$D/main.py" <<PY
 """Submission entry point. The Kaggle loader runs the last module-level callable; the only one
-here is \`agent\`, delegating to agent_impl.$FN. Crash-safe (never raises)."""
-import os, sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+here is \`agent\`, delegating to agent_impl.$FN. Crash-safe (never raises).
+
+NOTE: Kaggle exec()s this file WITHOUT __file__ defined, so do NOT reference __file__ or
+os.path.abspath(__file__) at module scope (that caused an ERROR-status validation failure on
+2026-06-17). The agent dir is importable on Kaggle (per the official sample); we also add the
+known agent path explicitly. Imported modules (agent_impl, features, ...) DO have __file__, so
+their own path handling is fine."""
+import sys
+if "/kaggle_simulations/agent" not in sys.path:
+    sys.path.insert(0, "/kaggle_simulations/agent")
 import agent_impl
 
 
@@ -39,3 +46,6 @@ def agent(obs):
 PY
 tar -czf "submissions/sub_$V.tar.gz" -C "$D" .
 echo "built submissions/sub_$V.tar.gz ($(du -h "submissions/sub_$V.tar.gz" | cut -f1))"
+# Verify the way Kaggle loads it (exec without __file__). Fails loudly if the package is broken.
+PYTHON="${PYTHON:-python}"
+"$PYTHON" tools/verify_submission.py "$D" || { echo "VERIFY FAILED -- do not submit $D"; exit 1; }
