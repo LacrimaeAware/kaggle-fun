@@ -18,6 +18,7 @@ Local cabt, same deck both sides (now DENPA92's), seats swapped. Small-n directi
 | combine vs agent_search | 0.37 | 60 | blend leaf WORSE than hand leaf -> do not submit combine |
 | search vs heuristic (DENPA92 deck) | 0.86 | 50 | search >> heuristic ON THIS DECK (see deck note) |
 | search_v vs search | 0.25 | 20 | learned-value leaf WORSE than hand leaf (confirms combine) |
+| search2 (2-ply) vs search | 0.35 | 20 | 2-ply opponent-min branch WORSE; over-pessimistic vs greedy-rollout opponent |
 
 DECK NOTE (why "search vs heuristic" is 0.86 here but was ~0.54 on the old deck): the no-search
 heuristic's competence is DECK-DEPENDENT. On the old simple basic-attacker deck it piloted nearly as
