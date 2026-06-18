@@ -1,0 +1,5 @@
+# The derived SQLite index is a disposable cache, rebuilt from the JSONL canon.
+# Never commit it. Keep this folder in git via .gitignore + .gitkeep.
+registry.db
+registry.db-wal
+registry.db-shm

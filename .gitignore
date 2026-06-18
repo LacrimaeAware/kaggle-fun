@@ -5,6 +5,15 @@ __pycache__/
 
 # C extensions
 *.so
+*.dll          # forward-model engine binaries (cg.dll); also under data/ which is ignored below
+
+# NEVER commit Kaggle credentials (safeguard; the real token lives in ~/.kaggle/, outside the repo)
+kaggle.json
+.kaggle/
+**/kaggle.json
+
+# pokemon-tcg-ai-battle: built submission packages (reproducible via tools/build_submission.sh)
+pokemon-tcg-ai-battle/submissions/
 
 # Distribution / packaging
 .Python
