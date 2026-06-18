@@ -76,6 +76,16 @@ def mk_meta_opp(meta):
     return ag
 
 
+def mk_cont(policy):
+    """agent_search with MY_CONT = policy (the my-turn rollout continuation; opponent stays aggressive)."""
+    def ag(obs):
+        if obs.get("select") is None:
+            return list(M.DECK)
+        S.MY_CONT = policy
+        return M.agent_search(obs)
+    return ag
+
+
 def ab(label, a, b, games, progress):
     r = A.run(games, a, b, label=label, progress=progress)
     dec = r["wins_a"] + r["wins_b"]
@@ -87,7 +97,7 @@ def ab(label, a, b, games, progress):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("experiment", choices=["determ", "belief"])
+    ap.add_argument("experiment", choices=["determ", "belief", "continuation"])
     ap.add_argument("--games", type=int, default=40)
     ap.add_argument("--progress", type=int, default=10)
     args = ap.parse_args()
@@ -107,6 +117,13 @@ def main():
         ab("same-deck: our-search(opp_prior=None) vs meta-opp", mk_our(None), opp, args.games, args.progress)
         print("\nRead: if belief's win-rate vs the meta opponent clears same-deck's by more than noise,\n"
               "knowing the opponent's deck helps the search -> build a meta/archetype belief prior.", flush=True)
+    elif args.experiment == "continuation":
+        print(f"continuation-policy A/B (the my-turn rollout finish), head-to-head, {args.games} games.\n"
+              f"setup = develop the board (play/attach/evolve/ability) before attacking; aggro = attack on\n"
+              f"the first legal attack (current). Opponent rollout stays aggressive in both.\n", flush=True)
+        ab("setup vs aggro (A=setup)", mk_cont("setup"), mk_cont("aggro"), args.games, args.progress)
+        print("\nRead: if setup's Wilson lower bound > 0.5 it finishes my turn more realistically -> set\n"
+              "agent/search.py MY_CONT='setup'; if it loses, the aggressive finish was already fine.", flush=True)
 
 
 if __name__ == "__main__":

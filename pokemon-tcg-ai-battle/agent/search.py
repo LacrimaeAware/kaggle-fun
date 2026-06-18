@@ -37,6 +37,12 @@ N_DETERM = 8              # determinization samples averaged per decision (cuts 
 # Sprint A/B (tools/search_sprint.py determ): N=8 beat N=4 0.675 [0.52,0.80] n=40; N=16 lost (the 0.6s
 # per-decision budget caps it, so the extra worlds don't land). 8 is the sweet spot under the budget.
 ATTACK_OPT = 13           # OptionType.ATTACK
+DEV_OPT = (7, 8, 9, 10)   # play / attach-energy / evolve / ability -- "develop the board" actions
+MY_CONT = "aggro"         # continuation policy for MY playout turn (the opponent always plays aggressive).
+# "aggro": attack as soon as any attack is legal (ends my turn early -> can undervalue setup candidates).
+# "setup": develop first (play/attach/evolve/ability), attack only when no development remains -> a more
+#          realistic finish of my turn, so the leaf value reflects the board I would actually build.
+# A/B in tools/search_sprint.py continuation.
 
 _API = None
 
@@ -56,15 +62,21 @@ def _load_atk() -> dict:
 ATK = _load_atk()           # attackId(str) -> {d(dmg), ...}
 
 
-def _rollout_pick(sel) -> list:
-    """Rollout policy for the playout (both players): take the highest-damage attack if any is
-    legal, else the engine default order. A default-order opponent never punishes (it just plays
-    option 0), so leaves look uniformly safe; an attacking opponent makes the punish real."""
+def _rollout_pick(sel, is_me: bool = False) -> list:
+    """Rollout policy for the playout. The OPPONENT always plays aggressive: take the highest-damage
+    attack if any is legal, else the engine default order -- a default-order opponent never punishes
+    (it just plays option 0), so leaves look uniformly safe; an attacking opponent makes the punish
+    real. For MY playout turn, MY_CONT="setup" develops the board (play/attach/evolve/ability) before
+    attacking, so my turn is finished realistically instead of attacking on the first legal attack."""
     opts = sel.option
     n = len(opts)
     k = sel.maxCount or 0
     mn = sel.minCount or 0
     if k == 1 and n > 0:
+        if is_me and MY_CONT == "setup":
+            for i, o in enumerate(opts):
+                if getattr(o, "type", None) in DEV_OPT:     # develop first; defer attack/end
+                    return [i]
         best_i, best_d = None, -1
         for i, o in enumerate(opts):
             if getattr(o, "type", None) == ATTACK_OPT:
@@ -278,7 +290,7 @@ def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", w
             break
         if not my_move:
             saw_opp = True
-        st = A.search_step(st.searchId, _rollout_pick(sel))     # aggressive playout (both sides)
+        st = A.search_step(st.searchId, _rollout_pick(sel, is_me=my_move))   # my-turn finish vs opp punish
     obs = _obs_dict(st.observation)
     cur = obs.get("current") or {}
     res = cur.get("result", -1)
@@ -457,7 +469,7 @@ def _simulate2(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", 
             return _leaf_val(st, me, leaf_mode)
         if cur is not None and cur.yourIndex != me:
             break                                    # opponent's first decision -> branch
-        st = A.search_step(st.searchId, _rollout_pick(sel))
+        st = A.search_step(st.searchId, _rollout_pick(sel, is_me=True))   # finishing MY turn
     else:
         return _leaf_val(st, me, leaf_mode)
     opp_node, opp_sel = st.searchId, st.observation.select
