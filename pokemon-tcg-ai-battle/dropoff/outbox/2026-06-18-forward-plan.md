@@ -82,5 +82,34 @@ sweep (#3) with the same win-rate discipline.
 - Keep the cost inside the ~0.6s/decision budget (one-ply deltas are cheap; reserve any opp-reply
   rollout for top-k options only).
 
+## Gated execution (adopted from the Codex review, `dropoff/inbox/2026-06-18-codex-evaluation-summary.md`)
+
+The Codex review independently confirmed the two bugs and the premature-ceiling retraction, and
+restructured the work into hard, one-variable-at-a-time gates. Adopting them (supersedes the looser
+phase order above where they conflict):
+
+- **Gate 1 — objective only (DONE, did not pass).** Same corrected static features, swap pointwise GBM
+  for a grouped LISTWISE ranker (LightGBM lambdarank), compare to option-0, stratified. Result:
+  top-1 0.495 all / 0.327 mixed, still below option-0 (0.587 / 0.468). So the plateau is not (only) an
+  objective artifact -> proceed to richer features.
+- **Gate 2 — immediate action-delta (NEXT).** Feature each option by ONE `search_step` delta (no
+  rollout) via `search.option_deltas` (built + validated), using each game's REAL deck. Grouped
+  listwise ranker, stratified, vs option-0. PASS = beat option-0 on the MIXED slice. This is the clean
+  test of whether the consequence representation carries imitation signal the static features lacked.
+  NOTE: `tools/diag_action_fwd.py` (a workflow subagent's) is NOT this test -- it uses `option_evals`
+  (full turn + opponent rollout) and a `[3]*60` determinization; keep it as a separate "does the
+  rollout leaf identify the move" probe, do not conflate.
+- **Gate 3 — live win-rate (only after Gate 1 OR 2 shows diagnostic lift).** Plug the learned component
+  in as an option prior / tie-breaker / disagreement trigger, A/B vs `agent_search` (cabt_arena,
+  Wilson CIs, seat-swapped, multiple decks). Win-rate is the real judge; imitation is the cheap probe.
+
+Standing cautions (Codex + verifiers): option-0 baseline everywhere; never random-only; one feature
+family at a time; remeasure `agent_combine` now that `evaluate_blend` is fixed; winner moves are noisy
+demonstrations (consider outcome/margin weighting); do not call any result final on a single split.
+
 ## Status
-Phase 1 in progress (extractor + validation). Subsequent phases follow this file; updates appended here.
+- DONE: bugs fixed (blend NameError, dead card-join, HP-semantics); option-0 baseline + stratification
+  added; Gate 1 (listwise) run, did not beat option-0; `option_deltas` extractor built + validated
+  (decodes draw/attack-damage/KO/board consequences); plan + handoffs in dropoff/.
+- NEXT: Gate 2 -- wire `option_deltas` into a grouped listwise diagnostic with real per-game decks,
+  stratified vs option-0; then remeasure `agent_combine`; then Gate 3 if Gate 2 lifts the mixed slice.
