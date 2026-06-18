@@ -17,6 +17,46 @@ this become a second source of truth.
   data) -- the RL-family direction. Full policy-gradient self-play RL is NOT done. Current numbers
   in the reckoning below.
 
+## Replay-DB findings + deck decision (2026-06-18, READ THIS — newest)
+
+Built a replay database from real ladder games: `tools/build_replay_db.py` over 135 downloaded
+replays -> 133 games, 14,442 outcome-labelled decisions, 57 distinct decks. Artifacts under
+`data/replay_db/` (games.jsonl, decks.json, decisions.jsonl; gitignored). Source: top-3 public
+teams (onechan1, DENPA92, Kyo_s_s) + given submissions, pulled with `fetch_episodes.py --team`.
+
+- OUR AGENT on the ladder = "Shishio Makoto": **0.44 win rate** (18 games), 6-basic deck, and a
+  **mulligan outlier** -- our old deck shuffled up to 6x at setup (field mean 0.26 mulligans; only
+  2.3% of seats mulligan >=3). The opening no-basic redraw is engine-forced, not an agent bug;
+  it is the basic-light deck handing the opponent a free card each time.
+
+- HEADLINE: **deck value is POLICY-COUPLED -- copying the best deck FAILS.** Each top deck piloted
+  by OUR policy vs our old deck (real cabt, seat-swapped, Wilson95):
+  | deck (ladder wr) | basics | under our heuristic | under search |
+  | --- | --- | --- | --- |
+  | onechan1/Kyo_s_s Iono-Bellibolt (0.83) | 9 | 0.212 [0.14,0.31] n=80 | 0.350 n=40 |
+  | DENPA92 Dudunsparce/Alakazam (0.79) | 8 | **0.738 [0.63,0.82] n=80** | 0.55 n=40 |
+  | Heisei (0.87) | 8 | 0.500 [0.39,0.61] n=80 | -- |
+  Our agent is a basic-attacker pilot; it cannot run an evolution engine (Iono-Bellibolt needs
+  evolution sequencing + ability use). DENPA92's deck suits our heuristic.
+
+- ACTION TAKEN: adopted **DENPA92's deck** as `agent.DECK` (8 basics -> fixes the mulligan outlier;
+  0.738 vs the old deck under our best ladder policy, the heuristic). Old deck kept in a code
+  comment + git. This is deck-first improvement WITHIN our agent's competence.
+
+- DECISION STATS (`decisions.jsonl`): win-rate-at-decision-type and point-biserial feature-outcome
+  correlation. Board development (`my_bench` +0.28), `prize_lead` +0.28, and option-availability
+  (`fixing_available`, `can_use_ability`, `active_can_attack_now`, `can_retreat` all positive)
+  correlate with WINNING; `opp_bench` -0.30. `evolve-to` decisions sit at 0.07 win@ (selection
+  effect: the evolving side is usually behind, and our mispiloted evolution decks live here). This
+  is the non-circular OUTCOME signal for the action ranker, and it matches the "more options =
+  better" framing. Caveat (per the deep-research label-circularity note): these are naive
+  correlations with selection effects, not causal action values.
+
+- FORK (open): **(A) policy-first** -- imitation-learn from the strong players' trajectories so we
+  can pilot the top evolution decks (onechan1); highest ceiling, the deep-research #1 path, data is
+  ready (14,442 labelled decisions + full winner trajectories). **(B) deck-first** -- keep refining
+  decks our current agent pilots well (DENPA92 swap is step 1). A is the larger build; awaiting steer.
+
 ## PROGRESS RECKONING + DIAGNOSIS (2026-06-17, latest; read this for current status)
 
 ACHIEVED:

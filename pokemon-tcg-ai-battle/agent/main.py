@@ -46,9 +46,18 @@ def _load(fn: str) -> dict:
 CDB = _load("card_stats.json")     # id(str) -> {n,hp,ex,mega,wk,rs,ty,atk:[...]}
 ATK = _load("attack_stats.json")   # attackId(str) -> {d(dmg),c(cost),n(name)}
 
+# Deck = DENPA92's Dudunsparce/Alakazam list, lifted from the replay DB (tools/build_replay_db.py).
+# Chosen by measurement, not by ladder rank: deck strength is policy-coupled. The #1 player's
+# Iono-Bellibolt evolution deck scores 0.83 on the ladder but only ~0.21 under OUR heuristic (our
+# agent can't pilot an evolution engine). DENPA92's deck suits our policy: 0.738 head-to-head vs the
+# old deck under our heuristic (Wilson95 [0.63,0.82], n=80), ~0.55 under search. It also has 8 basic
+# Pokemon vs the old 6, fixing a mulligan outlier (our old deck shuffled up to 6x at setup; field
+# mean 0.26). Old deck (Kyogre/Snover/Mega-Abomasnow, 6 basics, 0.44 ladder wr) kept for reference:
+#   [721]*2 + [722]*4 + [723]*4 + [1092] + [1121]*2 + [1145]*2 + [1163]*2 + [1219]*4 + [1227]*4 + [1262]*2 + [3]*33
 DECK = (
-    [721] * 2 + [722] * 4 + [723] * 4 + [1092] + [1121] * 2 + [1145] * 2
-    + [1163] * 2 + [1219] * 4 + [1227] * 4 + [1262] * 2 + [3] * 33
+    [5] * 3 + [19] * 4 + [65] * 4 + [66] * 4 + [741] * 4 + [742] * 4 + [743] * 3
+    + [1079] * 3 + [1081] * 3 + [1086] * 4 + [1097] + [1129] + [1146] + [1152] * 4
+    + [1159] + [1182] * 3 + [1184] + [1225] * 4 + [1231] * 4 + [1264] * 4
 )
 
 
