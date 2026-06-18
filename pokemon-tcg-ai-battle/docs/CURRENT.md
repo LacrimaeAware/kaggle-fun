@@ -28,6 +28,14 @@ Updated: 2026-06-18
   other model's plan: imitation is an AUXILIARY prior, not the sole target; the main learned object is
   action-ADVANTAGE from multi-turn counterfactual search values. Performance lane = a bounded search
   sprint (determinizations / rollout / belief / continuation) frozen as the teacher first.
+- **CLEAN RE-TEST (KanNinomiya only, strategic-only, canonical top-1; the audit's fix):** on the
+  winner's DEVIATIONS (non-option-0) the model beats option-0 + random (FULL 0.265 / no-deltas 0.271
+  vs option-0 0.217, random 0.139) -- the first positive learned signal on clean labels (n=166, rough).
+  But on ALL strategic decisions (0.37 vs option-0 0.467) and high-crit (0.36 vs 0.479) it loses to the
+  canonically-strong option-0. Deltas/effects don't carry it; the embedding adds a little. Imitation has
+  a small deviation edge on clean labels; "trust the engine ordering" (option-0) is still the strongest
+  simple policy overall. NEXT per the plan: bounded search sprint (determinization / rollout / belief /
+  continuation) to freeze a stronger teacher; then action-ADVANTAGE from multi-turn search (not pure imitation).
 - **LANGUAGE RULE (from the methodology reviews):** do NOT call a direction failed / a "ceiling" /
   "the exact stack" until the experiment includes the consequence signal (forward-model deltas) and is
   reported on the non-option-0 + high-criticality strata. Aggregate top-1 vs option-0 is not the headline.
