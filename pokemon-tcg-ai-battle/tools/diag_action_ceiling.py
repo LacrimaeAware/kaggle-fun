@@ -84,12 +84,14 @@ def option_features(o, cur, me, levels):
         f["ko_opp"] = 1.0 if (dmg > 0 and opp_hp_left > 0 and dmg >= opp_hp_left) else 0.0
         f["dmg_vs_hp"] = (dmg / opp_hp_left) if opp_hp_left > 0 else 0.0
     if "card" in levels:
-        # join: a hand-index option -> the hand card's class/stage (best-effort; index semantics vary)
+        # CORRECT join (was dead code: replay hand entries are dicts {'id':..}, not ints).
+        # Use AreaType.HAND==2 + index -> hand[idx]['id'] (the reliable key; option.cardId is null).
         cid = None
         idx = o.get("index")
-        hand = ((cur.get("players") or [{}])[me]).get("hand") or []
-        if t in (3, 5, 6, 7) and isinstance(idx, int) and 0 <= idx < len(hand) and isinstance(hand[idx], int):
-            cid = hand[idx]
+        if o.get("area") == 2 and isinstance(idx, int):
+            hand = ((cur.get("players") or [{}])[me]).get("hand") or []
+            if 0 <= idx < len(hand) and isinstance(hand[idx], dict):
+                cid = hand[idx].get("id")
         c = _card(cid) if cid else {}
         f["card_pokemon"] = 1.0 if c.get("ct") == 0 else 0.0
         f["card_trainer"] = 1.0 if c.get("ct") in (1, 2, 3, 4) else 0.0
@@ -105,6 +107,7 @@ def collect(max_games):
     rows = []  # (gid, option, current, me, label, n_options)
     obs_by_gid = {}  # gid -> obs (for heuristic baseline)
     chosen_by_gid = {}  # gid -> chosen option position
+    whichcard_by_gid = {}  # gid -> True if all options share one OptionType (a pure "which card" pick)
     gid = 0
     files = sorted(glob.glob(str(ROOT / "data" / "external" / "replays" / "*.json")))
     used = 0
@@ -139,11 +142,13 @@ def collect(max_games):
             me = cur.get("yourIndex", win)
             obs_by_gid[gid] = obs
             chosen_by_gid[gid] = chosen
+            types = {o.get("type") for o in opts if isinstance(o, dict)}
+            whichcard_by_gid[gid] = (len(types) == 1)
             for j, o in enumerate(opts):
                 if isinstance(o, dict):
                     rows.append((gid, o, cur, me, 1 if j == chosen else 0, len(opts)))
             gid += 1
-    return rows, obs_by_gid, chosen_by_gid
+    return rows, obs_by_gid, chosen_by_gid, whichcard_by_gid
 
 
 def vectorize(rows, levels):
@@ -156,11 +161,14 @@ def vectorize(rows, levels):
     return np.array(X), np.array(y), np.array(g), np.array(n), keys
 
 
-def top1(model, X, y, g):
-    """Fraction of decisions whose argmax-scored option is the winner's chosen one."""
+def top1(model, X, y, g, subset=None):
+    """Fraction of decisions whose argmax-scored option is the winner's chosen one.
+    subset: optional set of gids to restrict to (for stratified reporting)."""
     p = model.predict_proba(X)[:, 1]
     hit = tot = 0
     for gid in np.unique(g):
+        if subset is not None and gid not in subset:
+            continue
         m = g == gid
         if y[m].sum() != 1:
             continue
@@ -176,11 +184,14 @@ def main():
     args = ap.parse_args()
     from sklearn.ensemble import GradientBoostingClassifier
 
-    rows, obs_by_gid, chosen_by_gid = collect(args.max_games)
+    rows, obs_by_gid, chosen_by_gid, whichcard_by_gid = collect(args.max_games)
     gids = sorted(set(r[0] for r in rows))
     n_dec = len(gids)
+    wc_gids = {gid for gid in gids if whichcard_by_gid.get(gid)}
+    mixed_gids = {gid for gid in gids if not whichcard_by_gid.get(gid)}
     print(f"{n_dec} single-select winner decisions, {len(rows)} options "
           f"(avg {len(rows)/max(1,n_dec):.1f} options/decision)")
+    print(f"  which-card (all options same type): {len(wc_gids)}  |  mixed strategic: {len(mixed_gids)}")
 
     # baselines
     import statistics
@@ -188,8 +199,10 @@ def main():
     for r in rows:
         n_by_gid[r[0]] += 1
     rand = statistics.mean(1.0 / n for n in n_by_gid.values())
+    opt0 = statistics.mean(1.0 if chosen_by_gid[gid] == 0 else 0.0 for gid in gids)
     print(f"\nBASELINE top-1:")
     print(f"  random (1/n_options)          : {rand:.3f}")
+    print(f"  chose-option-0 (positional)   : {opt0:.3f}   <- engine option-ordering prior")
 
     # heuristic floor: re-run M.agent on each decision's obs, compare its pick to the winner's
     hk = ht = 0
@@ -215,17 +228,20 @@ def main():
                ("+attack", {"type", "card", "attack"}),
                ("+target", {"type", "card", "attack", "target"}),
                ("+interact(KO)", {"type", "card", "attack", "target", "interact"})]
-    print(f"\nWITHIN-DECISION IMITATION RANKER top-1 (game-wise 70/30, GBM):")
+    print(f"\nWITHIN-DECISION IMITATION RANKER top-1 (game-wise 70/30, GBM): ALL | which-card | mixed")
     for name, levels in ladders:
         X, y, g, n, keys = vectorize(rows, levels)
         tr = np.isin(g, list(train_g)); te = np.isin(g, list(test_g))
         clf = GradientBoostingClassifier(n_estimators=120, max_depth=3, random_state=0)
         clf.fit(X[tr], y[tr])
-        acc, tot = top1(clf, X[te], y[te], g[te])
-        print(f"  {name:>14} ({len(keys):>2} feats): {acc:.3f}  (n={tot} test decisions)")
-    print("\nRead: if top-1 rises far above random+heuristic as action features are added, imitation")
-    print("is learnable and the path is BC+action-features. If it stays flat, our decodable features")
-    print("are the ceiling and we need card-EFFECT features (the feature-engineering handoff).")
+        acc_all, n_all = top1(clf, X[te], y[te], g[te])
+        acc_wc, n_wc = top1(clf, X[te], y[te], g[te], subset=wc_gids)
+        acc_mx, n_mx = top1(clf, X[te], y[te], g[te], subset=mixed_gids)
+        print(f"  {name:>14} ({len(keys):>2} feats): {acc_all:.3f} (n={n_all}) | "
+              f"wc {acc_wc:.3f} (n={n_wc}) | mixed {acc_mx:.3f} (n={n_mx})")
+    print("\nRead: stratified. 'which-card' = all options same type (pure card choice); 'mixed' = the")
+    print("hard strategic decisions. Compare mixed top-1 to the chose-option-0 positional baseline,")
+    print("not to random. A pointwise GBM understates ranking; listwise loss is the next step.")
 
 
 if __name__ == "__main__":

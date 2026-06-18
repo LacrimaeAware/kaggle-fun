@@ -117,6 +117,7 @@ def evaluate_blend(obs: dict, me: int, lam: float = BLEND_LAMBDA) -> float:
     (global positional judgment) on ONE [0,1] scale: (1-lam)*sigmoid(hand) + lam*P(win).
     Terminal states map to 1/0/0.5 so they stay comparable. Falls back to the squashed hand
     eval alone if no learned weights are present."""
+    import value_model as VM  # was missing -> NameError made blend silently fall back to hand-only
     cur = obs.get("current") or {}
     t = _terminal(cur, me)
     if t is not None:

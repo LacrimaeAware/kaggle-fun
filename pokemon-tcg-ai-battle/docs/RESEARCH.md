@@ -57,6 +57,36 @@ teams (onechan1, DENPA92, Kyo_s_s) + given submissions, pulled with `fetch_episo
   ready (14,442 labelled decisions + full winner trajectories). **(B) deck-first** -- keep refining
   decks our current agent pilots well (DENPA92 swap is step 1). A is the larger build; awaiting steer.
 
+## Imitation feature-ceiling diagnostic + correction (2026-06-18, adversarially verified)
+
+`tools/diag_action_ceiling.py`: for every single-select decision the EVENTUAL WINNER faced in the
+replays (6,953 decisions, avg 8.2 options), train a within-decision ranker to predict the option the
+winner actually chose; metric top-1.
+
+- A FIRST pass looked like "richer action features don't help -> our representation is the ceiling".
+  A multi-agent adversarial verification (registry: this pass) REFUTED that. Two real bugs:
+  1. The card-identity join was DEAD CODE (`isinstance(hand[idx], int)`, but replay hand entries are
+     dicts `{'id':..}`). The whole card-feature block was all-zeros, so "+card" was bit-identical to
+     "type-only". Fixed: join via `AreaType.HAND==2` + `hand[idx]['id']`, restricted to PLAY/ATTACH/
+     EVOLVE.
+  2. `agent/eval.py` `evaluate_blend` referenced `VM` without importing it -> NameError -> every
+     blend / `agent_combine` data point silently fell back to hand-only. Fixed (likely a cause of
+     sub_combine's 358 ladder score). Re-measure agent_combine before trusting any blend number.
+- CORRECTED, stratified result (with the right baseline): random 0.197; **chose-option-0 (the engine's
+  option-ordering prior) 0.587**; hand heuristic 0.553; pointwise GBM on our per-option features ~0.50
+  (which-card 0.81 = the option-0 prior since type is constant there; mixed-strategic ~0.33, BELOW the
+  ~0.46 option-0 rate). So our per-option features, even fixed, do NOT beat "pick option 0" under a
+  pointwise objective.
+- HONEST VERDICT: INCONCLUSIVE on representation-vs-objective. The metric is dominated by a positional
+  prior, the objective is a weak pointwise GBM, and the real levers are UNTESTED: a listwise/pairwise
+  objective (test first, cheapest), card-EFFECT features decoded from cards_full.json text, and
+  forward-model one-ply DELTA features (simulate each option, feature the state delta). Do NOT repeat
+  the earlier "it's the representation" claim; it was premature.
+- HANDOFF (per the user's ask): `dropoff/outbox/2026-06-18-feature-optimization-prompt.md` (paste to
+  another model to build the corrected diagnostic + the prioritised action/effect/interaction feature
+  set) and `dropoff/outbox/2026-06-18-research-questions.md` (deep-research questions: representation
+  vs objective vs depth; BC done right / circularity; the learned-heuristics bridge; multi-deck SOTA).
+
 ## PROGRESS RECKONING + DIAGNOSIS (2026-06-17, latest; read this for current status)
 
 ACHIEVED:
