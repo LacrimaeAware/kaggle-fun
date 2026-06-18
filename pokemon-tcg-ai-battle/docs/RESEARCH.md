@@ -78,6 +78,50 @@ TO TRY (not yet run; the learned approach's open paths come first per the user):
 - BELIEF / opponent model for determinization; neuro-symbolic / pseudo-linguistic heuristics (idea 4).
 DEPRIORITIZED: a more complex deck (the diagnosis shows this deck is not the bottleneck).
 
+## Deep-research synthesis + way forward (2026-06-18; full report: research/deep-research-report-2026-06-18.md)
+
+An external deep-research pass reviewed the repo + the literature and AGREES with our diagnosis.
+Its ranked priorities and the cautions that change how we build:
+
+1. SIBLING-ACTION RANKING (its #1, = our H024). CRITICAL CAUTION it adds, and the reason our
+   attempt 1 failed: LABEL CIRCULARITY. A ranker trained only on 1-ply SEARCH VALUES inherits the
+   1-ply search's blindness, so it cannot exceed it. Fix: train on OUTCOME-aware labels with a
+   WITHIN-DECISION pairwise/listwise objective (Bradley-Terry / contextual-preference / InfoNCE),
+   not absolute value regression. Validate ONLY by head-to-head vs agent_search at n=800-1600 with
+   Wilson CIs + a second seed. (This is exactly the user's "label positions/actions good/bad by the
+   OUTCOME, naive-correlation" idea: outcome is the non-circular label.) Refs: Bertram 2023/2024.
+2. BELIEF-CONDITIONED DETERMINIZATION (= H022). We now HAVE the data: 37 replays downloaded
+   (tools/fetch_episodes.py), each exposing both players' decks. Build a replay ETL -> deck/meta
+   priors -> seed search_begin with realistic opponent hidden states. Validate first on replay
+   hidden-card likelihood (held-out), then head-to-head. Refs: Cowling 2012, Dockhorn (Hearthstone).
+3. SEARCH-BUDGET SWEEP (cheap, high-info): N_DETERM {4,8,16,32}, rollout {aggressive, weak/random,
+   default, heuristic-guided}, horizon {1-ply+reply, deeper}. Weak rollout may beat the aggressive
+   one (Cowling/Gelly-Silver). 
+4. REPRESENTATION: magnitude-aware + contrastive/decision-supervised card embeddings; judge on
+   GENERALIZATION + sibling ranking, not in-sample AUC. Then expert iteration AROUND THE ACTION
+   model (not state value). Full RL / ReBeL / Student-of-Games is the long-term frontier, premature now.
+
+USER DIRECTIONS folded in: (a) outcome-based labeling = the non-circular target for #1; (b) DECK
+RANDOMIZATION (randomize our deck AND the opponent deck) to prevent overfitting of the complex
+models + find a policy robust ACROSS matchups -- pair this with evaluating against the REAL
+opponent decks extracted from replays (re-simulate real matchups). (c) ladder note: sub_search /
+sub_combine sitting below the first submission is within early-ladder noise; deck randomization +
+matchup-robust evaluation is the principled guard against the overfitting the user suspects.
+
+WAY FORWARD (build order, supersedes the to-try list above where they overlap):
+1. Action ranker, OUTCOME-aware + within-decision pairwise/listwise objective, on the grouped
+   candidate-action data; head-to-head validation. (Fixes attempt-1's circularity.)
+2. Replay ETL: extract opponent decks + outcomes from the 37 replays -> deck/meta table + an
+   outcome-labeled position/action dataset (real-ladder, not just self-play). KEY non-circular
+   signal: the WINNING side's move choices in top-agent replays (onechan1 etc., score ~1300) are a
+   STRONGER policy than our 1-ply search, so IMITATION-LEARNING a policy/ranker from strong winners'
+   trajectories can exceed the hand search (unlike cloning our own 1-ply values, which only matches
+   it). This is the high-value use of the replays + the report's IL path. (Verify the replay step
+   obs exposes select.option + current so features and the chosen option are recoverable.)
+3. Belief-conditioned determinization seeded from those decks (H022).
+4. Deck-randomized self-play + matchup-robust evaluation (our deck x opponent deck grid).
+5. Search-budget sweep; then magnitude-aware/contrastive representation; then expert iteration.
+
 ## Ideas to keep (from the user, do not lose these)
 
 1. BAKE THE OBVIOUS HEURISTICS INTO EVERY AGENT (including search_v). Some rules are clean enough

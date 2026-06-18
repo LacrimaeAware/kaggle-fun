@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import subprocess
 import sys
 import time
@@ -35,6 +36,25 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "external" / "replays"
 CDN = "https://www.kaggleusercontent.com/episodes/{}.json"
 COMP = "pokemon-tcg-ai-battle"
+
+
+def _load_env() -> None:
+    """Load Kaggle creds from the gitignored .env (KAGGLE_KEY / KAGGLE_USERNAME, or a KGAT token)
+    so the CLI subprocess can auth without the user sourcing anything. Never printed or committed."""
+    envf = ROOT / ".env"
+    if not envf.exists():
+        return
+    for line in envf.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k, v = k.strip(), v.strip().strip('"').strip("'")
+        if k and k not in os.environ:
+            os.environ[k] = v
+    tok = os.environ.get("KAGGLE_API_TOKEN") or os.environ.get("KAGGLE_TOKEN")
+    if tok and not os.environ.get("KAGGLE_KEY"):
+        os.environ["KAGGLE_KEY"] = tok
 
 
 def _kaggle_ids(subargs: list, col: str = "id") -> list:
@@ -81,8 +101,11 @@ def main() -> None:
     ap.add_argument("--team", nargs="*", type=int, default=[],
                     help="team id(s) from the leaderboard: discover their submissions' episodes (needs kaggle.json)")
     ap.add_argument("--sleep", type=float, default=1.0, help="seconds between requests (rate-limit politeness)")
+    ap.add_argument("--max", type=int, default=0, help="cap total episodes downloaded (0 = no cap)")
     ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
+    if args.submission or args.team:
+        _load_env()                              # auth only needed for CLI discovery
     ids = list(args.ids)
     if args.file:
         ids += [int(x) for x in Path(args.file).read_text().split() if x.strip()]
@@ -96,6 +119,9 @@ def main() -> None:
             print(f"  team {team} submission {sub}: {len(eps)} episodes")
             ids += eps
     ids = list(dict.fromkeys(ids))               # dedup, preserve order
+    if args.max and len(ids) > args.max:
+        print(f"  capping {len(ids)} -> {args.max} episodes (--max)")
+        ids = ids[:args.max]
     if not ids:
         ap.error("give episode ids, --file, --submission, or --team")
     OUT.mkdir(parents=True, exist_ok=True)
