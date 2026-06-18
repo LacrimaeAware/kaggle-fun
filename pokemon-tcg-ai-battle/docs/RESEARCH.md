@@ -1,12 +1,13 @@
 # Research state and open ideas (LIVING doc)
 
-> SOURCE OF TRUTH (2026-06-18): `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md`. It holds the
-> baseline-named results, the cross-model consensus, the integrated replay-trained action-model plan,
-> the learning-signal design, the speed plan, and my ranking. The table below is the same results; the
-> older dated sections under it are history. Way forward in one line: build ONE integrated model
-> (card embedding + decoded effects + state x effect interactions + forward-model deltas -> listwise
-> action-ranking head), trained OFFLINE on cached replay decisions (the simulator is the bottleneck),
-> with wiring proofs + enabled-vs-zeroed ablations; submit `agent_search`+DENPA92 deck for a ladder read.
+> CONTROLLER: `docs/CURRENT.md` (compact, check every step). PLAN: `docs/ACTION_RANKER_PLAN.md` (the
+> H024-v2 action-conditioned ranker; do not deviate). These supersede the
+> `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md` framing with the diagnosis-precise version
+> (`dropoff/inbox/2026-06-18-roadblock-diagnosis.md` + the two methodology reviews). One line: the
+> failure was OBJECTIVE SLIPPAGE (we scored states instead of ranking sibling actions); the next and
+> only build is ONE action-CONDITIONED ranker (root + action descriptor + card embedding + decoded
+> effects + state x effect interactions + option_deltas -> grouped within-decision ranking), with a
+> NON-CIRCULAR target and component ablations. The results table below is still the current numbers.
 
 In-the-moment notes on where the learned-value direction is going, the ideas behind it, and the
 questions a deep-research pass should answer. LIVING and temporary: when an idea here stabilizes
