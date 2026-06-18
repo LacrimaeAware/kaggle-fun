@@ -240,8 +240,17 @@ Cowling 2012 (ensemble determinization + weak rollouts), Bertram 2024 (card embe
 - A known ladder episode: submissionId 53781334, episodeId 80408508; seed id 486837364.
   Kaggle leaderboard: kaggle.com/competitions/pokemon-tcg-ai-battle/leaderboard?submissionId=53781334&episodeId=80408508
   HEROZ visualizer (renders any episode by id): https://ptcgvis.heroz.jp/Visualizer/Replay/80408508/0
-- IDEA to try: pull OTHER players' ladder replays as a data source. Kaggle exposes episode JSONs
-  via its API/endpoints by episode id (we already have tools/parse_replay.py + data/external/replays
-  for local replay parsing). Real-ladder replays would give opponent decks/policies for opponent
-  modelling and for evaluating against the real pool, not just self-play. Verify the API path and
-  terms before scraping; not yet built.
+- URL pattern to view a replay (user found 2026-06-17): the share link comes as
+  `kaggle.com/competitions/pokemon-tcg-ai-battle/submissions#?submissionId=<S>&episodeId=<E>` which
+  is bugged; replace `submissions#` with `leaderboard` and it loads:
+  `kaggle.com/competitions/pokemon-tcg-ai-battle/leaderboard?submissionId=<S>&episodeId=<E>`.
+  Examples: S=53781334 E=80408508; S=53794404 E=80411394 (our replays).
+- REPLAY DOWNLOAD WORKS, NO AUTH (confirmed 2026-06-17). The full replay JSON is on the public CDN
+  `https://www.kaggleusercontent.com/episodes/<EpisodeId>.json`. tools/fetch_episodes.py downloads
+  by id into data/external/replays/. A replay contains BOTH players' DECKS (the step-1 action is
+  the 60-card list), every step's observations + actions, statuses, rewards, and the game seed.
+  Real-ladder replays give opponent decks/policies -> use for opponent-modelled determinization
+  (H022: seed search_begin's opponent_deck from real opponents, not the self-mirror) and meta deck
+  analysis. NOT yet built: bulk episode-id DISCOVERY (the EpisodeService ListEpisodes endpoint needs
+  Kaggle session auth, or scrape the leaderboard); for now pass ids from the leaderboard URL.
+  Respect Kaggle rate limits / ToS.
