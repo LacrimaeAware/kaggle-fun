@@ -12,8 +12,10 @@ this become a second source of truth.
 - `agent_search_v` (search + learned gradient-boosted-tree value, AUC 0.735) LOSES: 0.427 vs the
   heuristic. A tree predicts win/loss globally but ranks NEARBY candidate leaves coarsely, and
   1-ply search needs local sibling ranking. Registry H023; details in MODEL_COMMUNICATION.md.
-- We are NOT yet doing reinforcement learning. The value is supervised (predict win/loss from
-  features). The agreed direction is to move to RL / expert-iteration.
+- We have moved past pure supervised MC-outcome value. Now using SEARCH-BOOTSTRAPPED /
+  expert-iteration value targets (2 passes run) and an ACTION-RANKING objective (sibling-leaf
+  data) -- the RL-family direction. Full policy-gradient self-play RL is NOT done. Current numbers
+  in the reckoning below.
 
 ## PROGRESS RECKONING + DIAGNOSIS (2026-06-17, latest; read this for current status)
 
@@ -232,3 +234,14 @@ model first, evaluate RL by head-to-head not AUC). Treat them as inputs, re-veri
 Full cited findings live in the deep-research output; key papers: Willemsen 2022 (value targets),
 Cowling 2012 (ensemble determinization + weak rollouts), Bertram 2024 (card embeddings), Brown
 2020 (ReBeL), Schmid 2021/2023 (Player/Student of Games), Xi & Zhang 2023 (ByteRL/LOCM).
+
+## Live data sources / replay access (note, 2026-06-17)
+
+- A known ladder episode: submissionId 53781334, episodeId 80408508; seed id 486837364.
+  Kaggle leaderboard: kaggle.com/competitions/pokemon-tcg-ai-battle/leaderboard?submissionId=53781334&episodeId=80408508
+  HEROZ visualizer (renders any episode by id): https://ptcgvis.heroz.jp/Visualizer/Replay/80408508/0
+- IDEA to try: pull OTHER players' ladder replays as a data source. Kaggle exposes episode JSONs
+  via its API/endpoints by episode id (we already have tools/parse_replay.py + data/external/replays
+  for local replay parsing). Real-ladder replays would give opponent decks/policies for opponent
+  modelling and for evaluating against the real pool, not just self-play. Verify the API path and
+  terms before scraping; not yet built.

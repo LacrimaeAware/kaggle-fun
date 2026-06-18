@@ -171,11 +171,14 @@ L2 v1 THE REAL LOOP built + robust (2026-06-17, registry H023/E008), on the CORR
   search (AlphaZero policy+value, bootstrapped targets) not 1-ply leaf scoring; complex decks. Ship
   agent_search (hand eval), NOT search_v.
 
-NEXT (priority order, now evidence-backed by the 2026-06-17 deep-research pass; full findings +
-citations in docs/RESEARCH.md):
-1. COMBINE v1: floor search with the clean heuristics (always take a listed lethal; go first) AND
-   blend leaf eval = hand_eval + lambda*value on ONE [0,1] scale. Measure n>=800 with CIs vs hand
-   search AND heuristic. (Cheapest test of the user's "combine them" + our local-ranking diagnosis.)
+NEXT -- LIVE STATUS AND PRIORITIES ARE IN docs/RESEARCH.md (updated 2026-06-17); this list is the
+architectural plan, RESEARCH.md is the current source of truth. DONE since: combine v1 (parity);
+value-target fix = search-bootstrapped targets, expert-iteration passes 1+2 (no gain on this deck,
+all CIs ~0.5); action-ranking objective on sibling-leaf data (measuring). So we ARE doing
+bootstrapped/expert-iteration value learning (not "no RL"); full policy-gradient RL is not done.
+
+1. COMBINE v1 (DONE, parity): floor search with the clean heuristics (always take a listed lethal;
+   go first) AND blend leaf eval = hand_eval + lambda*value on ONE [0,1] scale.
 2. VALUE-TARGET FIX (highest-leverage for the measured symptom): retrain the value on SEARCH-
    BOOTSTRAPPED targets (greedy backup / the search's own leaf value), and/or a candidate-leaf
    ADVANTAGE/RANKING model over sibling actions, not a global state classifier. (Willemsen 2022:
