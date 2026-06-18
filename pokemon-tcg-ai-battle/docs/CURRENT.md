@@ -13,10 +13,17 @@ Updated: 2026-06-18
   (root + action descriptor + card embedding + decoded effects + state x effect interactions +
   option_deltas) ranks SIBLING actions within a decision better than the hand evaluator, with a
   NON-CIRCULAR target, judged within-decision then by win-rate.
-- **Phase / status:** Phase 1 = `specified`. Plan written; no action-ranker code yet.
-- **Exact next command:** check whether E013 candidate data exists (`data/` action dataset); if yes run
-  Phase 1 (center target within decision, retrain, within-decision metrics); if no, go to Phase 2
-  (build the proper action dataset with root+action+delta+shared-determinization).
+- **Phase / status:** Phase 1 = `offline-evaluated` (tools/rank_phase1.py). RESULT: on the existing
+  leaf-only E013 data (5327 decisions), centering the target barely changes within-decision ranking
+  (raw top-1 0.446 / centered 0.426; pair 0.453 / 0.469), and BOTH are far below the chose-option-0
+  baseline (0.702). So leaf-state features alone cannot rank sibling actions, with or without
+  centering -> the representation is the binding issue, exactly as the diagnosis said. Move to Phase 2.
+- **Exact next command:** Phase 2 -- build the proper ACTION-CONDITIONED dataset: rewrite
+  `tools/datagen_actions.py` (or a v2) to log per option: root features + action descriptor (type,
+  card/attack id, target, draws/tutors/evolves/attacks/ends, immediate KO/survival) + leaf features +
+  leaf-minus-root delta + values across K SHARED determinizations + hand score + eventual result +
+  criticality spread. Then Phase 4 model (centered-advantage GBM / pairwise logistic / small
+  action-conditioned MLP with card embeddings + effects), reported with the component ablations.
 - **Next acceptance gate:** offline within-decision top-1 / pairwise / regret on HIGH-CRITICALITY
   decisions, beating option-0 AND the hand-eval teacher, WITH ablations (no-effects / no-embedding /
   no-deltas). Only then a frozen win-rate A/B vs agent_search + heuristic.
