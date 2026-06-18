@@ -1,17 +1,28 @@
-"""H024-v2 Phase 4: the action-CONDITIONED sibling ranker (with forward-model consequence deltas).
+"""H024-v2 Phase 4-5: the action-CONDITIONED sibling ranker, trained two ways.
 
 Per legal option of a winner's decision: card-id EMBEDDING + decoded effects + action descriptor +
 root-state features + FORWARD-MODEL one-step DELTAS (prizes/KO/dmg/draw/board) -> shared MLP -> one
-logit; listwise softmax over the decision's options; trained to predict the option the WINNER chose
-(non-circular target). Reports WITHIN-DECISION top-1/pairwise, STRATIFIED into all / non-option-0
-(did it predict the winner's deviation from option 0) / high-criticality (consequence spread), each
-vs the chose-option-0 baseline. Ablations: no-deltas / no-effects / no-embedding show what carries it.
+logit; listwise softmax over the decision's options.
 
-Aggregate top-1 vs option-0 is NOT the headline (option ordering is a strong prior). The headline is
-the non-option-0 and high-criticality strata: can the model find the better move when option 0 is not
-automatically right?
+Two targets (--target):
+  imit    : predict the option the WINNER chose (the auxiliary expert prior; non-circular wrt our eval).
+  distill : predict the option the frozen SEARCH TEACHER prefers (max multi-turn leaf value; the
+            `bsrch` field from build_action_dataset.py --values). This DISTILLS the slow search into
+            a net that is instant at match time -- the whole reason a learned policy is worth having
+            (we cannot run 0.6s/decision search inside the match budget; a net is ~0 cost).
+  both    : imitation CE + lam * distillation CE (expert prior + search teacher together).
 
-    python tools/train_action_ranker.py [--epochs 40 --lr 0.01 --hidden 128]
+Headline metrics (within decision, canonical by eq-class):
+  imitation top-1  : argmax matches the winner's move, stratified all / non-opt0 / high-crit.
+  DISTILL top-1    : argmax matches the SEARCH teacher's pick -- does the cheap net reproduce the
+                     expensive search? This is the distillation fidelity that justifies the net.
+  reference: SEARCH-vs-winner agreement and option-0 baselines are printed so the strata are anchored.
+
+Ablations: no-deltas / no-effects / no-embedding show which inputs carry the fidelity.
+
+    python tools/train_action_ranker.py --target imit                       # action_imit.jsonl
+    python tools/train_action_ranker.py --data action_adv.jsonl --target distill
+    python tools/train_action_ranker.py --data action_adv.jsonl --target both --lam 0.5
 """
 from __future__ import annotations
 
@@ -25,16 +36,22 @@ import torch
 import torch.nn as nn
 
 ROOT = Path(__file__).resolve().parent.parent
-ROWS = [json.loads(l) for l in open(ROOT / "data" / "replay_db" / "action_imit.jsonl", encoding="utf-8")]
 OTYPES = [0, 3, 5, 6, 7, 8, 9, 10, 13, 14]
 EFFECT_KEYS = ["draw", "search", "search_to_bench", "energy_accel", "heal", "switch_gust",
                "recover_discard", "disrupt", "discard_cost", "status", "has_ability"]
 DELTA_KEYS = ["prizes_taken", "opp_prizes_taken", "opp_ko", "dmg_dealt", "cards_drawn",
               "energy_attached", "board_dev", "deck_used", "discard_gain", "ends_turn",
               "wins_now", "loses_now"]
-CARD_IDS = sorted({r["card_id"] for r in ROWS})
-ID2IX = {c: i for i, c in enumerate(CARD_IDS)}
 HIDDEN, LR = 128, 1e-2
+ROWS, CARD_IDS, ID2IX = [], [], {}
+
+
+def load(path):
+    global ROWS, CARD_IDS, ID2IX
+    fp = path if Path(path).is_absolute() else ROOT / "data" / "replay_db" / path
+    ROWS = [json.loads(l) for l in open(fp, encoding="utf-8")]
+    CARD_IDS = sorted({r["card_id"] for r in ROWS})
+    ID2IX = {c: i for i, c in enumerate(CARD_IDS)}
 
 
 def dense_vec(r, use_eff=True, use_root=True, use_delta=True):
@@ -72,7 +89,8 @@ def build(use_eff=True, use_root=True, use_delta=True):
         cons = [consequence(o) for o in opts]
         crit = max(cons) - min(cons)
         eq = [o.get("eq", j) for j, o in enumerate(opts)]   # equivalence class per option (canonical top-1)
-        G.append((cidx, dense, chosen, dev, crit, eq))
+        bsi = next((j for j, o in enumerate(opts) if o.get("bsrch") == 1), None)  # search teacher's pick
+        G.append((cidx, dense, chosen, dev, crit, eq, bsi))
     return G
 
 
@@ -90,24 +108,30 @@ class Ranker(nn.Module):
         return self.net(x).squeeze(-1)
 
 
-def metrics(m, test, mean, std, subset):
+def metrics(m, test, mean, std, subset, label="chosen"):
+    """top-1 / pairwise vs `label` target ('chosen'=winner index 2, or 'bsi'=search-best index 6)."""
     top1 = ph = pt = n = 0
+    tcol = 2 if label == "chosen" else 6
     with torch.no_grad():
         for k in subset:
-            cidx, dense, ch, dev, crit, eq = test[k]
+            g = test[k]
+            tgt = g[tcol]
+            if tgt is None:
+                continue
+            cidx, dense, eq = g[0], g[1], g[5]
             dn = (torch.tensor(dense, dtype=torch.float32) - mean) / std
             p = m(torch.tensor(cidx), dn).numpy()
             n += 1
-            top1 += int(eq[int(np.argmax(p))] == eq[ch])    # canonical: any option equivalent to chosen
+            top1 += int(eq[int(np.argmax(p))] == eq[tgt])    # canonical: any option equivalent to target
             for i in range(len(p)):
-                if eq[i] == eq[ch]:
-                    continue                                # equivalent option -> no preference to score
+                if eq[i] == eq[tgt]:
+                    continue
                 pt += 1
-                ph += int(p[ch] > p[i])
+                ph += int(p[tgt] > p[i])
     return (top1 / n if n else 0), (ph / pt if pt else 0), n
 
 
-def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, full, epochs):
+def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, epochs, target, lam):
     torch.manual_seed(0)
     G = build(use_eff, use_root, use_delta)
     tr = [G[i] for i in tr_ids]
@@ -120,32 +144,47 @@ def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, full, epoch
     for ep in range(epochs):
         np.random.default_rng(ep).shuffle(order)
         for s in range(0, len(order), 64):
-            opt.zero_grad(); loss = 0.0
+            opt.zero_grad(); loss = 0.0; nb = 0
             for gi in order[s:s + 64]:
-                cidx, dense, ch, *_ = tr[gi]
+                cidx, dense, ch, dev, crit, eq, bsi = tr[gi]
                 dn = (torch.tensor(dense, dtype=torch.float32) - mean) / std
-                loss = loss + nn.functional.cross_entropy(m(torch.tensor(cidx), dn).unsqueeze(0), torch.tensor([ch]))
-            (loss / len(order[s:s + 64])).backward(); opt.step()
+                logit = m(torch.tensor(cidx), dn).unsqueeze(0)
+                li = 0.0
+                if target in ("imit", "both"):
+                    li = li + nn.functional.cross_entropy(logit, torch.tensor([ch]))
+                if target in ("distill", "both") and bsi is not None:
+                    li = li + lam * nn.functional.cross_entropy(logit, torch.tensor([bsi]))
+                if isinstance(li, float):
+                    continue
+                loss = loss + li; nb += 1
+            if nb:
+                (loss / nb).backward(); opt.step()
     allk = list(te.keys())
     devk = [k for k in allk if te[k][3] == 1]
     crit_vals = sorted((te[k][4] for k in allk))
     hi_cut = crit_vals[int(2 / 3 * len(crit_vals))] if crit_vals else 0
     hik = [k for k in allk if te[k][4] >= hi_cut]
-    a = metrics(m, te, mean, std, allk)
-    dv = metrics(m, te, mean, std, devk)
-    hi = metrics(m, te, mean, std, hik)
-    print(f"  {name:<22} ALL top1 {a[0]:.3f} | NON-opt0 top1 {dv[0]:.3f} (n={dv[2]}) | HIGH-crit top1 {hi[0]:.3f} (n={hi[2]})")
-    return a
+    im = metrics(m, te, mean, std, allk, "chosen")
+    di = metrics(m, te, mean, std, allk, "bsi")
+    di_dev = metrics(m, te, mean, std, devk, "bsi")
+    di_hi = metrics(m, te, mean, std, hik, "bsi")
+    print(f"  {name:<22} IMIT top1 {im[0]:.3f} | DISTILL top1 {di[0]:.3f} (n={di[2]})"
+          f" | distill NON-opt0 {di_dev[0]:.3f} (n={di_dev[2]}) | distill HIGH-crit {di_hi[0]:.3f} (n={di_hi[2]})")
+    return im
 
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--data", default="action_imit.jsonl", help="dataset file under data/replay_db (action_adv.jsonl for distill)")
+    ap.add_argument("--target", choices=["imit", "distill", "both"], default="imit")
+    ap.add_argument("--lam", type=float, default=0.5, help="distill weight when --target both")
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--lr", type=float, default=1e-2)
     ap.add_argument("--hidden", type=int, default=128)
     args = ap.parse_args()
     global HIDDEN, LR
     HIDDEN, LR = args.hidden, args.lr
+    load(args.data)
 
     base = build(True, True, True)
     rng = np.random.default_rng(0)
@@ -153,25 +192,35 @@ def main():
     cut = int(0.8 * len(base))
     tr_ids, te_ids = idx[:cut].tolist(), idx[cut:].tolist()
 
-    # stratified baselines
+    # stratified baselines + teacher reference
     teg = {i: base[i] for i in te_ids}
     devk = [i for i in te_ids if teg[i][3] == 1]
     crit_vals = sorted((teg[i][4] for i in te_ids)); hi_cut = crit_vals[int(2 / 3 * len(crit_vals))]
     hik = [i for i in te_ids if teg[i][4] >= hi_cut]
     def opt0(sub): return np.mean([1.0 if base[i][5][0] == base[i][5][base[i][2]] else 0.0 for i in sub]) if sub else 0
     def rnd(sub): return np.mean([1.0 / len(base[i][0]) for i in sub]) if sub else 0
-    print(f"{len(base)} decisions, 80/20 split | non-opt0 test n={len(devk)} | high-crit test n={len(hik)}")
-    print(f"BASELINE chose-option-0:  ALL {opt0(te_ids):.3f} | NON-opt0 {opt0(devk):.3f} | HIGH-crit {opt0(hik):.3f}")
-    print(f"BASELINE random:          ALL {rnd(te_ids):.3f} | NON-opt0 {rnd(devk):.3f} | HIGH-crit {rnd(hik):.3f}\n")
+    has_bsi = [i for i in te_ids if base[i][6] is not None]
+    # how often the SEARCH teacher's pick equals the winner's move (eq-class) -- agreement, anchors distill
+    def agree(sub): return np.mean([1.0 if base[i][5][base[i][6]] == base[i][5][base[i][2]] else 0.0
+                                    for i in sub if base[i][6] is not None]) if sub else 0
+    def opt0_bsi(sub): return np.mean([1.0 if base[i][5][0] == base[i][5][base[i][6]] else 0.0
+                                       for i in sub if base[i][6] is not None]) if sub else 0
+    print(f"{len(base)} decisions, 80/20 split | non-opt0 test n={len(devk)} | high-crit test n={len(hik)} "
+          f"| with search value n={len(has_bsi)}")
+    print(f"BASELINE chose-option-0 (vs winner):  ALL {opt0(te_ids):.3f} | NON-opt0 {opt0(devk):.3f} | HIGH-crit {opt0(hik):.3f}")
+    print(f"BASELINE random (vs winner):          ALL {rnd(te_ids):.3f} | NON-opt0 {rnd(devk):.3f} | HIGH-crit {rnd(hik):.3f}")
+    if has_bsi:
+        print(f"SEARCH teacher vs winner agreement:   ALL {agree(te_ids):.3f}  (option-0 vs search {opt0_bsi(te_ids):.3f})")
+    print(f"target={args.target} lam={args.lam}\n")
 
     for name, ue, uf, ur, ud in [("FULL (+deltas)", True, True, True, True),
                                  ("no deltas", True, True, True, False),
                                  ("no effects", True, False, True, True),
                                  ("no embedding", False, True, True, True)]:
-        run(name, ue, uf, ur, ud, tr_ids, te_ids, base, args.epochs)
-    print("\nRead: headline = NON-opt0 and HIGH-crit top-1 (can it find the better move when option 0 is")
-    print("not automatically right). FULL vs no-deltas shows whether the forward-model consequence signal")
-    print("carries it. Beating option-0 on NON-opt0/HIGH-crit is the real offline win; then arena win-rate.")
+        run(name, ue, uf, ur, ud, tr_ids, te_ids, args.epochs, args.target, args.lam)
+    print("\nRead: DISTILL top-1 = does the cheap net reproduce the expensive search's pick. High distill")
+    print("fidelity (esp. on NON-opt0/HIGH-crit, where option-0 is not automatically right) means the net")
+    print("can REPLACE search at match time. FULL vs no-deltas shows whether the consequence signal carries it.")
 
 
 if __name__ == "__main__":

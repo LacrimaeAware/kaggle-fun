@@ -6,11 +6,16 @@ decision_id. This is the non-circular target (the winner's move, not the hand ev
 action-level inputs (root + action identity) the leaf-only data lacked.
 
 Deck auto-picked as the one with the most winner-decisions in the corpus (override with --deck-rank K).
-option_deltas (forward-model consequence) are NOT included here (sim); added in a later pass if this
-sim-free representation already separates moves.
+option_deltas (forward-model one-step consequence) ARE included. With --values, also cache the
+frozen-teacher MULTI-TURN search VALUE per option (S.option_evals: finish my turn, opponent reply,
+evaluate at the start of my next turn, averaged over N_DETERM worlds). That value is the teacher the
+learned ranker is DISTILLED toward: each row gets `val` (search leaf value), `adv` (val centered
+within the decision), and `bsrch` (1 if this option is the search argmax). --values is sim-heavy
+(~0.6s/decision); the imitation-only build is sim-free for the static features.
 
     python tools/build_action_dataset.py            # top winner-decision deck
     python tools/build_action_dataset.py --deck-rank 2   # 2nd (e.g. DENPA92)
+    python tools/build_action_dataset.py --player KanNinomiya --strategic-only --values  # distill set
 """
 from __future__ import annotations
 
@@ -103,6 +108,7 @@ def main():
     ap.add_argument("--deck-rank", type=int, default=1, help="1=most winner-decisions, 2=next, ...")
     ap.add_argument("--player", default=None, help="filter to ONE winner player's decisions (clean policy)")
     ap.add_argument("--strategic-only", action="store_true", help="only decisions with >1 option type AND >1 distinct move")
+    ap.add_argument("--values", action="store_true", help="also cache the frozen-teacher multi-turn search value per option (sim-heavy)")
     args = ap.parse_args()
 
     # pass 1: rank decks by winner-decisions
@@ -193,6 +199,21 @@ def main():
                 deltas = S.option_deltas(obs, deck)
             except Exception:
                 deltas = None
+            # frozen-teacher multi-turn search value per option (distillation target) -- sim-heavy
+            vals = None
+            if args.values:
+                try:
+                    ev = S.option_evals(obs, deck)   # list[option] of (mean_val, mean_feats) or None
+                except Exception:
+                    ev = None
+                if ev:
+                    vals = [ev[j][0] if (j < len(ev) and ev[j]) else None for j in range(len(opts))]
+            present = [v for v in (vals or []) if v is not None]
+            mean_v = sum(present) / len(present) if present else 0.0
+            best_eq = None
+            if present:
+                bj = max((j for j in range(len(vals)) if vals[j] is not None), key=lambda j: vals[j])
+                best_eq = keys[bj]                   # canonical: the eq-class the search prefers
             for j, o in enumerate(opts):
                 if not isinstance(o, dict):
                     continue
@@ -201,20 +222,31 @@ def main():
                 for k in DELTA_KEYS:
                     af["d_" + k] = float(dd.get(k, 0.0))
                 af["has_delta"] = 1 if dd else 0
-                rows.append({"gid": gid, "chosen": 1 if j == chosen_idx else 0,
-                             "dev": 1 if chosen_idx != 0 else 0, "eq": uniq[keys[j]],
-                             "strat": 1 if strategic else 0, "root": root, **af})
+                row = {"gid": gid, "chosen": 1 if j == chosen_idx else 0,
+                       "dev": 1 if chosen_idx != 0 else 0, "eq": uniq[keys[j]],
+                       "strat": 1 if strategic else 0, "root": root, **af}
+                if vals is not None:
+                    vj = vals[j]
+                    row["has_val"] = 1 if vj is not None else 0
+                    row["val"] = float(vj) if vj is not None else 0.0
+                    row["adv"] = float(vj - mean_v) if vj is not None else 0.0
+                    row["bsrch"] = 1 if (best_eq is not None and keys[j] == best_eq) else 0
+                rows.append(row)
             gid += 1
             if gid % 1000 == 0:
                 print(f"  [build] {gid} decisions, {len(rows)} rows, {time.time()-t0:.0f}s", flush=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    out = OUT / "action_imit.jsonl"
+    out = OUT / ("action_adv.jsonl" if args.values else "action_imit.jsonl")
     with open(out, "w", encoding="utf-8") as fh:
         for r in rows:
             fh.write(json.dumps(r, separators=(",", ":")) + "\n")
     print(f"wrote {len(rows)} option-rows over {gid} decisions -> {out.relative_to(ROOT)}")
     print(f"  avg options/decision: {len(rows)/max(1,gid):.1f}; root dim {len(rows[0]['root']) if rows else 0}; "
           f"action feats: otype, card_id, {len(EFFECT_KEYS)} effects, card stats, attack, target")
+    if args.values:
+        nv = sum(1 for r in rows if r.get("has_val"))
+        gv = len({r["gid"] for r in rows if r.get("has_val")})
+        print(f"  search values cached on {nv} rows / {gv} decisions (the distillation target: val/adv/bsrch)")
 
 
 if __name__ == "__main__":
