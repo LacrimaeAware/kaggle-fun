@@ -16,8 +16,17 @@ Local cabt, same deck both sides (now DENPA92's), seats swapped. Small-n directi
 | agent_search vs first_agent | 0.585 | 800 | search beats the contest baseline opponent |
 | combine vs heuristic | 0.831 | 160 | combine = search + hand/learned blend leaf; mostly the SEARCH |
 | combine vs agent_search | 0.37 | 60 | blend leaf WORSE than hand leaf -> do not submit combine |
-| search vs heuristic | (rerunning) | 50 | attribution for the combine result |
-| search_v vs search | (rerunning) | 50 | learned-value-leaf vs hand-leaf search |
+| search vs heuristic (DENPA92 deck) | 0.86 | 50 | search >> heuristic ON THIS DECK (see deck note) |
+| search_v vs search | 0.25 | 20 | learned-value leaf WORSE than hand leaf (confirms combine) |
+
+DECK NOTE (why "search vs heuristic" is 0.86 here but was ~0.54 on the old deck): the no-search
+heuristic's competence is DECK-DEPENDENT. On the old simple basic-attacker deck it piloted nearly as
+well as search (gap 0.54). DENPA92's deck is an evolution engine (Dunsparce->Dudunsparce,
+Abra->Kadabra->Alakazam) the no-search heuristic plays badly, so search beats it by more (0.86). The
+gap widened because the BASELINE got worse on this deck, NOT because the agent got stronger in
+absolute terms. Cross-deck "vs heuristic" win-rates are not comparable and are not progress. Absolute
+strength is only the LADDER vs real opponents (untested with this deck). Same deck both sides, seats
+swapped; no deck randomization.
 
 Imitation diagnostics (predict the winner's option; top-1; baseline = chose-option-0):
 - Gate 1 static-feature listwise: mixed 0.327 vs option-0 0.435 -> below.
