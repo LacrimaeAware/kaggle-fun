@@ -77,11 +77,17 @@ winner actually chose; metric top-1.
   (which-card 0.81 = the option-0 prior since type is constant there; mixed-strategic ~0.33, BELOW the
   ~0.46 option-0 rate). So our per-option features, even fixed, do NOT beat "pick option 0" under a
   pointwise objective.
-- HONEST VERDICT: INCONCLUSIVE on representation-vs-objective. The metric is dominated by a positional
-  prior, the objective is a weak pointwise GBM, and the real levers are UNTESTED: a listwise/pairwise
-  objective (test first, cheapest), card-EFFECT features decoded from cards_full.json text, and
-  forward-model one-ply DELTA features (simulate each option, feature the state delta). Do NOT repeat
-  the earlier "it's the representation" claim; it was premature.
+- LISTWISE test now run (LightGBM lambdarank, decision id = group, the objective the deep-research
+  report + verifiers recommended): top-1 0.495 all / 0.327 mixed -- STILL below the option-0 prior
+  (0.587 all / 0.468 mixed). top-3 0.742 all / 0.624 mixed (vs ~0.375 random top-3). So a proper
+  ranking objective does NOT rescue top-1: the plateau is not (only) an objective artifact. The
+  features carry PARTIAL signal (top-3 narrows to ~3 candidates) but cannot out-predict option ordering
+  at top-1.
+- HONEST VERDICT: the only untested lever left is forward-model one-ply DELTA features (simulate each
+  option, feature the consequence) -- static features + listwise objective both fail to beat option-0.
+  AND imitation top-1 is likely the WRONG yardstick: our actual agent wins 0.585 on WIN-RATE despite
+  ~0.42 imitation top-1 (the two diverge). Next: judge move-selection by WIN-RATE (cabt_arena, Wilson
+  CIs), not imitation. Do NOT repeat the earlier "it's the representation" claim; it was premature.
 - HANDOFF (per the user's ask): `dropoff/outbox/2026-06-18-feature-optimization-prompt.md` (paste to
   another model to build the corrected diagnostic + the prioritised action/effect/interaction feature
   set) and `dropoff/outbox/2026-06-18-research-questions.md` (deep-research questions: representation
