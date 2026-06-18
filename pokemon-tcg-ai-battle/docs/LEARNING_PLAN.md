@@ -1,5 +1,11 @@
 # Learning plan: features -> state -> search + RL (the systemic version)
 
+> CURRENT PLAN OF RECORD (2026-06-18): `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md`. The
+> active build is ONE integrated, replay-trained, OFFLINE action-ranker (card embedding + decoded
+> effects + state x effect interactions + forward-model deltas -> listwise outcome/horizon-weighted
+> head), with wiring proofs + ablations, because the simulator is the wall-clock bottleneck. Defer to
+> the consensus doc where this older framing differs.
+
 How the classification, the card features/embeddings, the feature-encoded state, search, and
 reinforcement learning fit into one pipeline, with the exact components and the evaluation
 rules that prevent killing an idea on one bad experiment.

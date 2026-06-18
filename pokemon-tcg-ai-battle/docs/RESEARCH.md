@@ -1,5 +1,13 @@
 # Research state and open ideas (LIVING doc)
 
+> SOURCE OF TRUTH (2026-06-18): `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md`. It holds the
+> baseline-named results, the cross-model consensus, the integrated replay-trained action-model plan,
+> the learning-signal design, the speed plan, and my ranking. The table below is the same results; the
+> older dated sections under it are history. Way forward in one line: build ONE integrated model
+> (card embedding + decoded effects + state x effect interactions + forward-model deltas -> listwise
+> action-ranking head), trained OFFLINE on cached replay decisions (the simulator is the bottleneck),
+> with wiring proofs + enabled-vs-zeroed ablations; submit `agent_search`+DENPA92 deck for a ladder read.
+
 In-the-moment notes on where the learned-value direction is going, the ideas behind it, and the
 questions a deep-research pass should answer. LIVING and temporary: when an idea here stabilizes
 into a decision or a result, MOVE it into the permanent home (docs/LEARNING_PLAN.md for the plan,

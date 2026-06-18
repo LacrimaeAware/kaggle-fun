@@ -1,5 +1,9 @@
 # Master plan: beat the heuristic, then the ladder (independent synthesis, 2026-06-18)
 
+> SUPERSEDED by `2026-06-18-CONSENSUS-and-way-forward.md` (later same day). Kept for history. The
+> consensus doc folds in this plan's results plus the card-effects/action-prior handoff and the
+> replay-first / integrated-model direction.
+
 > My own synthesis after incorporating the deep-research report, the adversarial workflow, the audit
 > handoff, and the Codex review. Where they conflict with my judgment I say so. Supersedes the
 > single-track framing in `2026-06-18-forward-plan.md` (that doc's gates are folded in as Track B).

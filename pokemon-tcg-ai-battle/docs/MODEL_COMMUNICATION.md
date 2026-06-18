@@ -1,5 +1,12 @@
 # Model communication notes
 
+> LATEST HANDOFF (2026-06-18): read `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md` first,
+> and the inbox handoffs in `dropoff/inbox/`. Fixed since the notes below: `eval.evaluate_blend`
+> NameError (blend now runs); the dead card-join in the imitation diagnostic. Confirmed: search_v /
+> combine (learned value at the leaf) lose to `agent_search`; 2-ply lost; the hand-weighted effect
+> heuristic lost (it was a replacement scorer, not a residual). Active build: integrated offline
+> replay-trained action-ranker. Cross-session dropoff lives in `dropoff/` (inbox + outbox).
+
 This file is for handoff between model sessions. It records concrete code issues and audit
 targets that should not be lost in prose or chat context. Treat it as a working note, not as
 the registry canon for experiment results.

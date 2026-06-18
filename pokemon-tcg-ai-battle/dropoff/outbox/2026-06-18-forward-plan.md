@@ -1,5 +1,7 @@
 # Forward plan: a learned move-ranker on forward-model consequence features (win-rate judged)
 
+> SUPERSEDED by `2026-06-18-CONSENSUS-and-way-forward.md`. Kept for history.
+
 > For review by another model. Grounded in `dropoff/inbox/2026-06-18-deep-research-report.md`,
 > `docs/RESEARCH.md` (the 2026-06-18 sections), and the adversarial-verification findings.
 
