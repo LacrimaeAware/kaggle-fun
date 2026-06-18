@@ -37,13 +37,27 @@ this become a second source of truth.
    raw Monte-Carlo outcomes of weak self-play. Expert iteration (AlphaZero family): self-play with
    the current best agent -> better targets -> retrain -> repeat, for many hours.
 
-4. PSEUDO-LINGUISTIC / LEARNED INTERPRETABLE HEURISTICS (the big speculative one). Let the learner
-   compose its OWN rules from a vocabulary of CONDITIONS (scenario embeddings: "it draws", "I'm
-   behind on prizes") and ACTIONS (verbs/operators: "draw more", "attack first"). The embedding
-   classifies what a scenario MEANS; learned statistics decide which heuristic applies there. A
-   neuro-symbolic / program-induction / LLM-as-rule-composer flavor: discover human-readable rules
-   conditioned on a learned state meaning, refined by what statistically wins. Likely hard to
-   build; capture as a research direction, do not commit to it blind.
+4. PSEUDO-LINGUISTIC / LEARNED INTERPRETABLE HEURISTICS (the big speculative one; the user may
+   hand this to a dedicated model to explore). Let the learner compose its OWN rules from a
+   vocabulary of CONDITIONS (scenario embeddings: "it draws", "I'm behind on prizes") and ACTIONS
+   (verbs/operators: "draw more", "attack first"). The embedding classifies what a scenario MEANS;
+   learned statistics decide which heuristic applies there. Neuro-symbolic / program-induction /
+   LLM-as-rule-composer flavor: human-readable rules conditioned on a learned state meaning,
+   refined by what statistically wins.
+   - HONEST FRAMING (user): this may help a HUMAN understand what the bot is doing more than it
+     helps the bot WIN -- like the structured-transform-repo lesson where the value was diagnosis,
+     not accuracy -- UNLESS we can leverage the embeddings well. Still a layer the user is very
+     interested in.
+   - WHY IT MIGHT WORK HERE, where past "fit a random equation to the problem" attempts FAILED:
+     random equation/rule search is combinatorial and you are shooting in the dark (no structure
+     to learn or exploit from). Here we are NOT blind: humans recognize good heuristics instantly
+     and can agree on a RANKED HIERARCHY with exceptions. So seed a FLOOR of human-agreed, ranked
+     rules and let the system learn (a) which rule applies in which learned scenario and (b) refine
+     the ranking/exceptions, instead of inventing rules from scratch.
+   - STARTER HIERARCHY (human-agreed, to encode + then refine): (1) KO the opponent -- UNLESS it
+     leaves you open to being KO'd back (so "avoid being KO'd" is a real competing rule); (2) go
+     first / draw when offered (more information is better); ... The learnable part is the
+     ordering, the exceptions, and the scenario->rule mapping; the floor is hand-given.
 
 5. ENSEMBLE / COMBINE the heuristic + hand eval + learned value + search. Weight each option by
    whether the evaluators AGREE; when they agree, trust the move; when they disagree, search

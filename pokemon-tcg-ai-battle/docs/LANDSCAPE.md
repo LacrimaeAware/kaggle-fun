@@ -46,13 +46,17 @@ real game dump:
 
 ## 2. The binding constraints (what makes this hard, specifically)
 
-1. NO in-match forward model. The engine drives a single global native battle; the agent
-   gets only an observation, with no clone/step/search API (read in `cg/sim.py`). So we
-   cannot do "try an action, evaluate the resulting state" in-match. This rules out clean
-   MCTS/ISMCTS this version (registry H1, refuted). It is THE structural constraint.
-   Consequences: the policy must either score options directly from board features, or we
-   build our OWN partial next-state predictor for the deterministic actions (attach energy,
-   evolve, attack damage) to recover a one-ply lookahead.
+> SUPERSEDED 2026-06-17 (see top banner): item 1 below is WRONG. The forward model IS available
+> (cg/api.py search_begin/search_step; registry H001 SUPPORTED) and in-match search is built and
+> is our strongest agent. Read items 2+ for still-valid constraints; ignore item 1.
+
+1. [INCORRECT, kept as history] NO in-match forward model. The engine drives a single global
+   native battle; the agent gets only an observation, with no clone/step/search API (read in
+   `cg/sim.py`). So we cannot do "try an action, evaluate the resulting state" in-match. This
+   rules out clean MCTS/ISMCTS this version (registry H1, refuted). It is THE structural
+   constraint. Consequences: the policy must either score options directly from board features,
+   or we build our OWN partial next-state predictor for the deterministic actions (attach
+   energy, evolve, attack damage) to recover a one-ply lookahead.
 2. Card data is not exposed in the Python layer. `cg/__init__.py` is empty; no card DB
    ships; stats live in the native `cg.dll`. But `hp`/`maxHp` are in the observation, and
    attack damage per `attackId` is recoverable by logging defender HP before and after each

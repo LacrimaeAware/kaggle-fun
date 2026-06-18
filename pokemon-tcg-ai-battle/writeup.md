@@ -10,44 +10,51 @@ judged partly on this agent's Simulation rating (`docs/COMPETITION.md`).
 
 ## Method
 
-A robust, always-legal heuristic. During deck selection the agent returns a fixed 60-card
-deck (the engine default); during play it receives `obs["select"]["option"]` (typed action
-dicts) with a `maxCount` and returns up to that many indices. Only legal options are
-offered, so any subset is legal. The heuristic defers the turn-ending option (observed as
-option type 14) so the agent acts before it passes, with a safe first-`maxCount` fallback
-on any error. Decisions are O(n log n) over a handful of options, microseconds each.
-Everything was measured in the real engine via `agent/cabt_arena.py` (200 games per
-matchup, seats swapped), not against a proxy.
+Three agents, all always-legal and crash-safe (`agent/main.py`):
+- **heuristic**: rules on the current options (take a listed lethal, go first, attach energy
+  to an energy-short active), else the engine default order. No lookahead.
+- **agent_search**: 1-ply forward-model search. The official `cg/api.py` exposes
+  `search_begin`/`search_step` on `cg.dll`, so for each option we simulate the line (my turn
+  plus the opponent's reply), average over several determinizations of the hidden cards, and
+  score the resulting board with a hand formula (prizes dominate, then board HP/bodies/energy).
+- **agent_search_v**: identical search, but the leaf is scored by a learned gradient-boosted
+  tree predicting P(win) over a 47-feature state encoding (`features.py` -> `train_value.py`
+  -> pure-numpy `value_model.py`).
+
+Everything is measured in the real engine via `agent/cabt_arena.py`, seats swapped, with
+Wilson confidence intervals.
 
 ## Result
 
-| Matchup (200 real cabt games) | Win rate |
-| --- | --- |
-| heuristic vs random_agent | 0.835 |
-| first_agent vs random_agent | 0.830 |
-| heuristic vs first_agent | 0.515 |
+| Matchup (real cabt games) | Win rate | 95% CI |
+| --- | --- | --- |
+| agent_search vs first_agent | 0.585 (n=800) | [0.551, 0.619] |
+| agent_search vs heuristic | 0.543 (n=300) | [0.487, 0.599] |
+| heuristic vs first_agent | 0.513 (n=300) | inside noise |
+| agent_search_v vs heuristic | 0.427 (n=400) | [0.380, 0.476] |
+| heuristic vs random_agent | 0.875 (n=200) | — |
 
-Across 600+ games the agent produced 0 illegal-move or timeout forfeits (registry H2,
-supported). It beats random decisively (H3, supported, Wilson lower bound about 0.78).
+0 illegal-move/timeout forfeits across thousands of games (registry H2). The forward model
+runs locally with no reentrancy crash (registry H001, supported).
 
 ## Caveat
 
-The 0.515 against `first_agent` is inside the n=200 noise band, so the type-14 deferral
-adds no measurable edge over taking the first options (registry H16, refuted): the real
-gain is consistency over random, not this heuristic. The engine exposes no in-match
-clonable forward model (H1, refuted by reading `cg/sim.py`), so tree search is not
-available in-match this version; offline self-play does work. Several competition facts
-(exact prize total, GPU and internet limits, per-move vs per-match time, Strategy judging
-weights) are unconfirmed and need the live Kaggle pages (`docs/COMPETITION.md`). No
-submission has been made.
+The strongest agent is **agent_search** (forward search + hand eval). The learned value, done
+correctly (tree form, seat-balanced data, verified bit-exact export, scale bug fixed), still
+**loses** as a search leaf eval (0.427 vs the heuristic): it has good GLOBAL win/loss accuracy
+(AUC 0.735) but ranks NEARBY candidate leaves poorly, which is what 1-ply search needs
+(registry H023). Two adversarial-review workflows (34 verified findings) drove the fixes,
+including a scale bug that had inflated the learned value. Several competition facts (exact
+prize total, GPU/internet limits, per-move vs per-match time) are still unconfirmed
+(`docs/COMPETITION.md`). No submission has been made.
 
 ## Lesson
 
-Consistency beats random by a wide margin here, and a plausible "play more, pass less"
-heuristic did not beat the dumb take-first baseline once measured. The lever that would
-actually beat `first_agent` is a board-aware evaluation that reads `current.players` (HP,
-prizes, attached energy), which is the next step. The durable output of day one is the
-infrastructure: a verified engine harness that runs locally, and a hypothesis registry
-that recorded the forward-model finding and tombstoned the refuted heuristic so neither is
-rediscovered. Full plan in `docs/STRATEGY.md`; live and dead hypotheses in
-`registry/BELIEFS.md` and `registry/GRAVEYARD.md`.
+A board-aware hand search beats the dumb baseline; a learned Monte-Carlo value does not beat
+the hand eval as a 1-ply leaf yet. A deep-research pass (`docs/RESEARCH.md`) gives the
+evidence-backed next steps: search-bootstrapped value targets (the proven fix for the
+good-AUC/poor-local-ranking symptom), ensemble determinization, and contrastive
+magnitude-aware embeddings, toward expert iteration / RL. The durable output is the
+infrastructure: a verified local engine harness, the full learned-value loop, and an
+anti-rehash registry so refuted ideas are not rediscovered. Live/dead hypotheses in
+`registry/BELIEFS.md` and `registry/GRAVEYARD.md`; current plan in `docs/LEARNING_PLAN.md`.

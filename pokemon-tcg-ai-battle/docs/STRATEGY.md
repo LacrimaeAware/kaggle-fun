@@ -1,9 +1,11 @@
 # Pokemon TCG AI Battle: Strategy Memo
 
 > SUPERSEDED IN PART, 2026-06-17. This is the original long memo from before the official Data
-> tab was opened. The current front door is `docs/PLAN.md` (the 3-stage plan) and `LANDSCAPE.md`.
-> Where this memo says in-match search is blocked or the forward model is unconfirmed, it is
-> wrong: the search API exists. Read it as background, not as the current plan.
+> tab was opened. The current front doors are `docs/LEARNING_PLAN.md` (the staged build + current
+> results) and `docs/RESEARCH.md` (deep-research findings + priority plan); `docs/PLAN.md` and
+> `LANDSCAPE.md` for orientation. Where this memo says in-match search is blocked or the forward
+> model is unconfirmed (incl. section 3's "forward model gate"), it is WRONG: the search API
+> exists (cg/api.py, registry H001 supported) and search is our strongest agent. Background only.
 
 Numbers first. Confirmed facts come from the engine source (cabt.py, cabt.json) and the matsuoinstitute.github.io/cabt docs. Everything sourced to an unrendered Kaggle page, a press release, or analogy is marked UNCONFIRMED and must be checked live before it drives a decision. Treat this memo as a plan, not a fact ledger.
 

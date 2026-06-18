@@ -1,11 +1,15 @@
 """cabt agent submission entry point: `def agent(obs) -> list[int]`.
 
-This is the real, runnable first-attempt agent for the Pokemon TCG AI Battle (Simulation
-track). It is deliberately a robust, always-legal heuristic, not a clever search agent.
-The reason is in ../AGENTS.md section 7: a legal mediocre bot beats a clever bot that
-forfeits, and an illegal move or a timeout loses that game outright. Search is a later
-lever and is currently blocked anyway (the installed cabt engine exposes no clonable
-forward model; see the registry, H1).
+STALE BASELINE (2026-06-16): this submission/ folder is the OLD day-one heuristic-only agent
+and is NOT what to ship. The current agents live in ../agent/ (heuristic, agent_search,
+agent_search_v); the strongest is agent_search (0.585 vs first_agent). A forward model IS
+available (cg/api.py search_begin/search_step; registry H001 SUPPORTED) - the claim below that
+search is "blocked" is WRONG and kept only as a historical record. See ../agent/README.md for
+the real packaging + the file set the agent needs.
+
+This file is the robust, always-legal heuristic (../AGENTS.md section 7: a legal mediocre bot
+beats a clever bot that forfeits). [HISTORICAL/INCORRECT: "search is blocked, the engine
+exposes no clonable forward model, see registry H1" - superseded by H001 supported.]
 
 How the engine talks to us (verified by reading cabt.py / cg/game.py and by running the
 engine locally, see explore_cabt.py):

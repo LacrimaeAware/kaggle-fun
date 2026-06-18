@@ -1,5 +1,10 @@
 # Game model research (raw landing notes)
 
+> SUPERSEDED 2026-06-17 where it says "no in-match forward model". A forward model IS available
+> (cg/api.py search_begin/search_step; registry H001 SUPPORTED) and in-match search runs. The
+> game-as-formal-problem framing below is still accurate; ignore any "no forward model / tree
+> search blocked" statements. Current state in docs/RESEARCH.md and docs/LEARNING_PLAN.md.
+
 Curated version in `../../docs/STRATEGY.md` section 2. This is the raw research plus what
 was read directly from the engine.
 

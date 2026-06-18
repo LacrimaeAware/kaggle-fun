@@ -1,10 +1,18 @@
 # Methods research (raw landing notes)
 
+> SUPERSEDED 2026-06-17. The premise of the ranking below ("no in-match forward model") is
+> WRONG: a forward model IS available (cg/api.py search_begin/search_step; registry H001
+> SUPPORTED) and in-match search is the intended design. So the "blocked" methods are NOT
+> blocked: 1-ply forward search runs and is our strongest agent (agent_search, 0.585 vs
+> first); determinized MCTS/ISMCTS and expectimax are open. Current method priorities live in
+> docs/RESEARCH.md (search-bootstrapped value targets, ensemble determinization, contrastive
+> embeddings) and docs/LEARNING_PLAN.md. The table below is kept only as a historical record.
+
 Curated version in `../../docs/STRATEGY.md` section 4. Method ranking for an
 imperfect-information, stochastic, sequential card game under a wall-clock agent harness,
 adjusted for the verified engine constraints.
 
-## Ranking, after the forward-model finding
+## Ranking, after the forward-model finding [HISTORICAL / INCORRECT PREMISE]
 
 The single fact that reorders everything: the installed engine exposes no in-match
 clonable forward model (registry H1, refuted). So in-match tree search is not cleanly
