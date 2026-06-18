@@ -87,9 +87,22 @@ def option_features(o, cur, me):
     return f
 
 
+def opt_key(o, cur, me):
+    """Canonical key: options with the same key are strategically equivalent (same move)."""
+    cid = None
+    if o.get("area") == A_HAND and isinstance(o.get("index"), int):
+        hand = ((cur.get("players") or [{}])[me]).get("hand") or []
+        if 0 <= o["index"] < len(hand):
+            c = hand[o["index"]]
+            cid = c.get("id") if isinstance(c, dict) else c
+    return (o.get("type"), cid, o.get("attackId"), o.get("inPlayArea"), o.get("inPlayIndex"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--deck-rank", type=int, default=1, help="1=most winner-decisions, 2=next, ...")
+    ap.add_argument("--player", default=None, help="filter to ONE winner player's decisions (clean policy)")
+    ap.add_argument("--strategic-only", action="store_true", help="only decisions with >1 option type AND >1 distinct move")
     args = ap.parse_args()
 
     # pass 1: rank decks by winner-decisions
@@ -144,6 +157,10 @@ def main():
         deck = winner_deck(d, win)
         if not deck or tuple(sorted(deck)) != target_sig:
             continue
+        if args.player:
+            nm = [a.get("Name") for a in d.get("info", {}).get("Agents", [])]
+            if not (win < len(nm) and nm[win] == args.player):
+                continue
         for s in d.get("steps", []):
             if win >= len(s) or not isinstance(s[win], dict):
                 continue
@@ -158,6 +175,15 @@ def main():
             if not (isinstance(chosen_idx, int) and 0 <= chosen_idx < len(opts)):
                 continue
             me = cur.get("yourIndex", win)
+            keys = [opt_key(o, cur, me) if isinstance(o, dict) else None for o in opts]
+            uniq = {}
+            for k in keys:
+                if k not in uniq:
+                    uniq[k] = len(uniq)
+            types = {o.get("type") for o in opts if isinstance(o, dict)}
+            strategic = len(types) > 1 and len(uniq) > 1
+            if args.strategic_only and not strategic:
+                continue
             try:
                 root = FT.vectorize(FT.encode_state(obs))
             except Exception:
@@ -176,7 +202,8 @@ def main():
                     af["d_" + k] = float(dd.get(k, 0.0))
                 af["has_delta"] = 1 if dd else 0
                 rows.append({"gid": gid, "chosen": 1 if j == chosen_idx else 0,
-                             "dev": 1 if chosen_idx != 0 else 0, "root": root, **af})
+                             "dev": 1 if chosen_idx != 0 else 0, "eq": uniq[keys[j]],
+                             "strat": 1 if strategic else 0, "root": root, **af})
             gid += 1
             if gid % 1000 == 0:
                 print(f"  [build] {gid} decisions, {len(rows)} rows, {time.time()-t0:.0f}s", flush=True)

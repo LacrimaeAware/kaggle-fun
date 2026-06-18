@@ -71,7 +71,8 @@ def build(use_eff=True, use_root=True, use_delta=True):
         dev = opts[0].get("dev", 1 if chosen != 0 else 0)
         cons = [consequence(o) for o in opts]
         crit = max(cons) - min(cons)
-        G.append((cidx, dense, chosen, dev, crit))
+        eq = [o.get("eq", j) for j, o in enumerate(opts)]   # equivalence class per option (canonical top-1)
+        G.append((cidx, dense, chosen, dev, crit, eq))
     return G
 
 
@@ -93,14 +94,14 @@ def metrics(m, test, mean, std, subset):
     top1 = ph = pt = n = 0
     with torch.no_grad():
         for k in subset:
-            cidx, dense, ch, dev, crit = test[k]
+            cidx, dense, ch, dev, crit, eq = test[k]
             dn = (torch.tensor(dense, dtype=torch.float32) - mean) / std
             p = m(torch.tensor(cidx), dn).numpy()
             n += 1
-            top1 += int(np.argmax(p) == ch)
+            top1 += int(eq[int(np.argmax(p))] == eq[ch])    # canonical: any option equivalent to chosen
             for i in range(len(p)):
-                if i == ch:
-                    continue
+                if eq[i] == eq[ch]:
+                    continue                                # equivalent option -> no preference to score
                 pt += 1
                 ph += int(p[ch] > p[i])
     return (top1 / n if n else 0), (ph / pt if pt else 0), n
@@ -121,7 +122,7 @@ def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, full, epoch
         for s in range(0, len(order), 64):
             opt.zero_grad(); loss = 0.0
             for gi in order[s:s + 64]:
-                cidx, dense, ch, _, _ = tr[gi]
+                cidx, dense, ch, *_ = tr[gi]
                 dn = (torch.tensor(dense, dtype=torch.float32) - mean) / std
                 loss = loss + nn.functional.cross_entropy(m(torch.tensor(cidx), dn).unsqueeze(0), torch.tensor([ch]))
             (loss / len(order[s:s + 64])).backward(); opt.step()
@@ -157,7 +158,7 @@ def main():
     devk = [i for i in te_ids if teg[i][3] == 1]
     crit_vals = sorted((teg[i][4] for i in te_ids)); hi_cut = crit_vals[int(2 / 3 * len(crit_vals))]
     hik = [i for i in te_ids if teg[i][4] >= hi_cut]
-    def opt0(sub): return np.mean([1.0 if base[i][2] == 0 else 0.0 for i in sub]) if sub else 0
+    def opt0(sub): return np.mean([1.0 if base[i][5][0] == base[i][5][base[i][2]] else 0.0 for i in sub]) if sub else 0
     def rnd(sub): return np.mean([1.0 / len(base[i][0]) for i in sub]) if sub else 0
     print(f"{len(base)} decisions, 80/20 split | non-opt0 test n={len(devk)} | high-crit test n={len(hik)}")
     print(f"BASELINE chose-option-0:  ALL {opt0(te_ids):.3f} | NON-opt0 {opt0(devk):.3f} | HIGH-crit {opt0(hik):.3f}")
