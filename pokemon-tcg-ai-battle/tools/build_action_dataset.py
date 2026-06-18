@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "agent"))
 import features as FT  # noqa: E402
 import search as S  # noqa: E402  (forward-model option_deltas: the consequence signal)
+import main as M  # noqa: E402  (the deployed teacher = _forced_move THEN search.best_option)
 import time
 
 DELTA_KEYS = ["prizes_taken", "opp_prizes_taken", "opp_ko", "dmg_dealt", "cards_drawn",
@@ -109,7 +110,14 @@ def main():
     ap.add_argument("--player", default=None, help="filter to ONE winner player's decisions (clean policy)")
     ap.add_argument("--strategic-only", action="store_true", help="only decisions with >1 option type AND >1 distinct move")
     ap.add_argument("--values", action="store_true", help="also cache the frozen-teacher multi-turn search value per option (sim-heavy)")
+    ap.add_argument("--label-determ", type=int, default=16, help="determinizations for OFFLINE label gen (no match budget; more = lower label noise)")
+    ap.add_argument("--label-budget", type=float, default=4.0, help="per-decision sim budget for OFFLINE label gen (s); larger than the 0.6s match cap so all worlds run")
     args = ap.parse_args()
+    if args.values:
+        # the cached teacher MUST equal the deployed teacher (agent_search): opp_prior=None (same-deck),
+        # opp_k=0 (1-ply), leaf_mode="hand". option_evals hardcodes exactly that, so the label matches
+        # the agent. If the deployed teacher ever changes (belief/2-ply promoted), this label gen must too.
+        S.N_DETERM = args.label_determ   # offline: average more hidden worlds than the match-time 8
 
     # pass 1: rank decks by winner-decisions
     stat = defaultdict(lambda: {"wdec": 0, "names": Counter(), "deck": None, "wins": 0})
@@ -201,19 +209,32 @@ def main():
                 deltas = None
             # frozen-teacher multi-turn search value per option (distillation target) -- sim-heavy
             vals = None
+            dict_idxs = [j for j, o in enumerate(opts) if isinstance(o, dict)]
             if args.values:
                 try:
-                    ev = S.option_evals(obs, deck)   # list[option] of (mean_val, mean_feats) or None
+                    ev = S.option_evals(obs, deck, time_budget=args.label_budget)   # list[option] of (mean_val, mean_feats) or None
                 except Exception:
                     ev = None
                 if ev:
                     vals = [ev[j][0] if (j < len(ev) and ev[j]) else None for j in range(len(opts))]
+                    # require FULL coverage: if any sibling failed to simulate, the centering baseline and
+                    # the argmax would be over an inconsistent subset (a silent selection effect) -> no label
+                    if not all(vals[j] is not None for j in dict_idxs):
+                        vals = None
             present = [v for v in (vals or []) if v is not None]
             mean_v = sum(present) / len(present) if present else 0.0
             best_eq = None
             if present:
                 bj = max((j for j in range(len(vals)) if vals[j] is not None), key=lambda j: vals[j])
                 best_eq = keys[bj]                   # canonical: the eq-class the search prefers
+                # the DEPLOYED teacher applies _forced_move BEFORE search (lethal/KO attack, go-first);
+                # match it so bsrch == the move agent_search would actually make (esp. high-crit/lethal).
+                try:
+                    fm = M._forced_move(obs)
+                    if fm is not None and 0 <= fm[0] < len(keys):
+                        best_eq = keys[fm[0]]
+                except Exception:
+                    pass
             for j, o in enumerate(opts):
                 if not isinstance(o, dict):
                     continue

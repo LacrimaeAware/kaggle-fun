@@ -131,7 +131,7 @@ def metrics(m, test, mean, std, subset, label="chosen"):
     return (top1 / n if n else 0), (ph / pt if pt else 0), n
 
 
-def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, epochs, target, lam):
+def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, strata, epochs, target, lam):
     torch.manual_seed(0)
     G = build(use_eff, use_root, use_delta)
     tr = [G[i] for i in tr_ids]
@@ -159,18 +159,15 @@ def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, epochs, tar
                 loss = loss + li; nb += 1
             if nb:
                 (loss / nb).backward(); opt.step()
-    allk = list(te.keys())
-    devk = [k for k in allk if te[k][3] == 1]
-    crit_vals = sorted((te[k][4] for k in allk))
-    hi_cut = crit_vals[int(2 / 3 * len(crit_vals))] if crit_vals else 0
-    hik = [k for k in allk if te[k][4] >= hi_cut]
-    im = metrics(m, te, mean, std, allk, "chosen")
-    di = metrics(m, te, mean, std, allk, "bsi")
-    di_dev = metrics(m, te, mean, std, devk, "bsi")
-    di_hi = metrics(m, te, mean, std, hik, "bsi")
-    print(f"  {name:<22} IMIT top1 {im[0]:.3f} | DISTILL top1 {di[0]:.3f} (n={di[2]})"
-          f" | distill NON-opt0 {di_dev[0]:.3f} (n={di_dev[2]}) | distill HIGH-crit {di_hi[0]:.3f} (n={di_hi[2]})")
-    return im
+    im_a = metrics(m, te, mean, std, strata["all"], "chosen")
+    im_w = metrics(m, te, mean, std, strata["wdev"], "chosen")
+    im_h = metrics(m, te, mean, std, strata["hi"], "chosen")
+    di_a = metrics(m, te, mean, std, strata["all"], "bsi")
+    di_t = metrics(m, te, mean, std, strata["tdev"], "bsi")
+    di_h = metrics(m, te, mean, std, strata["hi"], "bsi")
+    print(f"  {name:<20} IMIT   all {im_a[0]:.3f} | win-dev {im_w[0]:.3f}(n={im_w[2]}) | hi-crit {im_h[0]:.3f}(n={im_h[2]})")
+    print(f"  {'':<20} DSTILL all {di_a[0]:.3f}(n={di_a[2]}) | tch-dev {di_t[0]:.3f}(n={di_t[2]}) | hi-crit {di_h[0]:.3f}(n={di_h[2]})")
+    return im_a
 
 
 def main():
@@ -192,35 +189,45 @@ def main():
     cut = int(0.8 * len(base))
     tr_ids, te_ids = idx[:cut].tolist(), idx[cut:].tolist()
 
-    # stratified baselines + teacher reference
+    # B1 guard: distillation needs search-value labels (bsrch); refuse to print a fake all-zero result.
+    if args.target in ("distill", "both") and not any(g[6] is not None for g in base):
+        raise SystemExit(f"--target {args.target} needs search-value labels (bsrch), none in {args.data}. "
+                         f"Run: python tools/build_action_dataset.py --player <p> --strategic-only --values")
+
+    # strata (ablation-invariant; computed once on the base build)
     teg = {i: base[i] for i in te_ids}
-    devk = [i for i in te_ids if teg[i][3] == 1]
+    devk = [i for i in te_ids if teg[i][3] == 1]                       # WINNER deviated from option-0
     crit_vals = sorted((teg[i][4] for i in te_ids)); hi_cut = crit_vals[int(2 / 3 * len(crit_vals))]
     hik = [i for i in te_ids if teg[i][4] >= hi_cut]
+    tdevk = [i for i in te_ids if teg[i][6] is not None and teg[i][5][0] != teg[i][5][teg[i][6]]]  # TEACHER deviated
+    strata = {"all": te_ids, "wdev": devk, "tdev": tdevk, "hi": hik}
+
     def opt0(sub): return np.mean([1.0 if base[i][5][0] == base[i][5][base[i][2]] else 0.0 for i in sub]) if sub else 0
     def rnd(sub): return np.mean([1.0 / len(base[i][0]) for i in sub]) if sub else 0
-    has_bsi = [i for i in te_ids if base[i][6] is not None]
-    # how often the SEARCH teacher's pick equals the winner's move (eq-class) -- agreement, anchors distill
-    def agree(sub): return np.mean([1.0 if base[i][5][base[i][6]] == base[i][5][base[i][2]] else 0.0
-                                    for i in sub if base[i][6] is not None]) if sub else 0
+    # vs the SEARCH teacher (index 6); on tch-dev option-0 != teacher by construction so opt0_bsi(tdev)=0
     def opt0_bsi(sub): return np.mean([1.0 if base[i][5][0] == base[i][5][base[i][6]] else 0.0
-                                       for i in sub if base[i][6] is not None]) if sub else 0
-    print(f"{len(base)} decisions, 80/20 split | non-opt0 test n={len(devk)} | high-crit test n={len(hik)} "
-          f"| with search value n={len(has_bsi)}")
-    print(f"BASELINE chose-option-0 (vs winner):  ALL {opt0(te_ids):.3f} | NON-opt0 {opt0(devk):.3f} | HIGH-crit {opt0(hik):.3f}")
-    print(f"BASELINE random (vs winner):          ALL {rnd(te_ids):.3f} | NON-opt0 {rnd(devk):.3f} | HIGH-crit {rnd(hik):.3f}")
-    if has_bsi:
-        print(f"SEARCH teacher vs winner agreement:   ALL {agree(te_ids):.3f}  (option-0 vs search {opt0_bsi(te_ids):.3f})")
+                                       for i in sub if base[i][6] is not None]) if any(base[i][6] is not None for i in sub) else 0
+    def agree(sub): return np.mean([1.0 if base[i][5][base[i][6]] == base[i][5][base[i][2]] else 0.0
+                                    for i in sub if base[i][6] is not None]) if any(base[i][6] is not None for i in sub) else 0
+    nbsi = sum(1 for i in te_ids if base[i][6] is not None)
+    print(f"{len(base)} decisions, 80/20 | test all={len(te_ids)} win-dev={len(devk)} tch-dev={len(tdevk)} hi-crit={len(hik)} "
+          f"| with search-value={nbsi}")
+    print(f"IMIT base option-0 (vs winner):   all {opt0(te_ids):.3f} | win-dev {opt0(devk):.3f} | hi-crit {opt0(hik):.3f}")
+    print(f"IMIT base random (vs winner):     all {rnd(te_ids):.3f} | win-dev {rnd(devk):.3f} | hi-crit {rnd(hik):.3f}")
+    if nbsi:
+        print(f"DSTILL base option-0 (vs search): all {opt0_bsi(te_ids):.3f} | tch-dev {opt0_bsi(tdevk):.3f} | hi-crit {opt0_bsi(hik):.3f}")
+        print(f"SEARCH-vs-winner agreement:       all {agree(te_ids):.3f}   (tch-dev is the slice where option-0 != teacher)")
     print(f"target={args.target} lam={args.lam}\n")
 
     for name, ue, uf, ur, ud in [("FULL (+deltas)", True, True, True, True),
                                  ("no deltas", True, True, True, False),
                                  ("no effects", True, False, True, True),
                                  ("no embedding", False, True, True, True)]:
-        run(name, ue, uf, ur, ud, tr_ids, te_ids, args.epochs, args.target, args.lam)
-    print("\nRead: DISTILL top-1 = does the cheap net reproduce the expensive search's pick. High distill")
-    print("fidelity (esp. on NON-opt0/HIGH-crit, where option-0 is not automatically right) means the net")
-    print("can REPLACE search at match time. FULL vs no-deltas shows whether the consequence signal carries it.")
+        run(name, ue, uf, ur, ud, tr_ids, te_ids, strata, args.epochs, args.target, args.lam)
+    print("\nRead: DISTILL tch-dev = does the net reproduce the search on decisions where option-0 is NOT the")
+    print("teacher's pick (option-0-vs-search there is 0 by construction, so any score is the net beating the")
+    print("positional prior). High distill fidelity is NECESSARY but NOT sufficient to replace search: a swap")
+    print("must still pass a frozen seat-swapped win-rate A/B vs agent_search (plan rule 7).")
 
 
 if __name__ == "__main__":
