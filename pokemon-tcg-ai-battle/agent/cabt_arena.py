@@ -57,9 +57,13 @@ def winner_of(env) -> int | None:
     return 0 if r0 > r1 else 1
 
 
-def run(games: int, a, b) -> dict:
+def run(games: int, a, b, label: str = "", progress: int = 20) -> dict:
+    """progress: print a live line every `progress` games (0 = silent). Each line shows games done,
+    the running decided win-rate for A, elapsed, ETA, and the error count -- so a background run is
+    never a black box (and silent errors surface immediately)."""
     wins_a = wins_b = draws = errors = 0
     t0 = time.time()
+    tag = f"[{label}] " if label else ""
     for g in range(games):
         # swap seats each game; track which seat our 'a' sits in
         a_seat = g % 2
@@ -69,8 +73,10 @@ def run(games: int, a, b) -> dict:
                 env = make("cabt")
                 env.run(agents)
             w = winner_of(env)
-        except Exception:
+        except Exception as e:
             errors += 1
+            if errors <= 3:
+                print(f"  {tag}ERROR game {g+1}: {type(e).__name__}: {str(e)[:120]}", flush=True)
             continue
         if w is None:
             draws += 1
@@ -78,6 +84,14 @@ def run(games: int, a, b) -> dict:
             wins_a += 1
         else:
             wins_b += 1
+        done = g + 1
+        if progress and (done % progress == 0 or done == games):
+            el = time.time() - t0
+            dec = wins_a + wins_b
+            wr = wins_a / dec if dec else 0.0
+            eta = el / done * (games - done)
+            print(f"  {tag}{done}/{games} ({100*done//games}%) | A {wr:.3f} ({wins_a}-{wins_b}, {draws}d {errors}e)"
+                  f" | {el:.0f}s elapsed, ~{eta:.0f}s left", flush=True)
         # Note: do NOT call cabt.battle_finish() here. env.run drives the engine through
         # the interpreter, which manages the single global battle_ptr itself; finishing it
         # externally double-frees the native battle and aborts the process.
@@ -97,7 +111,7 @@ def main() -> None:
     ap.add_argument("--a", default="heuristic", choices=list(AGENTS))
     ap.add_argument("--b", default="random", choices=list(AGENTS))
     args = ap.parse_args()
-    r = run(args.games, AGENTS[args.a], AGENTS[args.b])
+    r = run(args.games, AGENTS[args.a], AGENTS[args.b], label=f"{args.a} vs {args.b}")
     print(
         f"{args.a} (A) vs {args.b} (B) over {r['games']} real cabt games:\n"
         f"  A wins {r['wins_a']}, B wins {r['wins_b']}, draws {r['draws']}, errors {r['errors']}\n"
