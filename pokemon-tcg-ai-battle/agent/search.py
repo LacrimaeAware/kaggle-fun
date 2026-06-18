@@ -140,29 +140,33 @@ def _hidden_pool(deck: list, player: dict, exclude_hand: bool) -> list:
     return pool
 
 
-def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+    """Core search. Returns (best_option_index, best_backed_up_value), or (None, None) if search
+    is not applicable. The backed-up value is the max over options of the determinization-averaged
+    leaf value -- the A0GB-style search-bootstrapped value of this state (used as a learning target
+    by datagen --bootstrap)."""
     A = _api()
     if A is None:
-        return None
+        return None, None
     sel = obs.get("select")
     cur = obs.get("current")
     if not sel or not cur:
-        return None
+        return None, None
     if (sel.get("maxCount") or 0) != 1:        # only single-pick decisions
-        return None
+        return None, None
     opts = sel.get("option") or []
     if len(opts) < 2:
-        return None
+        return None, None
     players = cur.get("players") or []
     if len(players) < 2:
-        return None
+        return None, None
     me = cur.get("yourIndex", 0)
     P, O = players[me], players[1 - me]
 
     # don't search when we'd have to predict a face-down opponent active (mostly setup) -> heuristic
     oa = O.get("active") or []
     if oa and oa[0] is None:
-        return None
+        return None, None
 
     n_my_deck = P.get("deckCount", 0) or 0
     n_op_deck = O.get("deckCount", 0) or 0
@@ -219,14 +223,27 @@ def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf
                 pass
 
     if not sums or not any(counts):
-        return None
+        return None, None
     best_i, best_avg = None, None
     for i in range(len(sums)):
         if counts[i] > 0:
             avg = sums[i] / counts[i]
             if best_avg is None or avg > best_avg:
                 best_avg, best_i = avg, i
-    return [best_i] if best_i is not None else None
+    return best_i, best_avg
+
+
+def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+    """The chosen option as a 1-element list, or None if search does not apply (caller falls back)."""
+    i, _v = _search(obs, deck, time_budget, leaf_mode)
+    return [i] if i is not None else None
+
+
+def best_option_value(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand"):
+    """(move, backed_up_value). move is None if search does not apply. The value is the search's
+    A0GB-style bootstrapped estimate of this state -- the training target for the value model."""
+    i, v = _search(obs, deck, time_budget, leaf_mode)
+    return ([i] if i is not None else None), v
 
 
 def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand") -> float:

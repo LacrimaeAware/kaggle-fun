@@ -63,6 +63,35 @@ this become a second source of truth.
    whether the evaluators AGREE; when they agree, trust the move; when they disagree, search
    deeper. Leaf eval = hand_eval (sharp local ranking) + lambda * learned_value (global judgment).
 
+6. DO NOT TIE THE VALUE TO WIN-RATE ALONE; build a causal chain of intermediate correlates and
+   ask several questions (user, 2026-06-17). A single target ("P(win) from this position") is not
+   enough. The user's past work (gene-expression / equation-fitting) failed when everything was
+   tied to one outcome: the combinatoric space is too large and the correlations are not
+   meaningful without intermediate structure. Reference: stable GRN (gene regulatory network)
+   inference, which imposes a causal-chain order.
+   - The features encode two things at once: (a) what options we have NOW, (b) how those factors
+     LEAD to outcomes. Example: "have I drawn my hand" has near-zero direct effect on winning (you
+     usually draw your hand in this game), but the sequence/combination of plays leads to more
+     options later.
+   - Ask several questions, not one: how many options do I have; how many does the opponent have;
+     which of my options lead to MORE options (now and in the future); which lead to states whose
+     vectors correlate with winning. "Number of options/features available" is itself a value
+     signal; chains that increase our options are good. With continuous feature values you can sum.
+   - First-order correlates (the bootstrap value surfaced prize_lead as the top feature) ->
+     second-order correlates -> a layered causal chain (the user's "backpropagation" framing).
+   - Human positional rules that are not direct win-rate: more cards played from hand is usually
+     good; a stronger active is usually better; do not over-extend the bench (sweep risk); a
+     lower-retreat-cost active gives future switching flexibility, conditional on having a switch
+     target or it being a buffer play.
+   - Possibly SEPARATE / META-LEVEL embeddings: one space for "what correlates with winning",
+     another for option/structure; clusters may emerge without an explicit win-rate target.
+   - Point: choose the questions and intermediate signals to make the learner's job easier, even
+     though a net/RL could in principle discover them with enough data. Connects to idea 4
+     (linguistic heuristics) and the research's auxiliary-task / advantage-over-siblings framing.
+   - Buildable piece: add auxiliary signals/features (my option count, opponent option count,
+     one-ply "leads to more options" delta) and consider auxiliary value heads / multi-target
+     training instead of a single win/loss target.
+
 ## Near-term concrete actions (cheap, before/around the research)
 
 - Combine v1: floor search with the obvious heuristics (idea 1) AND blend the leaf eval
