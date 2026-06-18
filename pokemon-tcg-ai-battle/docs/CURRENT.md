@@ -2,6 +2,10 @@
 
 Updated: 2026-06-18
 
+> FRESH SESSION? Read `docs/HANDOFF.md` first (loose threads, teacher primitives, landmines, how-to-run),
+> then this file. The active plan is `docs/workstreams/BRANCH_PLAN.md` (shared preflight -> Branch A
+> stronger-planner/teacher + Branch B robust-learner -> student-guided search). Submissions: `docs/SUBMISSIONS.md`.
+
 - **Branch:** claude/optimistic-proskuriakova-8800d3
 - **Strongest agent:** `agent_search` (1-ply forward search + hand leaf eval, N_DETERM=8). Nothing beats
   it. It is the submission default and the baseline every learned thing must beat. Anchor this turn:
