@@ -46,6 +46,8 @@ AGENTS = {
     "search_v": agent_mod.agent_search_v,
     "combine": agent_mod.agent_combine,
     "eff": agent_mod.agent_eff,
+    "rank": agent_mod.agent_rank,
+    "rankh": agent_mod.agent_rank_hybrid,
 }
 
 

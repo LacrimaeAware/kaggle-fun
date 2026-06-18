@@ -41,7 +41,9 @@ CF = json.load(open(ROOT / "agent" / "card_features.json", encoding="utf-8"))
 CE = json.load(open(ROOT / "agent" / "card_effects.json", encoding="utf-8"))
 ATK = json.load(open(ROOT / "agent" / "attack_stats.json", encoding="utf-8"))
 OUT = ROOT / "data" / "replay_db"
-A_HAND = 2
+# option types / board area codes (decoded from the replay option schema)
+PLAY, ATTACH, EVOLVE, ABILITY, RETREAT, ATTACK = 7, 8, 9, 10, 12, 13
+A_HAND, A_ACTIVE, A_BENCH, A_DISCARD = 2, 4, 5, 6
 EFFECT_KEYS = ["draw", "search", "search_to_bench", "energy_accel", "heal", "switch_gust",
                "recover_discard", "disrupt", "discard_cost", "status", "has_ability"]
 
@@ -55,13 +57,38 @@ def winner_deck(d, win):
     return None
 
 
+def _slot_id(c):
+    return (c.get("id") if isinstance(c, dict) else c)
+
+
 def opt_card_id(o, me_player):
-    if o.get("area") == A_HAND:
-        idx = o.get("index")
-        hand = me_player.get("hand") or []
-        if isinstance(idx, int) and 0 <= idx < len(hand):
-            c = hand[idx]
-            return (c.get("id") if isinstance(c, dict) else c)
+    """The card identity an option ACTS ON/WITH: the hand card played/attached/evolved, or the in-play
+    pokemon using an ability/attack/retreat. PLAY (type 7) has NO area field -- its index is a hand
+    index directly (the old area==2-only check missed every PLAY, leaving card stats/effects/embedding
+    dead). Returns an int id or None."""
+    if not isinstance(o, dict) or not me_player:
+        return None
+    t, idx, area = o.get("type"), o.get("index"), o.get("area")
+    hand = me_player.get("hand") or []
+    active = me_player.get("active") or []
+    bench = me_player.get("bench") or []
+    discard = me_player.get("discard") or []
+
+    def at(seq, i):
+        return _slot_id(seq[i]) if isinstance(i, int) and 0 <= i < len(seq) else None
+
+    if t == PLAY:                 # implicit hand play, index is a hand index
+        return at(hand, idx)
+    if area == A_HAND:            # attach (8) / evolve (9) / select-from-hand (3)
+        return at(hand, idx)
+    if area == A_ACTIVE:          # ability/select on the active
+        return at(active, 0)
+    if area == A_BENCH:           # ability/select on a bench pokemon
+        return at(bench, idx)
+    if area == A_DISCARD:         # select from discard
+        return at(discard, idx)
+    if t in (ATTACK, RETREAT):    # the active pokemon performs it
+        return at(active, 0)
     return None
 
 
@@ -94,13 +121,11 @@ def option_features(o, cur, me):
 
 
 def opt_key(o, cur, me):
-    """Canonical key: options with the same key are strategically equivalent (same move)."""
-    cid = None
-    if o.get("area") == A_HAND and isinstance(o.get("index"), int):
-        hand = ((cur.get("players") or [{}])[me]).get("hand") or []
-        if 0 <= o["index"] < len(hand):
-            c = hand[o["index"]]
-            cid = c.get("id") if isinstance(c, dict) else c
+    """Canonical key: options with the same key are strategically equivalent (same move). Uses the
+    robust acting-card identity, so e.g. two PLAY options for different hand cards are NOT collapsed
+    (the old hand-only check keyed every PLAY as (7, None, ...) -> all plays falsely equivalent)."""
+    me_player = (cur.get("players") or [{}])[me]
+    cid = opt_card_id(o, me_player)
     return (o.get("type"), cid, o.get("attackId"), o.get("inPlayArea"), o.get("inPlayIndex"))
 
 

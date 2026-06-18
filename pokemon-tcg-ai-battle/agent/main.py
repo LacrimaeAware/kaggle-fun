@@ -214,6 +214,45 @@ def agent_combine(obs: dict) -> list[int]:
     return _agent_search(obs, "blend")
 
 
+def agent_rank(obs: dict) -> list[int]:
+    """The DISTILLED learned policy: pick the option the trained action-ranker scores highest (card
+    embedding + effects + action descriptor + root + forward-model deltas), instant, no search.
+    Clean forced-move floor first (lethal/go-first), then the net, then the heuristic fallback."""
+    try:
+        if obs.get("select") is None:
+            return list(DECK)
+        mv = _forced_move(obs)
+        if mv is not None:
+            return mv
+        import ranker
+        mv = ranker.predict(obs, DECK)
+        if mv is not None:
+            return mv
+    except Exception:
+        pass
+    return agent(obs)
+
+
+def agent_rank_hybrid(obs: dict) -> list[int]:
+    """Conservative integration: the learned net decides ONLY on STRATEGIC decisions (its training
+    distribution); the strong heuristic pilots everything else. Standalone agent_rank loses because it
+    is off-distribution on the non-strategic majority of a game; this isolates the net's strategic picks."""
+    try:
+        if obs.get("select") is None:
+            return list(DECK)
+        mv = _forced_move(obs)
+        if mv is not None:
+            return mv
+        import ranker
+        if ranker.is_strategic(obs):
+            mv = ranker.predict(obs, DECK)
+            if mv is not None:
+                return mv
+    except Exception:
+        pass
+    return agent(obs)
+
+
 def _opt_card_id(o: dict, me: dict):
     """The card a hand-option plays: area==HAND -> me.hand[index].id (the reliable join)."""
     if o.get("area") == A_HAND:

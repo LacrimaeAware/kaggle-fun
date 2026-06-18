@@ -170,6 +170,52 @@ def run(name, use_emb, use_eff, use_root, use_delta, tr_ids, te_ids, strata, epo
     return im_a
 
 
+def save_deploy_model(args):
+    """Train the FULL model (all features) on ALL decisions with --target, save weights + the exact
+    feature spec so agent/ranker.py reconstructs identical inputs at match time."""
+    torch.manual_seed(0)
+    G = build(True, True, True)
+    if args.target in ("distill", "both") and not any(g[6] is not None for g in G):
+        raise SystemExit(f"--target {args.target} needs bsrch labels; build with --values first.")
+    ad = np.array([d for g in G for d in g[1]], dtype=np.float32)
+    mean = torch.tensor(ad.mean(0)); std = torch.tensor(ad.std(0) + 1e-6)
+    dense_dim = len(G[0][1][0])
+    m = Ranker(len(CARD_IDS), dense_dim, use_emb=True)
+    opt = torch.optim.Adam(m.parameters(), lr=LR)
+    order = list(range(len(G)))
+    for ep in range(args.epochs):
+        np.random.default_rng(ep).shuffle(order)
+        for s in range(0, len(order), 64):
+            opt.zero_grad(); loss = 0.0; nb = 0
+            for gi in order[s:s + 64]:
+                cidx, dense, ch, dev, crit, eq, bsi = G[gi]
+                dn = (torch.tensor(dense, dtype=torch.float32) - mean) / std
+                logit = m(torch.tensor(cidx), dn).unsqueeze(0)
+                li = 0.0
+                if args.target in ("imit", "both"):
+                    li = li + nn.functional.cross_entropy(logit, torch.tensor([ch]))
+                if args.target in ("distill", "both") and bsi is not None:
+                    li = li + args.lam * nn.functional.cross_entropy(logit, torch.tensor([bsi]))
+                if isinstance(li, float):
+                    continue
+                loss = loss + li; nb += 1
+            if nb:
+                (loss / nb).backward(); opt.step()
+    blob = {
+        "state_dict": {k: v.tolist() for k, v in m.state_dict().items()},
+        "card_ids": CARD_IDS, "mean": mean.tolist(), "std": std.tolist(),
+        "hidden": HIDDEN, "emb": 16, "dense_dim": dense_dim, "use_emb": True,
+        "otypes": OTYPES, "effect_keys": EFFECT_KEYS, "delta_keys": DELTA_KEYS,
+        "target": args.target, "lam": args.lam, "n_decisions": len(G), "trained": args.data,
+    }
+    out = Path(args.save)
+    if not out.is_absolute():
+        out = ROOT / "agent" / args.save
+    out.write_text(json.dumps(blob), encoding="utf-8")
+    print(f"saved deploy model ({args.target}, {len(G)} decisions, dense_dim={dense_dim}, "
+          f"{len(CARD_IDS)} cards) -> {out}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="action_imit.jsonl", help="dataset file under data/replay_db (action_adv.jsonl for distill)")
@@ -178,10 +224,15 @@ def main():
     ap.add_argument("--epochs", type=int, default=40)
     ap.add_argument("--lr", type=float, default=1e-2)
     ap.add_argument("--hidden", type=int, default=128)
+    ap.add_argument("--save", default=None, help="train FULL model on ALL data with --target and save to this path for the agent")
     args = ap.parse_args()
     global HIDDEN, LR
     HIDDEN, LR = args.hidden, args.lr
     load(args.data)
+
+    if args.save:
+        save_deploy_model(args)
+        return
 
     base = build(True, True, True)
     rng = np.random.default_rng(0)
