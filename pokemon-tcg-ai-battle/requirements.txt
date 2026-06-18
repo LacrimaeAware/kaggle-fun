@@ -1,0 +1,7 @@
+# Dependencies for the Pokemon TCG AI Battle work, on top of the repo-root requirements.
+# The organizer engine ships inside kaggle-environments (the cabt env).
+kaggle-environments
+# Value-model TRAINING (tools/train_value.py). Inference (agent/value_model.py) is pure-numpy and
+# needs only numpy at agent runtime; sklearn is build-time only.
+numpy
+scikit-learn

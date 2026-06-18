@@ -1,0 +1,10136 @@
+{
+"1": {
+"n": "Basic {G} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"2": {
+"n": "Basic {R} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"3": {
+"n": "Basic {W} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"4": {
+"n": "Basic {L} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"5": {
+"n": "Basic {P} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"6": {
+"n": "Basic {F} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"7": {
+"n": "Basic {D} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"8": {
+"n": "Basic {M} Energy",
+"cat": "Basic Energy",
+"tags": [
+"energy"
+]
+},
+"9": {
+"n": "Boomerang Energy",
+"cat": "Special Energy",
+"tags": [
+"energy_accel",
+"special_energy"
+]
+},
+"10": {
+"n": "Neo Upper Energy",
+"cat": "Special Energy",
+"tags": [
+"special_energy"
+]
+},
+"11": {
+"n": "Mist Energy",
+"cat": "Special Energy",
+"tags": [
+"heal",
+"special_energy"
+]
+},
+"12": {
+"n": "Legacy Energy",
+"cat": "Special Energy",
+"tags": [
+"energy_accel",
+"special_energy"
+]
+},
+"13": {
+"n": "Enriching Energy",
+"cat": "Special Energy",
+"tags": [
+"draw",
+"energy_accel",
+"special_energy"
+]
+},
+"14": {
+"n": "Spiky Energy",
+"cat": "Special Energy",
+"tags": [
+"energy_accel",
+"special_energy"
+]
+},
+"15": {
+"n": "Team Rocket's Energy",
+"cat": "Special Energy",
+"tags": [
+"special_energy"
+]
+},
+"16": {
+"n": "Prism Energy",
+"cat": "Special Energy",
+"tags": [
+"special_energy"
+]
+},
+"17": {
+"n": "Ignition Energy",
+"cat": "Special Energy",
+"tags": [
+"special_energy"
+]
+},
+"18": {
+"n": "Grow Grass Energy",
+"cat": "Special Energy",
+"tags": [
+"special_energy"
+]
+},
+"19": {
+"n": "Telepath Psychic Energy",
+"cat": "Special Energy",
+"tags": [
+"energy_accel",
+"search",
+"special_energy"
+]
+},
+"20": {
+"n": "Rock Fighting Energy",
+"cat": "Special Energy",
+"tags": [
+"heal",
+"special_energy"
+]
+},
+"21": {
+"n": "Scrafty",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"22": {
+"n": "Hippopotas",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"23": {
+"n": "Hippowdon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"24": {
+"n": "Team Rocket's Kangaskhan ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"25": {
+"n": "Pinsir",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"26": {
+"n": "Leafeon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"27": {
+"n": "Iron Leaves",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"28": {
+"n": "Poltchageist",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"29": {
+"n": "Sinistcha ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"30": {
+"n": "Magcargo ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"31": {
+"n": "Chi-Yu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"32": {
+"n": "Glaceon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"33": {
+"n": "Froakie",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"34": {
+"n": "Frogadier",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"35": {
+"n": "Walking Wake",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"36": {
+"n": "Morpeko",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon"
+]
+},
+"37": {
+"n": "Iron Thorns ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"38": {
+"n": "Girafarig",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"39": {
+"n": "Enamorus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"40": {
+"n": "Greninja ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"41": {
+"n": "Ting-Lu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"42": {
+"n": "Applin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"43": {
+"n": "Eevee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"44": {
+"n": "Bloodmoon Ursaluna ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"45": {
+"n": "Shaymin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"46": {
+"n": "Gouging Fire ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"47": {
+"n": "Totodile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"48": {
+"n": "Croconaw",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"49": {
+"n": "Feraligatr",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"50": {
+"n": "Wiglett",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"51": {
+"n": "Palafin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"52": {
+"n": "Wugtrio ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"53": {
+"n": "Marill",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"54": {
+"n": "Bronzor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"55": {
+"n": "Bronzong",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"56": {
+"n": "Flutter Mane",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"57": {
+"n": "Relicanth",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"58": {
+"n": "Great Tusk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"59": {
+"n": "Gastly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"60": {
+"n": "Haunter",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"61": {
+"n": "Roaring Moon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"62": {
+"n": "Koraidon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"63": {
+"n": "Raging Bolt ex",
+"cat": "Pokemon",
+"tags": [
+"basic_mon",
+"ex"
+]
+},
+"64": {
+"n": "Hoothoot",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"65": {
+"n": "Dunsparce",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"66": {
+"n": "Dudunsparce",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"67": {
+"n": "Pineco",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"68": {
+"n": "Seedot",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"69": {
+"n": "Nuzleaf",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"70": {
+"n": "Shiftry",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"71": {
+"n": "Deerling",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"72": {
+"n": "Sawsbuck",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"73": {
+"n": "Rellor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"74": {
+"n": "Rabsca",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"75": {
+"n": "Iron Leaves ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"76": {
+"n": "Slugma",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"77": {
+"n": "Litten",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"78": {
+"n": "Torracat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"79": {
+"n": "Incineroar ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"80": {
+"n": "Iron Crown ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon",
+"ex"
+]
+},
+"81": {
+"n": "Drilbur",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"search"
+]
+},
+"82": {
+"n": "Excadrill",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"83": {
+"n": "Farigiraf ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"84": {
+"n": "Scizor ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"85": {
+"n": "Beldum",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"86": {
+"n": "Metang",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"87": {
+"n": "Miraidon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"88": {
+"n": "Volbeat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"89": {
+"n": "Grookey",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"90": {
+"n": "Thwackey",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"91": {
+"n": "Rillaboom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"92": {
+"n": "Applin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"93": {
+"n": "Dipplin",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"94": {
+"n": "Sinistcha",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"95": {
+"n": "Teal Mask Ogerpon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"96": {
+"n": "Teal Mask Ogerpon ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"draw",
+"energy_accel",
+"ex"
+]
+},
+"97": {
+"n": "Litwick",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"98": {
+"n": "Chandelure",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"draw",
+"evolution"
+]
+},
+"99": {
+"n": "Hearthflame Mask Ogerpon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"100": {
+"n": "Goldeen",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"101": {
+"n": "Jynx",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"102": {
+"n": "Milotic",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"103": {
+"n": "Snorunt",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"104": {
+"n": "Froslass",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"105": {
+"n": "Finizen",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"106": {
+"n": "Palafin",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"107": {
+"n": "Palafin ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"108": {
+"n": "Wellspring Mask Ogerpon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"109": {
+"n": "Abra",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"110": {
+"n": "Slurpuff",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"111": {
+"n": "Sandygast",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"112": {
+"n": "Munkidori",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"113": {
+"n": "Timburr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"114": {
+"n": "Gurdurr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"115": {
+"n": "Conkeldurr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"116": {
+"n": "Okidogi",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"117": {
+"n": "Cornerstone Mask Ogerpon ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"118": {
+"n": "Heatran",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon"
+]
+},
+"119": {
+"n": "Dreepy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"120": {
+"n": "Drakloak",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"121": {
+"n": "Dragapult ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"122": {
+"n": "Tatsugiri",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"123": {
+"n": "Farfetch'd",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"search"
+]
+},
+"124": {
+"n": "Chansey",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"125": {
+"n": "Blissey ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"126": {
+"n": "Galvantula",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"127": {
+"n": "Rowlet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"128": {
+"n": "Dartrix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"129": {
+"n": "Decidueye",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"130": {
+"n": "Revavroom ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"131": {
+"n": "Duskull",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"132": {
+"n": "Dusclops",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"133": {
+"n": "Dusknoir",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"134": {
+"n": "Sylveon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"135": {
+"n": "Bloodmoon Ursaluna",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"energy_accel"
+]
+},
+"136": {
+"n": "Zorua",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"137": {
+"n": "Zoroark",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"138": {
+"n": "Okidogi ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"139": {
+"n": "Munkidori ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"140": {
+"n": "Fezandipiti ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon",
+"draw",
+"ex"
+]
+},
+"141": {
+"n": "Pecharunt ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon",
+"ex"
+]
+},
+"142": {
+"n": "Genesect",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"143": {
+"n": "Varoom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"144": {
+"n": "Kyurem",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon"
+]
+},
+"145": {
+"n": "Eevee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"146": {
+"n": "Lileep",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"147": {
+"n": "Cradily",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"148": {
+"n": "Mow Rotom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"149": {
+"n": "Applin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"150": {
+"n": "Hydrapple ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex",
+"heal"
+]
+},
+"151": {
+"n": "Scorbunny",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"152": {
+"n": "Raboot",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"153": {
+"n": "Cinderace ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"154": {
+"n": "Lapras ex",
+"cat": "Pokemon",
+"tags": [
+"basic_mon",
+"ex"
+]
+},
+"155": {
+"n": "Carracosta",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"156": {
+"n": "Crabominable",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"157": {
+"n": "Chewtle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"158": {
+"n": "Drednaw",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"159": {
+"n": "Veluza",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"160": {
+"n": "Joltik",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"161": {
+"n": "Galvantula ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"162": {
+"n": "Slowpoke",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"163": {
+"n": "Slowking",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"164": {
+"n": "Comfey",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"165": {
+"n": "Klink",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"166": {
+"n": "Klang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"167": {
+"n": "Klinklang",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"168": {
+"n": "Meltan",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"169": {
+"n": "Duraludon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"170": {
+"n": "Archaludon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"171": {
+"n": "Raging Bolt",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"172": {
+"n": "Hoothoot",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"173": {
+"n": "Noctowl",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"174": {
+"n": "Fan Rotom",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"search"
+]
+},
+"175": {
+"n": "Bouffalant",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"176": {
+"n": "Terapagos ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"177": {
+"n": "Exeggcute",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"178": {
+"n": "Zarude",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"179": {
+"n": "Black Kyurem ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"180": {
+"n": "Bruxish",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"181": {
+"n": "Quaxwell",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"182": {
+"n": "Quaquaval",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"183": {
+"n": "Smoochum",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"184": {
+"n": "Latias ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"185": {
+"n": "Flittle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"186": {
+"n": "Gimmighoul",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"187": {
+"n": "Trapinch",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"188": {
+"n": "Vibrava",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"189": {
+"n": "Flygon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"190": {
+"n": "Archaludon ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex"
+]
+},
+"191": {
+"n": "Gholdengo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"192": {
+"n": "Iron Crown",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"193": {
+"n": "Alolan Exeggutor ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"194": {
+"n": "Altaria",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"195": {
+"n": "Dialga",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"196": {
+"n": "Turtonator",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"197": {
+"n": "Swablu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"198": {
+"n": "Durant ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"disruption",
+"ex"
+]
+},
+"199": {
+"n": "Scatterbug",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"200": {
+"n": "Spewpa",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"201": {
+"n": "Wo-Chien",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"202": {
+"n": "Victini",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"203": {
+"n": "Skeledirge",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"204": {
+"n": "Charcadet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"205": {
+"n": "Scovillain ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"206": {
+"n": "Feebas",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"207": {
+"n": "Milotic ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"208": {
+"n": "Shellos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"209": {
+"n": "Chien-Pao",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"210": {
+"n": "Pikachu ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"211": {
+"n": "Magneton",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"212": {
+"n": "Rotom",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"213": {
+"n": "Tapu Koko",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"214": {
+"n": "Togekiss",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"215": {
+"n": "Uxie",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"216": {
+"n": "Mesprit",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"217": {
+"n": "Azelf",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"218": {
+"n": "Yamask",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"219": {
+"n": "Cofagrigus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"220": {
+"n": "Espurr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"221": {
+"n": "Meowstic",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution",
+"gust"
+]
+},
+"222": {
+"n": "Dedenne",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"223": {
+"n": "PalossandEX",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"224": {
+"n": "Annihilape",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"225": {
+"n": "Gastrodon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"226": {
+"n": "Koraidon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"227": {
+"n": "Deino",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"228": {
+"n": "Zweilous",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"229": {
+"n": "Hydreigon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"230": {
+"n": "Pecharunt",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"231": {
+"n": "Tatsugiri ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"232": {
+"n": "Slaking ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"233": {
+"n": "Bouffalant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"234": {
+"n": "Terapagos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"235": {
+"n": "Budew",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"236": {
+"n": "Leafeon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"237": {
+"n": "Cottonee",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"238": {
+"n": "Whimsicott",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"heal"
+]
+},
+"239": {
+"n": "Flareon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"240": {
+"n": "Seaking",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"241": {
+"n": "Vaporeon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"242": {
+"n": "Feebas",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"243": {
+"n": "Glaceon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"244": {
+"n": "Jolteon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"245": {
+"n": "Alakazam",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"246": {
+"n": "Espeon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"247": {
+"n": "Swirlix",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon"
+]
+},
+"248": {
+"n": "Umbreon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"249": {
+"n": "Eevee ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"250": {
+"n": "Hoothoot",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"251": {
+"n": "Regigigas",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"252": {
+"n": "Caterpie",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"253": {
+"n": "Metapod",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"254": {
+"n": "Butterfree",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"255": {
+"n": "Maractus",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"256": {
+"n": "Magmortar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"257": {
+"n": "N’s Darumaka",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"258": {
+"n": "N’s Darmanitan",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"259": {
+"n": "Volcanion ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"260": {
+"n": "Lotad",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"261": {
+"n": "Lombre",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"262": {
+"n": "Ludicolo",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"263": {
+"n": "Wailmer",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"264": {
+"n": "Wailord",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"265": {
+"n": "Iono’s Voltorb",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"266": {
+"n": "Iono’s Electrode",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"267": {
+"n": "N’s Joltik",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"268": {
+"n": "Iono’s Tadbulb",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"269": {
+"n": "Iono’s Bellibolt ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex"
+]
+},
+"270": {
+"n": "Iono’s Wattrel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"271": {
+"n": "Iono’s Kilowattrel",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"272": {
+"n": "Lillie’s Clefairy ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"273": {
+"n": "Banette",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"274": {
+"n": "Beldum",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"275": {
+"n": "Metang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"276": {
+"n": "Metagross",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"277": {
+"n": "N’s Sigilyph",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"278": {
+"n": "Lillie’s Cutiefly",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"279": {
+"n": "Lillie’s Ribombee",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"280": {
+"n": "Lillie’s Comfey",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"281": {
+"n": "Swinub",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"282": {
+"n": "Piloswine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"283": {
+"n": "Mamoswine ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex",
+"search"
+]
+},
+"284": {
+"n": "Larvitar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"285": {
+"n": "Pupitar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"286": {
+"n": "Rockruff",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"287": {
+"n": "Lycanroc",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"288": {
+"n": "Hop’s Silicobra",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"289": {
+"n": "Hop’s Sandaconda",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"290": {
+"n": "Tyranitar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"291": {
+"n": "N’s Purrloin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"292": {
+"n": "N’s Zorua",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"293": {
+"n": "N’s Zoroark ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"draw",
+"evolution",
+"ex"
+]
+},
+"294": {
+"n": "N’s Klink",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"295": {
+"n": "N’s Klang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"296": {
+"n": "N’s Klinklang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"297": {
+"n": "Magearna",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"draw",
+"energy_accel",
+"heal"
+]
+},
+"298": {
+"n": "Hop’s Corviknight",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"299": {
+"n": "Hop’s Zacian ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"300": {
+"n": "Bagon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"301": {
+"n": "Shelgon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"302": {
+"n": "Salamence ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"303": {
+"n": "N’s Reshiram",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"304": {
+"n": "Hop’s Snorlax",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"305": {
+"n": "Dunsparce",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"306": {
+"n": "Dudunsparce ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"307": {
+"n": "Hop’s Rookidee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"308": {
+"n": "Hop’s Corvisquire",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"309": {
+"n": "Hop’s Wooloo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"310": {
+"n": "Hop’s Dubwool",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"gust"
+]
+},
+"311": {
+"n": "Hop’s Cramorant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"312": {
+"n": "Sandy Shocks",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"313": {
+"n": "Miraidon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"314": {
+"n": "Marill",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"315": {
+"n": "Azumarill",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"316": {
+"n": "Sylveon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"317": {
+"n": "Eevee",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"318": {
+"n": "Ho-Oh",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"319": {
+"n": "Charcadet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"320": {
+"n": "Ceruledge ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"321": {
+"n": "Petilil",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"322": {
+"n": "Lilligant",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"323": {
+"n": "Nymble",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"324": {
+"n": "Torchic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"325": {
+"n": "Combusken",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"326": {
+"n": "Blaziken ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex"
+]
+},
+"327": {
+"n": "Slowpoke",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"328": {
+"n": "Pikachu ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"329": {
+"n": "Tapu Koko ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"330": {
+"n": "Sylveon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"331": {
+"n": "XerneasEX",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"332": {
+"n": "Dhelmise",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"333": {
+"n": "Riolu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"334": {
+"n": "Sneasel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"335": {
+"n": "Bronzor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"336": {
+"n": "Zacian ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"337": {
+"n": "LugiaEX",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"338": {
+"n": "Ethan's Pinsir",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"339": {
+"n": "Yanma",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"340": {
+"n": "Yanmega ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex",
+"search"
+]
+},
+"341": {
+"n": "Cynthia's Roselia",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"342": {
+"n": "Cynthia's Roserade",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"343": {
+"n": "Shaymin",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"344": {
+"n": "Dwebble",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"345": {
+"n": "Crustle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"346": {
+"n": "Applin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"347": {
+"n": "Dipplin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"348": {
+"n": "Hydrapple",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"349": {
+"n": "Teal Mask Ogerpon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"350": {
+"n": "Ponyta",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"351": {
+"n": "Rapidash",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"352": {
+"n": "Ethan's Cyndaquil",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"353": {
+"n": "Ethan's Quilava",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"354": {
+"n": "Ethan's Typhlosion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"355": {
+"n": "Ethan's Slugma",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"356": {
+"n": "Ethan's Magcargo",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"357": {
+"n": "Ethan's Ho-Oh ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"energy_accel",
+"ex"
+]
+},
+"358": {
+"n": "Hearthflame Mask Ogerpon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"359": {
+"n": "Misty's Psyduck",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"360": {
+"n": "Misty's Staryu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"361": {
+"n": "Misty's Starmie",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"362": {
+"n": "Misty's Magikarp",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"363": {
+"n": "Misty's Gyarados",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"364": {
+"n": "Misty's Lapras",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"365": {
+"n": "Cynthia's Feebas",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"366": {
+"n": "Cynthia's Milotic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"367": {
+"n": "Buizel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"368": {
+"n": "Floatzel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"369": {
+"n": "Dondozo ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"370": {
+"n": "Wellspring Mask Ogerpon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"371": {
+"n": "Electabuzz",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"372": {
+"n": "Electivire ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"373": {
+"n": "Ethan's Pichu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"374": {
+"n": "Electrike",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"375": {
+"n": "Manectric",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"376": {
+"n": "Rotom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"377": {
+"n": "Zeraora",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"378": {
+"n": "Ethan's Sudowoodo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"379": {
+"n": "Cynthia's Gible",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"380": {
+"n": "Cynthia's Gabite",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"381": {
+"n": "Cynthia's Garchomp ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"382": {
+"n": "Mudbray",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"383": {
+"n": "Mudsdale",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"384": {
+"n": "Arven's Toedscool",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"385": {
+"n": "Arven's Toedscruel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"386": {
+"n": "Cornerstone Mask Ogerpon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"387": {
+"n": "Cynthia's Spiritomb",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"388": {
+"n": "Arven's Maschiff",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"389": {
+"n": "Arven's Mabosstiff ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex",
+"gust"
+]
+},
+"390": {
+"n": "Tauros",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"391": {
+"n": "Arven's Skwovet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"392": {
+"n": "Arven's Greedent",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"393": {
+"n": "Pineco",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"394": {
+"n": "Shroomish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"395": {
+"n": "Breloom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"396": {
+"n": "Mow Rotom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"397": {
+"n": "Fomantis",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"398": {
+"n": "Lurantis",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"399": {
+"n": "Team Rocket's Blipbug",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"400": {
+"n": "Team Rocket's Tarountula",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"401": {
+"n": "Team Rocket's Spidops",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"energy_accel",
+"evolution"
+]
+},
+"402": {
+"n": "Smoliv",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"403": {
+"n": "Dolliv",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"404": {
+"n": "Arboliva ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"405": {
+"n": "Growlithe",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"406": {
+"n": "Arcanine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"407": {
+"n": "Team Rocket's Moltres ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"408": {
+"n": "Team Rocket's Houndour",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"409": {
+"n": "Team Rocket's Houndoom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"410": {
+"n": "Torchic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"411": {
+"n": "Combusken",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"412": {
+"n": "Blaziken",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"413": {
+"n": "Heat Rotom",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"414": {
+"n": "Team Rocket's Articuno",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"heal"
+]
+},
+"415": {
+"n": "Clamperl",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"416": {
+"n": "Huntail",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"energy_accel",
+"evolution"
+]
+},
+"417": {
+"n": "Gorebyss",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"418": {
+"n": "Snover",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"419": {
+"n": "Abomasnow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"420": {
+"n": "Wash Rotom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"421": {
+"n": "Arrokuda",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"422": {
+"n": "Barraskewda",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"423": {
+"n": "Cetoddle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"424": {
+"n": "Cetitan ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"425": {
+"n": "Team Rocket's Zapdos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"426": {
+"n": "Team Rocket's Mareep",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"427": {
+"n": "Team Rocket's Flaaffy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"428": {
+"n": "Team Rocket's Ampharos",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"429": {
+"n": "Team Rocket's Drowzee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"430": {
+"n": "Team Rocket's Hypno",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"431": {
+"n": "Team Rocket's Mewtwo ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"432": {
+"n": "Team Rocket's Wobbuffet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"433": {
+"n": "Team Rocket's Chingling",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"434": {
+"n": "Team Rocket's Mimikyu",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"435": {
+"n": "Team Rocket's Dottler",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"436": {
+"n": "Team Rocket's Orbeetle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"437": {
+"n": "Mankey",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"438": {
+"n": "Primeape",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"439": {
+"n": "Annihilape",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"440": {
+"n": "Team Rocket's Larvitar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"441": {
+"n": "Team Rocket's Pupitar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"442": {
+"n": "Team Rocket's Tyranitar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"443": {
+"n": "Nosepass",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"444": {
+"n": "Probopass",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"445": {
+"n": "Meditite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"446": {
+"n": "Medicham",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"447": {
+"n": "Regirock ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"448": {
+"n": "Team Rocket's Ekans",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"449": {
+"n": "Team Rocket's Arbok",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"450": {
+"n": "Team Rocket's Nidoran♀",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"451": {
+"n": "Team Rocket's Nidorina",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"452": {
+"n": "Team Rocket's Nidoqueen",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"453": {
+"n": "Team Rocket's Nidoran♂",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"454": {
+"n": "Team Rocket's Nidorino",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"455": {
+"n": "Team Rocket's Nidoking ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"456": {
+"n": "Team Rocket's Zubat",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"457": {
+"n": "Team Rocket's Golbat",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"458": {
+"n": "Team Rocket's Crobat ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"459": {
+"n": "Team Rocket's Grimer",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"460": {
+"n": "Team Rocket's Muk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"461": {
+"n": "Team Rocket's Koffing",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"search"
+]
+},
+"462": {
+"n": "Team Rocket's Weezing",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"463": {
+"n": "Team Rocket's Murkrow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"464": {
+"n": "Team Rocket's Sneasel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"465": {
+"n": "Forretress",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"466": {
+"n": "Skarmory",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"467": {
+"n": "Zamazenta",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"468": {
+"n": "Team Rocket's Rattata",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"469": {
+"n": "Team Rocket's Raticate",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"470": {
+"n": "Team Rocket's Meowth",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"471": {
+"n": "Team Rocket's Persian ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"472": {
+"n": "Kangaskhan",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"473": {
+"n": "Team Rocket's Porygon",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"474": {
+"n": "Team Rocket's Porygon2",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"475": {
+"n": "Team Rocket's Porygon-Z",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"draw",
+"evolution"
+]
+},
+"476": {
+"n": "Taillow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"477": {
+"n": "Swellow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"478": {
+"n": "Squawkabilly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"479": {
+"n": "Snivy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"480": {
+"n": "Servine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"481": {
+"n": "Serperior ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"482": {
+"n": "Pansage",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"483": {
+"n": "Simisage",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"484": {
+"n": "Petilil",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"485": {
+"n": "Lilligant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"486": {
+"n": "Maractus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"487": {
+"n": "Karrablast",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"488": {
+"n": "Foongus",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"489": {
+"n": "Amoonguss",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"490": {
+"n": "Victini",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"491": {
+"n": "Darumaka",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"492": {
+"n": "Darmanitan",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"493": {
+"n": "Litwick",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"494": {
+"n": "Lampent",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"495": {
+"n": "Chandelure",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"496": {
+"n": "Larvesta",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"497": {
+"n": "Volcarona",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution"
+]
+},
+"498": {
+"n": "Panpour",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"499": {
+"n": "Simipour",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"500": {
+"n": "Tympole",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"501": {
+"n": "Palpitoad",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"502": {
+"n": "Seismitoad",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"503": {
+"n": "Tirtouga",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"504": {
+"n": "Carracosta",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"505": {
+"n": "Alomomola",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"506": {
+"n": "Cubchoo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"507": {
+"n": "Beartic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"508": {
+"n": "Cryogonal",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"509": {
+"n": "Kyurem ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"510": {
+"n": "Emolga",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"511": {
+"n": "Tynamo",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"512": {
+"n": "Eelektrik",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"513": {
+"n": "Eelektross",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"514": {
+"n": "Thundurus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"515": {
+"n": "Zekrom ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"516": {
+"n": "Munna",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"517": {
+"n": "Musharna",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"518": {
+"n": "Solosis",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"519": {
+"n": "Duosion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"520": {
+"n": "Reuniclus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"521": {
+"n": "Elgyem",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"522": {
+"n": "Beheeyem",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"523": {
+"n": "Golett",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"524": {
+"n": "Golurk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"525": {
+"n": "Meloetta ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"526": {
+"n": "Drilbur",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"527": {
+"n": "Excadrill ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"528": {
+"n": "Timburr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"529": {
+"n": "Gurdurr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"530": {
+"n": "Conkeldurr",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"531": {
+"n": "Throh",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"532": {
+"n": "Dwebble",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"533": {
+"n": "Crustle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"534": {
+"n": "Landorus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"535": {
+"n": "Venipede",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"536": {
+"n": "Whirlipede",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"537": {
+"n": "Scolipede",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"538": {
+"n": "Sandile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"539": {
+"n": "Krokorok",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"540": {
+"n": "Krookodile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"541": {
+"n": "Vullaby",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"542": {
+"n": "Mandibuzz",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"543": {
+"n": "Escavalier",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"544": {
+"n": "Pawniard",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"545": {
+"n": "Bisharp",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"546": {
+"n": "Cobalion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"547": {
+"n": "Genesect ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex",
+"search"
+]
+},
+"548": {
+"n": "Axew",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"549": {
+"n": "Fraxure",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"550": {
+"n": "Haxorus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"551": {
+"n": "Pidove",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"552": {
+"n": "Tranquill",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"553": {
+"n": "Unfezant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"554": {
+"n": "Audino",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"555": {
+"n": "Minccino",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"556": {
+"n": "Cinccino",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"557": {
+"n": "Sewaddle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"558": {
+"n": "Swadloon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"heal"
+]
+},
+"559": {
+"n": "Leavanny",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"heal"
+]
+},
+"560": {
+"n": "Cottonee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"561": {
+"n": "Whimsicott ex",
+"cat": "Pokemon",
+"tags": [
+"evolution",
+"ex"
+]
+},
+"562": {
+"n": "Deerling",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"563": {
+"n": "Sawsbuck",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"564": {
+"n": "Shelmet",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"565": {
+"n": "Accelgor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"566": {
+"n": "Virizion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"567": {
+"n": "Tepig",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"568": {
+"n": "Pignite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"569": {
+"n": "Emboar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"570": {
+"n": "Pansear",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"571": {
+"n": "Simisear",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"572": {
+"n": "Heatmor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"573": {
+"n": "Reshiram ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"574": {
+"n": "Oshawott",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"575": {
+"n": "Dewott",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"576": {
+"n": "Samurott",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"gust",
+"switch"
+]
+},
+"577": {
+"n": "Basculin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"578": {
+"n": "Ducklett",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"579": {
+"n": "Swanna",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"580": {
+"n": "Vanillite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"581": {
+"n": "Vanillish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"582": {
+"n": "Vanilluxe",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"583": {
+"n": "Keldeo ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"584": {
+"n": "Blitzle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"585": {
+"n": "Zebstrika",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"586": {
+"n": "Joltik",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"587": {
+"n": "Galvantula",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"588": {
+"n": "Stunfisk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"589": {
+"n": "Woobat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"590": {
+"n": "Swoobat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"591": {
+"n": "Sigilyph",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"592": {
+"n": "Yamask",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"593": {
+"n": "Cofagrigus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"594": {
+"n": "Gothita",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"595": {
+"n": "Gothorita",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"596": {
+"n": "Gothitelle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"draw",
+"evolution"
+]
+},
+"597": {
+"n": "Frillish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"598": {
+"n": "Jellicent ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"599": {
+"n": "Roggenrola",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"600": {
+"n": "Boldore",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"601": {
+"n": "Gigalith",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"602": {
+"n": "Sawk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"603": {
+"n": "Archen",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"604": {
+"n": "Archeops",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"605": {
+"n": "Mienfoo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"606": {
+"n": "Mienshao",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"607": {
+"n": "Terrakion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"608": {
+"n": "Purrloin",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"609": {
+"n": "Liepard",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"610": {
+"n": "Scraggy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"611": {
+"n": "Scrafty",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"612": {
+"n": "Trubbish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"613": {
+"n": "Garbodor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"614": {
+"n": "Zorua",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"615": {
+"n": "Zoroark",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"616": {
+"n": "Deino",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"617": {
+"n": "Zweilous",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"618": {
+"n": "Hydreigon ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"619": {
+"n": "Ferroseed",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"620": {
+"n": "Ferrothorn",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"621": {
+"n": "Klink",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"622": {
+"n": "Klang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"623": {
+"n": "Klinklang",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"624": {
+"n": "Durant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"625": {
+"n": "Druddigon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"626": {
+"n": "Patrat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"627": {
+"n": "Watchog",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"628": {
+"n": "Lillipup",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"629": {
+"n": "Herdier",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"630": {
+"n": "Stoutland",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"631": {
+"n": "Bouffalant ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"632": {
+"n": "Rufflet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"633": {
+"n": "Braviary",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"634": {
+"n": "Tornadus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"635": {
+"n": "Steven's Baltoy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"636": {
+"n": "Steven's Claydol",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"637": {
+"n": "Steven's Carbink",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"638": {
+"n": "Steven's Skarmory",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"639": {
+"n": "Steven's Beldum",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"640": {
+"n": "Steven's Metang",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"641": {
+"n": "Steven's Metagross ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex",
+"search"
+]
+},
+"642": {
+"n": "Marnie's Purrloin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"643": {
+"n": "Marnie's Liepard",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"644": {
+"n": "Marnie's Scraggy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"645": {
+"n": "Marnie's Scrafty",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"646": {
+"n": "Marnie's Impidimp",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"647": {
+"n": "Marnie's Morgrem",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"648": {
+"n": "Marnie's Grimmsnarl ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"ex",
+"search"
+]
+},
+"649": {
+"n": "Marnie's Morpeko",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"650": {
+"n": "Bulbasaur",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"651": {
+"n": "Ivysaur",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"652": {
+"n": "Mega Venusaur ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"mega"
+]
+},
+"653": {
+"n": "Exeggcute",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"654": {
+"n": "Exeggutor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"655": {
+"n": "Celebi",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"656": {
+"n": "Seedot",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"657": {
+"n": "Nuzleaf",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"658": {
+"n": "Shiftry",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"659": {
+"n": "Vulpix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"660": {
+"n": "Ninetales",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"661": {
+"n": "Numel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"662": {
+"n": "Mega Camerupt ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"663": {
+"n": "Volcanion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"664": {
+"n": "Scorbunny",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"665": {
+"n": "Raboot",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"666": {
+"n": "Cinderace",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"667": {
+"n": "Corphish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"668": {
+"n": "Gimmighoul",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"669": {
+"n": "Sandshrew",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"670": {
+"n": "Sandslash",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"671": {
+"n": "Onix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"672": {
+"n": "Tyrogue",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"673": {
+"n": "Makuhita",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"674": {
+"n": "Hariyama",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"gust"
+]
+},
+"675": {
+"n": "Lunatone",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"draw"
+]
+},
+"676": {
+"n": "Solrock",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"677": {
+"n": "Riolu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"678": {
+"n": "Mega Lucario ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"679": {
+"n": "Croagunk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"680": {
+"n": "Toxicroak",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"681": {
+"n": "Marshadow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"682": {
+"n": "Stonjourner",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"683": {
+"n": "Nacli",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"684": {
+"n": "Naclstack",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"685": {
+"n": "Garganacl",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"686": {
+"n": "Crawdaunt",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"687": {
+"n": "Mega Absol ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"688": {
+"n": "Spiritomb",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"689": {
+"n": "Yveltal",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"690": {
+"n": "Nickit",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"691": {
+"n": "Thievul",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"692": {
+"n": "Shroodle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"693": {
+"n": "Grafaiai",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"694": {
+"n": "Steelix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"695": {
+"n": "Mega Mawile ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"696": {
+"n": "Dialga",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"697": {
+"n": "Tinkatink",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"698": {
+"n": "Tinkatuff",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution"
+]
+},
+"699": {
+"n": "Tinkaton",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"700": {
+"n": "Gholdengo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"701": {
+"n": "Spearow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"702": {
+"n": "Fearow",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"703": {
+"n": "Miltank",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"704": {
+"n": "Yungoos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"705": {
+"n": "Gumshoos",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"706": {
+"n": "Tangela",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"707": {
+"n": "Tangrowth",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"708": {
+"n": "Chikorita",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"709": {
+"n": "Bayleef",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"710": {
+"n": "Meganium",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"711": {
+"n": "Shuckle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"heal"
+]
+},
+"712": {
+"n": "Nincada",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"713": {
+"n": "Ninjask",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"714": {
+"n": "Dhelmise",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"715": {
+"n": "Litleo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"716": {
+"n": "Pyroar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"717": {
+"n": "Sizzlipede",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"718": {
+"n": "Centiskorch",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"719": {
+"n": "Chi-Yu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"720": {
+"n": "Mantine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"721": {
+"n": "Kyogre",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"722": {
+"n": "Snover",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"723": {
+"n": "Mega Abomasnow ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"724": {
+"n": "Clauncher",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"725": {
+"n": "Clawitzer",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"726": {
+"n": "Sobble",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"727": {
+"n": "Drizzile",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"728": {
+"n": "Inteleon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"729": {
+"n": "Snom",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"730": {
+"n": "Frosmoth",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"731": {
+"n": "Eiscue",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"732": {
+"n": "Magnemite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"733": {
+"n": "Magneton",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"734": {
+"n": "Magnezone",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"735": {
+"n": "Raikou",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"736": {
+"n": "Electrike",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"737": {
+"n": "Mega Manectric ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"738": {
+"n": "Pachirisu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"739": {
+"n": "Helioptile",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"740": {
+"n": "Heliolisk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"741": {
+"n": "Abra",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"742": {
+"n": "Kadabra",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"743": {
+"n": "Alakazam",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"draw",
+"evolution"
+]
+},
+"744": {
+"n": "Jynx",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"745": {
+"n": "Ralts",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"746": {
+"n": "Kirlia",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"747": {
+"n": "Mega Gardevoir ex",
+"cat": "Pokemon",
+"tags": [
+"evolution",
+"mega"
+]
+},
+"748": {
+"n": "Shedinja",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"749": {
+"n": "Spoink",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"750": {
+"n": "Grumpig",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"751": {
+"n": "Xerneas",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"752": {
+"n": "Greavard",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"753": {
+"n": "Houndstone",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"754": {
+"n": "Mega Latias ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"755": {
+"n": "Latios",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"756": {
+"n": "Mega Kangaskhan ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"draw",
+"mega"
+]
+},
+"757": {
+"n": "Delibird",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"758": {
+"n": "Buneary",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"759": {
+"n": "Lopunny",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"760": {
+"n": "Stufful",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"761": {
+"n": "Bewear",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"762": {
+"n": "Snubbull",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"763": {
+"n": "Granbull",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"764": {
+"n": "Cresselia",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"765": {
+"n": "Meloetta",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"766": {
+"n": "Mega Diancie ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon",
+"mega"
+]
+},
+"767": {
+"n": "Mimikyu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"768": {
+"n": "Milcery",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"769": {
+"n": "Alcremie",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"770": {
+"n": "Gastly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"771": {
+"n": "Haunter",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"772": {
+"n": "Mega Gengar ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"mega"
+]
+},
+"773": {
+"n": "Murkrow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"774": {
+"n": "Honchkrow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"775": {
+"n": "Sableye",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"776": {
+"n": "Absol",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"777": {
+"n": "Eternatus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"778": {
+"n": "Oddish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"779": {
+"n": "Gloom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"780": {
+"n": "Vileplume",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"781": {
+"n": "Mega Heracross ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"782": {
+"n": "Lotad",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"783": {
+"n": "Lombre",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"784": {
+"n": "Ludicolo",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"heal"
+]
+},
+"785": {
+"n": "Genesect",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"786": {
+"n": "Nymble",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"787": {
+"n": "Lokix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"788": {
+"n": "Charmander",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"789": {
+"n": "Charmeleon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"790": {
+"n": "Mega Charizard X ex",
+"cat": "Pokemon",
+"tags": [
+"evolution",
+"mega"
+]
+},
+"791": {
+"n": "Moltres",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"792": {
+"n": "Darumaka",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"793": {
+"n": "Darmanitan",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"794": {
+"n": "Reshiram",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"795": {
+"n": "Oricorio ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"energy_accel",
+"ex"
+]
+},
+"796": {
+"n": "Charcadet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"797": {
+"n": "Ceruledge",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"798": {
+"n": "Seel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"799": {
+"n": "Dewgong",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"evolution"
+]
+},
+"800": {
+"n": "Swinub",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"801": {
+"n": "Piloswine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"802": {
+"n": "Mamoswine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"803": {
+"n": "Suicune",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"804": {
+"n": "Piplup",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"805": {
+"n": "Prinplup",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"806": {
+"n": "Rotom ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"807": {
+"n": "Yamper",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"808": {
+"n": "Boltund",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"809": {
+"n": "Pawmi",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"810": {
+"n": "Pawmo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"811": {
+"n": "Pawmot",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"812": {
+"n": "Misdreavus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"813": {
+"n": "Mismagius ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"814": {
+"n": "Cottonee",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"815": {
+"n": "Whimsicott",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"heal"
+]
+},
+"816": {
+"n": "Zacian",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"817": {
+"n": "Bramblin",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"818": {
+"n": "Brambleghast",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"819": {
+"n": "Paldean Tauros",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"820": {
+"n": "Gligar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"821": {
+"n": "Gliscor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"822": {
+"n": "Trapinch",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"823": {
+"n": "Vibrava",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"824": {
+"n": "Flygon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution"
+]
+},
+"825": {
+"n": "Sneasel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"826": {
+"n": "Weavile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"827": {
+"n": "Carvanha",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"828": {
+"n": "Mega Sharpedo ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"829": {
+"n": "Seviper",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"830": {
+"n": "Sandile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"831": {
+"n": "Krokorok",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"832": {
+"n": "Krookodile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"833": {
+"n": "Toxel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"834": {
+"n": "Toxtricity",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution",
+"search"
+]
+},
+"835": {
+"n": "Empoleon ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"836": {
+"n": "Bronzor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"837": {
+"n": "Bronzong",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"838": {
+"n": "Togedemaru",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"839": {
+"n": "Duraludon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"840": {
+"n": "Archaludon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"841": {
+"n": "Jigglypuff",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"842": {
+"n": "Wigglytuff",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"843": {
+"n": "Aipom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"844": {
+"n": "Ambipom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"845": {
+"n": "Smeargle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"846": {
+"n": "Zigzagoon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"847": {
+"n": "Linoone",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"switch"
+]
+},
+"848": {
+"n": "Buneary",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"849": {
+"n": "Mega Lopunny ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"850": {
+"n": "Wurmple",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"851": {
+"n": "Silcoon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"852": {
+"n": "Beautifly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"853": {
+"n": "Cascoon",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"854": {
+"n": "Dustox",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"855": {
+"n": "Entei",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"856": {
+"n": "Numel",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"857": {
+"n": "Camerupt",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"858": {
+"n": "Psyduck",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"859": {
+"n": "Golduck",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"860": {
+"n": "Snorunt",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"861": {
+"n": "Mega Froslass ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"862": {
+"n": "N's Vanillite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"863": {
+"n": "N's Vanillish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"864": {
+"n": "N's Vanilluxe",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"865": {
+"n": "Snom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"866": {
+"n": "Frosmoth",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"draw",
+"evolution"
+]
+},
+"867": {
+"n": "Glastrier",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"868": {
+"n": "Mega Eelektross ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"869": {
+"n": "Stunfisk",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"870": {
+"n": "Helioptile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"871": {
+"n": "Heliolisk",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"energy_accel",
+"evolution",
+"search"
+]
+},
+"872": {
+"n": "Tapu Koko",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"873": {
+"n": "Team Rocket's Exeggcute",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"874": {
+"n": "Team Rocket's Exeggutor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"875": {
+"n": "Misdreavus",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"876": {
+"n": "Mismagius",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"877": {
+"n": "Rotom",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"878": {
+"n": "Hop's Phantump",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"879": {
+"n": "Hop's Trevenant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"880": {
+"n": "Spectrier",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"881": {
+"n": "Team Rocket's Diglett",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"882": {
+"n": "Team Rocket's Dugtrio",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"883": {
+"n": "Meditite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"884": {
+"n": "Medicham",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"885": {
+"n": "Pancham",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"886": {
+"n": "Mega Hawlucha ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"887": {
+"n": "Rolycoly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"888": {
+"n": "Carkol",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"889": {
+"n": "Coalossal",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"890": {
+"n": "Okidogi",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"891": {
+"n": "Team Rocket's Honchkrow",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"892": {
+"n": "Galarian Zigzagoon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"893": {
+"n": "Galarian Linoone",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"894": {
+"n": "Galarian Obstagoon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"895": {
+"n": "Scraggy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"896": {
+"n": "Mega Scrafty ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"mega"
+]
+},
+"897": {
+"n": "Pangoro",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"898": {
+"n": "Pecharunt",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"disruption",
+"search"
+]
+},
+"899": {
+"n": "Pawniard",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"900": {
+"n": "Bisharp",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"901": {
+"n": "Kingambit",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"902": {
+"n": "Dratini",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"903": {
+"n": "Dragonair",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"904": {
+"n": "Mega Dragonite ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"mega",
+"switch"
+]
+},
+"905": {
+"n": "Rayquaza",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"906": {
+"n": "N's Zekrom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"907": {
+"n": "Noibat",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"908": {
+"n": "Noivern",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"909": {
+"n": "Erika's Oddish",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"910": {
+"n": "Erika's Gloom",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"911": {
+"n": "Erika's Vileplume ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex",
+"heal"
+]
+},
+"912": {
+"n": "Erika's Bellsprout",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"913": {
+"n": "Erika's Weepinbell",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"914": {
+"n": "Erika's Victreebel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"915": {
+"n": "Erika's Tangela",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"search"
+]
+},
+"916": {
+"n": "Scyther",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"917": {
+"n": "Chikorita",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"918": {
+"n": "Bayleef",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"919": {
+"n": "Mega Meganium ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"920": {
+"n": "Tapu Bulu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"921": {
+"n": "Dipplin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"922": {
+"n": "Sprigatito",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"923": {
+"n": "Floragato",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"924": {
+"n": "Meowscarada",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"925": {
+"n": "Capsakid",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"926": {
+"n": "Charmander",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"927": {
+"n": "Charmeleon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"928": {
+"n": "Mega Charizard Y ex",
+"cat": "Pokemon",
+"tags": [
+"evolution",
+"mega"
+]
+},
+"929": {
+"n": "Magmar",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"930": {
+"n": "Tepig",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"931": {
+"n": "Pignite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"932": {
+"n": "Mega Emboar ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"933": {
+"n": "Larvesta",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"934": {
+"n": "Centiskorch",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"935": {
+"n": "Fuecoco",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"936": {
+"n": "Crocalor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"937": {
+"n": "Totodile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"938": {
+"n": "Croconaw",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"939": {
+"n": "Mega Feraligatr ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"940": {
+"n": "Glalie",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"941": {
+"n": "Spheal",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"942": {
+"n": "Sealeo",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"943": {
+"n": "Walrein",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"944": {
+"n": "Regice ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"945": {
+"n": "Froakie",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"946": {
+"n": "Cramorant",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"947": {
+"n": "Quaxly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"948": {
+"n": "Pikachu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"949": {
+"n": "Raichu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"950": {
+"n": "Magnemite",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"951": {
+"n": "Voltorb ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"952": {
+"n": "Zapdos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"953": {
+"n": "Zapdos",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"954": {
+"n": "Luxray ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"955": {
+"n": "Helioptile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"956": {
+"n": "Zeraora",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"957": {
+"n": "Miraidon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"958": {
+"n": "Clefable",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"959": {
+"n": "Togepi",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"960": {
+"n": "Togetic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"961": {
+"n": "Marill",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"962": {
+"n": "Azumarill ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"963": {
+"n": "Shuppet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"964": {
+"n": "Beheeyem",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"965": {
+"n": "Swirlix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"966": {
+"n": "Slurpuff",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"967": {
+"n": "Fidough",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"968": {
+"n": "Dachsbun ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex",
+"heal"
+]
+},
+"969": {
+"n": "Scream Tail ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"970": {
+"n": "Fezandipiti",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon"
+]
+},
+"971": {
+"n": "Iron Boulder",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"972": {
+"n": "Hitmontop",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"973": {
+"n": "Groudon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"974": {
+"n": "Riolu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"975": {
+"n": "Stunfisk ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"976": {
+"n": "Carbink",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"977": {
+"n": "Crabrawler",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"978": {
+"n": "Passimian",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"979": {
+"n": "Koraidon ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"980": {
+"n": "Venipede",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"981": {
+"n": "Whirlipede",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"982": {
+"n": "Scolipede",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"983": {
+"n": "Vullaby",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"984": {
+"n": "Mandibuzz ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"985": {
+"n": "Hoopa",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"986": {
+"n": "Brute Bonnet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"987": {
+"n": "Mawile",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"988": {
+"n": "Registeel ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"989": {
+"n": "Bronzor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"990": {
+"n": "Togedemaru ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"991": {
+"n": "Melmetal",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"992": {
+"n": "Duraludon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"993": {
+"n": "Orthworm ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"energy_accel",
+"ex"
+]
+},
+"994": {
+"n": "Fraxure",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"995": {
+"n": "Haxorus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"996": {
+"n": "Larry's Dunsparce",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"997": {
+"n": "Larry's Dudunsparce ex",
+"cat": "Pokemon",
+"tags": [
+"evolution",
+"ex"
+]
+},
+"998": {
+"n": "Slakoth",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"999": {
+"n": "Vigoroth",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1000": {
+"n": "Skitty",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1001": {
+"n": "Delcatty",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1002": {
+"n": "Zangoose ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"1003": {
+"n": "Larry's Starly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1004": {
+"n": "Larry's Staravia",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1005": {
+"n": "Larry's Staraptor",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1006": {
+"n": "Mega Audino ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"1007": {
+"n": "Larry's Rufflet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1008": {
+"n": "Larry's Braviary",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1009": {
+"n": "Larry's Komala",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"basic_mon",
+"draw",
+"energy_accel"
+]
+},
+"1010": {
+"n": "Drampa",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1011": {
+"n": "Spinarak",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1012": {
+"n": "Ariados",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1013": {
+"n": "Shaymin",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1014": {
+"n": "Snivy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1015": {
+"n": "Servine",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1016": {
+"n": "Serperior",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1017": {
+"n": "Scatterbug",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1018": {
+"n": "Spewpa",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"1019": {
+"n": "Vivillon",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"draw",
+"evolution"
+]
+},
+"1020": {
+"n": "Rowlet",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1021": {
+"n": "Dartrix",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1022": {
+"n": "Decidueye ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"ex"
+]
+},
+"1023": {
+"n": "Fletchinder",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1024": {
+"n": "Talonflame",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution"
+]
+},
+"1025": {
+"n": "Salandit",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1026": {
+"n": "Salazzle ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"ex"
+]
+},
+"1027": {
+"n": "Turtonator",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon"
+]
+},
+"1028": {
+"n": "Seel",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1029": {
+"n": "Dewgong",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"1030": {
+"n": "Staryu",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1031": {
+"n": "Mega Starmie ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution",
+"mega"
+]
+},
+"1032": {
+"n": "Amaura",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1033": {
+"n": "Aurorus",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"1034": {
+"n": "Volcanion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1035": {
+"n": "Shinx",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"1036": {
+"n": "Luxio",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"1037": {
+"n": "Luxray",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1038": {
+"n": "Dedenne",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1039": {
+"n": "Clefairy",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1040": {
+"n": "Mega Clefable ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"mega"
+]
+},
+"1041": {
+"n": "Mawile",
+"cat": "Pokemon",
+"tags": [
+"basic_mon"
+]
+},
+"1042": {
+"n": "Espurr",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1043": {
+"n": "Meowstic",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1044": {
+"n": "Spritzee",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1045": {
+"n": "Aromatisse",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution",
+"search"
+]
+},
+"1046": {
+"n": "Nosepass",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1047": {
+"n": "Probopass",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1048": {
+"n": "Hippopotas",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1049": {
+"n": "Hippowdon",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1050": {
+"n": "Landorus",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1051": {
+"n": "Binacle",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1052": {
+"n": "Barbaracle",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"energy_accel",
+"evolution"
+]
+},
+"1053": {
+"n": "Tyrunt",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"1054": {
+"n": "Tyrantrum",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"evolution"
+]
+},
+"1055": {
+"n": "Hawlucha",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1056": {
+"n": "Mega Zygarde ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"mega"
+]
+},
+"1057": {
+"n": "Gastly",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1058": {
+"n": "Haunter",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"1059": {
+"n": "Gengar",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"disruption",
+"evolution"
+]
+},
+"1060": {
+"n": "Skorupi",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1061": {
+"n": "Drapion",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1062": {
+"n": "Yveltal ex",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon",
+"ex"
+]
+},
+"1063": {
+"n": "Chien-Pao",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1064": {
+"n": "Mega Skarmory ex",
+"cat": "Pokemon",
+"tags": [
+"basic_mon",
+"mega"
+]
+},
+"1065": {
+"n": "Honedge",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1066": {
+"n": "Doublade",
+"cat": "Pokemon",
+"tags": [
+"evolution"
+]
+},
+"1067": {
+"n": "Aegislash",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1068": {
+"n": "Klefki",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1069": {
+"n": "Rattata",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1070": {
+"n": "Raticate",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1071": {
+"n": "Meowth ex",
+"cat": "Pokemon",
+"tags": [
+"ability",
+"attacker",
+"basic_mon",
+"ex",
+"search"
+]
+},
+"1072": {
+"n": "Snorlax",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1073": {
+"n": "Bunnelby",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1074": {
+"n": "Diggersby",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"evolution"
+]
+},
+"1075": {
+"n": "Fletchling",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1076": {
+"n": "Furfrou",
+"cat": "Pokemon",
+"tags": [
+"attacker",
+"basic_mon"
+]
+},
+"1077": {
+"n": "Roto-Stick",
+"cat": "Item",
+"tags": []
+},
+"1078": {
+"n": "Hole-Digging Shovel",
+"cat": "Item",
+"tags": []
+},
+"1079": {
+"n": "Rare Candy",
+"cat": "Item",
+"tags": []
+},
+"1080": {
+"n": "Unfair Stamp",
+"cat": "Item",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1081": {
+"n": "Enhanced Hammer",
+"cat": "Item",
+"tags": []
+},
+"1082": {
+"n": "Hyper Aroma",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1083": {
+"n": "Love Ball",
+"cat": "Item",
+"tags": [
+"disruption",
+"search"
+]
+},
+"1084": {
+"n": "Boxed Order",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1085": {
+"n": "Awakening Drum",
+"cat": "Item",
+"tags": [
+"draw"
+]
+},
+"1086": {
+"n": "Buddy-Buddy Poffin",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1087": {
+"n": "Hand Trimmer",
+"cat": "Item",
+"tags": [
+"disruption"
+]
+},
+"1088": {
+"n": "Prime Catcher",
+"cat": "Item",
+"tags": [
+"gust",
+"switch"
+]
+},
+"1089": {
+"n": "Reboot Pod",
+"cat": "Item",
+"tags": [
+"energy_accel"
+]
+},
+"1090": {
+"n": "Ogre’s Mask",
+"cat": "Item",
+"tags": []
+},
+"1091": {
+"n": "Accompanying Flute",
+"cat": "Item",
+"tags": []
+},
+"1092": {
+"n": "Secret Box",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1093": {
+"n": "Scoop Up Cyclone",
+"cat": "Item",
+"tags": []
+},
+"1094": {
+"n": "Bug Catching Set",
+"cat": "Item",
+"tags": []
+},
+"1095": {
+"n": "Dangerous Laser",
+"cat": "Item",
+"tags": []
+},
+"1096": {
+"n": "Poké Vital A",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1097": {
+"n": "Night Stretcher",
+"cat": "Item",
+"tags": []
+},
+"1098": {
+"n": "Glass Trumpet",
+"cat": "Item",
+"tags": [
+"energy_accel"
+]
+},
+"1099": {
+"n": "Antique Root Fossil",
+"cat": "Item",
+"tags": []
+},
+"1100": {
+"n": "Energy Search Pro",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1101": {
+"n": "Call Bell",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1102": {
+"n": "Dusk Ball",
+"cat": "Item",
+"tags": []
+},
+"1103": {
+"n": "Meddling Memo",
+"cat": "Item",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1104": {
+"n": "Megaton Blower",
+"cat": "Item",
+"tags": []
+},
+"1105": {
+"n": "Dragon Elixir",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1106": {
+"n": "Deduction Kit",
+"cat": "Item",
+"tags": []
+},
+"1107": {
+"n": "Scramble Switch",
+"cat": "Item",
+"tags": [
+"switch"
+]
+},
+"1108": {
+"n": "Chill Teaser Toy",
+"cat": "Item",
+"tags": []
+},
+"1109": {
+"n": "Miracle Headset",
+"cat": "Item",
+"tags": []
+},
+"1110": {
+"n": "Max Rod",
+"cat": "Item",
+"tags": []
+},
+"1111": {
+"n": "Treasure Tracker",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1112": {
+"n": "Super Potion",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1113": {
+"n": "N’s PP Up",
+"cat": "Item",
+"tags": [
+"energy_accel"
+]
+},
+"1114": {
+"n": "Redeemable Ticket",
+"cat": "Item",
+"tags": []
+},
+"1115": {
+"n": "Hop’s Bag",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1116": {
+"n": "Energy Switch",
+"cat": "Item",
+"tags": []
+},
+"1117": {
+"n": "Potion",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1118": {
+"n": "Energy Retrieval",
+"cat": "Item",
+"tags": []
+},
+"1119": {
+"n": "Energy Search",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1120": {
+"n": "Crushing Hammer",
+"cat": "Item",
+"tags": []
+},
+"1121": {
+"n": "Ultra Ball",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1122": {
+"n": "Pokégear 3.0",
+"cat": "Item",
+"tags": []
+},
+"1123": {
+"n": "Switch",
+"cat": "Item",
+"tags": [
+"switch"
+]
+},
+"1124": {
+"n": "Pokémon Catcher",
+"cat": "Item",
+"tags": [
+"gust"
+]
+},
+"1125": {
+"n": "Master Ball",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1126": {
+"n": "Precious Trolley",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1127": {
+"n": "Tera Orb",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1128": {
+"n": "Brilliant Blender",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1129": {
+"n": "Sacred Ash",
+"cat": "Item",
+"tags": []
+},
+"1130": {
+"n": "Arven's Sandwich",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1131": {
+"n": "Team Rocket's Bother-Bot",
+"cat": "Item",
+"tags": []
+},
+"1132": {
+"n": "Team Rocket's Great Ball",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1133": {
+"n": "Team Rocket's Venture Bomb",
+"cat": "Item",
+"tags": []
+},
+"1134": {
+"n": "Team Rocket's Transceiver",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1135": {
+"n": "Energy Coin",
+"cat": "Item",
+"tags": [
+"energy_accel",
+"search"
+]
+},
+"1136": {
+"n": "Antique Cover Fossil",
+"cat": "Item",
+"tags": []
+},
+"1137": {
+"n": "Tool Scrapper",
+"cat": "Item",
+"tags": []
+},
+"1138": {
+"n": "Antique Plume Fossil",
+"cat": "Item",
+"tags": []
+},
+"1139": {
+"n": "Energy Recycler",
+"cat": "Item",
+"tags": []
+},
+"1140": {
+"n": "Iron Defender",
+"cat": "Item",
+"tags": []
+},
+"1141": {
+"n": "Premium Power Pro",
+"cat": "Item",
+"tags": []
+},
+"1142": {
+"n": "Fighting Gong",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1143": {
+"n": "Repel",
+"cat": "Item",
+"tags": [
+"gust"
+]
+},
+"1144": {
+"n": "Strange Timepiece",
+"cat": "Item",
+"tags": []
+},
+"1145": {
+"n": "Mega Signal",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1146": {
+"n": "Wondrous Patch",
+"cat": "Item",
+"tags": [
+"energy_accel"
+]
+},
+"1147": {
+"n": "Jumbo Ice Cream",
+"cat": "Item",
+"tags": [
+"energy_accel",
+"heal"
+]
+},
+"1148": {
+"n": "Blowtorch",
+"cat": "Item",
+"tags": [
+"disruption"
+]
+},
+"1149": {
+"n": "Energy Swatter",
+"cat": "Item",
+"tags": []
+},
+"1150": {
+"n": "Antique Jaw Fossil",
+"cat": "Item",
+"tags": []
+},
+"1151": {
+"n": "Antique Sail Fossil",
+"cat": "Item",
+"tags": [
+"disruption"
+]
+},
+"1152": {
+"n": "Poké Pad",
+"cat": "Item",
+"tags": [
+"search"
+]
+},
+"1153": {
+"n": "Lumiose Galette",
+"cat": "Item",
+"tags": [
+"heal"
+]
+},
+"1154": {
+"n": "Team Rocket’s Hypnotizer",
+"cat": "Tool",
+"tags": []
+},
+"1155": {
+"n": "Survival Brace",
+"cat": "Tool",
+"tags": []
+},
+"1156": {
+"n": "Lucky Helmet",
+"cat": "Tool",
+"tags": [
+"draw"
+]
+},
+"1157": {
+"n": "Rescue Board",
+"cat": "Tool",
+"tags": []
+},
+"1158": {
+"n": "Maximum Belt",
+"cat": "Tool",
+"tags": []
+},
+"1159": {
+"n": "Hero’s Cape",
+"cat": "Tool",
+"tags": []
+},
+"1160": {
+"n": "Heavy Baton",
+"cat": "Tool",
+"tags": [
+"energy_accel"
+]
+},
+"1161": {
+"n": "Handheld Fan",
+"cat": "Tool",
+"tags": [
+"energy_accel"
+]
+},
+"1162": {
+"n": "Binding Mochi",
+"cat": "Tool",
+"tags": []
+},
+"1163": {
+"n": "Powerglass",
+"cat": "Tool",
+"tags": [
+"energy_accel"
+]
+},
+"1164": {
+"n": "Payapa Berry",
+"cat": "Tool",
+"tags": []
+},
+"1165": {
+"n": "Sparkling Crystal",
+"cat": "Tool",
+"tags": []
+},
+"1166": {
+"n": "Gravity Gemstone",
+"cat": "Tool",
+"tags": []
+},
+"1167": {
+"n": "Deluxe Bomb",
+"cat": "Tool",
+"tags": []
+},
+"1168": {
+"n": "Counter Gain",
+"cat": "Tool",
+"tags": []
+},
+"1169": {
+"n": "Amulet of Hope",
+"cat": "Tool",
+"tags": [
+"disruption",
+"search"
+]
+},
+"1170": {
+"n": "Haban Berry",
+"cat": "Tool",
+"tags": []
+},
+"1171": {
+"n": "Hop’s Choice Band",
+"cat": "Tool",
+"tags": []
+},
+"1172": {
+"n": "Lillie’s Pearl",
+"cat": "Tool",
+"tags": []
+},
+"1173": {
+"n": "Cynthia's Power Weight",
+"cat": "Tool",
+"tags": []
+},
+"1174": {
+"n": "Air Balloon",
+"cat": "Tool",
+"tags": []
+},
+"1175": {
+"n": "Brave Bangle",
+"cat": "Tool",
+"tags": []
+},
+"1176": {
+"n": "Punk Helmet",
+"cat": "Tool",
+"tags": []
+},
+"1177": {
+"n": "Sacred Charm",
+"cat": "Tool",
+"tags": []
+},
+"1178": {
+"n": "Light Ball",
+"cat": "Tool",
+"tags": []
+},
+"1179": {
+"n": "Thick Scale",
+"cat": "Tool",
+"tags": []
+},
+"1180": {
+"n": "Core Memory",
+"cat": "Tool",
+"tags": []
+},
+"1181": {
+"n": "Billy & O'Nare",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1182": {
+"n": "Boss’s Orders",
+"cat": "Supporter",
+"tags": [
+"gust"
+]
+},
+"1183": {
+"n": "Perrin",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1184": {
+"n": "Lana’s Aid",
+"cat": "Supporter",
+"tags": []
+},
+"1185": {
+"n": "Explorer’s Guidance",
+"cat": "Supporter",
+"tags": []
+},
+"1186": {
+"n": "Eri",
+"cat": "Supporter",
+"tags": [
+"disruption"
+]
+},
+"1187": {
+"n": "Morty’s Conviction",
+"cat": "Supporter",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1188": {
+"n": "Ciphermaniac’s Codebreaking",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1189": {
+"n": "Salvatore",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1190": {
+"n": "Bianca’s Devotion",
+"cat": "Supporter",
+"tags": [
+"heal"
+]
+},
+"1191": {
+"n": "Kieran",
+"cat": "Supporter",
+"tags": [
+"gust",
+"switch"
+]
+},
+"1192": {
+"n": "Carmine",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1193": {
+"n": "Hassel",
+"cat": "Supporter",
+"tags": [
+"disruption"
+]
+},
+"1194": {
+"n": "Colress’s Tenacity",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1195": {
+"n": "Janine’s Secret Art",
+"cat": "Supporter",
+"tags": [
+"energy_accel",
+"search"
+]
+},
+"1196": {
+"n": "Cassiopeia",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1197": {
+"n": "Xerosic’s Machinations",
+"cat": "Supporter",
+"tags": [
+"disruption"
+]
+},
+"1198": {
+"n": "Crispin",
+"cat": "Supporter",
+"tags": [
+"energy_accel",
+"search"
+]
+},
+"1199": {
+"n": "Lacey",
+"cat": "Supporter",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1200": {
+"n": "Kofu",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1201": {
+"n": "Briar",
+"cat": "Supporter",
+"tags": []
+},
+"1202": {
+"n": "Drayton",
+"cat": "Supporter",
+"tags": []
+},
+"1203": {
+"n": "Surfer",
+"cat": "Supporter",
+"tags": [
+"draw",
+"switch"
+]
+},
+"1204": {
+"n": "Lisia’s Appeal",
+"cat": "Supporter",
+"tags": [
+"gust"
+]
+},
+"1205": {
+"n": "Cyrano",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1206": {
+"n": "Larry’s Skill",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1207": {
+"n": "Amarys",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1208": {
+"n": "Iris’s Fighting Spirit",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1209": {
+"n": "Ruffian",
+"cat": "Supporter",
+"tags": []
+},
+"1210": {
+"n": "Brock’s Scouting",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1211": {
+"n": "Black Belt’s Training",
+"cat": "Supporter",
+"tags": []
+},
+"1212": {
+"n": "Cook",
+"cat": "Supporter",
+"tags": [
+"heal"
+]
+},
+"1213": {
+"n": "Judge",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1214": {
+"n": "Emcee's Hype",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1215": {
+"n": "Ethan's Adventure",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1216": {
+"n": "Team Rocket's Ariana",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1217": {
+"n": "Team Rocket's Archer",
+"cat": "Supporter",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1218": {
+"n": "Team Rocket's Giovanni",
+"cat": "Supporter",
+"tags": [
+"gust",
+"switch"
+]
+},
+"1219": {
+"n": "Team Rocket's Petrel",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1220": {
+"n": "Team Rocket's Proton",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1221": {
+"n": "N's Plan",
+"cat": "Supporter",
+"tags": []
+},
+"1222": {
+"n": "Fennel",
+"cat": "Supporter",
+"tags": [
+"heal"
+]
+},
+"1223": {
+"n": "Harlequin",
+"cat": "Supporter",
+"tags": [
+"disruption",
+"draw"
+]
+},
+"1224": {
+"n": "Cheren",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1225": {
+"n": "Hilda",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1226": {
+"n": "Lt. Surge's Bargain",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1227": {
+"n": "Lillie's Determination",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1228": {
+"n": "Acerola's Mischief",
+"cat": "Supporter",
+"tags": []
+},
+"1229": {
+"n": "Wally's Compassion",
+"cat": "Supporter",
+"tags": [
+"heal"
+]
+},
+"1230": {
+"n": "Grimsley's Move",
+"cat": "Supporter",
+"tags": []
+},
+"1231": {
+"n": "Dawn",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1232": {
+"n": "Firebreather",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1233": {
+"n": "Canari",
+"cat": "Supporter",
+"tags": [
+"search"
+]
+},
+"1234": {
+"n": "Anthea & Concordia",
+"cat": "Supporter",
+"tags": []
+},
+"1235": {
+"n": "Waitress",
+"cat": "Supporter",
+"tags": []
+},
+"1236": {
+"n": "Urbain",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1237": {
+"n": "Lucian",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1238": {
+"n": "Tarragon",
+"cat": "Supporter",
+"tags": []
+},
+"1239": {
+"n": "Naveen",
+"cat": "Supporter",
+"tags": [
+"draw"
+]
+},
+"1240": {
+"n": "Rosa's Encouragement",
+"cat": "Supporter",
+"tags": [
+"energy_accel"
+]
+},
+"1241": {
+"n": "Jacinthe",
+"cat": "Supporter",
+"tags": [
+"heal"
+]
+},
+"1242": {
+"n": "Community Center",
+"cat": "Stadium",
+"tags": [
+"heal"
+]
+},
+"1243": {
+"n": "Perilous Jungle",
+"cat": "Stadium",
+"tags": []
+},
+"1244": {
+"n": "Full Metal Lab",
+"cat": "Stadium",
+"tags": []
+},
+"1245": {
+"n": "Festival Grounds",
+"cat": "Stadium",
+"tags": []
+},
+"1246": {
+"n": "Jamming Tower",
+"cat": "Stadium",
+"tags": []
+},
+"1247": {
+"n": "Neutralization Zone",
+"cat": "Stadium",
+"tags": [
+"disruption"
+]
+},
+"1248": {
+"n": "Academy at Night",
+"cat": "Stadium",
+"tags": []
+},
+"1249": {
+"n": "Grand Tree",
+"cat": "Stadium",
+"tags": []
+},
+"1250": {
+"n": "Area Zero Underdepths",
+"cat": "Stadium",
+"tags": []
+},
+"1251": {
+"n": "Lively Stadium",
+"cat": "Stadium",
+"tags": []
+},
+"1252": {
+"n": "Gravity Mountain",
+"cat": "Stadium",
+"tags": []
+},
+"1253": {
+"n": "N’s Castle",
+"cat": "Stadium",
+"tags": []
+},
+"1254": {
+"n": "Levincia",
+"cat": "Stadium",
+"tags": []
+},
+"1255": {
+"n": "Postwick",
+"cat": "Stadium",
+"tags": []
+},
+"1256": {
+"n": "Team Rocket's Watchtower",
+"cat": "Stadium",
+"tags": []
+},
+"1257": {
+"n": "Team Rocket's Factory",
+"cat": "Stadium",
+"tags": [
+"draw"
+]
+},
+"1258": {
+"n": "Granite Cave",
+"cat": "Stadium",
+"tags": []
+},
+"1259": {
+"n": "Spikemuth Gym",
+"cat": "Stadium",
+"tags": []
+},
+"1260": {
+"n": "Risky Ruins",
+"cat": "Stadium",
+"tags": []
+},
+"1261": {
+"n": "Forest of Vitality",
+"cat": "Stadium",
+"tags": []
+},
+"1262": {
+"n": "Surfing Beach",
+"cat": "Stadium",
+"tags": []
+},
+"1263": {
+"n": "Mystery Garden",
+"cat": "Stadium",
+"tags": [
+"draw"
+]
+},
+"1264": {
+"n": "Battle Cage",
+"cat": "Stadium",
+"tags": []
+},
+"1265": {
+"n": "Dizzying Valley",
+"cat": "Stadium",
+"tags": []
+},
+"1266": {
+"n": "Nighttime Mine",
+"cat": "Stadium",
+"tags": []
+},
+"1267": {
+"n": "Lumiose City",
+"cat": "Stadium",
+"tags": []
+}
+}

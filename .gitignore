@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+*.dll          # forward-model engine binaries (cg.dll); also under data/ which is ignored below
 
 # Distribution / packaging
 .Python

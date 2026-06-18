@@ -1,0 +1,138 @@
+{
+  "93": {
+    "tags": [
+      "ability_engine"
+    ],
+    "why": "Festival Grounds creates recurring double-attack pressure."
+  },
+  "102": {
+    "tags": [
+      "stall_lock"
+    ],
+    "why": "Prevents opponent bounce-to-hand lines while in play."
+  },
+  "104": {
+    "tags": [
+      "damage_mod"
+    ],
+    "why": "Pokemon with Abilities take repeated damage counters."
+  },
+  "240": {
+    "tags": [
+      "ability_engine"
+    ],
+    "why": "Festival Grounds interaction grants conditional repeated attacks."
+  },
+  "247": {
+    "tags": [
+      "ability_engine"
+    ],
+    "why": "Festival Grounds lets same card attack twice."
+  },
+  "449": {
+    "tags": [
+      "stall_lock"
+    ],
+    "why": "Prevents opponent from playing Ability Pokemon from hand while active."
+  },
+  "859": {
+    "tags": [
+      "ability_disable"
+    ],
+    "why": "Ability lock interaction for self and opponent non-KO abilities."
+  },
+  "994": {
+    "tags": [
+      "ability_disable"
+    ],
+    "why": "Prevents opponent Item/Supporter effects to this Pokémon."
+  },
+  "1088": {
+    "tags": [
+      "gust",
+      "switch_pivot"
+    ],
+    "why": "Opponent bench swap plus your follow-up active pivot."
+  },
+  "1091": {
+    "tags": [
+      "bench_setup",
+      "draw"
+    ],
+    "why": "Pops multiple Basics from deck view directly into play."
+  },
+  "1143": {
+    "tags": [
+      "gust"
+    ],
+    "why": "Forces opponent Active to a Bench Pokémon and back."
+  },
+  "1151": {
+    "tags": [
+      "ability_disable"
+    ],
+    "why": "Opponent Supporter effects are disabled against this Pokémon."
+  },
+  "1164": {
+    "tags": [
+      "protection"
+    ],
+    "why": "Damage reduction and single-use damage prevention."
+  },
+  "1182": {
+    "tags": [
+      "gust"
+    ],
+    "why": "Forces opponent benched Pokémon into the Active Spot."
+  },
+  "1204": {
+    "tags": [
+      "gust"
+    ],
+    "why": "Force swap to specific Benched Basic as confusion follow-up."
+  },
+  "1218": {
+    "tags": [
+      "gust",
+      "switch_pivot"
+    ],
+    "why": "Team Rocket active swap plus opponent benched-to-active pressure."
+  },
+  "1244": {
+    "tags": [
+      "protection"
+    ],
+    "why": "Global non-exclusionary damage-reduction effect."
+  },
+  "1246": {
+    "tags": [
+      "ability_disable"
+    ],
+    "why": "All Pokémon Tools lose effect while this Stadium is present."
+  },
+  "1256": {
+    "tags": [
+      "ability_disable"
+    ],
+    "why": "Turns off C Pokémon abilities globally."
+  },
+  "1258": {
+    "tags": [
+      "protection"
+    ],
+    "why": "Targets Steven’s Pokémon for opponent damage reduction."
+  },
+  "1259": {
+    "tags": [
+      "tutor",
+      "consistency"
+    ],
+    "why": "Each turn deck search for a Marnie's Pokémon."
+  },
+  "1262": {
+    "tags": [
+      "switch_pivot"
+    ],
+    "why": "Each turn allows active/bench water-type pivot."
+  }
+}
