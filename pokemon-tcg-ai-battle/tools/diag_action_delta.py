@@ -83,6 +83,9 @@ def collect(max_games):
         if not deck:
             continue
         _games_used[0] += 1
+        if _games_used[0] % 5 == 0:
+            print(f"  [gate2] {_games_used[0]}/{max_games} games | {gid} decisions, {len(rows)} rows "
+                  f"| {time.time()-t0:.0f}s elapsed", flush=True)
         if max_games and _games_used[0] > max_games:
             break
         for s in d.get("steps", []):
