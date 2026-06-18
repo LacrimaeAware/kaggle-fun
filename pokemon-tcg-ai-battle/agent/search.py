@@ -42,7 +42,10 @@ MY_CONT = "aggro"         # continuation policy for MY playout turn (the opponen
 # "aggro": attack as soon as any attack is legal (ends my turn early -> can undervalue setup candidates).
 # "setup": develop first (play/attach/evolve/ability), attack only when no development remains -> a more
 #          realistic finish of my turn, so the leaf value reflects the board I would actually build.
-# A/B in tools/search_sprint.py continuation.
+# Sprint A/B (tools/search_sprint.py continuation): setup vs aggro head-to-head 0.583 [0.457,0.699] n=60
+# -- DIRECTIONALLY better but the CI spans 0.5 (inconclusive), and setup's rollout is ~4x slower so under
+# the 0.6s match cap it lands fewer determinizations. Kept "aggro" (the validated submission config); a
+# clean re-test should disentangle the determinization-budget confound before adopting setup.
 
 _API = None
 
