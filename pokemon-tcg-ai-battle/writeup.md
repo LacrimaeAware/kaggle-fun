@@ -31,22 +31,27 @@ Wilson confidence intervals.
 | agent_search vs first_agent | 0.585 (n=800) | [0.551, 0.619] |
 | agent_search vs heuristic | 0.543 (n=300) | [0.487, 0.599] |
 | heuristic vs first_agent | 0.513 (n=300) | inside noise |
-| agent_search_v vs heuristic | 0.427 (n=400) | [0.380, 0.476] |
+| agent_combine vs first_agent | 0.557 (n=400) | [0.509, 0.605] |
+| agent_search_v vs heuristic | 0.517 (n=400) | [0.469, 0.566] |
+| agent_search_v vs heuristic (MC-outcome value, superseded) | 0.427 (n=400) | [0.380, 0.476] |
 | heuristic vs random_agent | 0.875 (n=200) | — |
 
+Learned-value progression vs the heuristic (search_v): 0.427 (MC-outcome value) -> 0.517
+(search-bootstrapped value, pass 1). All learned-value intervals include 0.5 (parity).
 0 illegal-move/timeout forfeits across thousands of games (registry H2). The forward model
 runs locally with no reentrancy crash (registry H001, supported).
 
 ## Caveat
 
-The strongest agent is **agent_search** (forward search + hand eval). The learned value, done
-correctly (tree form, seat-balanced data, verified bit-exact export, scale bug fixed), still
-**loses** as a search leaf eval (0.427 vs the heuristic): it has good GLOBAL win/loss accuracy
-(AUC 0.735) but ranks NEARBY candidate leaves poorly, which is what 1-ply search needs
-(registry H023). Two adversarial-review workflows (34 verified findings) drove the fixes,
-including a scale bug that had inflated the learned value. Several competition facts (exact
-prize total, GPU/internet limits, per-move vs per-match time) are still unconfirmed
-(`docs/COMPETITION.md`). No submission has been made.
+The strongest agent is **agent_search** (forward search + hand eval). The learned value started
+worse: as an MC-outcome-trained leaf eval it LOST to the heuristic (0.427), because it had good
+GLOBAL win/loss accuracy (AUC ~0.74) but ranked NEARBY candidate leaves poorly, which is what
+1-ply search needs (registry H023). Training it on SEARCH-bootstrapped targets (the search's own
+backed-up value) moved it to parity (0.517 vs heuristic); pass 1 imitates the hand search, so it
+matches rather than exceeds it. Intervals are wide at these sample sizes, so the learned-value
+differences are not separated from noise. Three adversarial-review/research workflows drove fixes
+(incl. a scale bug that had inflated search_v). Competition facts (prize total, GPU/internet
+limits, per-move vs per-match time) are unconfirmed (`docs/COMPETITION.md`). No submission made.
 
 ## Lesson
 
