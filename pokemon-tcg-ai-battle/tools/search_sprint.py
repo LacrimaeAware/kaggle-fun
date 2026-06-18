@@ -38,6 +38,37 @@ def mk_ndet(n):
     return ag
 
 
+def load_meta_deck():
+    import json
+    decks = json.load(open(Path(__file__).resolve().parent.parent / "data" / "replay_db" / "decks.json", encoding="utf-8"))
+    return max(decks, key=lambda d: d.get("n_games", 0))["deck"]
+
+
+def mk_our(opp_prior):
+    """Our search on M.DECK; opp_prior fills the opponent's hidden zones (belief) or None (same-deck)."""
+    def ag(obs):
+        if obs.get("select") is None:
+            return list(M.DECK)
+        try:
+            mv = M._forced_move(obs)
+            if mv is not None:
+                return mv
+            mv = S.best_option(obs, M.DECK, opp_prior=opp_prior)
+            if mv is not None:
+                return mv
+        except Exception:
+            pass
+        return M.agent(obs)
+    return ag
+
+
+def mk_meta_opp(meta):
+    """A meta-deck opponent: pilots `meta` with the engine's first_agent."""
+    def ag(obs):
+        return list(meta) if obs.get("select") is None else A.cabt.first_agent(obs)
+    return ag
+
+
 def ab(label, a, b, games, progress):
     r = A.run(games, a, b, label=label, progress=progress)
     dec = r["wins_a"] + r["wins_b"]
@@ -49,7 +80,7 @@ def ab(label, a, b, games, progress):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("experiment", choices=["determ"])
+    ap.add_argument("experiment", choices=["determ", "belief"])
     ap.add_argument("--games", type=int, default=40)
     ap.add_argument("--progress", type=int, default=10)
     args = ap.parse_args()
@@ -59,6 +90,16 @@ def main():
         ab("N=16 vs N=4", mk_ndet(16), mk_ndet(4), args.games, args.progress)
         print("\nRead: if more determinizations clear 0.50 (Wilson lower bound > 0.5), bump N_DETERM; "
               "else keep 4 (cheaper) and move to the next knob (rollout / belief / continuation).", flush=True)
+    elif args.experiment == "belief":
+        meta = load_meta_deck()
+        opp = mk_meta_opp(meta)
+        print(f"belief-determinization A/B: our search (M.DECK) vs a META-deck opponent (first_agent on the\n"
+              f"top replay deck). best-case belief (opp hidden zones filled from the META deck) vs same-deck\n"
+              f"(filled from our deck). {args.games} games each.\n", flush=True)
+        ab("belief: our-search(opp_prior=meta) vs meta-opp", mk_our(meta), opp, args.games, args.progress)
+        ab("same-deck: our-search(opp_prior=None) vs meta-opp", mk_our(None), opp, args.games, args.progress)
+        print("\nRead: if belief's win-rate vs the meta opponent clears same-deck's by more than noise,\n"
+              "knowing the opponent's deck helps the search -> build a meta/archetype belief prior.", flush=True)
 
 
 if __name__ == "__main__":

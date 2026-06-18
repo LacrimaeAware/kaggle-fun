@@ -144,7 +144,7 @@ def _hidden_pool(deck: list, player: dict, exclude_hand: bool) -> list:
 
 
 def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
-            opp_k: int = 0):
+            opp_k: int = 0, opp_prior: list = None):
     """Core search. Returns (best_option_index, best_backed_up_value), or (None, None) if search
     is not applicable. The backed-up value is the max over options of the determinization-averaged
     leaf value -- the A0GB-style search-bootstrapped value of this state (used as a learning target
@@ -191,7 +191,7 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
         my_pool += [3] * max(0, (n_my_deck + n_my_prize) - len(my_pool))
         your_deck = my_pool[:n_my_deck]
         your_prize = my_pool[n_my_deck:n_my_deck + n_my_prize]
-        op_pool = _hidden_pool(deck, O, exclude_hand=True)
+        op_pool = _hidden_pool(opp_prior or deck, O, exclude_hand=True)   # belief: fill opp hidden zones from a meta prior if given
         op_pool += [3] * max(0, (n_op_deck + n_op_prize + n_op_hand) - len(op_pool))
         opp_hand = op_pool[:n_op_hand]
         opp_prize = op_pool[n_op_hand:n_op_hand + n_op_prize]
@@ -239,10 +239,11 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
 
 
 def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
-                opp_k: int = 0):
+                opp_k: int = 0, opp_prior: list = None):
     """The chosen option as a 1-element list, or None if search does not apply (caller falls back).
-    opp_k>0 enables 2-ply opponent-reply branching."""
-    i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k)
+    opp_k>0 enables 2-ply opponent-reply branching. opp_prior fills the opponent's hidden zones from a
+    meta deck prior (belief-conditioned determinization) instead of assuming our own deck."""
+    i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k, opp_prior)
     return [i] if i is not None else None
 
 
