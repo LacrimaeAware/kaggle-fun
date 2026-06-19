@@ -1,0 +1,19 @@
+{
+  "a": "search_ctx",
+  "artifact_version": "contextual_action_ranker_v1.arena_screen",
+  "b": "search",
+  "games": 20,
+  "result": {
+    "a_win_rate": 0.55,
+    "a_win_rate_decided": 0.55,
+    "draws": 0,
+    "errors": 0,
+    "games": 20,
+    "s_per_game": 25.76,
+    "seconds": 515.2,
+    "wins_a": 11,
+    "wins_b": 9
+  },
+  "same_deck": true,
+  "wall_clock_note": "agent_search_ctx debits contextual scoring time from search.DEFAULT_BUDGET before forward-model search"
+}

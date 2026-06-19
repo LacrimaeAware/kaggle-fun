@@ -41,6 +41,7 @@ AGENTS = {
     "random": _random_samedeck,
     "first": _first_samedeck,
     "heuristic": agent_mod.agent,
+    "search_ctx": agent_mod.agent_search_ctx,
     "search": agent_mod.agent_search,
     "search2": agent_mod.agent_search2,
     "search_v": agent_mod.agent_search_v,
