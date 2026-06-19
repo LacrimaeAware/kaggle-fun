@@ -63,12 +63,18 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         for r in labels:
             f.write(json.dumps(r) + "\n")
-    print(f"\n[A4] wrote {len(labels)} Teacher V2 labels -> {out.relative_to(ROOT)}")
-    print(f"  outcome disagreed with hand argmax on {disagree}/{evald} labeled decisions "
-          f"(higher = the outcome signal adds information beyond the hand leaf)")
-    if labels:
-        ex = labels[0]
-        print("  sample label option fields:", list(ex["options"][0].keys()))
+    ses = [o["outcome_se"] for r in labels for o in r["options"] if o.get("outcome_se") is not None]
+    full = sum(r["coverage"]["all_siblings_completed"] for r in labels if "coverage" in r)
+    total_t = time.time() - t0
+    print(f"\n=== Teacher V2 scaled batch summary ===")
+    print(f"  n decisions:                  {evald}")
+    print(f"  k_outcome:                    {args.k_outcome}")
+    print(f"  hand-vs-outcome disagreement: {disagree}/{evald} = {disagree/max(1,evald):.2f}")
+    print(f"  mean per-option outcome SE:   {statistics.fmean(ses):.3f}" if ses else "  outcome SE: n/a")
+    print(f"  all-siblings-completed:       {full}/{evald}")
+    print(f"  cost/decision:                {total_t/max(1,evald):.1f}s")
+    print(f"  artifact -> {out.relative_to(ROOT)}")
+    print(f"  primary target for B = hand_norm_advantage; outcome_winrate auxiliary (confidence-weight by outcome_se)")
 
 
 if __name__ == "__main__":

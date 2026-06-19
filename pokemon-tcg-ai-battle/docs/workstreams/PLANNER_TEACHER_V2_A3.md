@@ -112,3 +112,20 @@ diminishing returns), at large cost.
   the full field set + outcome SE + convergence + stability). Scalable on request; the validation says scaling
   k beyond 32 is not worth it -- scale n (more decisions) instead, keeping outcome auxiliary.
 - Status: implemented, offline-validated, **inconclusive-as-primary / accepted-as-auxiliary**. No live claim.
+
+## A4 scaled batch (n=50) -- the deliverable for Model B
+
+`data/manifests/teacher_v2_labels_scaled.jsonl` -- 50 high-criticality decisions, k_outcome=16, full field
+set per `query_teacher_v2`: per option `index`, `semantic_action_key`, `eq_class`, `hand_mean_value`,
+`hand_value_variance`, `hand_norm_advantage`, `completed_determinizations`, `outcome_winrate`,
+`outcome_playouts`, `outcome_se`; per decision `obs_hash`, criticality (+components), soft policy, acceptable
+set, margin/spread, hand/outcome argmax + agreement, `coverage` (all_siblings_completed), `timing`, `seed`,
+`paired_world`.
+
+Summary: disagreement (hand vs outcome argmax) 26/50 = **0.52** (matches the k=32 validation 0.58); mean
+per-option outcome SE **0.044**; all-siblings-completed **50/50** (offline budget -> full coverage);
+cost **2.9 s/decision**; scaled by n (not k) per the validation. Primary target for B =
+`hand_norm_advantage` (weight by criticality, inverse `hand_value_variance`, coverage); auxiliary =
+`outcome_winrate` (confidence-weight by `outcome_se`, do not use its argmax as a hard label).
+
+`agent_search` remains the live baseline; no live agent consumed these labels (offline only).

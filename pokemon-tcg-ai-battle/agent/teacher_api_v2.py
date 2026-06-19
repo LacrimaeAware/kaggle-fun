@@ -13,6 +13,8 @@ planner redesign. Reproducible determinization via seed; engine rollout RNG rema
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import random
 import statistics
 import time
@@ -193,20 +195,32 @@ def query_v2(obs: dict, deck: list, *, n_determ: int = 32, hand_budget: float = 
     v1 = T1.query(obs, deck, n_determ=n_determ, time_budget=hand_budget, leaf_mode="hand", seed=seed)
     if not v1.get("applicable"):
         return out
-    outcome = _outcome_winrate(obs, deck, k_outcome, outcome_budget)
-    opts = obs["select"]["option"]
-    options = []
+    t_out = time.time()
+    outcome_lists = outcome_playouts(obs, deck, k_outcome, outcome_budget)   # per-option paired result lists
+    outcome_time = round(time.time() - t_out, 2)
+
+    def _ws(lst):
+        n = len(lst)
+        if not n:
+            return None, 0, None
+        p = sum(lst) / n
+        return p, n, (p * (1 - p) / n) ** 0.5
+
+    options, n_opts, determ_full, outcome_full = [], len(v1["options"]), 0, 0
     for o in v1["options"]:
         i = o["index"]
-        ow = outcome[i] if (outcome and i < len(outcome) and outcome[i]) else None
+        ol = outcome_lists[i] if (outcome_lists and i < len(outcome_lists)) else []
+        p, n_pl, se = _ws(ol)
+        determ_full += int(o["completed_determinizations"] >= n_determ)
+        outcome_full += int(n_pl >= k_outcome)
         options.append({
             "index": i, "semantic_action_key": o["semantic_action_key"], "eq_class": o["eq_class"],
             "hand_mean_value": o["mean_value"], "hand_value_variance": o["value_variance"],
             "hand_norm_advantage": o["normalized_advantage"],
             "completed_determinizations": o["completed_determinizations"],
-            "outcome_winrate": round(ow[0], 3) if ow else None, "outcome_playouts": ow[1] if ow else 0,
+            "outcome_winrate": round(p, 3) if p is not None else None,
+            "outcome_playouts": n_pl, "outcome_se": round(se, 3) if se is not None else None,
         })
-    # action spread (hand advantage range) + whether outcome and hand agree on the top action
     hand_best = v1.get("argmax_eq_class")
     ow_vals = [(o["index"], o["outcome_winrate"]) for o in options if o["outcome_winrate"] is not None]
     outcome_best = max(ow_vals, key=lambda x: x[1])[0] if ow_vals else None
@@ -214,6 +228,7 @@ def query_v2(obs: dict, deck: list, *, n_determ: int = 32, hand_budget: float = 
     spread = (max(_hv) - min(_hv)) if len(_hv) >= 2 else 0.0
     out.update({
         "evaluated": True, "me": me,
+        "obs_hash": hashlib.sha1(json.dumps(obs, sort_keys=True, default=str).encode()).hexdigest()[:12],
         "options": options,
         "soft_policy_target": v1["soft_policy_target"],
         "acceptable_action_set": v1["acceptable_action_set"],
@@ -225,6 +240,10 @@ def query_v2(obs: dict, deck: list, *, n_determ: int = 32, hand_budget: float = 
         "action_spread": round(spread, 1),
         "forced_action_flag": v1["forced_action_flag"],
         "config_hash": v1["config_hash"],
+        "coverage": {"n_options": n_opts, "determ_full_options": determ_full,
+                     "outcome_full_options": outcome_full,
+                     "all_siblings_completed": int(determ_full == n_opts and outcome_full == n_opts)},
+        "timing": {"outcome_time_s": outcome_time}, "paired_world": True, "seed": seed,
     })
     return out
 
