@@ -120,6 +120,62 @@ def _outcome_winrate(obs: dict, deck: list, k: int, time_budget: float):
     return [(wins[i] / counts[i], counts[i]) if counts[i] else None for i in range(len(wins))]
 
 
+def outcome_playouts(obs: dict, deck: list, k: int, time_budget: float):
+    """Per-option list of terminal results over k PAIRED playouts: within each of the k iterations all
+    siblings are played out from the SAME determinized world (shared-world paired comparison). Returns
+    list[option] -> [r1, r2, ...] aligned by world index, or None. The richer form of _outcome_winrate
+    (keeps the per-world sequence so convergence and variance can be read off). Never raises."""
+    A = S._api()
+    if A is None:
+        return None
+    sel, cur = obs.get("select"), obs.get("current")
+    if not sel or not cur or (sel.get("maxCount") or 0) != 1 or len(sel.get("option") or []) < 2:
+        return None
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return None
+    me = cur.get("yourIndex", 0)
+    P, O = players[me], players[1 - me]
+    oa = O.get("active") or []
+    if oa and oa[0] is None:
+        return None
+    n_my_deck, n_op_deck = P.get("deckCount", 0) or 0, O.get("deckCount", 0) or 0
+    n_my_prize, n_op_prize = len(P.get("prize") or []), len(O.get("prize") or [])
+    n_op_hand = O.get("handCount", 0) or 0
+    obsd = A.to_observation_class(obs)
+    results = None
+    t0 = time.time()
+    for _ in range(k):
+        if time.time() - t0 > time_budget:
+            break
+        mp = S._hidden_pool(deck, P, exclude_hand=False); mp += [3] * max(0, (n_my_deck + n_my_prize) - len(mp))
+        op = S._hidden_pool(deck, O, exclude_hand=True); op += [3] * max(0, (n_op_deck + n_op_prize + n_op_hand) - len(op))
+        try:
+            root = A.search_begin(obsd, your_deck=mp[:n_my_deck], your_prize=mp[n_my_deck:n_my_deck + n_my_prize],
+                                  opponent_deck=op[n_op_hand + n_op_prize:n_op_hand + n_op_prize + n_op_deck],
+                                  opponent_prize=op[n_op_hand:n_op_hand + n_op_prize], opponent_hand=op[:n_op_hand],
+                                  opponent_active=[])
+        except Exception:
+            continue
+        nn = len(root.observation.select.option)
+        if results is None:
+            results = [[] for _ in range(nn)]
+        try:
+            for i in range(min(len(results), nn)):
+                if time.time() - t0 > time_budget:
+                    break
+                try:
+                    results[i].append(_playout_result(A, root.searchId, i, me))
+                except Exception:
+                    continue
+        finally:
+            try:
+                A.search_end()
+            except Exception:
+                pass
+    return results
+
+
 def query_v2(obs: dict, deck: list, *, n_determ: int = 32, hand_budget: float = 8.0,
              k_outcome: int = 6, outcome_budget: float = 12.0, seed=None, crit_threshold: float = 0.3) -> dict:
     """Teacher V2 label for one decision. Always returns criticality; runs the expensive stronger

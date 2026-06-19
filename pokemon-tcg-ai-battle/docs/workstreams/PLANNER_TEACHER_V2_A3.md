@@ -81,7 +81,34 @@ target = `hand_norm_advantage` (low-noise), weighted by criticality and 1/`hand_
 
 ## A5 / recommendation
 
-No live selective-search variant was built, so no A5 screen. Recommendation: **label generator only** for now
--- Teacher V2 is a labeling/analysis deliverable, not a current live win-rate lever. Next, on request: scale
-the label set across more high-criticality decisions, and run a higher-k outcome study (or regret check) to
-test whether the outcome divergence is information or variance. `agent_search` remains the submission baseline.
+No live selective-search variant was built, so no A5 screen. Teacher V2 is a labeling/analysis deliverable,
+not a live win-rate lever. `agent_search` remains the submission baseline.
+
+## A4 validation -- higher-k outcome study (`tools/validate_teacher_v2.py`, `teacher_v2_labels_v2.jsonl`)
+
+12 high-criticality decisions, high-N(32) hand advantage + two independent k=32 PAIRED-playout outcome runs
+(siblings share the determinized world per playout). One run's per-world results give the outcome argmax at
+k=4/8/16/32 prefixes (convergence); the second gives stability.
+
+| metric | result | reading |
+|---|---|---|
+| hand-vs-outcome disagreement @ k=4/8/16/32 | 0.75 / 0.75 / **0.58 / 0.58** | drops from the pilot but does NOT collapse -- ~58% persists; not pure noise |
+| outcome-argmax stability across two k=32 runs | **6/12 = 0.50** | outcome argmax is a coin-flip half the time -- too unstable to be a reliable top-action label |
+| mean per-option outcome SE @ k=32 | 0.035 | small, but top options' win-rates are close, so the argmax still flips |
+
+**Conclusion (held, not overclaimed):** the terminal-outcome is a real-but-weak signal -- persistently
+divergent from hand-eval (carries information the hand leaf lacks), but only 50% self-stable at k=32 (not
+reliable enough to be a primary target). Higher k would help only marginally (the near-tied win-rates imply
+diminishing returns), at large cost.
+
+## Revised recommendation: Teacher V2 usable as AUXILIARY only
+
+- **Primary target for B:** `hand_norm_advantage` at N=32 (low-noise; A2 showed the hand signal's
+  instability is engine-rollout variance that high-N averages down), weighted by criticality and inverse
+  `hand_value_variance`.
+- **Auxiliary:** `outcome_winrate`, confidence-weighted by `outcome_se` and used only where the outcome
+  argmax is self-stable / its margin exceeds ~2*SE. Do NOT make it the primary target.
+- **Artifact for B:** `data/manifests/teacher_v2_labels_v2.jsonl` (12 validated high-criticality labels with
+  the full field set + outcome SE + convergence + stability). Scalable on request; the validation says scaling
+  k beyond 32 is not worth it -- scale n (more decisions) instead, keeping outcome auxiliary.
+- Status: implemented, offline-validated, **inconclusive-as-primary / accepted-as-auxiliary**. No live claim.
