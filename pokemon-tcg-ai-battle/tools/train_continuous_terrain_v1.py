@@ -38,6 +38,28 @@ DEFAULT_ROUND2 = ROOT / "data" / "manifests" / "teacher_v2_residual_risk_labels_
 DOCS = ROOT / "docs" / "workstreams"
 ZONE_NAMES = ["hand", "active", "bench", "discard", "opp_active", "opp_bench", "opp_discard"]
 STAGE_KEYS = ["basic", "stage1", "stage2"]
+SEMANTIC_EFFECT_KEYS = [
+    "eff_draw", "eff_search", "eff_search_to_bench", "eff_energy_accel", "eff_heal",
+    "eff_recover_discard", "eff_status", "eff_disrupt", "eff_discard_cost",
+    "eff_shuffle_hand", "eff_has_ability", "own_switch", "opp_gust", "discard_hand",
+    "atk_damage", "atk_cost",
+]
+SEMANTIC_DELTA_KEYS = [
+    "d_prizes_taken", "d_opp_prizes_taken", "d_opp_ko", "d_dmg_dealt", "d_cards_drawn",
+    "d_energy_attached", "d_board_dev", "d_deck_used", "d_discard_gain", "d_ends_turn",
+    "d_wins_now", "d_loses_now",
+]
+SEMANTIC_CONTEXT_KEYS = [
+    "ctx_can_ko", "ctx_lethal", "ctx_ko_back", "ctx_prize_lead", "ctx_backup_attacker",
+    "ctx_bench_slots", "ctx_hand_size", "ctx_deckout_risk", "ctx_energy_short",
+    "ctx_supporter_avail", "ctx_attach_done", "ctx_can_ability", "ctx_board_dev",
+    "ctx_attacker_ready",
+]
+SEMANTIC_META_KEYS = [
+    "card_type", "card_stage", "card_hp", "card_prize", "is_ex", "is_mega", "is_tera",
+    "is_ace_spec", "card_retreat", "target_side", "target_zone", "target_index",
+    "attack_id", "ability_flag",
+]
 MODEL_VARIANTS = {
     "R3_semantic": {"use_metadata": False, "forward_variant": "semantic", "use_contrastive": True, "use_ranking": True},
     "R4_semantic_plus_search": {"use_metadata": True, "forward_variant": "full", "use_contrastive": True, "use_ranking": True},
@@ -75,7 +97,15 @@ CE = load_json(ROOT / "agent" / "card_effects.json")
 
 def card_effect_vector(cid: int | None) -> list[float]:
     ce = CE.get(str(cid), {}) if cid is not None and cid >= 0 else {}
-    return [float(ce.get(k, 0.0) or 0.0) for k in CR.EFFECT_KEYS]
+    vals = []
+    for key in SEMANTIC_EFFECT_KEYS:
+        if key.startswith("eff_"):
+            vals.append(float(ce.get(key[4:], 0.0) or ce.get(key, 0.0) or 0.0))
+        elif key == "atk_damage":
+            vals.append(float(ce.get("best_dmg", 0.0) or 0.0))
+        else:
+            vals.append(float(ce.get(key, 0.0) or 0.0))
+    return vals
 
 
 def card_dynamic_vector(ent, *, side: float = 0.0) -> list[float]:
@@ -153,7 +183,7 @@ def entity_records(obs: dict, max_entities: int) -> tuple[np.ndarray, np.ndarray
             mask.append(1.0)
     while len(ids) < max_entities:
         ids.append(-1)
-        eff.append([0.0] * len(CR.EFFECT_KEYS))
+        eff.append([0.0] * len(SEMANTIC_EFFECT_KEYS))
         dyn.append([0.0] * 14)
         zid.append(0)
         mask.append(0.0)
@@ -218,32 +248,205 @@ def option_alias(opt: dict, *names, default=None):
     return default
 
 
+def semantic_float(sem: dict, key: str, default: float = 0.0) -> float:
+    try:
+        return float(sem.get(key, default) or 0.0)
+    except Exception:
+        return float(default)
+
+
+def semantic_effects(sem: dict) -> list[float]:
+    return [semantic_float(sem, k) for k in SEMANTIC_EFFECT_KEYS]
+
+
+def semantic_deltas(sem: dict) -> list[float]:
+    return [semantic_float(sem, k) for k in SEMANTIC_DELTA_KEYS]
+
+
+def semantic_action_scalars(sem: dict, key: list, eq: int, idx: int, n_options: int, live_prob: float, policy_prob: float) -> list[float]:
+    vals = [semantic_float(sem, k) for k in SEMANTIC_META_KEYS + SEMANTIC_CONTEXT_KEYS]
+    vals += semantic_numeric(key, eq, idx, n_options)
+    vals += [live_prob, policy_prob, 1.0 if str(sem.get("semantic_coverage", "")) != "unknown" else 0.0]
+    return vals
+
+
+def semantic_target_dynamic(sem: dict) -> list[float]:
+    return [
+        semantic_float(sem, "card_hp") / 300.0,
+        semantic_float(sem, "ctx_energy_short") / 6.0,
+        semantic_float(sem, "card_hp") / 300.0,
+        semantic_float(sem, "atk_damage") / 300.0,
+        1.0 if semantic_float(sem, "card_type") == 0 else 0.0,
+        1.0 if semantic_float(sem, "card_type") in (1, 2, 3, 4) else 0.0,
+        1.0 if semantic_float(sem, "card_type") in (5, 6, 7, 8) else 0.0,
+        1.0 if semantic_float(sem, "card_stage") == 0 else 0.0,
+        1.0 if semantic_float(sem, "card_stage") > 0 else 0.0,
+        1.0 if semantic_float(sem, "is_ex") or semantic_float(sem, "is_mega") else 0.0,
+        semantic_float(sem, "card_retreat") / 4.0,
+        semantic_float(sem, "card_prize") / 3.0,
+        semantic_float(sem, "target_side"),
+        1.0 if semantic_float(sem, "acting_card_id", -1.0) >= 0 else 0.0,
+    ]
+
+
 def normalize_label(label: dict) -> dict:
     lab = copy.deepcopy(label)
     for opt in lab.get("options") or []:
         if "current_search_value" not in opt:
             opt["current_search_value"] = option_alias(
-                opt, "mean_live_search_value", "live_search_value_mean", "live_value", default=0.0
+                opt, "mean_live_search_value", "live_search_value_mean", "live_value", "mean_live_value", default=0.0
             )
         if "stronger_value" not in opt:
             opt["stronger_value"] = option_alias(
-                opt, "mean_stronger_teacher_value", "stronger_teacher_value_mean", "teacher_value", default=opt["current_search_value"]
+                opt, "mean_stronger_teacher_value", "stronger_teacher_value_mean", "teacher_value",
+                "mean_stronger_value", default=opt["current_search_value"]
             )
         if "delta_to_search" not in opt:
             opt["delta_to_search"] = float(opt["stronger_value"] or 0.0) - float(opt["current_search_value"] or 0.0)
         if "delta_to_search_norm" not in opt:
             opt["delta_to_search_norm"] = option_alias(opt, "normalized_residual", "clipped_normalized_delta_to_search", default=opt["delta_to_search"])
         if "value_variance" not in opt:
-            opt["value_variance"] = option_alias(opt, "live_search_value_variance", "stronger_teacher_value_variance", default=0.0)
+            opt["value_variance"] = option_alias(
+                opt, "live_search_value_variance", "stronger_teacher_value_variance",
+                "live_value_variance", "stronger_value_variance", default=0.0
+            )
         if "value_se" not in opt:
             opt["value_se"] = option_alias(opt, "live_search_value_se", "stronger_teacher_value_se", default=0.0)
         if "completed_determinizations" not in opt:
             opt["completed_determinizations"] = option_alias(opt, "completed_determinizations_mean", default=0)
         if "high_regret_flag" not in opt:
-            opt["high_regret_flag"] = int(float(option_alias(opt, "high_regret_probability", default=0.0)) >= 0.5)
+            opt["high_regret_flag"] = int(float(option_alias(opt, "high_regret_probability", "high_regret_prob", default=0.0)) >= 0.5)
         if "unacceptable_flag" not in opt:
-            opt["unacceptable_flag"] = int(float(option_alias(opt, "unacceptable_probability", default=0.0)) >= 0.5)
+            opt["unacceptable_flag"] = int(float(option_alias(opt, "unacceptable_probability", "unacceptable_prob", default=0.0)) >= 0.5)
     return lab
+
+
+def prepare_observation(label: dict) -> dict:
+    obs = copy.deepcopy(label.get("observation") or {})
+    legal = label.get("legal_options") or (obs.get("select") or {}).get("option") or []
+    obs.setdefault("select", {})
+    obs["select"].setdefault("maxCount", 1)
+    obs["select"]["option"] = legal
+    return obs
+
+
+def synthetic_contextual_dense(sem: dict, root: list[float], history: list[float], n_options: int) -> list[float]:
+    action = [1.0 if int(semantic_float(sem, "opt_type")) == t else 0.0 for t in CR.OTYPES]
+    action += [
+        1.0 if semantic_float(sem, "card_type") == 0 else 0.0,
+        1.0 if semantic_float(sem, "card_type") in (1, 2, 3, 4) else 0.0,
+        1.0 if semantic_float(sem, "card_type") in (5, 6, 7, 8) else 0.0,
+        1.0 if semantic_float(sem, "card_stage") == 0 else 0.0,
+        1.0 if semantic_float(sem, "card_stage") > 0 else 0.0,
+        1.0 if semantic_float(sem, "is_ex") or semantic_float(sem, "is_mega") else 0.0,
+        semantic_float(sem, "card_hp") / 300.0,
+        semantic_float(sem, "atk_damage") / 300.0,
+        semantic_float(sem, "atk_damage") / 300.0,
+        semantic_float(sem, "atk_cost") / 4.0,
+        1.0 if semantic_float(sem, "target_index", -1.0) >= 0 else 0.0,
+        1.0 if semantic_float(sem, "target_side") > 0 else 0.0,
+    ]
+    effects = [semantic_float(sem, f"eff_{k}") for k in CR.EFFECT_KEYS]
+    effects[CR.EFFECT_KEYS.index("switch_gust")] = max(semantic_float(sem, "own_switch"), semantic_float(sem, "opp_gust"))
+    target = semantic_target_dynamic(sem)
+    deltas = [
+        semantic_float(sem, "d_prizes_taken") / 3.0,
+        semantic_float(sem, "d_opp_prizes_taken") / 3.0,
+        semantic_float(sem, "d_opp_ko"),
+        semantic_float(sem, "d_dmg_dealt") / 100.0,
+        semantic_float(sem, "d_cards_drawn") / 5.0,
+        semantic_float(sem, "d_energy_attached") / 3.0,
+        semantic_float(sem, "d_board_dev") / 3.0,
+        semantic_float(sem, "d_deck_used") / 5.0,
+        semantic_float(sem, "d_discard_gain") / 5.0,
+        semantic_float(sem, "d_ends_turn"),
+        semantic_float(sem, "d_wins_now"),
+        semantic_float(sem, "d_loses_now"),
+    ]
+    ctx = [
+        semantic_float(sem, "ctx_energy_short"),
+        semantic_float(sem, "ctx_hand_size"),
+        semantic_float(sem, "ctx_board_dev"),
+        0.0,
+        0.0,
+        semantic_float(sem, "ctx_can_ko"),
+        1.0 - semantic_float(sem, "ctx_attach_done"),
+        semantic_float(sem, "ctx_supporter_avail"),
+        semantic_float(sem, "ctx_attach_done"),
+        0.0,
+        0.0,
+        0.0,
+    ]
+    ctx = (ctx + [0.0] * len(CR.CTX_KEYS))[:len(CR.CTX_KEYS)]
+    interactions = [e * c for e in effects for c in ctx]
+    return action + effects + target + deltas + root + interactions + history
+
+
+def contextual_rows_from_self_contained(label: dict, obs: dict, options: list[dict]) -> tuple[list[list[float]], list[int], list[int], list[list], list[str]]:
+    legal = label.get("legal_options") or (obs.get("select") or {}).get("option") or []
+    root_map = FT.encode_state(obs)
+    root = FT.vectorize(root_map)
+    cur = obs.get("current") or {}
+    history = [
+        float(cur.get("turn", 0) or 0) / 30.0,
+        float(cur.get("turnActionCount", 0) or 0) / 20.0,
+        1.0 if cur.get("supporterPlayed") else 0.0,
+        1.0 if cur.get("stadiumPlayed") else 0.0,
+        1.0 if cur.get("energyAttached") else 0.0,
+        1.0 if cur.get("retreated") else 0.0,
+    ]
+    feat = None
+    try:
+        feat = CR.decision_features(obs, [])
+    except Exception:
+        feat = None
+    dense, cids, eqs, keys, sources = [], [], [], [], []
+    for oi, opt in enumerate(options):
+        sem = opt.get("semantic_vector") or {}
+        if feat and oi < len(feat.get("dense") or []):
+            row = [float(x) for x in feat["dense"][oi]]
+            cid = int(feat["cids"][oi]) if int(feat["cids"][oi]) >= 0 else int(semantic_float(sem, "acting_card_id", -1))
+            eq = int(feat["eq"][oi])
+            key = list(feat["keys"][oi])
+            source = "contextual_ranker_from_observation"
+        else:
+            row = synthetic_contextual_dense(sem, root, history, len(options))
+            cid = int(semantic_float(sem, "acting_card_id", -1))
+            eq = int(opt.get("eq_class", oi))
+            key = list(opt.get("semantic_action_key") or [])
+            source = "synthetic_from_semantic_vector"
+        dense.append(row)
+        cids.append(cid)
+        eqs.append(eq)
+        keys.append(key)
+        sources.append(source)
+    return dense, cids, eqs, keys, sources
+
+
+def policy_from_label(label: dict, options: list[dict]) -> list[float]:
+    raw = label.get("stronger_soft_policy") or label.get("soft_policy_target") or {}
+    probs = []
+    if isinstance(raw, dict):
+        for i, opt in enumerate(options):
+            eq = opt.get("eq_class")
+            probs.append(float(raw.get(str(i), raw.get(i, raw.get(str(eq), raw.get(eq, 0.0)))) or 0.0))
+    elif isinstance(raw, list):
+        probs = [float(raw[i]) if i < len(raw) else 0.0 for i in range(len(options))]
+    total = sum(probs)
+    if total > 0:
+        return [p / total for p in probs]
+    vals = np.asarray([float(o.get("stronger_value") or 0.0) for o in options], dtype=np.float32)
+    scale = float(np.std(vals)) or 1.0
+    logits = np.clip((vals - float(vals.mean())) / scale, -8.0, 8.0)
+    expv = np.exp(logits - np.max(logits))
+    return [float(x) for x in expv / max(1e-9, float(expv.sum()))]
+
+
+def terrain_bool(label: dict, key: str) -> bool:
+    auth = label.get("terrain_authoritative") if isinstance(label.get("terrain_authoritative"), dict) else {}
+    if key in auth:
+        return bool(auth.get(key))
+    return False
 
 
 def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[dict]]:
@@ -252,18 +455,36 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
     failures = []
     for li, raw_label in enumerate(labels):
         label = normalize_label(raw_label)
-        row, failure = RISK.make_row(label, li, li, row_args)
-        if failure:
-            failures.append(failure)
-            continue
-        obs = label.get("observation") or {}
+        is_terrain = bool(label.get("terrain_authoritative")) and bool(label.get("observation")) and bool(label.get("legal_options"))
+        obs = prepare_observation(label)
         legal = label.get("legal_options") or (obs.get("select") or {}).get("option") or []
         opts = {int(o["index"]): o for o in label.get("options") or []}
+        if is_terrain:
+            ordered_options = [opts[i] for i in sorted(opts)]
+            base_dense, cids, eqs, keys, feature_sources = contextual_rows_from_self_contained(label, obs, ordered_options)
+            row = {
+                "base_dense": base_dense,
+                "cids": cids,
+                "eq": eqs,
+                "keys": keys,
+                "search_selected_option": label.get("search_selected_option"),
+                "game_file": label.get("group_id"),
+            }
+        else:
+            row, failure = RISK.make_row(label, li, li, row_args)
+            if failure:
+                failures.append(failure)
+                continue
+            feature_sources = ["round2_reconstructed_contextual"] * len(row["base_dense"])
         n = len(row["base_dense"])
         selected = row.get("search_selected_option")
+        try:
+            selected = int(selected)
+        except Exception:
+            selected = None
         group_id = label.get("group_id") or row.get("game_file") or f"group_{li}"
         tags = set(label.get("criterion_tags") or label.get("terrain_tags") or [])
-        live_dist = label.get("live_selected_action_distribution") or label.get("live_selected_distribution") or {}
+        live_dist = label.get("live_selected_action_distribution") or label.get("live_selected_distribution") or label.get("live_selected_distribution") or {}
         if isinstance(live_dist, list):
             live_probs = [float(x) for x in live_dist]
         elif isinstance(live_dist, dict):
@@ -273,21 +494,23 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
             live_probs = [0.0] * n
             if selected is not None and 0 <= int(selected) < n:
                 live_probs[int(selected)] = 1.0
-        entropy = -sum(p * math.log(max(p, 1e-9)) for p in live_probs) / math.log(max(2, n))
-        modal = max(live_probs) if live_probs else 0.0
+        entropy = float(label.get("live_action_entropy") if label.get("live_action_entropy") is not None else (
+            -sum(p * math.log(max(p, 1e-9)) for p in live_probs) / math.log(max(2, n))
+        ))
+        modal = float(label.get("modal_action_stability") if label.get("modal_action_stability") is not None else (max(live_probs) if live_probs else 0.0))
         search_values = [float(opts[i].get("current_search_value") or 0.0) for i in range(n)]
         stronger_values = [float(opts[i].get("stronger_value") or 0.0) for i in range(n)]
-        centered = np.asarray(stronger_values, dtype=np.float32)
-        scale = float(np.std(centered)) or 1.0
-        policy_logits = np.clip((centered - float(centered.mean())) / scale, -8.0, 8.0)
-        expv = np.exp(policy_logits - np.max(policy_logits))
-        policy_target = expv / max(1e-9, float(expv.sum()))
+        policy_target = policy_from_label(label, [opts[i] for i in range(n)])
         sorted_values = sorted(search_values, reverse=True)
         margin = sorted_values[0] - sorted_values[1] if len(sorted_values) > 1 else 0.0
-        spread = float(np.std(search_values)) if search_values else 0.0
+        spread = float(label.get("value_spread") if label.get("value_spread") is not None else (np.std(search_values) if search_values else 0.0))
         crit = label.get("criticality") if isinstance(label.get("criticality"), dict) else {}
         coverage = label.get("coverage") if isinstance(label.get("coverage"), dict) else {}
         entity_ids, entity_eff, entity_dyn, entity_zid, entity_mask = entity_records(obs, args.max_entities)
+        auth = label.get("terrain_authoritative") if isinstance(label.get("terrain_authoritative"), dict) else {}
+        c1_decision = bool(auth.get("repro_c1") or label.get("terrain_class") in ("c1", "c1_seed") or label.get("c1_reproduced_this_label") or "c1_search_selected_high_regret" in tags)
+        c2_decision = bool(label.get("terrain_class") in ("c2", "c2_seed") or auth.get("has_dangerous_sibling") or "c2_safe_search_false_positive" in tags)
+        c3_decision = bool(label.get("terrain_class") in ("c3", "ring2") or auth.get("boundary") or label.get("ring") == 2 or "c3_near_miss_boundary" in tags)
         for oi in range(n):
             opt = opts.get(oi, {})
             legal_opt = legal[oi] if oi < len(legal) and isinstance(legal[oi], dict) else {}
@@ -300,15 +523,21 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
             hist_slice = CR.SLICES["history"]
             action_type = legal_opt.get("type", 0)
             target_cid, target_zone, target_eff, target_dyn = option_target_entity(legal_opt, obs)
-            c1 = bool(label.get("c1_reproduced_this_label") or "c1_search_selected_high_regret" in tags)
-            c2 = "c2_safe_search_false_positive" in tags
-            c3 = "c3_near_miss_boundary" in tags
-            high_prob = float(option_alias(opt, "high_regret_probability", default=opt.get("high_regret_flag", 0.0)) or 0.0)
-            unacc_prob = float(option_alias(opt, "unacceptable_probability", default=opt.get("unacceptable_flag", 0.0)) or 0.0)
-            acceptable_prob = float(option_alias(opt, "acceptable_probability", default=1.0 - unacc_prob))
+            sem = opt.get("semantic_vector") or {}
+            sem_effect = semantic_effects(sem) if sem else list(base[eff_slice[0]:eff_slice[1]]) + [0.0] * (len(SEMANTIC_EFFECT_KEYS) - (eff_slice[1] - eff_slice[0]))
+            sem_effect = sem_effect[:len(SEMANTIC_EFFECT_KEYS)]
+            high_prob = float(option_alias(opt, "high_regret_probability", "high_regret_prob", default=opt.get("high_regret_flag", 0.0)) or 0.0)
+            unacc_prob = float(option_alias(opt, "unacceptable_probability", "unacceptable_prob", default=opt.get("unacceptable_flag", 0.0)) or 0.0)
+            acceptable_prob = float(option_alias(opt, "acceptable_probability", "acceptable_prob", default=1.0 - unacc_prob))
             value_var = float(opt.get("value_variance") or 0.0)
             value_se = float(opt.get("value_se") or 0.0)
             residual = float(opt.get("delta_to_search_norm", opt.get("delta_to_search", 0.0)) or 0.0)
+            opt_key = list(opt.get("semantic_action_key") or row["keys"][oi])
+            opt_eq = int(opt.get("eq_class", row["eq"][oi]))
+            card_id = int(semantic_float(sem, "acting_card_id", row["cids"][oi])) if sem else int(row["cids"][oi])
+            if card_id < 0:
+                card_id = int(row["cids"][oi]) if int(row["cids"][oi]) >= 0 else -1
+            selected_high = float(high_prob if selected == oi else 0.0)
             examples.append({
                 "row_id": f"{label.get('decision_id')}#{oi}",
                 "decision_id": label.get("decision_id"),
@@ -317,11 +546,11 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
                 "eval_only": bool(label.get("eval_only")),
                 "option_index": oi,
                 "n_options": n,
-                "semantic_action_key": list(opt.get("semantic_action_key") or row["keys"][oi]),
-                "eq_class": int(opt.get("eq_class", row["eq"][oi])),
-                "action_type_raw": int(action_type or 0),
-                "action_family": int(action_type or 0),
-                "card_id": int(row["cids"][oi]) if int(row["cids"][oi]) >= 0 else -1,
+                "semantic_action_key": opt_key,
+                "eq_class": opt_eq,
+                "action_type_raw": int(semantic_float(sem, "opt_type", action_type or 0)),
+                "action_family": int(semantic_float(sem, "opt_type", action_type or 0)),
+                "card_id": card_id,
                 "target_card_id": int(target_cid),
                 "target_zone_id": int(target_zone),
                 "entity_card_ids": entity_ids,
@@ -330,14 +559,16 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
                 "entity_zone_ids": entity_zid,
                 "entity_mask": entity_mask,
                 "global_features": np.asarray(list(base[root_slice[0]:root_slice[1]]) + list(base[hist_slice[0]:hist_slice[1]]), dtype=np.float32),
-                "action_effects": np.asarray(list(base[eff_slice[0]:eff_slice[1]]), dtype=np.float32),
-                "target_effects": np.asarray(target_eff, dtype=np.float32),
-                "target_dynamic": np.asarray(list(base[target_slice[0]:target_slice[1]]), dtype=np.float32),
+                "action_effects": np.asarray(sem_effect, dtype=np.float32),
+                "target_effects": np.asarray(target_eff if any(target_eff) else sem_effect, dtype=np.float32),
+                "target_dynamic": np.asarray(semantic_target_dynamic(sem) if sem else list(base[target_slice[0]:target_slice[1]]), dtype=np.float32),
                 "target_dynamic_raw": np.asarray(target_dyn, dtype=np.float32),
-                "option_deltas": np.asarray(list(base[delta_slice[0]:delta_slice[1]]), dtype=np.float32),
+                "option_deltas": np.asarray(semantic_deltas(sem) if sem else list(base[delta_slice[0]:delta_slice[1]]), dtype=np.float32),
                 "action_scalars": np.asarray(
+                    semantic_action_scalars(sem, opt_key, opt_eq, oi, n, live_probs[oi] if oi < len(live_probs) else 0.0, policy_target[oi])
+                    if sem else
                     list(base[action_slice[0]:action_slice[1]])
-                    + semantic_numeric(list(opt.get("semantic_action_key") or row["keys"][oi]), int(opt.get("eq_class", row["eq"][oi])), oi, n)
+                    + semantic_numeric(opt_key, opt_eq, oi, n)
                     + [1.0 if selected == oi else 0.0, policy_target[oi], live_probs[oi] if oi < len(live_probs) else 0.0],
                     dtype=np.float32,
                 ),
@@ -379,10 +610,15 @@ def build_option_examples(labels: list[dict], args) -> tuple[list[dict], list[di
                 "instability": entropy,
                 "residual": max(-1.0, min(1.0, residual / args.residual_clip)),
                 "regret": float(opt.get("regret") or 0.0),
-                "selected_high_regret": float(label.get("selected_option_high_regret_flag") or 0.0) if selected == oi else None,
-                "c1": float(c1) if selected == oi else None,
-                "c2": float(c2) if selected == oi else None,
-                "c3": float(c3) if selected == oi else None,
+                "selected_high_regret": selected_high if selected == oi else None,
+                "c1": float(c1_decision) if selected == oi else None,
+                "c2": float(c2_decision) if selected == oi else None,
+                "c3": float(c3_decision) if selected == oi else None,
+                "terrain_class": label.get("terrain_class"),
+                "ring": label.get("ring"),
+                "terrain_authoritative": auth,
+                "feature_source": feature_sources[oi] if oi < len(feature_sources) else "unknown",
+                "semantic_coverage": sem.get("semantic_coverage") if sem else None,
                 "sample_weight": float(max(0.05, coverage.get("all_siblings_completed", 1.0) or 1.0)) * (
                     1.0 / max(1.0, math.sqrt(max(0.0, value_var)) / 10000.0)
                 ),
@@ -662,11 +898,17 @@ def train_one_variant(name: str, examples: list[dict], cv: dict[int, int], av: d
     train_decisions = decision_index(examples, "train")
     batch = build_tensor_batch(examples, cv, av, train_idx)
     y = targets(examples, train_idx)
+    val_batch = build_tensor_batch(examples, cv, av, val_idx) if val_idx else None
+    val_y = targets(examples, val_idx) if val_idx else None
     group_vocab = {g: i for i, g in enumerate(sorted({examples[i]["group_id"] for i in train_idx}))}
     group_ids = torch.tensor([group_vocab[examples[i]["group_id"]] for i in train_idx], dtype=torch.long)
     profile = torch.stack([y["high_regret"], y["unacceptable"], y["instability"], (y["residual"] + 1.0) / 2.0], dim=1)
     row_to_pos = {idx: pos for pos, idx in enumerate(train_idx)}
     history = []
+    best_state = copy.deepcopy(model.state_dict())
+    best_score = -1e9
+    best_epoch = 0
+    bad_epochs = 0
     for epoch in range(args.epochs):
         model.train()
         opt.zero_grad(set_to_none=True)
@@ -688,17 +930,41 @@ def train_one_variant(name: str, examples: list[dict], cv: dict[int, int], av: d
         opt.step()
         for p in model.log_sigma.values():
             p.data.clamp_(-4.0, 4.0)
+        val_composite = None
+        if val_batch is not None and val_y is not None and len(val_idx) > 0:
+            model.eval()
+            with torch.no_grad():
+                vout = model(val_batch, variant=cfg.get("forward_variant", "full"))
+                hp = torch.sigmoid(vout["high_regret_logit"]).numpy()
+                up = torch.sigmoid(vout["unacceptable_logit"]).numpy()
+                high_ap = metric_ap((val_y["high_regret"].numpy() >= 0.5).astype(np.int32), hp) or 0.0
+                unacc_ap = metric_ap((val_y["unacceptable"].numpy() >= 0.5).astype(np.int32), up) or 0.0
+                resid = float(F.smooth_l1_loss(vout["residual"], val_y["residual"]).detach())
+                val_composite = 0.45 * high_ap + 0.45 * unacc_ap - 0.10 * resid
+            if val_composite > best_score + 1e-4:
+                best_score = val_composite
+                best_epoch = epoch + 1
+                best_state = copy.deepcopy(model.state_dict())
+                bad_epochs = 0
+            else:
+                bad_epochs += 1
         if epoch == 0 or (epoch + 1) % max(1, args.epochs // 4) == 0:
             history.append({
                 "epoch": epoch + 1,
                 "total_loss": float(total.detach()),
                 "grad_norm": float(grad_norm),
+                "val_composite": val_composite,
                 **{f"loss_{k}": float(v.detach()) for k, v in losses.items()},
             })
+        if val_idx and epoch + 1 >= args.min_epochs and bad_epochs >= args.patience:
+            break
+    model.load_state_dict(best_state)
     emb_grad = model.card_embedding.weight.grad
     return model, {
         "variant_config": cfg,
         "history": history,
+        "best_epoch": best_epoch,
+        "best_validation_composite": best_score if best_score > -1e8 else None,
         "learned_task_weights": {
             k: float(torch.exp(-v.detach().clamp(-4.0, 4.0))) for k, v in model.log_sigma.items()
         },
@@ -835,6 +1101,113 @@ def neighbor_enrichment(examples: list[dict], spaces: dict[str, np.ndarray], par
     return rows
 
 
+def dataset_validation(labels: list[dict], examples: list[dict]) -> dict:
+    record_required = [
+        "terrain_authoritative", "observation", "legal_options", "live_repeats", "strong_repeats",
+        "live_selected_distribution", "live_action_entropy", "modal_action_stability",
+        "stronger_soft_policy", "decision_id", "obs_hash", "group_id",
+    ]
+    option_required = [
+        "semantic_vector", "mean_live_value", "live_value_variance", "mean_stronger_value",
+        "stronger_value_variance", "delta_to_search", "delta_to_search_norm",
+        "hand_norm_advantage", "acceptable_prob", "high_regret_prob", "unacceptable_prob",
+        "value_se", "completed_determinizations", "semantic_action_key", "eq_class",
+    ]
+    missing_record = Counter()
+    missing_option = Counter()
+    for label in labels:
+        for key in record_required:
+            if key not in label:
+                missing_record[key] += 1
+        for opt in label.get("options") or []:
+            for key in option_required:
+                if key not in opt:
+                    missing_option[key] += 1
+    decision_partitions = defaultdict(set)
+    group_partitions = defaultdict(set)
+    for e in examples:
+        decision_partitions[e["decision_id"]].add(e.get("partition"))
+        group_partitions[e["group_id"]].add(e.get("partition"))
+    return {
+        "terrain_authoritative_records": sum(1 for r in labels if "terrain_authoritative" in r),
+        "semantic_vector_options": sum(1 for r in labels for o in (r.get("options") or []) if "semantic_vector" in o),
+        "repeated_live_records": sum(1 for r in labels if "live_repeats" in r and "live_selected_distribution" in r),
+        "repeated_stronger_records": sum(1 for r in labels if "strong_repeats" in r and "stronger_soft_policy" in r),
+        "missing_record_fields": dict(sorted(missing_record.items())),
+        "missing_option_fields": dict(sorted(missing_option.items())),
+        "split_decision_violations": [k for k, v in decision_partitions.items() if len(v) > 1],
+        "split_group_violations": [k for k, v in group_partitions.items() if len(v) > 1 and "eval_only" not in v],
+        "eval_only_train_or_val_rows": sum(1 for e in examples if e["eval_only"] and e["partition"] in ("train", "val")),
+    }
+
+
+def row_brief(e: dict, score: float | None = None) -> dict:
+    return {
+        "row_id": e["row_id"],
+        "decision_id": e["decision_id"],
+        "group_id": e["group_id"],
+        "option_index": e["option_index"],
+        "terrain_class": e.get("terrain_class"),
+        "ring": e.get("ring"),
+        "semantic_coverage": e.get("semantic_coverage"),
+        "high_regret": e.get("high_regret"),
+        "unacceptable": e.get("unacceptable"),
+        "regret": e.get("regret"),
+        "score": None if score is None else float(score),
+    }
+
+
+def retrieval_examples(examples: list[dict], spaces: dict[str, np.ndarray], learned_scores: dict[str, dict], args) -> dict:
+    test_idx = [i for i, e in enumerate(examples) if e["partition"] == "test"]
+    train_idx = [i for i, e in enumerate(examples) if e["partition"] == "train"]
+    out = {"cross_game_neighbors": [], "semantic_succeeds_search_fails": [], "search_succeeds_semantic_fails": [], "semantic_failure_cases": []}
+    if not test_idx:
+        return out
+    # Retrieval examples in R3 semantic space.
+    mat = spaces.get("R3_semantic")
+    if mat is not None:
+        positives = [i for i in test_idx if examples[i]["high_regret"] >= 0.5]
+        for qi in positives[:10]:
+            cand = [i for i in test_idx if i != qi and examples[i]["group_id"] != examples[qi]["group_id"]]
+            if not cand:
+                continue
+            d = np.linalg.norm(mat[cand] - mat[qi], axis=1)
+            order = np.argsort(d)[:5]
+            out["cross_game_neighbors"].append({
+                "query": row_brief(examples[qi]),
+                "representation": "R3_semantic",
+                "neighbors": [
+                    {**row_brief(examples[cand[int(j)]]), "distance": float(d[int(j)])}
+                    for j in order
+                ],
+            })
+
+    # R1 probe predictions versus R3 learned head predictions for high-regret.
+    if "R1_search_metadata_only" in spaces and "R3_semantic" in learned_scores:
+        y_train = np.asarray([examples[i]["high_regret"] for i in train_idx], dtype=np.float32)
+        xtr, xte = robust_matrix(spaces["R1_search_metadata_only"][train_idx], spaces["R1_search_metadata_only"][test_idx])
+        r1_pred = train_probe(xtr, y_train, xte, args.seed + 991)
+        r1_by_idx = {idx: float(pred) for idx, pred in zip(test_idx, r1_pred)}
+        r3_scores = learned_scores["R3_semantic"]["high_regret"]
+        for idx in test_idx:
+            label = examples[idx]["high_regret"] >= 0.5
+            r3_ok = (r3_scores[idx] >= 0.5) == label
+            r1_ok = (r1_by_idx[idx] >= 0.5) == label
+            item = {
+                "example": row_brief(examples[idx]),
+                "r3_semantic_score": float(r3_scores[idx]),
+                "r1_search_metadata_score": float(r1_by_idx[idx]),
+                "label_high_regret": bool(label),
+            }
+            if r3_ok and not r1_ok and len(out["semantic_succeeds_search_fails"]) < 12:
+                out["semantic_succeeds_search_fails"].append(item)
+            if r1_ok and not r3_ok and len(out["search_succeeds_semantic_fails"]) < 12:
+                out["search_succeeds_semantic_fails"].append(item)
+            if not r3_ok and len(out["semantic_failure_cases"]) < 12:
+                out["semantic_failure_cases"].append(item)
+    return out
+
+
 def summarize_decision(predictive: dict, neighborhood: list[dict], smoke: bool) -> dict:
     if smoke:
         return {
@@ -861,7 +1234,7 @@ def summarize_decision(predictive: dict, neighborhood: list[dict], smoke: bool) 
         return {"verdict": "A. BROADER STRUCTURE SUPPORTED"}
     if full is not None and search is not None and full > search + 0.03 and (sem is None or sem <= search + 0.03):
         return {"verdict": "C. SEARCH-METADATA-DOMINATED"}
-    if sem is not None and engineered is not None and sem > engineered + 0.02:
+    if sem is not None and engineered is not None and search is not None and sem > engineered + 0.02 and sem > search + 0.02:
         return {"verdict": "B. FEATURE-LIMITED BUT IMPROVED"}
     return {"verdict": "E. CURRENT SEMANTIC REPRESENTATION NOT VALIDATED"}
 
@@ -881,6 +1254,12 @@ def write_summary(path: Path, report: dict) -> None:
         f"- Eval-only decisions: {report['dataset']['eval_only_decisions']}",
         f"- Failures: {len(report['dataset']['failures'])}",
         f"- Split: train games {report['split']['train']}; val games {report['split']['val']}; test games {report['split']['test']}; eval-only {report['split']['eval_only']}",
+        f"- Terrain-authoritative records: {report.get('dataset_validation', {}).get('terrain_authoritative_records')}",
+        f"- Semantic-vector option rows: {report.get('dataset_validation', {}).get('semantic_vector_options')}",
+        f"- Repeated live/stronger records: {report.get('dataset_validation', {}).get('repeated_live_records')} / {report.get('dataset_validation', {}).get('repeated_stronger_records')}",
+        f"- Missing required record fields: `{report.get('dataset_validation', {}).get('missing_record_fields')}`",
+        f"- Missing required option fields: `{report.get('dataset_validation', {}).get('missing_option_fields')}`",
+        f"- Split violations: decisions `{report.get('dataset_validation', {}).get('split_decision_violations')}`, groups `{report.get('dataset_validation', {}).get('split_group_violations')}`",
         "",
         "## Architecture",
         "",
@@ -902,12 +1281,21 @@ def write_summary(path: Path, report: dict) -> None:
             f"| `{name}` | {w['ranking']:.3f} | {w['high_regret']:.3f} | {w['unacceptable']:.3f} | "
             f"{w['acceptable']:.3f} | {w['instability']:.3f} | {w['residual']:.3f} | {w['contrastive']:.3f} |"
         )
-    lines.extend(["", "## Predictive Metrics", "", "High-regret AP/AUROC on held-out test games:", "", "| representation | AP | AUROC | recall@FPR10 |", "|---|---:|---:|---:|"])
+    lines.extend(["", "## Predictive Metrics", "", "High-regret AP/AUROC on held-out test games:", "", "| representation | AP | AUROC | recall@FPR5 | recall@FPR10 |", "|---|---:|---:|---:|---:|"])
     for name, metrics in sorted((report["predictive_metrics"].get("high_regret") or {}).items()):
         if name.endswith("_eval_only_seeds"):
             continue
         lines.append(
-            f"| `{name}` | {fmt(metrics.get('average_precision'))} | {fmt(metrics.get('auroc'))} | {fmt(metrics.get('recall_at_fpr_10'))} |"
+            f"| `{name}` | {fmt(metrics.get('average_precision'))} | {fmt(metrics.get('auroc'))} | "
+            f"{fmt(metrics.get('recall_at_fpr_05'))} | {fmt(metrics.get('recall_at_fpr_10'))} |"
+        )
+    lines.extend(["", "Unacceptable AP/AUROC on held-out test games:", "", "| representation | AP | AUROC | recall@FPR5 | recall@FPR10 |", "|---|---:|---:|---:|---:|"])
+    for name, metrics in sorted((report["predictive_metrics"].get("unacceptable") or {}).items()):
+        if name.endswith("_eval_only_seeds"):
+            continue
+        lines.append(
+            f"| `{name}` | {fmt(metrics.get('average_precision'))} | {fmt(metrics.get('auroc'))} | "
+            f"{fmt(metrics.get('recall_at_fpr_05'))} | {fmt(metrics.get('recall_at_fpr_10'))} |"
         )
     lines.extend(["", "## Signal Radius", "", "k=10 held-out-game high-regret enrichment:", "", "| representation | bg rate | neighbor rate | enrich | queries |", "|---|---:|---:|---:|---:|"])
     for row in report["signal_radius"]:
@@ -916,6 +1304,42 @@ def write_summary(path: Path, report: dict) -> None:
                 f"| `{row['representation']}` | {fmt(row.get('background_rate'))} | {fmt(row.get('neighbor_rate'))} | "
                 f"{fmt(row.get('enrichment_ratio'))} | {row['query_count']} |"
             )
+    lines.extend(["", "## Ablations", "", "| ablation | high-regret AP | high-regret k10 enrich | read |", "|---|---:|---:|---|"])
+    high_metrics = report["predictive_metrics"].get("high_regret") or {}
+    enrich10 = {
+        r["representation"]: r.get("enrichment_ratio")
+        for r in report["signal_radius"]
+        if r["target"] == "high_regret" and r["k"] == 10
+    }
+    full_ap = (high_metrics.get("R4_semantic_plus_search") or {}).get("average_precision")
+    for name in ["R4_no_card_embedding", "R4_no_decoded_effects", "R4_no_target_entity", "R4_no_option_deltas", "R4_no_contrastive", "R4_no_ranking"]:
+        ap = (high_metrics.get(name) or {}).get("average_precision")
+        if ap is None or full_ap is None:
+            read = "not comparable"
+        elif ap < full_ap - 0.03:
+            read = "component appears helpful"
+        elif ap > full_ap + 0.03:
+            read = "ablation outperformed full model on this split"
+        else:
+            read = "little change"
+        lines.append(f"| `{name}` | {fmt(ap)} | {fmt(enrich10.get(name))} | {read} |")
+    lines.extend(["", "## Retrieval And Failure Examples", ""])
+    rex = report.get("retrieval_examples") or {}
+    lines.append(f"- Cross-game R3 semantic neighbor examples: {len(rex.get('cross_game_neighbors') or [])}")
+    lines.append(f"- Semantic succeeds / search metadata fails examples: {len(rex.get('semantic_succeeds_search_fails') or [])}")
+    lines.append(f"- Search metadata succeeds / semantic fails examples: {len(rex.get('search_succeeds_semantic_fails') or [])}")
+    lines.append(f"- R3 semantic high-regret failure cases: {len(rex.get('semantic_failure_cases') or [])}")
+    for section in ("semantic_succeeds_search_fails", "search_succeeds_semantic_fails", "semantic_failure_cases"):
+        sample = (rex.get(section) or [])[:3]
+        if sample:
+            lines.append("")
+            lines.append(f"`{section}` sample:")
+            for item in sample:
+                ex = item.get("example", {})
+                lines.append(
+                    f"- {ex.get('row_id')} group={ex.get('group_id')} label={item.get('label_high_regret')} "
+                    f"R3={fmt(item.get('r3_semantic_score'))} R1={fmt(item.get('r1_search_metadata_score'))}"
+                )
     lines.extend(["", "## Limitations", ""])
     for item in report["limitations"]:
         lines.append(f"- {item}")
@@ -949,6 +1373,8 @@ def main() -> None:
     ap.add_argument("--metadata-out", type=Path, default=ROOT / "agent" / "continuous_terrain_encoder_v1.json")
     ap.add_argument("--max-entities", type=int, default=36)
     ap.add_argument("--epochs", type=int, default=20)
+    ap.add_argument("--min-epochs", type=int, default=8)
+    ap.add_argument("--patience", type=int, default=5)
     ap.add_argument("--lr", type=float, default=8e-4)
     ap.add_argument("--weight-decay", type=float, default=8e-5)
     ap.add_argument("--dropout", type=float, default=0.15)
@@ -977,6 +1403,7 @@ def main() -> None:
     examples, failures = build_option_examples(labels, args)
     split = group_split(examples, args.seed)
     assign_partition(examples, split)
+    validation = dataset_validation(labels, examples)
     cv = card_vocab(examples)
     av = action_type_vocab(examples)
     norm_stats = normalize_arrays(examples, split, [
@@ -985,7 +1412,7 @@ def main() -> None:
         "search_metadata_only", "current_contextual",
     ])
     dims = CTE.TerrainDims(
-        effect_dim=len(CR.EFFECT_KEYS),
+        effect_dim=len(SEMANTIC_EFFECT_KEYS),
         dynamic_dim=14,
         zone_count=len(ZONE_NAMES),
         global_dim=len(examples[0]["global_features"]),
@@ -1026,7 +1453,14 @@ def main() -> None:
                     [float(scores[score_key][i]) for i in eval_idx],
                 )
     signal_radius = neighbor_enrichment(examples, spaces, "test")
+    retrieval = retrieval_examples(examples, spaces, learned_scores, args)
     decision = summarize_decision(predictive, signal_radius, args.smoke_test_round2)
+    if args.smoke_test_round2:
+        next_experiment = "Run this same pipeline on Model A's expanded continuous_terrain_v1.jsonl once available."
+    elif decision["verdict"] == "A. BROADER STRUCTURE SUPPORTED":
+        next_experiment = "Build one conservative search-guidance candidate as candidate ordering or extra-compute trigger only."
+    else:
+        next_experiment = "Do not build a live search-guidance candidate; diagnose why search metadata dominates before another representation run."
     final_model = models["R4_semantic_plus_search"]
     metadata = {
         "artifact_version": "continuous_terrain_encoder_v1",
@@ -1060,7 +1494,10 @@ def main() -> None:
         "The old round-2 c1 class remains sparse and game-clustered.",
         "Smoke mode reconstructs some features from replays; final A data is expected to be self-contained.",
     ] if args.smoke_test_round2 else [
-        "No live agent was built unless the representation gate passes in a later explicit step.",
+        "No live agent was built or screened; this is an offline representation gate.",
+        "The A terrain artifact has no terminal-outcome targets; this run uses hand/repeated-search terrain labels.",
+        "c1 remains rare relative to c2/boundary/safe terrain even after expansion, so c1-specific metrics are still high variance.",
+        "This run uses one fixed training seed; three-seed replication was not run in this bounded pass.",
     ]
     report = {
         "artifact_version": "continuous_terrain_representation_v1",
@@ -1070,6 +1507,7 @@ def main() -> None:
         "agent_search_modified": False,
         "arena_screen": "not run",
         "dataset": dataset,
+        "dataset_validation": validation,
         "split": split,
         "architecture": {
             "card_embedding_dim": 32,
@@ -1082,17 +1520,14 @@ def main() -> None:
         "training": training,
         "predictive_metrics": predictive,
         "signal_radius": signal_radius,
+        "retrieval_examples": retrieval,
         "model_artifacts": {
             "torch": display(args.model_out),
             "metadata": display(args.metadata_out),
         },
         "limitations": limitations,
         "decision": decision,
-        "one_next_experiment": (
-            "Run this same pipeline on Model A's expanded continuous_terrain_v1.jsonl once available."
-            if args.smoke_test_round2 else
-            "If the gate passes, build one conservative search-guidance candidate; otherwise request only the missing terrain slice identified by this report."
-        ),
+        "one_next_experiment": next_experiment,
     }
     args.eval_out.parent.mkdir(parents=True, exist_ok=True)
     args.eval_out.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
