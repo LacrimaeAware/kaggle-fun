@@ -248,5 +248,91 @@ def query_v2(obs: dict, deck: list, *, n_determ: int = 32, hand_budget: float = 
     return out
 
 
+def residual_risk_label(obs: dict, deck: list, *, n_strong: int = 32, n_live: int = 8, k_outcome: int = 16,
+                        hand_budget: float = 8.0, outcome_budget: float = 20.0,
+                        high_regret_thresh: float = 5000.0, accept_z: float = 1.0, seed=None) -> dict:
+    """Residual + catastrophic-risk label for one decision (the narrowed target).
+
+    Uses ONE paired N=n_strong determinization run: the first n_live worlds give the LIVE search estimate
+    and all n_strong give the STRONGER estimate, so `delta_to_search = stronger - live` is paired and
+    isolates where the live N=8 search is likely wrong (its MC error). Adds risk flags (regret over
+    threshold, unacceptable under CI overlap, variance) and the terminal-outcome winrate as a separate
+    auxiliary. The model learns corrections + danger, not the whole ranking."""
+    crit = criticality_score(obs)
+    out = {"applicable": SCH.is_single_pick_decision(obs), "criticality": crit,
+           "config": {"n_strong": n_strong, "n_live": n_live, "k_outcome": k_outcome,
+                      "high_regret_thresh": high_regret_thresh, "paired_world": True, "seed": seed}}
+    if not out["applicable"]:
+        return out
+    if seed is not None:
+        random.seed(seed)
+    pw = T1._per_world_values(obs, deck, n_strong, hand_budget, "hand")     # paired per-option world values
+    if not pw:
+        out["applicable"] = False
+        return out
+    cur = obs.get("current") or {}
+    me = cur.get("yourIndex", 0)
+    opts = obs["select"]["option"]
+    forced = None
+    try:
+        fm = M._forced_move(obs)
+        forced = fm[0] if fm else None
+    except Exception:
+        forced = None
+    per = []
+    for vals in pw:
+        if not vals:
+            per.append(None)
+            continue
+        live = statistics.fmean(vals[:n_live]) if len(vals) >= 1 else None
+        strong = statistics.fmean(vals)
+        var = statistics.pvariance(vals) if len(vals) > 1 else 0.0
+        per.append({"live": live, "strong": strong, "var": var, "se": (var / len(vals)) ** 0.5, "n": len(vals)})
+    valued = [i for i, p in enumerate(per) if p]
+    if not valued:
+        out["applicable"] = False
+        return out
+    best_strong_i = max(valued, key=lambda i: per[i]["strong"])
+    best_strong, best_se = per[best_strong_i]["strong"], per[best_strong_i]["se"]
+    live_best_i = max(valued, key=lambda i: per[i]["live"])
+    mean_delta = statistics.fmean(per[i]["strong"] - per[i]["live"] for i in valued)
+    outc = outcome_playouts(obs, deck, k_outcome, outcome_budget)
+
+    def _ow(i):
+        if outc and i < len(outc) and outc[i]:
+            n = len(outc[i]); p = sum(outc[i]) / n
+            return round(p, 3), n, round((p * (1 - p) / n) ** 0.5, 3)
+        return None, 0, None
+
+    eqs = SCH.equivalence_classes(opts, cur, me)
+    options = []
+    for i in valued:
+        p = per[i]
+        regret = best_strong - p["strong"]
+        unacceptable = regret > accept_z * (best_se + p["se"])
+        ow, on, ose = _ow(i)
+        options.append({
+            "index": i, "semantic_action_key": list(SCH.semantic_action_key(opts[i], cur, me)), "eq_class": eqs[i],
+            "current_search_value": round(p["live"], 2), "stronger_value": round(p["strong"], 2),
+            "delta_to_search": round(p["strong"] - p["live"], 2),
+            "delta_to_search_norm": round(p["strong"] - p["live"] - mean_delta, 2),
+            "value_variance": round(p["var"], 2), "value_se": round(p["se"], 3),
+            "regret": round(regret, 2), "high_regret_flag": int(regret > high_regret_thresh),
+            "unacceptable_flag": int(unacceptable),
+            "outcome_winrate": ow, "outcome_se": ose, "outcome_playouts": on,
+            "completed_determinizations": p["n"],
+        })
+    lbse, lbv = per[live_best_i]["se"], per[live_best_i]["live"]
+    cur_acceptable = [i for i in valued if (lbv - per[i]["live"]) <= accept_z * (lbse + per[i]["se"])]
+    out.update({
+        "me": me, "n_options": len(opts), "high_regret_thresh": high_regret_thresh,
+        "search_selected_option": forced if forced is not None else live_best_i,
+        "search_argmax_option": live_best_i, "stronger_argmax_option": best_strong_i,
+        "forced_action_flag": forced is not None, "current_acceptable_set": cur_acceptable,
+        "options": options,
+    })
+    return out
+
+
 if __name__ == "__main__":
     print("Teacher V2: selective high-criticality labels (high-N hand advantage + terminal-outcome auxiliary).")
