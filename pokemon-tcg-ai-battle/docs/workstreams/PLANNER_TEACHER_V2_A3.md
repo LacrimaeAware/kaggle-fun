@@ -48,3 +48,40 @@ stronger than the hand evaluator alone.
    whether deeper search changed the choice, hand-vs-outcome components, and the metadata B needs to align
    siblings + option deltas (the B5 request).
 4. **A5:** only if a live selective-search variant emerges, screen it vs `agent_search` at equal wall-clock.
+
+## A4 -- Teacher V2 implementation + label artifact (built)
+
+`agent/teacher_api_v2.py` (criticality scorer + `query_v2`) and `tools/query_teacher_v2.py` (label gen).
+`query_v2` gates on criticality, then runs high-N(32) low-noise hand advantage (Teacher V1 machinery) plus a
+terminal-outcome auxiliary (K full playouts/option -> per-option win-rate). Status: implemented, validated on
+a pilot; NOT a live agent (label generator only).
+
+Pilot (`data/manifests/teacher_v2_labels_pilot.jsonl`): 8 high-criticality decisions, ~1-2 s each at k=4.
+
+**Finding:** the terminal-outcome top action disagreed with the hand-eval argmax on **6/8** labeled
+decisions -- suggestive that the outcome signal adds information beyond the hand leaf (the required
+stronger-than-hand signal). **Caveat (held):** at k=4 the outcome win-rate is high-variance, so this does
+not yet separate "outcome carries information" from "outcome is noisy". Confirming it needs higher-k outcome
+estimates and/or a regret check; not claimed as established.
+
+## B5 handoff -- what Model B consumes
+
+Artifact: `data/manifests/teacher_v2_labels_pilot.jsonl`. Per decision:
+- `criticality` (score + components), `soft_policy_target`, `acceptable_action_set`, `top_two_margin`,
+  `action_spread`, `hand_argmax_eq_class`, `outcome_argmax_option`, `hand_outcome_agree`, `forced_action_flag`;
+- `options[]` each with `index`, `semantic_action_key`, `eq_class`, `hand_mean_value`,
+  `hand_value_variance`, `hand_norm_advantage`, `completed_determinizations`, `outcome_winrate`,
+  `outcome_playouts`; plus `source {file, step}`.
+
+Alignment for B: options are keyed by `index` + `semantic_action_key` (the shared `state_action_schema_v2`
+key), `eq_class` groups siblings -- align your option-deltas/descriptors on these. Suggested use: primary
+target = `hand_norm_advantage` (low-noise), weighted by criticality and 1/`hand_value_variance`; treat
+`outcome_winrate` as an auxiliary and request higher-k before relying on it; down-weight large
+`acceptable_action_set` (near-ties).
+
+## A5 / recommendation
+
+No live selective-search variant was built, so no A5 screen. Recommendation: **label generator only** for now
+-- Teacher V2 is a labeling/analysis deliverable, not a current live win-rate lever. Next, on request: scale
+the label set across more high-criticality decisions, and run a higher-k outcome study (or regret check) to
+test whether the outcome divergence is information or variance. `agent_search` remains the submission baseline.
