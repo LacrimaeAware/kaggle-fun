@@ -2,6 +2,10 @@
 
 Updated: 2026-06-18
 
+> Cleanup note, 2026-06-19: this is a historical execution snapshot and is now stale. Current cross-branch
+> interpretation lives in `docs/workstreams/RESEARCH_SYNTHESIS_2026-06-19.md`; the authoritative method
+> remains `docs/workstreams/BRANCH_PLAN.md`.
+
 > FRESH SESSION? Read `docs/HANDOFF.md` first (loose threads, teacher primitives, landmines, how-to-run),
 > then this file. The active plan is `docs/workstreams/BRANCH_PLAN.md` (shared preflight -> Branch A
 > stronger-planner/teacher + Branch B robust-learner -> student-guided search). Submissions: `docs/SUBMISSIONS.md`.
