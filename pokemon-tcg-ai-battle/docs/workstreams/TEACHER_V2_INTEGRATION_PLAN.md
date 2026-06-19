@@ -4,7 +4,8 @@ Branch: `exp/robust-learner-v2`
 
 Base commit before this preparation: `a5137ba`
 
-Status: implemented loader/alignment preparation. No Teacher V2 training yet, no arena rerun, no live promotion.
+Status: implemented loader/alignment preparation. Model A's current Teacher V2 batch was alignment-checked
+and does not pass the training gate. No Teacher V2 training yet, no arena rerun, no live promotion.
 
 ## Current State
 
@@ -28,6 +29,7 @@ Artifacts:
 
 - `docs/workstreams/teacher_v2_alignment_selftest.json`
 - `docs/workstreams/teacher_v2_alignment_check.json`
+- `docs/workstreams/teacher_v2_alignment_v2_check.json`
 
 The self-test verifies decision/option alignment on a synthetic positive fixture:
 
@@ -35,13 +37,30 @@ The self-test verifies decision/option alignment on a synthetic positive fixture
 - matched decisions: 1;
 - alignment ready for training: true.
 
-The real alignment check against `docs/workstreams/contextual_action_ranker_v1_dataset.json` found no Teacher V2 artifact in this worktree yet:
+The initial real alignment check against `docs/workstreams/contextual_action_ranker_v1_dataset.json` found no
+Teacher V2 artifact in this worktree yet:
 
 - teacher decisions: 0;
 - matched decisions: 0;
 - alignment ready for training: false.
 
 This is expected. It is not a failure of the loader and it is not training evidence.
+
+The alignment check against Model A's `data/manifests/teacher_v2_labels_v2.jsonl` batch found a schema-complete
+Teacher V2 artifact, but not enough overlap with the contextual feature dataset:
+
+- teacher decisions: 12;
+- contextual decisions: 160;
+- matched decisions: 1;
+- unmatched Teacher V2 decisions: 11;
+- option-level alignment on the single matched decision: 6/6 index, semantic-key, and eq-class-remappable matches;
+- missing required Teacher V2 fields: none detected for the decision and option fields the loader checks;
+- alignment ready for training: false.
+
+The one matched decision was recovered by a strict fallback: same replay file plus unique exact ordered semantic
+sibling signature. The remaining 11 decisions have no direct decision-id/obs-hash match and no unique exact
+semantic sibling signature in the Branch B contextual dataset. Per the shared plan, this is a stop-before-training
+condition rather than a reason to run a tiny Teacher V2 retrain.
 
 ## Alignment Contract
 
@@ -188,4 +207,6 @@ Model B can consume hand advantage immediately once aligned. Outcome supervision
 
 ## Recommendation
 
-Wait for Teacher V2 labels. Branch B is prepared to ingest them, but no reliable Teacher V2 batch is present in this worktree yet. Keep `agent_search` as live baseline and keep `agent_search_ctx` unpromoted.
+Wait for a Teacher V2 batch that aligns to Branch B contextual feature rows, or generate contextual feature rows
+for the Teacher V2 source decisions under an explicit handoff. Keep `agent_search` as live baseline and keep
+`agent_search_ctx` unpromoted.

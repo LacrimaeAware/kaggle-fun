@@ -101,7 +101,8 @@ def contextual_decision_ids(d: dict) -> list[str]:
         ids.append("obs:" + str(d["obs_hash"]))
     if d.get("game_file") is not None:
         step = d.get("step", d.get("call", ""))
-        ids.append(f"replay:{d.get('game_file')}:{step}")
+        if step is not None and step != "":
+            ids.append(f"replay:{d.get('game_file')}:{step}")
     if d.get("game") is not None and d.get("call") is not None:
         ids.append(f"recovery:{d.get('source')}:{d.get('game')}:{d.get('call')}")
     return ids
@@ -116,11 +117,41 @@ def teacher_decision_ids(d: dict) -> list[str]:
         ids.append("obs:" + str(d["obs_hash"]))
     if d.get("game_file") is not None:
         step = d.get("step", d.get("call", ""))
-        ids.append(f"replay:{d.get('game_file')}:{step}")
+        if step is not None and step != "":
+            ids.append(f"replay:{d.get('game_file')}:{step}")
+    src = d.get("source") if isinstance(d.get("source"), dict) else {}
+    if src.get("file") is not None:
+        step = src.get("step", src.get("call", ""))
+        if step is not None and step != "":
+            ids.append(f"replay:{src.get('file')}:{step}")
     if d.get("game") is not None and d.get("call") is not None:
         src = d.get("source", d.get("student", "unknown"))
         ids.append(f"recovery:{src}:{d.get('game')}:{d.get('call')}")
     return ids
+
+
+def replay_file(d: dict):
+    if d.get("game_file") is not None:
+        return d.get("game_file")
+    src = d.get("source") if isinstance(d.get("source"), dict) else {}
+    if src.get("file") is not None:
+        return src.get("file")
+    did = str(d.get("decision_id", ""))
+    if ":" in did and did.endswith(".json:" + did.rsplit(":", 1)[-1]):
+        return did.rsplit(":", 1)[0]
+    return None
+
+
+def semantic_signature_from_keys(keys: list) -> str:
+    return canonical_json([list(norm_key(k)) for k in keys])
+
+
+def semantic_signature(d: dict, *, teacher: bool) -> tuple[str | None, str]:
+    if teacher:
+        keys = [get_any(opt, ("semantic_action_key", "key")) for opt in teacher_options(d)]
+    else:
+        keys = d.get("keys") or []
+    return replay_file(d), semantic_signature_from_keys(keys)
 
 
 def contextual_index(rows: list[dict]) -> tuple[dict[str, int], list[dict]]:
@@ -161,8 +192,21 @@ def option_field_presence(opt: dict) -> dict[str, bool]:
         "hand_norm_advantage": get_any(opt, ("hand_norm_advantage", "hand_normalized_advantage", "normalized_advantage")) is not None,
         "outcome_winrate": get_any(opt, ("outcome_winrate", "terminal_outcome_winrate")) is not None,
         "outcome_playouts": get_any(opt, ("outcome_playouts", "terminal_outcome_playouts")) is not None,
-        "outcome_variance": get_any(opt, ("outcome_variance", "outcome_confidence", "terminal_outcome_variance")) is not None,
+        "outcome_variance": get_any(opt, ("outcome_variance", "outcome_confidence", "outcome_se", "terminal_outcome_variance")) is not None,
     }
+
+
+def has_coverage_metadata(trec: dict, opts: list[dict]) -> bool:
+    if any(k in trec for k in ("coverage", "candidate_coverage", "all_options_completed", "actual_search_time", "config")):
+        return True
+    return any(get_any(opt, ("completed_determinizations", "n_determinizations")) is not None for opt in opts)
+
+
+def has_seed_metadata(trec: dict) -> bool:
+    if any(k in trec for k in ("seed", "seeds", "paired_seed", "seed_info")):
+        return True
+    config = trec.get("config")
+    return isinstance(config, dict) and config.get("seed") is not None
 
 
 def compare_decision(trec: dict, crec: dict) -> dict:
@@ -222,8 +266,8 @@ def compare_decision(trec: dict, crec: dict) -> dict:
         "has_soft_policy": bool(soft_policy(trec)),
         "has_acceptable_set": bool(acceptable_set(trec)),
         "has_criticality": get_any(trec, ("criticality_score", "criticality")) is not None,
-        "has_coverage_metadata": any(k in trec for k in ("coverage", "candidate_coverage", "all_options_completed", "actual_search_time")),
-        "has_seed_metadata": any(k in trec for k in ("seed", "seeds", "paired_seed", "seed_info")),
+        "has_coverage_metadata": has_coverage_metadata(trec, opts),
+        "has_seed_metadata": has_seed_metadata(trec),
         "sample_option_mismatches": [
             row for row in option_rows
             if not (row["index_in_range"] and row["semantic_key_match"] and row["eq_match_or_remappable"])
@@ -231,21 +275,84 @@ def compare_decision(trec: dict, crec: dict) -> dict:
     }
 
 
+def contextual_semantic_index(rows: list[dict]) -> tuple[dict[tuple[str | None, str], int], list[dict]]:
+    raw: dict[tuple[str | None, str], list[int]] = defaultdict(list)
+    for i, d in enumerate(rows):
+        file_name, signature = semantic_signature(d, teacher=False)
+        if file_name is not None and signature != "[]":
+            raw[(file_name, signature)].append(i)
+    unique = {key: vals[0] for key, vals in raw.items() if len(vals) == 1}
+    ambiguous = [
+        {"file": key[0], "signature": key[1], "contextual_indices": vals[:10], "count": len(vals)}
+        for key, vals in raw.items()
+        if len(vals) > 1
+    ]
+    return unique, ambiguous[:20]
+
+
+def teacher_schema_summary(rows: list[dict]) -> dict:
+    decision_counts = Counter()
+    option_counts = Counter()
+    n_options = 0
+    for trec in rows:
+        opts = teacher_options(trec)
+        decision_counts["has_decision_id_or_obs_hash"] += int(bool(teacher_decision_ids(trec)))
+        decision_counts["has_options"] += int(bool(opts))
+        decision_counts["has_soft_policy"] += int(bool(soft_policy(trec)))
+        decision_counts["has_acceptable_set"] += int(bool(acceptable_set(trec)))
+        decision_counts["has_criticality"] += int(get_any(trec, ("criticality_score", "criticality")) is not None)
+        decision_counts["has_coverage_metadata"] += int(has_coverage_metadata(trec, opts))
+        decision_counts["has_seed_metadata"] += int(has_seed_metadata(trec))
+        for opt in opts:
+            n_options += 1
+            for field, present in option_field_presence(opt).items():
+                option_counts[field] += int(present)
+    missing_decision = {
+        name: len(rows) - count
+        for name, count in decision_counts.items()
+    }
+    missing_options = {
+        name: n_options - count
+        for name, count in option_counts.items()
+    }
+    return {
+        "teacher_decisions": len(rows),
+        "teacher_options": n_options,
+        "decision_field_presence": dict(decision_counts),
+        "option_field_presence": dict(option_counts),
+        "missing_decision_fields": missing_decision,
+        "missing_option_fields": missing_options,
+    }
+
+
 def summarize_alignment(teacher_rows: list[dict], contextual_rows: list[dict]) -> dict:
     cidx, collisions = contextual_index(contextual_rows)
+    semantic_idx, semantic_ambiguous = contextual_semantic_index(contextual_rows)
     matched = []
     unmatched_teacher = []
     decision_reports = []
     for i, trec in enumerate(teacher_rows):
         dids = teacher_decision_ids(trec)
         match_i = next((cidx[did] for did in dids if did in cidx), None)
+        match_method = "decision_id"
+        matched_ids = [did for did in dids if did in cidx]
         if match_i is None:
-            unmatched_teacher.append({"teacher_index": i, "ids": dids[:5]})
+            sig_key = semantic_signature(trec, teacher=True)
+            match_i = semantic_idx.get(sig_key)
+            match_method = "unique_replay_semantic_signature"
+            matched_ids = [f"semantic:{sig_key[0]}:{sig_key[1]}"] if match_i is not None else []
+        if match_i is None:
+            unmatched_teacher.append({
+                "teacher_index": i,
+                "ids": dids[:5],
+                "semantic_signature": list(semantic_signature(trec, teacher=True)),
+            })
             continue
         comp = compare_decision(trec, contextual_rows[match_i])
         comp["teacher_index"] = i
         comp["contextual_index"] = match_i
-        comp["matched_ids"] = [did for did in dids if did in cidx]
+        comp["match_method"] = match_method
+        comp["matched_ids"] = matched_ids
         matched.append(comp)
         if not (comp["all_option_indices_match"] and comp["all_semantic_keys_match"] and comp["all_eq_match_or_remappable"]):
             decision_reports.append(comp)
@@ -269,6 +376,8 @@ def summarize_alignment(teacher_rows: list[dict], contextual_rows: list[dict]) -
         "matched_decisions": len(matched),
         "unmatched_teacher_decisions": len(unmatched_teacher),
         "contextual_id_collisions": collisions[:20],
+        "contextual_semantic_ambiguous": semantic_ambiguous,
+        "teacher_schema_summary": teacher_schema_summary(teacher_rows),
         "option_totals": dict(totals),
         "usable_primary_hand_advantage_decisions": usable_primary,
         "usable_outcome_aux_decisions": usable_outcome,

@@ -3,6 +3,7 @@
     "alignment_ready_for_training": true,
     "contextual_decisions": 1,
     "contextual_id_collisions": [],
+    "contextual_semantic_ambiguous": [],
     "matched_decisions": 1,
     "option_totals": {
       "eq_match_or_remappable": 2,
@@ -21,6 +22,44 @@
     "sample_unmatched_teacher": [],
     "status": "alignment_checked",
     "teacher_decisions": 1,
+    "teacher_schema_summary": {
+      "decision_field_presence": {
+        "has_acceptable_set": 1,
+        "has_coverage_metadata": 1,
+        "has_criticality": 1,
+        "has_decision_id_or_obs_hash": 1,
+        "has_options": 1,
+        "has_seed_metadata": 1,
+        "has_soft_policy": 1
+      },
+      "missing_decision_fields": {
+        "has_acceptable_set": 0,
+        "has_coverage_metadata": 0,
+        "has_criticality": 0,
+        "has_decision_id_or_obs_hash": 0,
+        "has_options": 0,
+        "has_seed_metadata": 0,
+        "has_soft_policy": 0
+      },
+      "missing_option_fields": {
+        "hand_mean_value": 0,
+        "hand_norm_advantage": 0,
+        "hand_value_variance": 0,
+        "outcome_playouts": 0,
+        "outcome_variance": 0,
+        "outcome_winrate": 0
+      },
+      "option_field_presence": {
+        "hand_mean_value": 2,
+        "hand_norm_advantage": 2,
+        "hand_value_variance": 2,
+        "outcome_playouts": 2,
+        "outcome_variance": 2,
+        "outcome_winrate": 2
+      },
+      "teacher_decisions": 1,
+      "teacher_options": 2
+    },
     "unmatched_teacher_decisions": 0,
     "usable_outcome_aux_decisions": 1,
     "usable_primary_hand_advantage_decisions": 1
