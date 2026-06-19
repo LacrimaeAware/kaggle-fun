@@ -514,11 +514,15 @@ def class_logits(option_logits: torch.Tensor, eqs: list[int]) -> tuple[list[int]
 
 
 def score_decision(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tensor,
-                   id2ix: dict[int, int], emb_dim: int, ablate: dict | None = None) -> tuple[list[int], torch.Tensor]:
+                   id2ix: dict[int, int], emb_dim: int, ablate: dict | None = None,
+                   clip_z: float = 0.0) -> tuple[list[int], torch.Tensor]:
     dense_np = np.array(d["dense"], dtype=np.float32)
+    dense_np = (dense_np - mean.numpy()) / std.numpy()
+    if clip_z > 0:
+        dense_np = np.clip(dense_np, -clip_z, clip_z)
     if ablate:
         dense_np = CR.apply_ablation(dense_np, ablate)
-    dense = (torch.tensor(dense_np, dtype=torch.float32) - mean) / std
+    dense = torch.tensor(dense_np, dtype=torch.float32)
     idxs = [id2ix.get(int(cid), -1) for cid in d["cids"]]
     cidx = torch.tensor([i if i >= 0 else 0 for i in idxs], dtype=torch.long)
     if not model.use_emb:
@@ -535,7 +539,7 @@ def score_decision(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch
 
 def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tensor,
              id2ix: dict[int, int], emb_dim: int, args, ablate: dict | None = None):
-    ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate)
+    ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate, args.clip_z)
     soft_map = to_float_map(d["soft"])
     soft = torch.tensor([soft_map.get(e, 0.0) for e in ids], dtype=torch.float32)
     if float(soft.sum()) <= 0:
@@ -605,7 +609,8 @@ def eval_predictions(preds: list[dict]) -> dict:
 
 
 def eval_model(model: ContextualNet, decisions: list[dict], mean: torch.Tensor, std: torch.Tensor,
-               id2ix: dict[int, int], emb_dim: int, ablate: dict | None = None) -> dict:
+               id2ix: dict[int, int], emb_dim: int, ablate: dict | None = None,
+               clip_z: float = 0.0) -> dict:
     preds = []
     by_source = defaultdict(list)
     by_stability = defaultdict(list)
@@ -613,7 +618,7 @@ def eval_model(model: ContextualNet, decisions: list[dict], mean: torch.Tensor, 
     by_deck = defaultdict(list)
     with torch.no_grad():
         for d in decisions:
-            ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate)
+            ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate, clip_z)
             scores = logits.detach().cpu().numpy().astype(float).tolist()
             order = sorted(range(len(ids)), key=lambda i: (-scores[i], i))
             adv = to_float_map(d["adv"])
@@ -746,7 +751,7 @@ def train_one(name: str, train: list[dict], eval_sets: dict[str, list[dict]], ar
         print(f"  {name} epoch {ep + 1}/{args.epochs} loss={losses[-1]:.4f}", flush=True)
     model.eval()
     evals = {
-        split: eval_model(model, rows, mean, std, id2ix, args.emb_dim, ablate)
+        split: eval_model(model, rows, mean, std, id2ix, args.emb_dim, ablate, args.clip_z)
         for split, rows in eval_sets.items()
         if rows
     }
@@ -810,6 +815,8 @@ def save_model(model: ContextualNet, path: Path, card_ids: list[int], mean: np.n
         "target": "teacher_soft_policy_advantage_acceptable_confidence",
         "trained": "contextual_action_ranker_v1",
         "dataset": display(dataset_path),
+        "min_std": args.min_std,
+        "clip_z": args.clip_z,
         "feature_sections": {k: list(v) for k, v in CR.SLICES.items()},
         "effect_keys": CR.EFFECT_KEYS,
         "delta_keys": CR.DELTA_KEYS,
@@ -846,6 +853,10 @@ def main() -> None:
     ap.add_argument("--lam-accept", type=float, default=0.12)
     ap.add_argument("--lam-aux-choice", type=float, default=0.04)
     ap.add_argument("--max-grad-norm", type=float, default=1.0)
+    ap.add_argument("--min-std", type=float, default=0.05,
+                    help="floor dense feature std to prevent sparse unseen values from exploding")
+    ap.add_argument("--clip-z", type=float, default=8.0,
+                    help="clip normalized dense inputs; 0 disables clipping")
     ap.add_argument("--replay-weight", type=float, default=0.9)
     ap.add_argument("--recovery-weight", type=float, default=1.1)
     ap.add_argument("--unstable-weight-scale", type=float, default=0.35)
@@ -910,7 +921,7 @@ def main() -> None:
 
     dense_all = np.array([row for d in train for row in d["dense"]], dtype=np.float32)
     mean = dense_all.mean(axis=0)
-    std = dense_all.std(axis=0) + 1e-6
+    std = np.maximum(dense_all.std(axis=0), args.min_std)
     card_ids = sorted({int(c) for d in rows for c in d["cids"] if int(c) >= 0})
     if not card_ids:
         card_ids = [0]
@@ -952,6 +963,8 @@ def main() -> None:
             "card_ids": len(card_ids),
             "hidden": args.hidden,
             "emb_dim": args.emb_dim,
+            "min_std": args.min_std,
+            "clip_z": args.clip_z,
             "feature_sections": {k: list(v) for k, v in CR.SLICES.items()},
         },
         "ablations": {

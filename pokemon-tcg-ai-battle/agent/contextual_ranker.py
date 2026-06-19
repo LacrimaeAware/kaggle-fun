@@ -76,6 +76,7 @@ def _model():
         "emb_dim": int(blob.get("emb", 24)),
         "use_emb": bool(blob.get("use_emb", True)),
         "ablate": blob.get("ablate") or {},
+        "clip_z": float(blob.get("clip_z", 0.0) or 0.0),
     }
     _MODEL = m
     _MODEL_NAME = model_name
@@ -327,6 +328,8 @@ def decision_features(obs: dict, deck: list) -> dict | None:
 
 def _forward(m, cid, dense):
     dn = (dense - m["mean"]) / m["std"]
+    if m.get("clip_z", 0.0) > 0.0:
+        dn = np.clip(dn, -m["clip_z"], m["clip_z"])
     dn = apply_ablation(dn, m.get("ablate"))
     if m["use_emb"]:
         ix = m["id2ix"].get(int(cid))
