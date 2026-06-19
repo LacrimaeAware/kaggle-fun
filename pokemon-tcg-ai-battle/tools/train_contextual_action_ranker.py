@@ -564,6 +564,25 @@ def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tenso
     rank_loss = torch.stack(pair_losses).mean() if pair_losses else torch.tensor(0.0)
 
     loss = policy_loss + args.lam_rank * rank_loss + args.lam_accept * accept_loss
+    outcome_map = to_float_map(d.get("outcome_winrate") or {})
+    if outcome_map and args.lam_outcome > 0:
+        outcome_conf = to_float_map(d.get("outcome_confidence") or {})
+        targets = []
+        weights = []
+        active = []
+        for pos, eq in enumerate(ids):
+            if eq not in outcome_map:
+                continue
+            targets.append(float(outcome_map[eq]))
+            weights.append(float(outcome_conf.get(eq, 1.0)))
+            active.append(pos)
+        if active and sum(weights) > 0:
+            target_t = torch.tensor(targets, dtype=torch.float32)
+            weight_t = torch.tensor(weights, dtype=torch.float32)
+            logits_t = logits[active]
+            outcome_loss = F.binary_cross_entropy_with_logits(logits_t, target_t, reduction="none")
+            outcome_loss = (outcome_loss * weight_t).sum() / weight_t.sum()
+            loss = loss + args.lam_outcome * float(d.get("outcome_weight", 1.0)) * outcome_loss
     chosen = d.get("chosen_eq")
     if chosen is not None and chosen in ids and args.lam_aux_choice > 0:
         loss = loss + args.lam_aux_choice * F.cross_entropy(logits.unsqueeze(0), torch.tensor([ids.index(chosen)]))
@@ -616,6 +635,7 @@ def eval_model(model: ContextualNet, decisions: list[dict], mean: torch.Tensor, 
     by_stability = defaultdict(list)
     by_player = defaultdict(list)
     by_deck = defaultdict(list)
+    by_slice = defaultdict(list)
     with torch.no_grad():
         for d in decisions:
             ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate, clip_z)
@@ -661,10 +681,19 @@ def eval_model(model: ContextualNet, decisions: list[dict], mean: torch.Tensor, 
             by_stability[d.get("teacher_stability", "unknown")].append(rec)
             by_player[str(d.get("player"))].append(rec)
             by_deck[str(d.get("deck_hash"))].append(rec)
+            if float(d.get("criticality_score") or 0.0) >= 0.3:
+                by_slice["high_criticality"].append(rec)
+            if d.get("high_regret"):
+                by_slice["high_regret_reference"].append(rec)
+            if str(d.get("source", "")).startswith("teacher_v2"):
+                by_slice["teacher_v2"].append(rec)
+            if str(d.get("source", "")).startswith("recovery"):
+                by_slice["recovery"].append(rec)
     return {
         "overall": eval_predictions(preds),
         "by_source": {k: eval_predictions(v) for k, v in sorted(by_source.items())},
         "by_teacher_stability": {k: eval_predictions(v) for k, v in sorted(by_stability.items())},
+        "slices": {k: eval_predictions(v) for k, v in sorted(by_slice.items())},
         "held_out_player": {k: eval_predictions(v) for k, v in sorted(by_player.items()) if len(v) >= 3},
         "held_out_deck": {k: eval_predictions(v) for k, v in sorted(by_deck.items()) if len(v) >= 3},
     }
@@ -852,6 +881,8 @@ def main() -> None:
     ap.add_argument("--lam-rank", type=float, default=0.25)
     ap.add_argument("--lam-accept", type=float, default=0.12)
     ap.add_argument("--lam-aux-choice", type=float, default=0.04)
+    ap.add_argument("--lam-outcome", type=float, default=0.0,
+                    help="weak auxiliary BCE target for Teacher V2 outcome_winrate; never uses outcome argmax")
     ap.add_argument("--max-grad-norm", type=float, default=1.0)
     ap.add_argument("--min-std", type=float, default=0.05,
                     help="floor dense feature std to prevent sparse unseen values from exploding")
@@ -949,7 +980,8 @@ def main() -> None:
         if decisions
     }
 
-    save_model(full_model, args.model_out, card_ids, mean, std, args, args.dataset_out)
+    model_dataset_path = args.dataset_in or args.dataset_out
+    save_model(full_model, args.model_out, card_ids, mean, std, args, model_dataset_path)
     print(f"saved deploy model -> {display(args.model_out)}", flush=True)
 
     report = {

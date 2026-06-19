@@ -1,0 +1,74 @@
+{
+  "artifact_version": "teacher_v2_contextual_featurization.v1",
+  "base_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\contextual_action_ranker_v1_dataset.json",
+  "base_rows_removed_by_teacher_v2_signature": 10,
+  "baseline": "agent_search",
+  "branch": "exp/robust-learner-v2",
+  "direct_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\teacher_v2_contextual_scaled_dataset.json",
+  "direct_summary": {
+    "by_partition": {
+      "test": 5,
+      "train": 40,
+      "val": 5
+    },
+    "by_source": {
+      "teacher_v2_scaled": 50
+    },
+    "by_teacher_stability": {
+      "teacher_v2_covered": 50
+    },
+    "decks": 7,
+    "high_regret": 1,
+    "players": 7,
+    "total_decisions": 50
+  },
+  "failures": [],
+  "featurized_decisions": 50,
+  "live_agent_consumed": "none; offline replay reconstruction only",
+  "missing_fields_failures": 0,
+  "mixed_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\contextual_action_ranker_v1_teacher_v2_mixed_dataset.json",
+  "mixed_summary": {
+    "by_partition": {
+      "recovery": 80,
+      "test": 21,
+      "train": 78,
+      "val": 21
+    },
+    "by_source": {
+      "recovery_round1": 40,
+      "recovery_round2": 40,
+      "replay_test": 16,
+      "replay_train": 38,
+      "replay_val": 16,
+      "teacher_v2_scaled": 50
+    },
+    "by_teacher_stability": {
+      "stable": 88,
+      "teacher_v2_covered": 50,
+      "unstable": 62
+    },
+    "decks": 8,
+    "high_regret": 19,
+    "players": 11,
+    "total_decisions": 200
+  },
+  "option_level_alignment": {
+    "counts": {
+      "eq_exact_match": 404,
+      "eq_remappable": 404,
+      "index_in_range": 404,
+      "semantic_key_match": 404,
+      "teacher_options": 404
+    },
+    "eq_exact_match_rate": 1.0,
+    "eq_remappable_rate": 1.0,
+    "index_alignment_rate": 1.0,
+    "semantic_key_alignment_rate": 1.0,
+    "teacher_options": 404
+  },
+  "reconstruction_failures": 0,
+  "target_translation_failures": 0,
+  "teacher_v2_artifact": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\planner-teacher-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_labels_scaled.jsonl",
+  "teacher_v2_decisions_loaded": 50,
+  "training_ready": true
+}
