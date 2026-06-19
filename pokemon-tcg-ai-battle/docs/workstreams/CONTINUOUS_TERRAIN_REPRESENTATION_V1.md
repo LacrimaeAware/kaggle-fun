@@ -4,6 +4,10 @@ Status: final terrain experiment.
 
 No live agent was modified and no arena screen was run.
 
+## Post-Run Audit Note
+
+See `docs/workstreams/SEARCH_METADATA_DOMINANCE_AUDIT_V1.md` before using the R1/R4 tables below. The follow-up audit found that strict live N=8 metadata still has strong warning signal, but the original R1 was not a strict live-only whitelist, the semantic/R4 path leaked teacher `policy_prob` through action scalars, and the high-regret/unacceptable labels are identical in this dataset. Treat the prior representation result as diagnostic only, not a deployable search-guidance gate.
+
 ## Dataset
 
 - Input: `data\manifests\continuous_terrain_v1.jsonl`
