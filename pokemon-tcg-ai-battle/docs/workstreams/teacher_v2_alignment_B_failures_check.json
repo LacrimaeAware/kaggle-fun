@@ -1,0 +1,244 @@
+{
+  "alignment": {
+    "alignment_ready_for_training": false,
+    "contextual_decisions": 200,
+    "contextual_id_collisions": [
+      {
+        "decision_id": "obs:8ac7b8cc6106ff71",
+        "first": 0,
+        "second": 1
+      },
+      {
+        "decision_id": "obs:fa0c71e5de385ca7",
+        "first": 34,
+        "second": 35
+      },
+      {
+        "decision_id": "obs:90d26a5ed63ec598",
+        "first": 40,
+        "second": 41
+      },
+      {
+        "decision_id": "obs:ca083ee58ab52bae",
+        "first": 60,
+        "second": 61
+      }
+    ],
+    "contextual_semantic_ambiguous": [
+      {
+        "contextual_indices": [
+          0,
+          1
+        ],
+        "count": 2,
+        "file": "80251230.json",
+        "signature": "[[7,1121,null,null,null],[7,1254,null,null,null],[14,null,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          7,
+          9,
+          11
+        ],
+        "count": 3,
+        "file": "80251230.json",
+        "signature": "[[3,271,null,null,null],[3,265,null,null,null],[3,269,null,null,null],[3,271,null,null,null],[3,265,null,null,null],[3,268,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          15,
+          17,
+          19,
+          21,
+          23,
+          27
+        ],
+        "count": 6,
+        "file": "80251230.json",
+        "signature": "[[3,271,null,null,null],[3,265,null,null,null],[3,269,null,null,null],[3,271,null,null,null],[3,265,null,null,null],[3,269,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          30,
+          32
+        ],
+        "count": 2,
+        "file": "80251230.json",
+        "signature": "[[3,265,null,null,null],[3,271,null,null,null],[3,269,null,null,null],[3,271,null,null,null],[3,265,null,null,null],[3,269,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          34,
+          35
+        ],
+        "count": 2,
+        "file": "80251230.json",
+        "signature": "[[3,1121,null,null,null],[3,1233,null,null,null],[3,1118,null,null,null],[3,1152,null,null,null],[3,4,null,null,null],[3,null,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          40,
+          41
+        ],
+        "count": 2,
+        "file": "80437882.json",
+        "signature": "[[7,1121,null,null,null],[14,null,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          45,
+          47
+        ],
+        "count": 2,
+        "file": "80437882.json",
+        "signature": "[[3,269,null,null,null],[3,271,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          60,
+          61
+        ],
+        "count": 2,
+        "file": "80459198.json",
+        "signature": "[[7,1121,null,null,null],[14,null,null,null,null]]"
+      },
+      {
+        "contextual_indices": [
+          64,
+          66
+        ],
+        "count": 2,
+        "file": "80459198.json",
+        "signature": "[[3,265,null,null,null],[3,271,null,null,null],[3,269,null,null,null],[3,270,null,null,null],[3,265,null,null,null]]"
+      }
+    ],
+    "matched_decisions": 12,
+    "option_totals": {
+      "eq_match_or_remappable": 112,
+      "field_hand_mean_value": 112,
+      "field_hand_norm_advantage": 112,
+      "field_hand_value_variance": 112,
+      "field_outcome_playouts": 112,
+      "field_outcome_variance": 112,
+      "field_outcome_winrate": 112,
+      "index_in_range": 112,
+      "options": 112,
+      "semantic_key_match": 112,
+      "teacher_options": 112
+    },
+    "sample_alignment_mismatches": [],
+    "sample_unmatched_teacher": [
+      {
+        "ids": [
+          "80459198.json:23:1",
+          "obs:d314926e22e6",
+          "replay:80459198.json:23"
+        ],
+        "semantic_signature": [
+          "80459198.json",
+          "[[7,1121,null,null,null],[14,null,null,null,null]]"
+        ],
+        "teacher_index": 6
+      },
+      {
+        "ids": [
+          "80459198.json:38:1",
+          "obs:fb77c7488a88",
+          "replay:80459198.json:38"
+        ],
+        "semantic_signature": [
+          "80459198.json",
+          "[[3,265,null,null,null],[3,271,null,null,null],[3,269,null,null,null],[3,270,null,null,null],[3,265,null,null,null]]"
+        ],
+        "teacher_index": 9
+      },
+      {
+        "ids": [
+          "80459198.json:41:1",
+          "obs:df9385dbbc7f",
+          "replay:80459198.json:41"
+        ],
+        "semantic_signature": [
+          "80459198.json",
+          "[[3,265,null,null,null],[3,271,null,null,null],[3,269,null,null,null],[3,270,null,null,null],[3,265,null,null,null]]"
+        ],
+        "teacher_index": 11
+      }
+    ],
+    "status": "alignment_checked",
+    "teacher_decisions": 15,
+    "teacher_schema_summary": {
+      "decision_field_presence": {
+        "has_acceptable_set": 15,
+        "has_coverage_metadata": 15,
+        "has_criticality": 15,
+        "has_decision_id_or_obs_hash": 15,
+        "has_options": 15,
+        "has_seed_metadata": 15,
+        "has_soft_policy": 15
+      },
+      "missing_decision_fields": {
+        "has_acceptable_set": 0,
+        "has_coverage_metadata": 0,
+        "has_criticality": 0,
+        "has_decision_id_or_obs_hash": 0,
+        "has_options": 0,
+        "has_seed_metadata": 0,
+        "has_soft_policy": 0
+      },
+      "missing_option_fields": {
+        "hand_mean_value": 0,
+        "hand_norm_advantage": 0,
+        "hand_value_variance": 0,
+        "outcome_playouts": 0,
+        "outcome_variance": 0,
+        "outcome_winrate": 0
+      },
+      "option_field_presence": {
+        "hand_mean_value": 124,
+        "hand_norm_advantage": 124,
+        "hand_value_variance": 124,
+        "outcome_playouts": 124,
+        "outcome_variance": 124,
+        "outcome_winrate": 124
+      },
+      "teacher_decisions": 15,
+      "teacher_options": 124
+    },
+    "unmatched_teacher_decisions": 3,
+    "usable_outcome_aux_decisions": 12,
+    "usable_primary_hand_advantage_decisions": 12
+  },
+  "artifact_version": "teacher_v2_alignment_check.1",
+  "branch": "exp/robust-learner-v2",
+  "contextual_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\contextual_action_ranker_v1_teacher_v2_mixed_dataset.json",
+  "live_agent_consumed": "none; this tool is offline preparation only",
+  "required_schema": {
+    "decision_required": [
+      "decision_id or obs_hash",
+      "legal_siblings/options/actions",
+      "hand_soft_policy or soft_policy",
+      "acceptable_set",
+      "criticality_score",
+      "coverage/timing/determinization metadata"
+    ],
+    "option_auxiliary": [
+      "outcome_winrate",
+      "outcome_playouts",
+      "outcome_variance or outcome_confidence"
+    ],
+    "option_required": [
+      "option_index",
+      "semantic_action_key",
+      "eq_class",
+      "hand_mean_value",
+      "hand_value_variance",
+      "hand_norm_advantage"
+    ],
+    "outcome_rule": "outcome_winrate is auxiliary only unless Model A validates higher-k reliability",
+    "primary_target_rule": "hand_norm_advantage weighted by criticality and inverse variance/stability"
+  },
+  "self_test": false,
+  "status": "alignment_checked",
+  "teacher_v2_artifact": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_labels_for_B_failures.jsonl"
+}

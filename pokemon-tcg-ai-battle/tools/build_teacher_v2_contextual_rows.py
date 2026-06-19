@@ -270,7 +270,7 @@ def make_row(label: dict, feat: dict, obs: dict, deck: list[int], game: dict | N
     outcome_conf = outcome_confidence_by_eq(maps["outcome_se"])
     player_name = TRAIN.player_name(game, player) if game is not None and player is not None else None
     rec = {
-        "source": "teacher_v2_scaled",
+        "source": args.teacher_source_name,
         "partition": partition_for(label_index),
         "obs_hash": TRAIN.obs_hash(obs),
         "teacher_v2_obs_hash": label.get("obs_hash"),
@@ -437,6 +437,7 @@ def main() -> None:
     ap.add_argument("--base-dataset", type=Path, default=DEFAULT_BASE_DATASET)
     ap.add_argument("--mixed-output", type=Path, default=DEFAULT_MIXED_OUT)
     ap.add_argument("--report-output", type=Path, default=DEFAULT_REPORT)
+    ap.add_argument("--teacher-source-name", default="teacher_v2_scaled")
     ap.add_argument("--teacher-v2-weight", type=float, default=1.25)
     ap.add_argument("--outcome-aux-weight", type=float, default=0.35)
     ap.add_argument("--high-regret-threshold", type=float, default=1000.0)
@@ -517,6 +518,7 @@ def main() -> None:
         "outcome_argmax_primary": False,
         "feature_path": "agent/contextual_ranker.py decision_features",
         "partition_rule": "index % 10: 8=val, 9=test, otherwise train",
+        "teacher_source_name": args.teacher_source_name,
         "teacher_v2_weight": args.teacher_v2_weight,
         "outcome_aux_weight": args.outcome_aux_weight,
     }

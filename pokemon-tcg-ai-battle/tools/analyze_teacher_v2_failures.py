@@ -169,10 +169,19 @@ def top_margin(values: dict[int, float]) -> float | None:
     return ordered[0] - ordered[1]
 
 
+def percentile(xs: list[float], q: float) -> float | None:
+    vals = sorted(float(x) for x in xs if x is not None)
+    if not vals:
+        return None
+    pos = (len(vals) - 1) * q
+    lo = math.floor(pos)
+    hi = math.ceil(pos)
+    if lo == hi:
+        return vals[lo]
+    return vals[lo] * (hi - pos) + vals[hi] * (pos - lo)
+
+
 def teacher_label_for_row(row: dict, labels: list[dict]) -> dict | None:
-    idx = row.get("teacher_v2_label_index")
-    if isinstance(idx, int) and 0 <= idx < len(labels):
-        return labels[idx]
     did = row.get("decision_id")
     if did:
         for lab in labels:
@@ -183,7 +192,75 @@ def teacher_label_for_row(row: dict, labels: list[dict]) -> dict | None:
         for lab in labels:
             if lab.get("obs_hash") == tv_hash:
                 return lab
+    row_hash = row.get("obs_hash")
+    if row_hash:
+        for lab in labels:
+            obs = lab.get("observation")
+            if isinstance(obs, dict) and TCR.obs_hash(obs) == row_hash:
+                return lab
+    idx = row.get("teacher_v2_label_index")
+    if isinstance(idx, int) and 0 <= idx < len(labels):
+        return labels[idx]
     return None
+
+
+def row_with_teacher_targets(row: dict, label: dict | None) -> dict:
+    if not label:
+        return row
+    opts = label.get("options") or []
+    if not opts:
+        return row
+    out = dict(row)
+    adv_acc = defaultdict(list)
+    variance = []
+    completed = []
+    outcome = defaultdict(list)
+    outcome_se = defaultdict(list)
+    teacher_to_feature_eq = {}
+    for opt in opts:
+        try:
+            idx = int(opt.get("index"))
+        except Exception:
+            continue
+        if idx < 0 or idx >= len(row.get("eq") or []):
+            continue
+        if list(opt.get("semantic_action_key") or []) != list((row.get("keys") or [])[idx]):
+            continue
+        feq = int(row["eq"][idx])
+        teq = int(opt.get("eq_class", feq))
+        teacher_to_feature_eq[teq] = feq
+        if opt.get("hand_norm_advantage") is not None:
+            adv_acc[feq].append(float(opt["hand_norm_advantage"]))
+        if opt.get("hand_value_variance") is not None:
+            variance.append(float(opt["hand_value_variance"]))
+        if opt.get("completed_determinizations") is not None:
+            completed.append(float(opt["completed_determinizations"]))
+        if opt.get("outcome_winrate") is not None:
+            outcome[feq].append(float(opt["outcome_winrate"]))
+        if opt.get("outcome_se") is not None:
+            outcome_se[feq].append(float(opt["outcome_se"]))
+    if not adv_acc:
+        return row
+    acceptable = {}
+    for teq in label.get("acceptable_action_set") or []:
+        try:
+            feq = teacher_to_feature_eq[int(teq)]
+        except Exception:
+            continue
+        acceptable[feq] = 1.0
+    out["adv"] = {str(k): sum(v) / len(v) for k, v in adv_acc.items()}
+    out["acceptable"] = {str(k): float(v) for k, v in acceptable.items()}
+    out["outcome_winrate"] = {str(k): sum(v) / len(v) for k, v in outcome.items()}
+    out["outcome_se"] = {str(k): sum(v) / len(v) for k, v in outcome_se.items()}
+    out["value_variance_mean"] = sum(variance) / len(variance) if variance else row.get("value_variance_mean")
+    out["completed_determinizations_mean"] = (
+        sum(completed) / len(completed) if completed else row.get("completed_determinizations_mean")
+    )
+    out["top_two_margin"] = label.get("top_two_margin", row.get("top_two_margin"))
+    out["criticality_score"] = (label.get("criticality") or {}).get("score", row.get("criticality_score"))
+    out["teacher_stability"] = "teacher_v2_available"
+    out["teacher_confidence"] = 1.0
+    return out
 
 
 def option_diag_from_teacher(label: dict | None, option_index: int | None) -> dict:
@@ -371,6 +448,105 @@ def summarize(decisions: list[dict]) -> dict:
         "likely_cause_counts": dict(sorted(cause_counts.items())),
         "teacher_v2_labels_available": sum(1 for d in decisions if d["teacher_v2_label_available"]),
         "teacher_v2_labels_missing": sum(1 for d in decisions if not d["teacher_v2_label_available"]),
+        "replay_test_rows_reinterpreted_with_teacher_v2": sum(
+            1 for d in decisions if d["source"] == "replay_test" and d["teacher_v2_label_available"]
+        ),
+        "hand_outcome_disagreement": sum(
+            1 for d in decisions if d["label_diagnostics"]["hand_outcome_argmax_disagree"] is True
+        ),
+    }
+
+
+def choice_metrics(decisions: list[dict], choice_name: str) -> dict:
+    choices = [d["choices"][choice_name] for d in decisions]
+    regrets = [float(c.get("regret") or 0.0) for c in choices]
+    return {
+        "n": len(choices),
+        "top1": sum(1 for c in choices if c.get("correct")) / len(choices) if choices else None,
+        "acceptable_agreement": (
+            sum(1 for c in choices if c.get("acceptable")) / len(choices) if choices else None
+        ),
+        "mean_regret": sum(regrets) / len(regrets) if regrets else None,
+        "p90_regret": percentile(regrets, 0.90),
+        "p95_regret": percentile(regrets, 0.95),
+        "high_regret_count_ge_100": sum(1 for r in regrets if r >= 100.0),
+        "high_regret_count_ge_1000": sum(1 for r in regrets if r >= 1000.0),
+    }
+
+
+def performance_summary(decisions: list[dict]) -> dict:
+    names = [
+        "teacher_v2_model",
+        "old_ranker",
+        "option0",
+        "full_model_zero_effects",
+        "full_model_zero_deltas",
+    ]
+    overall = {name: choice_metrics(decisions, name) for name in names}
+    by_source = {}
+    for source in sorted(set(d["source"] for d in decisions)):
+        subset = [d for d in decisions if d["source"] == source]
+        by_source[source] = {
+            name: choice_metrics(subset, name)
+            for name in ("teacher_v2_model", "old_ranker", "option0")
+        }
+    return {"overall": overall, "by_source": by_source}
+
+
+def make_recommendation(summary: dict, performance: dict) -> dict:
+    if summary["teacher_v2_labels_missing"]:
+        return {
+            "choice": "B",
+            "title": "request more targeted labels from Model A",
+            "rationale": (
+                f"{summary['teacher_v2_labels_missing']}/{summary['n_test_decisions']} held-out rows still "
+                "lack Teacher V2 labels, so another model change would still confound label-source mismatch "
+                "with training behavior."
+            ),
+        }
+    full = performance["overall"]["teacher_v2_model"]
+    old = performance["overall"]["old_ranker"]
+    opt0 = performance["overall"]["option0"]
+    no_effects = performance["overall"]["full_model_zero_effects"]
+    full_under_old = (
+        (full["top1"] or 0.0) < (old["top1"] or 0.0)
+        and (full["acceptable_agreement"] or 0.0) < (old["acceptable_agreement"] or 0.0)
+        and (full["mean_regret"] or 0.0) > (old["mean_regret"] or 0.0)
+    )
+    zero_effects_better = (
+        (no_effects["top1"] or 0.0) > (full["top1"] or 0.0)
+        and (no_effects["mean_regret"] or 0.0) < (full["mean_regret"] or 0.0)
+    )
+    if full_under_old or zero_effects_better:
+        return {
+            "choice": "C",
+            "title": "revise objective/weighting before retraining",
+            "rationale": (
+                "All held-out rows now have Teacher V2 labels, so the failure no longer looks like a "
+                "label-source mismatch. The saved full model still trails old-ranker on top-1, acceptable "
+                "agreement, and mean regret, while the zero-effects ablation is much better on regret. "
+                "The next change should recalibrate the objective/weights around hand_norm_advantage and "
+                "regularize decoded-effect/delta influence before another retrain."
+            ),
+        }
+    if (full["mean_regret"] or 0.0) <= (old["mean_regret"] or 0.0) and (
+        full["mean_regret"] or 0.0
+    ) <= (opt0["mean_regret"] or 0.0):
+        return {
+            "choice": "A",
+            "title": "retrain using the targeted labels included",
+            "rationale": (
+                "The targeted labels are aligned and the existing model is not clearly worse under Teacher V2 "
+                "targets, so one narrow retrain with the targeted labels included is justified."
+            ),
+        }
+    return {
+        "choice": "D",
+        "title": "pause Teacher V2 path because targeted labels still do not clarify the failure",
+        "rationale": (
+            "Teacher V2 labels are present, but the comparison does not identify a single actionable training "
+            "change with enough confidence."
+        ),
     }
 
 
@@ -388,8 +564,29 @@ def markdown_table(rows: list[list]) -> str:
 
 def write_markdown(path: Path, report: dict) -> None:
     s = report["summary"]
+    perf = report["performance"]["overall"]
     rows = [["class", "count"]] + [[k, v] for k, v in s["classification_counts"].items()]
     cause_rows = [["likely cause", "count"]] + [[k, v] for k, v in s["likely_cause_counts"].items()]
+    perf_rows = [[
+        "model",
+        "top1",
+        "acceptable",
+        "mean regret",
+        "p90 regret",
+        "p95 regret",
+        ">=100 regret",
+    ]]
+    for name in ("teacher_v2_model", "old_ranker", "option0", "full_model_zero_effects", "full_model_zero_deltas"):
+        m = perf[name]
+        perf_rows.append([
+            name,
+            round(float(m["top1"] or 0.0), 3),
+            round(float(m["acceptable_agreement"] or 0.0), 3),
+            round(float(m["mean_regret"] or 0.0), 2),
+            round(float(m["p90_regret"] or 0.0), 2),
+            round(float(m["p95_regret"] or 0.0), 2),
+            m["high_regret_count_ge_100"],
+        ])
     decision_rows = [[
         "decision",
         "src",
@@ -425,11 +622,15 @@ Status: analysis only. No retrain and no arena screen.
 - Held-out mixed test decisions: {s['n_test_decisions']}
 - Teacher V2 labels available on test rows: {s['teacher_v2_labels_available']}
 - Teacher V2 labels missing on test rows: {s['teacher_v2_labels_missing']}
+- Replay-test rows reinterpreted with targeted Teacher V2 labels: {s['replay_test_rows_reinterpreted_with_teacher_v2']}
+- Hand/outcome argmax disagreement on labelled test rows: {s['hand_outcome_disagreement']}/{s['n_test_decisions']}
 - Recommendation: **{report['recommendation']['choice']}** - {report['recommendation']['title']}
 
-The first Teacher V2 retrain failed the offline gate, but the failure analysis is not yet enough to justify
-another objective tweak. Most held-out failures are on rows that still have old Teacher V1-style targets, not
-Teacher V2 targets. The clean next move is to label those exact failure/test roots with Teacher V2.
+{report['recommendation']['rationale']}
+
+## Performance
+
+{markdown_table(perf_rows)}
 
 ## Classifications
 
@@ -445,12 +646,11 @@ Teacher V2 targets. The clean next move is to label those exact failure/test roo
 
 ## Request For Model A
 
-Request file: `data/manifests/teacher_v2_label_request_for_A.json`
+Request file: `{report['request_for_A']['path']}`
 
 Requested states: {report['request_for_A']['n_requested']}
 
-Reason: these held-out replay-test states lack Teacher V2 labels, so current comparisons cannot cleanly
-separate label mismatch from model/objective failure.
+Reason: {report['request_for_A']['criteria']}.
 """
     path.write_text(text, encoding="utf-8")
 
@@ -459,7 +659,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     ap.add_argument("--model", type=Path, default=DEFAULT_MODEL)
-    ap.add_argument("--teacher-v2", type=Path, default=DEFAULT_TEACHER_V2)
+    ap.add_argument("--teacher-v2", type=Path, nargs="+", default=[DEFAULT_TEACHER_V2])
     ap.add_argument("--replay-dir", type=Path, default=ROOT / "data" / "external" / "replays")
     ap.add_argument("--json-out", type=Path, default=DEFAULT_JSON)
     ap.add_argument("--md-out", type=Path, default=DEFAULT_MD)
@@ -468,7 +668,7 @@ def main() -> None:
 
     args.dataset = resolve(args.dataset)
     args.model = resolve(args.model)
-    args.teacher_v2 = resolve(args.teacher_v2)
+    args.teacher_v2 = [resolve(path) for path in args.teacher_v2]
     args.replay_dir = resolve(args.replay_dir)
     args.json_out = resolve(args.json_out)
     args.md_out = resolve(args.md_out)
@@ -476,32 +676,35 @@ def main() -> None:
 
     dataset_payload = json.loads(args.dataset.read_text(encoding="utf-8"))
     rows = [r for r in dataset_payload["decisions"] if r["partition"] == "test"]
-    labels = load_jsonl(args.teacher_v2)
+    labels = []
+    for path in args.teacher_v2:
+        labels.extend(load_jsonl(path))
     blob, model = load_model(args.model)
 
     decisions = []
     request_entries = []
     for idx, row in enumerate(rows):
         label = teacher_label_for_row(row, labels)
+        eval_row = row_with_teacher_targets(row, label)
         logits = option_logits(model, row, blob)
-        scores = class_scores_from_option_logits(logits, row["eq"])
+        scores = class_scores_from_option_logits(logits, eval_row["eq"])
         model_eq = max(scores, key=lambda k: (scores[k], -k))
-        no_effects_scores = class_scores_from_option_logits(option_logits(model, row, blob, {"effects": True}), row["eq"])
-        no_deltas_scores = class_scores_from_option_logits(option_logits(model, row, blob, {"deltas": True}), row["eq"])
+        no_effects_scores = class_scores_from_option_logits(option_logits(model, row, blob, {"effects": True}), eval_row["eq"])
+        no_deltas_scores = class_scores_from_option_logits(option_logits(model, row, blob, {"deltas": True}), eval_row["eq"])
         no_effects_eq = max(no_effects_scores, key=lambda k: (no_effects_scores[k], -k))
         no_deltas_eq = max(no_deltas_scores, key=lambda k: (no_deltas_scores[k], -k))
 
-        model_choice = choice_from_eq(row, model_eq, "teacher_v2_model", logits)
-        old_choice = choice_from_eq(row, row.get("old_ranker_eq"), "old_ranker")
-        option0_choice = choice_from_eq(row, row.get("option0_eq"), "option0")
-        no_effects_choice = choice_from_eq(row, no_effects_eq, "full_model_zero_effects")
-        no_deltas_choice = choice_from_eq(row, no_deltas_eq, "full_model_zero_deltas")
-        teacher_best = best_choice(row, label)
+        model_choice = choice_from_eq(eval_row, model_eq, "teacher_v2_model", logits)
+        old_choice = choice_from_eq(eval_row, row.get("old_ranker_eq"), "old_ranker")
+        option0_choice = choice_from_eq(eval_row, row.get("option0_eq"), "option0")
+        no_effects_choice = choice_from_eq(eval_row, no_effects_eq, "full_model_zero_effects")
+        no_deltas_choice = choice_from_eq(eval_row, no_deltas_eq, "full_model_zero_deltas")
+        teacher_best = best_choice(eval_row, label)
 
         for choice in (model_choice, old_choice, option0_choice, no_effects_choice, no_deltas_choice, teacher_best):
             choice.update(option_diag_from_teacher(label, choice.get("option_index")))
 
-        adv = to_float_map(row.get("adv"))
+        adv = to_float_map(eval_row.get("adv"))
         out_margin = outcome_margin(label)
         analysis = {
             "index": idx,
@@ -529,20 +732,20 @@ def main() -> None:
             "label_diagnostics": {
                 "criticality": label.get("criticality") if label else row.get("criticality_score"),
                 "hand_advantage_margin": top_margin(adv),
-                "hand_value_variance_mean": row.get("value_variance_mean"),
+                "hand_value_variance_mean": eval_row.get("value_variance_mean"),
                 "outcome_winrate_margin": out_margin,
                 "top_outcome_se": top_outcome_se(label),
                 "hand_outcome_argmax_disagree": (label.get("hand_outcome_agree") is False) if label else None,
-                "acceptable_eqs": [k for k, v in to_float_map(row.get("acceptable")).items() if v >= 0.5],
-                "teacher_stability": row.get("teacher_stability"),
-                "teacher_confidence": row.get("teacher_confidence"),
-                "top_two_margin": row.get("top_two_margin"),
-                "ambiguity_reasons": label_ambiguity(row, label),
+                "acceptable_eqs": [k for k, v in to_float_map(eval_row.get("acceptable")).items() if v >= 0.5],
+                "teacher_stability": eval_row.get("teacher_stability"),
+                "teacher_confidence": eval_row.get("teacher_confidence"),
+                "top_two_margin": eval_row.get("top_two_margin"),
+                "ambiguity_reasons": label_ambiguity(eval_row, label),
             },
         }
-        analysis["classifications"] = classify(row, model_choice, old_choice, option0_choice, label)
+        analysis["classifications"] = classify(eval_row, model_choice, old_choice, option0_choice, label)
         analysis["likely_causes"] = likely_causes(
-            row, model_choice, old_choice, option0_choice, label, no_effects_choice, no_deltas_choice
+            eval_row, model_choice, old_choice, option0_choice, label, no_effects_choice, no_deltas_choice
         )
         decisions.append(analysis)
 
@@ -561,34 +764,33 @@ def main() -> None:
         unique_request_entries.append(req)
     request_entries = unique_request_entries
 
-    recommendation = {
-        "choice": "B",
-        "title": "ask Model A for labels on the specific failure/test states",
-        "rationale": (
-            "The data path is solved, but 16/21 held-out mixed-test rows still lack Teacher V2 labels. "
-            "The model loses most clearly against old-ranker/option-0 on those old-target rows, so another "
-            "training change would confound objective tuning with label-source mismatch."
-        ),
-    }
+    summary = summarize(decisions)
+    performance = performance_summary(decisions)
+    recommendation = make_recommendation(summary, performance)
     report = {
         "artifact_version": "teacher_v2_failure_analysis.v1",
         "branch": "exp/robust-learner-v2",
         "inputs": {
             "dataset": str(args.dataset),
             "model": str(args.model),
-            "teacher_v2": str(args.teacher_v2),
+            "teacher_v2": [str(path) for path in args.teacher_v2],
             "replay_dir": str(args.replay_dir),
         },
         "live_agent_consumed": "none",
         "arena_screen": "not run",
-        "summary": summarize(decisions),
+        "summary": summary,
+        "performance": performance,
         "recommendation": recommendation,
         "decisions": decisions,
         "failures": [d for d in decisions if not d["choices"]["teacher_v2_model"].get("correct")],
         "request_for_A": {
             "path": str(args.request_out),
             "n_requested": len(request_entries),
-            "criteria": "unique held-out replay-test roots lacking Teacher V2 labels",
+            "criteria": (
+                "unique held-out replay-test roots lacking Teacher V2 labels"
+                if request_entries
+                else "none; targeted labels cover all held-out mixed-test rows in this analysis"
+            ),
         },
     }
     request = {
