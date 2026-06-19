@@ -1,0 +1,93 @@
+{
+  "artifact_version": "teacher_v2_risk_label_request_for_A.v1",
+  "branch": "exp/robust-learner-v2",
+  "current_input_artifact": "data/manifests/teacher_v2_residual_risk_labels.jsonl",
+  "decision_from_branch_b": "C - risk-only failed offline; request more/different labels from Model A",
+  "purpose": "Targeted residual/risk enrichment for Branch B risk-only contextual model. This is not a generic larger batch request.",
+  "requested_output": "data/manifests/teacher_v2_residual_risk_labels_round2.jsonl",
+  "requested_state_count": "40-80, if practical",
+  "labeling_requirements": [
+    "observation",
+    "legal_options",
+    "decision_id",
+    "obs_hash",
+    "option index",
+    "semantic_action_key",
+    "eq_class",
+    "hand_norm_advantage or stronger_value/regret equivalent",
+    "hand_value_variance or value_variance",
+    "criticality",
+    "outcome_winrate",
+    "outcome_se",
+    "current_search_value",
+    "delta_to_search",
+    "high_regret_flag",
+    "unacceptable_flag",
+    "coverage",
+    "timing",
+    "seed / paired metadata"
+  ],
+  "sampling_criteria": [
+    {
+      "name": "search_selected_high_regret_analogs",
+      "priority": 1,
+      "description": "High-criticality production/self-play states where the current agent_search-selected option is later labelled high_regret_flag=1, especially when current_search_value and stronger_value disagree sharply."
+    },
+    {
+      "name": "safe_search_choice_false_positive_analogs",
+      "priority": 2,
+      "description": "High-criticality states where agent_search selects the Teacher V2 best or acceptable option with low regret, but plausible sibling options are unacceptable; these calibrate the model away from blocking safe search choices."
+    },
+    {
+      "name": "near_miss_risk_boundary",
+      "priority": 3,
+      "description": "States with high search/stronger variance, large delta_to_search magnitude, or hand/outcome disagreement where high_regret_flag is mixed among siblings."
+    }
+  ],
+  "seed_examples": [
+    {
+      "decision_id": "80251230.json:12",
+      "obs_hash": "66876f66e3db",
+      "source": {
+        "file": "80251230.json",
+        "step": 12,
+        "player": 0
+      },
+      "why_requested": [
+        "held-out catastrophic search-selected high-regret miss",
+        "risk model predicted low risk for the selected option"
+      ],
+      "search_selected_option": 0,
+      "stronger_argmax_option": 1,
+      "selected_option_regret": 31259.38,
+      "selected_option_high_regret_flag": 1,
+      "selected_option_unacceptable_flag": 0,
+      "selected_option_current_search_value": -500236.0,
+      "selected_option_stronger_value": -593938.0,
+      "selected_option_value_se": 86780.568,
+      "criticality_score": 0.35
+    },
+    {
+      "decision_id": "80252701.json:56",
+      "obs_hash": "0c730f2f8916",
+      "source": {
+        "file": "80252701.json",
+        "step": 56,
+        "player": 1
+      },
+      "why_requested": [
+        "held-out safe search-selected false positive",
+        "risk intervention blocked the Teacher V2 best option and fell back to an unacceptable sibling"
+      ],
+      "search_selected_option": 4,
+      "stronger_argmax_option": 4,
+      "selected_option_regret": 0.0,
+      "selected_option_high_regret_flag": 0,
+      "selected_option_unacceptable_flag": 0,
+      "selected_option_current_search_value": -14.0,
+      "selected_option_stronger_value": -13.5,
+      "selected_option_value_se": 0.552,
+      "criticality_score": 0.35
+    }
+  ]
+}
