@@ -1,5 +1,9 @@
 # Continuous Terrain Representation V1
 
+## Clean Rerun Warning
+
+The original R1/R4 comparison in this report is confounded. A follow-up audit found N=32-derived metadata leakage through `value_spread`/`value_se`, schema-mismatch dead fields, teacher `policy_prob` leakage in semantic action scalars, and duplicated high-regret/unacceptable labels in the pre-patch dataset. Use `docs/workstreams/CONTINUOUS_TERRAIN_REPRESENTATION_V1_CLEAN_RERUN.md` for the corrected gate.
+
 Status: final terrain experiment.
 
 No live agent was modified and no arena screen was run.
