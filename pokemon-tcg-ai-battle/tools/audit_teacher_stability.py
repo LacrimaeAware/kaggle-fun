@@ -115,6 +115,54 @@ def sample_decisions(manifest: dict, split: dict, n: int, verify: bool) -> list:
     return decisions
 
 
+def gen_selfplay_decisions(n: int, n_games: int, max_per_game: int = 40) -> list:
+    """States the PRODUCTION agent actually visits: run agent_search self-play (both seats, DENPA92)
+    and capture its non-forced single-pick decisions. Deck = M.DECK for the determinization, matching
+    deployment. Caps decisions PER GAME (max_per_game) so the sample spreads across many trajectories
+    rather than a few correlated games. Same decision-dict shape as sample_decisions."""
+    import contextlib
+    import io
+    import logging
+    logging.disable(logging.CRITICAL)
+    with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        from kaggle_environments import make
+    decisions, g = [], 0
+    while len(decisions) < n and g < n_games:
+        captured = []
+
+        # NOTE: cabt calls the agent as rec(obs) -- a 1-arg signature. A 2-arg signature makes
+        # kaggle_environments pass (obs, configuration), which would clobber a default-arg capture.
+        def rec(obs):
+            try:
+                cur = obs.get("current") or {}
+                if SCH.is_single_pick_decision(obs) and cur.get("players"):
+                    me = cur.get("yourIndex", 0)
+                    opts = obs["select"]["option"]
+                    if len(set(SCH.equivalence_classes(opts, cur, me))) >= 2 and M._forced_move(obs) is None:
+                        captured.append(json.loads(json.dumps(obs)))   # deep copy (Struct -> plain dict)
+            except Exception:
+                pass
+            return M.agent_search(obs)
+
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            env = make("cabt")
+            env.run([rec, rec])
+        for obs in captured[:max_per_game]:
+            cur = obs["current"]
+            me = cur.get("yourIndex", 0)
+            opts = obs["select"]["option"]
+            decisions.append({"file": f"selfplay_g{g}", "step": -1, "player": me, "obs": obs,
+                              "deck": list(M.DECK), "turn": cur.get("turn"),
+                              "n_eq": len(set(SCH.equivalence_classes(opts, cur, me))),
+                              "types": sorted(t for t in {o.get("type") for o in opts if isinstance(o, dict)}
+                                              if t in SCH.MAJOR_ACTION_TYPES)})
+            if len(decisions) >= n:
+                break
+        g += 1
+        print(f"  selfplay game {g}: {len(decisions)}/{n} decisions captured", flush=True)
+    return decisions
+
+
 def _top_class(rs):
     cls = [r["argmax_eq_class"] for r in rs]
     if not cls:
@@ -185,17 +233,27 @@ def main():
     ap.add_argument("--n-determ", type=int, default=8)
     ap.add_argument("--budget", type=float, default=8.0)     # large so all worlds finish (offline)
     ap.add_argument("--no-verify-hashes", action="store_true")
+    ap.add_argument("--source", choices=["replay", "selfplay"], default="replay",
+                    help="replay = frozen-snapshot replay states; selfplay = production agent_search self-play states")
+    ap.add_argument("--selfplay-games", type=int, default=80, help="cap self-play games (source=selfplay)")
     ap.add_argument("--out", default="teacher_v1_stability_smoke")
     args = ap.parse_args()
 
-    manifest = json.load(open(MANIFEST_DIR / args.snapshot, encoding="utf-8"))
-    split = json.load(open(SPLIT_DIR / args.split, encoding="utf-8"))
-    print(f"[A2] frozen snapshot {args.snapshot} (corpus_sha256 {manifest.get('corpus_sha256')}, "
-          f"{manifest['n_included']} games). Sampling {args.n} non-forced decisions...", flush=True)
-    decisions = sample_decisions(manifest, split, args.n, not args.no_verify_hashes)
-    n_decks = len({tuple(sorted(d["deck"])) for d in decisions})
-    print(f"[A2] {len(decisions)} decisions across {n_decks} decks; querying "
-          f"{args.seeds} cross-seed + {args.engine_repeats} same-seed each (n_determ={args.n_determ})...", flush=True)
+    if args.source == "selfplay":
+        print(f"[A2] generating production agent_search self-play states "
+              f"(<= {args.selfplay_games} games, target {args.n} non-forced decisions)...", flush=True)
+        decisions = gen_selfplay_decisions(args.n, args.selfplay_games)
+        src_desc = f"{len(decisions)} self-play decisions (DENPA92, agent_search)"
+    else:
+        manifest = json.load(open(MANIFEST_DIR / args.snapshot, encoding="utf-8"))
+        split = json.load(open(SPLIT_DIR / args.split, encoding="utf-8"))
+        print(f"[A2] frozen snapshot {args.snapshot} (corpus_sha256 {manifest.get('corpus_sha256')}, "
+              f"{manifest['n_included']} games). Sampling {args.n} non-forced decisions...", flush=True)
+        decisions = sample_decisions(manifest, split, args.n, not args.no_verify_hashes)
+        n_decks = len({tuple(sorted(d["deck"])) for d in decisions})
+        src_desc = f"{len(decisions)} decisions across {n_decks} decks"
+    print(f"[A2] {src_desc}; querying {args.seeds} cross-seed + {args.engine_repeats} same-seed each "
+          f"(n_determ={args.n_determ})...", flush=True)
 
     seeds = list(range(1000, 1000 + args.seeds))
     recs, t0, q = [], time.time(), 0
@@ -235,7 +293,7 @@ def main():
     with open(recpath, "w", encoding="utf-8") as f:
         for r in recs:
             f.write(json.dumps(r) + "\n")
-    summ = {"audit": "teacher_v1_stability_v1", "snapshot": args.snapshot,
+    summ = {"audit": "teacher_v1_stability_v1", "source": args.source, "snapshot": args.snapshot,
             "config": {"seeds": args.seeds, "engine_repeats": args.engine_repeats,
                        "n_determ": args.n_determ, "budget": args.budget}, "aggregate": agg}
     json.dump(summ, open(MANIFEST_DIR / f"{args.out}_summary.json", "w", encoding="utf-8"), indent=1)

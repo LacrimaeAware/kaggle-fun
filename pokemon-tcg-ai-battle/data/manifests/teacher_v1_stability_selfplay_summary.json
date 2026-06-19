@@ -1,0 +1,36 @@
+{
+ "audit": "teacher_v1_stability_v1",
+ "source": "selfplay",
+ "snapshot": "replays_20260618.json",
+ "config": {
+  "seeds": 16,
+  "engine_repeats": 16,
+  "n_determ": 8,
+  "budget": 8.0
+ },
+ "aggregate": {
+  "n_decisions": 999,
+  "total_queries": 32000,
+  "seconds": 2441.4,
+  "queries_per_sec": 13.11,
+  "projected_full_1000_hours": 0.68,
+  "stable_frac": 0.402,
+  "near_tie_frac": 0.259,
+  "unstable_frac": 0.338,
+  "mean_cross_seed_top_stability": 0.748,
+  "mean_engine_only_top_stability": 0.774,
+  "mean_determinization_extra_instability": 0.026,
+  "mean_top_two_margin": 20409.037,
+  "mean_acceptable_set_size": 2.607,
+  "stability_by_action_type": {
+   "3": 0.835,
+   "7": 0.699,
+   "8": 0.72,
+   "9": 0.642,
+   "10": 0.708,
+   "12": 0.749,
+   "13": 0.843,
+   "14": 0.727
+  }
+ }
+}
