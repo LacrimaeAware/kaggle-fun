@@ -192,6 +192,12 @@ cython_debug/
 
 # Kaggle project: data, artifacts, and private notes
 data/
+# SPLIT_BASE_V2 preflight: track ONLY the pokemon-tcg reproducibility manifests/splits under data/.
+# Raw replays, replay_db, the official engine, and submissions under data/ stay ignored.
+!pokemon-tcg-ai-battle/data/
+pokemon-tcg-ai-battle/data/*
+!pokemon-tcg-ai-battle/data/manifests/
+!pokemon-tcg-ai-battle/data/splits/
 models/
 results/
 private_docs/
