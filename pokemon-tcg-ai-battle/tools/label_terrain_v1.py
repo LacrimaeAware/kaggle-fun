@@ -76,25 +76,17 @@ def repeated_label(obs, deck, *, live_n=8, strong_n=32, live_reps=8, strong_reps
     def col(runs, i):
         return [r[i] for r in runs if i < len(r) and r[i] is not None]
 
-    # per-strong-run risk flags (regret vs that run's best)
-    accept_cnt = [0] * n
+    # per-strong-run HIGH-REGRET flag (regret vs that run's best > hrt). unacceptable is a DISTINCT
+    # CI-overlap criterion (regret beyond noise) computed post-aggregation below -- NOT a copy of high_regret.
     hr_cnt = [0] * n
-    unacc_cnt = [0] * n
     for r in strong_runs:
         valued = [i for i, m in enumerate(r) if m is not None]
         if not valued:
             continue
-        bi = max(valued, key=lambda i: r[i])
-        best = r[bi]
-        # crude per-run se proxy: use spread/sqrt(n) unavailable here -> use a small absolute slack via accept_z*|best|*0 -> rely on regret threshold
+        best = max(r[i] for i in valued)
         for i in valued:
-            reg = best - r[i]
-            if reg <= hrt * 0.0 or i == bi:
-                accept_cnt[i] += 1
-            if reg > hrt:
+            if best - r[i] > hrt:
                 hr_cnt[i] += 1
-            if reg > hrt:        # unacceptable tracked at same threshold here; refined acceptable below
-                unacc_cnt[i] += 1
     # acceptable: within hrt of the run-best (a softer band than high-regret)
     acc_band = [0] * n
     for r in strong_runs:
@@ -113,6 +105,9 @@ def repeated_label(obs, deck, *, live_n=8, strong_n=32, live_reps=8, strong_reps
     strong_mean = {i: statistics.fmean(col(strong_runs, i)) for i in valued_all}
     best_i = max(valued_all, key=lambda i: strong_mean[i]) if valued_all else None
     best_strong = strong_mean[best_i] if best_i is not None else 0.0
+    se_by_i = {i: (statistics.pvariance(col(strong_runs, i)) / max(1, ns)) ** 0.5 if len(col(strong_runs, i)) > 1 else 0.0
+               for i in valued_all}
+    best_se = se_by_i.get(best_i, 0.0)
     mean_delta = statistics.fmean(
         statistics.fmean(col(strong_runs, i)) - statistics.fmean(col(live_runs, i))
         for i in valued_all if col(live_runs, i)) if valued_all else 0.0
@@ -142,7 +137,9 @@ def repeated_label(obs, deck, *, live_n=8, strong_n=32, live_reps=8, strong_reps
             "value_se": round((svar / max(1, ns)) ** 0.5, 3),
             "acceptable_prob": round(acc_band[i] / ns, 3),
             "high_regret_prob": round(hr_cnt[i] / ns, 3),
-            "unacceptable_prob": round(unacc_cnt[i] / ns, 3),
+            # DISTINCT from high_regret: CI-overlap criterion -- regret beyond the paired noise band
+            # (not statistically tied with the best). accept_z=1.0.
+            "unacceptable_prob": float(int(regret > 1.0 * (best_se + se_by_i.get(i, 0.0)))),
             "completed_determinizations": int(statistics.fmean([c[i] for c in strong_compl if i < len(c)])) if strong_compl else strong_n,
         })
 

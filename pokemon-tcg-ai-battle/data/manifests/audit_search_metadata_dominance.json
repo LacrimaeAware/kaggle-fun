@@ -1,0 +1,71 @@
+{
+ "R1_FULL (B's R1: leak+live)": {
+  "AP": 0.742,
+  "AUROC": 0.99,
+  "recall@FPR5": 1.0,
+  "recall@FPR10": 1.0,
+  "coef": {
+   "spread": 1.778,
+   "value_se": 0.882,
+   "entropy": -0.285,
+   "modal": -0.822,
+   "crit": -0.334,
+   "is_selected": -0.256,
+   "live_var": 0.625,
+   "live_margin": 3.088
+  }
+ },
+ "LEAK_ONLY (spread, value_se)": {
+  "AP": 0.612,
+  "AUROC": 0.985,
+  "recall@FPR5": 1.0,
+  "recall@FPR10": 1.0,
+  "coef": {
+   "spread": 1.429,
+   "value_se": 1.177
+  }
+ },
+ "LIVE_ONLY (crit+entropy+modal+var+margin+sel)": {
+  "AP": 0.476,
+  "AUROC": 0.69,
+  "recall@FPR5": 0.485,
+  "recall@FPR10": 0.576,
+  "coef": {
+   "entropy": -1.178,
+   "modal": -1.362,
+   "crit": 0.364,
+   "is_selected": -0.442,
+   "live_var": 2.045,
+   "live_margin": 2.517
+  }
+ },
+ "LIVE_MINIMAL (entropy, modal, crit)": {
+  "AP": 0.053,
+  "AUROC": 0.367,
+  "recall@FPR5": 0.121,
+  "recall@FPR10": 0.121,
+  "coef": {
+   "entropy": 0.442,
+   "modal": 0.006,
+   "crit": 0.213
+  }
+ },
+ "JUST value_se (single leak field)": {
+  "AP": 0.236,
+  "AUROC": 0.531,
+  "recall@FPR5": 0.333,
+  "recall@FPR10": 0.333,
+  "coef": {
+   "value_se": 0.977
+  }
+ },
+ "JUST spread (single leak field)": {
+  "AP": 0.632,
+  "AUROC": 0.988,
+  "recall@FPR5": 1.0,
+  "recall@FPR10": 1.0,
+  "coef": {
+   "spread": 1.402
+  }
+ }
+}
