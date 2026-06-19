@@ -1,0 +1,433 @@
+{
+ "top50_trust_unweighted": 1.0,
+ "top50_trust_freq_weighted": 1.0,
+ "n_top": 50,
+ "overrides_active": 5,
+ "rows": [
+  {
+   "card_id": 5,
+   "name": "Basic {P} Energy",
+   "freq": 370,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 19,
+   "name": "Telepath Psychic Energy",
+   "freq": 367,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 2.0,
+    "eff_search_to_bench": 1.0
+   }
+  },
+  {
+   "card_id": 2,
+   "name": "Basic {R} Energy",
+   "freq": 351,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 1,
+   "name": "Basic {G} Energy",
+   "freq": 344,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 1086,
+   "name": "Buddy-Buddy Poffin",
+   "freq": 145,
+   "coverage": "override",
+   "effects": {
+    "eff_search_to_bench": 2.0
+   }
+  },
+  {
+   "card_id": 1227,
+   "name": "Lillie's Determination",
+   "freq": 142,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 8.0,
+    "eff_shuffle_hand": 1.0
+   }
+  },
+  {
+   "card_id": 18,
+   "name": "Grow Grass Energy",
+   "freq": 141,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 3,
+   "name": "Basic {W} Energy",
+   "freq": 140,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 6,
+   "name": "Basic {F} Energy",
+   "freq": 133,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 66,
+   "name": "Dudunsparce",
+   "freq": 120,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 3.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 120,
+   "name": "Drakloak",
+   "freq": 119,
+   "coverage": "decoded",
+   "effects": {
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 235,
+   "name": "Budew",
+   "freq": 102,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 1152,
+   "name": "Pok\u00e9 Pad",
+   "freq": 101,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 1.0
+   }
+  },
+  {
+   "card_id": 13,
+   "name": "Enriching Energy",
+   "freq": 100,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 4.0
+   }
+  },
+  {
+   "card_id": 1159,
+   "name": "Hero\u2019s Cape",
+   "freq": 88,
+   "coverage": "tool",
+   "effects": {}
+  },
+  {
+   "card_id": 1235,
+   "name": "Waitress",
+   "freq": 87,
+   "coverage": "decoded",
+   "effects": {
+    "eff_energy_accel": 1.0
+   }
+  },
+  {
+   "card_id": 742,
+   "name": "Kadabra",
+   "freq": 87,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 2.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 344,
+   "name": "Dwebble",
+   "freq": 83,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 1.0
+   }
+  },
+  {
+   "card_id": 1182,
+   "name": "Boss\u2019s Orders",
+   "freq": 79,
+   "coverage": "override",
+   "effects": {
+    "own_switch": 0.5,
+    "opp_gust": 1.0
+   }
+  },
+  {
+   "card_id": 345,
+   "name": "Crustle",
+   "freq": 74,
+   "coverage": "decoded",
+   "effects": {
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 722,
+   "name": "Snover",
+   "freq": 70,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 1174,
+   "name": "Air Balloon",
+   "freq": 66,
+   "coverage": "tool",
+   "effects": {}
+  },
+  {
+   "card_id": 741,
+   "name": "Abra",
+   "freq": 66,
+   "coverage": "decoded",
+   "effects": {
+    "own_switch": 1.0
+   }
+  },
+  {
+   "card_id": 121,
+   "name": "Dragapult ex",
+   "freq": 64,
+   "coverage": "pokemon_meta",
+   "effects": {
+    "atk_damage": 70.0
+   }
+  },
+  {
+   "card_id": 353,
+   "name": "Ethan's Quilava",
+   "freq": 63,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 1.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 1121,
+   "name": "Ultra Ball",
+   "freq": 60,
+   "coverage": "override",
+   "effects": {
+    "eff_search": 1.0,
+    "eff_discard_cost": 2.0
+   }
+  },
+  {
+   "card_id": 743,
+   "name": "Alakazam",
+   "freq": 57,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 3.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 675,
+   "name": "Lunatone",
+   "freq": 57,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 3.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 11,
+   "name": "Mist Energy",
+   "freq": 57,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 678,
+   "name": "Mega Lucario ex",
+   "freq": 55,
+   "coverage": "decoded",
+   "effects": {
+    "eff_energy_accel": 1.0,
+    "eff_recover_discard": 1.0
+   }
+  },
+  {
+   "card_id": 1156,
+   "name": "Lucky Helmet",
+   "freq": 54,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 2.0
+   }
+  },
+  {
+   "card_id": 676,
+   "name": "Solrock",
+   "freq": 53,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 723,
+   "name": "Mega Abomasnow ex",
+   "freq": 53,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 140,
+   "name": "Fezandipiti ex",
+   "freq": 49,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 3.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 673,
+   "name": "Makuhita",
+   "freq": 48,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 1215,
+   "name": "Ethan's Adventure",
+   "freq": 45,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 3.0
+   }
+  },
+  {
+   "card_id": 14,
+   "name": "Spiky Energy",
+   "freq": 44,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 4,
+   "name": "Basic {L} Energy",
+   "freq": 44,
+   "coverage": "energy",
+   "effects": {}
+  },
+  {
+   "card_id": 354,
+   "name": "Ethan's Typhlosion",
+   "freq": 44,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 1102,
+   "name": "Dusk Ball",
+   "freq": 43,
+   "coverage": "override",
+   "effects": {
+    "eff_search": 1.0
+   }
+  },
+  {
+   "card_id": 1142,
+   "name": "Fighting Gong",
+   "freq": 40,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 1.0
+   }
+  },
+  {
+   "card_id": 142,
+   "name": "Genesect",
+   "freq": 40,
+   "coverage": "decoded",
+   "effects": {
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 1192,
+   "name": "Carmine",
+   "freq": 40,
+   "coverage": "decoded",
+   "effects": {
+    "eff_draw": 5.0
+   }
+  },
+  {
+   "card_id": 674,
+   "name": "Hariyama",
+   "freq": 40,
+   "coverage": "decoded",
+   "effects": {
+    "eff_has_ability": 1.0,
+    "own_switch": 1.0
+   }
+  },
+  {
+   "card_id": 1198,
+   "name": "Crispin",
+   "freq": 36,
+   "coverage": "decoded",
+   "effects": {
+    "eff_search": 2.0
+   }
+  },
+  {
+   "card_id": 269,
+   "name": "Iono\u2019s Bellibolt ex",
+   "freq": 36,
+   "coverage": "decoded",
+   "effects": {
+    "eff_energy_accel": 1.0,
+    "eff_has_ability": 1.0
+   }
+  },
+  {
+   "card_id": 1097,
+   "name": "Night Stretcher",
+   "freq": 32,
+   "coverage": "decoded",
+   "effects": {
+    "eff_recover_discard": 1.0
+   }
+  },
+  {
+   "card_id": 352,
+   "name": "Ethan's Cyndaquil",
+   "freq": 32,
+   "coverage": "pokemon_meta",
+   "effects": {
+    "atk_damage": 30.0
+   }
+  },
+  {
+   "card_id": 721,
+   "name": "Kyogre",
+   "freq": 31,
+   "coverage": "pokemon_meta",
+   "effects": {}
+  },
+  {
+   "card_id": 1161,
+   "name": "Handheld Fan",
+   "freq": 29,
+   "coverage": "tool",
+   "effects": {}
+  }
+ ]
+}
