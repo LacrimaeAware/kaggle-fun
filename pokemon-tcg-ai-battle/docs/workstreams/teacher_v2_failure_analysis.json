@@ -1,0 +1,5752 @@
+{
+  "arena_screen": "not run",
+  "artifact_version": "teacher_v2_failure_analysis.v1",
+  "branch": "exp/robust-learner-v2",
+  "decisions": [
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 168.16666666666666,
+          "correct": true,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 19.833333333333314,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 148.33333333333334,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -86.83333333333334,
+          "correct": false,
+          "eq_class": 3,
+          "name": "old_ranker",
+          "option_index": 5,
+          "regret": 255.0,
+          "semantic_action_key": [
+            7,
+            270,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 19.833333333333314,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 148.33333333333334,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 168.16666666666666,
+          "correct": true,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "teacher_v2_model_correct_old_ranker_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:f97cbce0c9407192",
+      "game_file": "80459198.json",
+      "index": 0,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          1,
+          2
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 47.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 2823.3333333333335,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 47.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "f97cbce0c9407192",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 168.16666666666666,
+        "correct": true,
+        "eq_class": 1,
+        "name": "teacher_best_current_label",
+        "option_index": 1,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 54.0,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 25.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 54.0,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "regret": 25.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 7,
+          "advantage": 29.0,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 50.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 16.5,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 62.5,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 7,
+          "advantage": 29.0,
+          "correct": false,
+          "eq_class": 2,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "regret": 50.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:b6b923d3b78763de",
+      "game_file": "80459198.json",
+      "index": 1,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 25.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 3575.0,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 25.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "b6b923d3b78763de",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 79.0,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1233,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 156.66666666666669,
+          "correct": true,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 156.66666666666669,
+          "correct": true,
+          "eq_class": 1,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 156.66666666666669,
+          "correct": true,
+          "eq_class": 1,
+          "name": "old_ranker",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 7,
+          "advantage": -55.83333333333333,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 212.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 156.66666666666669,
+          "correct": true,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:25d7fc98e34acc49",
+      "game_file": "80459198.json",
+      "index": 2,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 212.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 12125.0,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 212.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "25d7fc98e34acc49",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 156.66666666666669,
+        "correct": true,
+        "eq_class": 1,
+        "name": "teacher_best_current_label",
+        "option_index": 1,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1233,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 33.33333333333333,
+          "correct": true,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 23.33333333333333,
+          "correct": false,
+          "eq_class": 2,
+          "name": "full_model_zero_effects",
+          "option_index": 2,
+          "regret": 10.0,
+          "semantic_action_key": [
+            3,
+            4,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 33.33333333333333,
+          "correct": true,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 33.33333333333333,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 33.33333333333333,
+          "correct": true,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:47dace3568e45815",
+      "game_file": "80459198.json",
+      "index": 3,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          2
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 10.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 458.3333333333333,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 12.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "47dace3568e45815",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 33.33333333333333,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          269,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "full_model_zero_deltas",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "full_model_zero_effects",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 55.0,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:ce0691111c953258",
+      "game_file": "80459198.json",
+      "index": 4,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 512.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "ce0691111c953258",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 55.0,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "old_ranker",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:8e74004879647369",
+      "game_file": "80459198.json",
+      "index": 5,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 3016.6666666666665,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "8e74004879647369",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 49.166666666666664,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 14,
+          "advantage": -11.25,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 22.5,
+          "semantic_action_key": [
+            14,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:ca083ee58ab52bae",
+      "game_file": "80459198.json",
+      "index": 6,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 22.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 812.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 22.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "ca083ee58ab52bae",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 11.25,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 14,
+          "advantage": -11.25,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 22.5,
+          "semantic_action_key": [
+            14,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 11.25,
+          "correct": true,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:ca083ee58ab52bae",
+      "game_file": "80459198.json",
+      "index": 7,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 22.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 812.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 22.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "ca083ee58ab52bae",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 11.25,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": 0.75,
+          "correct": false,
+          "eq_class": 8,
+          "name": "full_model_zero_effects",
+          "option_index": 13,
+          "regret": 128.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 9,
+          "advantage": 128.75,
+          "correct": true,
+          "eq_class": 6,
+          "name": "old_ranker",
+          "option_index": 6,
+          "regret": 0.0,
+          "semantic_action_key": [
+            9,
+            271,
+            null,
+            5,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:f5b724f91efe6f35",
+      "game_file": "80459198.json",
+      "index": 8,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          6
+        ],
+        "ambiguity_reasons": [],
+        "criticality": null,
+        "hand_advantage_margin": 91.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 415.0,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 91.0
+      },
+      "likely_causes": [
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "f5b724f91efe6f35",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 9,
+        "advantage": 128.75,
+        "correct": true,
+        "eq_class": 6,
+        "name": "teacher_best_current_label",
+        "option_index": 6,
+        "regret": 0.0,
+        "semantic_action_key": [
+          9,
+          271,
+          null,
+          5,
+          0
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 459.5833333333333,
+          "correct": true,
+          "eq_class": 7,
+          "name": "full_model_zero_effects",
+          "option_index": 12,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:d611fd2e8e215a0e",
+      "game_file": "80459198.json",
+      "index": 9,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "ambiguity_reasons": [
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 138.25,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 80565.05555555556,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 193.25
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "decoded-effect / interaction overreaction"
+      ],
+      "obs_hash": "d611fd2e8e215a0e",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 0.5,
+        "action_type": 10,
+        "advantage": 459.5833333333333,
+        "correct": true,
+        "eq_class": 7,
+        "name": "teacher_best_current_label",
+        "option_index": 12,
+        "regret": 0.0,
+        "semantic_action_key": [
+          10,
+          269,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 9.375,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 5.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:b038053a08b986aa",
+      "game_file": "80459198.json",
+      "index": 10,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 5.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 2368.75,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 2.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "b038053a08b986aa",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 14.375,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          270,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": -446.75,
+          "correct": false,
+          "eq_class": 5,
+          "name": "full_model_zero_deltas",
+          "option_index": 5,
+          "regret": 695.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": 128.25,
+          "correct": false,
+          "eq_class": 6,
+          "name": "full_model_zero_effects",
+          "option_index": 6,
+          "regret": 120.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 208.25,
+          "correct": false,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 40.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 208.25,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 40.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": -446.75,
+          "correct": false,
+          "eq_class": 5,
+          "name": "teacher_v2_model",
+          "option_index": 5,
+          "regret": 695.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:868c45838611644f",
+      "game_file": "80459198.json",
+      "index": 11,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 20412.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "868c45838611644f",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 248.25,
+        "correct": true,
+        "eq_class": 1,
+        "name": "teacher_best_current_label",
+        "option_index": 1,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          4,
+          null,
+          5,
+          0
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 3.75,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 27.5,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:afc4fd8179f65a5a",
+      "game_file": "80459198.json",
+      "index": 12,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 17.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 5006.25,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 22.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "afc4fd8179f65a5a",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 31.25,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          270,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 349.66666666666663,
+          "correct": true,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "old_ranker",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 349.66666666666663,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:e56d4d21aebddea8",
+      "game_file": "80459198.json",
+      "index": 13,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 210.99999999999997,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 60991.666666666664,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 299.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "decoded-effect / interaction overreaction",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "e56d4d21aebddea8",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 0.5,
+        "action_type": 10,
+        "advantage": 349.66666666666663,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          10,
+          271,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_deltas",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_effects",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 12,
+          "advantage": 150.72727272727275,
+          "correct": true,
+          "eq_class": 9,
+          "name": "old_ranker",
+          "option_index": 19,
+          "regret": 0.0,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 52.72727272727275,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 98.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:74d0ba20b067c588",
+      "game_file": "80459198.json",
+      "index": 14,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          9
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 38.83333333333337,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 2390.909090909091,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 38.83333333333337
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "74d0ba20b067c588",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 12,
+        "advantage": 150.72727272727275,
+        "correct": true,
+        "eq_class": 9,
+        "name": "teacher_best_current_label",
+        "option_index": 19,
+        "regret": 0.0,
+        "semantic_action_key": [
+          12,
+          265,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_deltas",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_effects",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 12,
+          "advantage": 180.80303030303037,
+          "correct": true,
+          "eq_class": 9,
+          "name": "old_ranker",
+          "option_index": 19,
+          "regret": 0.0,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 47.80303030303037,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 133.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:8b77118073e4277b",
+      "game_file": "80459198.json",
+      "index": 15,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          9
+        ],
+        "ambiguity_reasons": [],
+        "criticality": null,
+        "hand_advantage_margin": 56.33333333333337,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 80.30303030303031,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 55.5
+      },
+      "likely_causes": [
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "8b77118073e4277b",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 12,
+        "advantage": 180.80303030303037,
+        "correct": true,
+        "eq_class": 9,
+        "name": "teacher_best_current_label",
+        "option_index": 19,
+        "regret": 0.0,
+        "semantic_action_key": [
+          12,
+          265,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 18.912499999999994,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -122.0,
+          "hand_norm_advantage": 18.912499999999994,
+          "hand_value_variance": 0.0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 18.912499999999994,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -122.0,
+          "hand_norm_advantage": 18.912499999999994,
+          "hand_value_variance": 0.0,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "option0_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80252701.json:55",
+      "game_file": "80252701.json",
+      "index": 16,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          6,
+          7,
+          8
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 10,
+          "score": 0.35
+        },
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 78.49516129032257,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.4,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "option-0 prior issue",
+        "overfitting small n"
+      ],
+      "obs_hash": "4165444b3634c2ba",
+      "partition": "test",
+      "player": "Manato TAKAI",
+      "source": "teacher_v2_scaled",
+      "step": 55,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 18.912499999999994,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -122.0,
+        "hand_norm_advantage": 18.912499999999994,
+        "hand_value_variance": 0.0,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 1.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          5,
+          null,
+          4,
+          0
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "0f3846927812"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 17.77777777777783,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -3980.0,
+          "hand_norm_advantage": 17.77777777777783,
+          "hand_value_variance": 0.0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            14,
+            null,
+            4,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 17.77777777777783,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -3980.0,
+          "hand_norm_advantage": 17.77777777777783,
+          "hand_value_variance": 0.0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            14,
+            null,
+            4,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 13,
+          "advantage": -2.2222222222221717,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 5,
+          "hand_mean_value": -4000.0,
+          "hand_norm_advantage": -2.2222222222221717,
+          "hand_value_variance": 0.0,
+          "name": "old_ranker",
+          "option_index": 7,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 20.0,
+          "semantic_action_key": [
+            13,
+            344,
+            478,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 17.77777777777783,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -3980.0,
+          "hand_norm_advantage": 17.77777777777783,
+          "hand_value_variance": 0.0,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            14,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 17.77777777777783,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -3980.0,
+          "hand_norm_advantage": 17.77777777777783,
+          "hand_value_variance": 0.0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            14,
+            null,
+            4,
+            0
+          ]
+        }
+      },
+      "classifications": [
+        "teacher_v2_model_correct_old_ranker_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80253882.json:154",
+      "game_file": "80253882.json",
+      "index": 17,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 7,
+          "score": 0.35
+        },
+        "hand_advantage_margin": 20.0,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 0.0,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 20.0
+      },
+      "likely_causes": [
+        "label noise"
+      ],
+      "obs_hash": "2ebde0903b9f74ec",
+      "partition": "test",
+      "player": "trisector",
+      "source": "teacher_v2_scaled",
+      "step": 154,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 17.77777777777783,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -3980.0,
+        "hand_norm_advantage": 17.77777777777783,
+        "hand_value_variance": 0.0,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 0.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          14,
+          null,
+          4,
+          0
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "9d56e4f6ecaf"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 10,
+          "advantage": 118708.475,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 2,
+          "hand_mean_value": -512.8125,
+          "hand_norm_advantage": 118708.475,
+          "hand_value_variance": 363317.64112903224,
+          "name": "full_model_zero_deltas",
+          "option_index": 2,
+          "outcome_playouts": 16,
+          "outcome_se": 0.124,
+          "outcome_winrate": 0.438,
+          "regret": 18.125,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 118726.6,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 1,
+          "hand_mean_value": -494.6875,
+          "hand_norm_advantage": 118726.6,
+          "hand_value_variance": 326283.7701612903,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.103,
+          "outcome_winrate": 0.781,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 118579.725,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 0,
+          "hand_mean_value": -641.5625,
+          "hand_norm_advantage": 118579.725,
+          "hand_value_variance": 453168.44758064515,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.125,
+          "outcome_winrate": 0.531,
+          "regret": 146.875,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 118579.725,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 0,
+          "hand_mean_value": -641.5625,
+          "hand_norm_advantage": 118579.725,
+          "hand_value_variance": 453168.44758064515,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.125,
+          "outcome_winrate": 0.531,
+          "regret": 146.875,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 10,
+          "advantage": 118708.475,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 2,
+          "hand_mean_value": -512.8125,
+          "hand_norm_advantage": 118708.475,
+          "hand_value_variance": 363317.64112903224,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "outcome_playouts": 16,
+          "outcome_se": 0.124,
+          "outcome_winrate": 0.438,
+          "regret": 18.125,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80251230.json:17",
+      "game_file": "80251230.json",
+      "index": 18,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence",
+          "very_high_hand_value_variance"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 5,
+          "score": 0.325
+        },
+        "hand_advantage_margin": 18.125,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 49757592626.86049,
+        "outcome_winrate_margin": 0.25,
+        "teacher_confidence": 0.2,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.103,
+        "top_two_margin": 18.125
+      },
+      "likely_causes": [
+        "label noise",
+        "decoded-effect / interaction overreaction",
+        "overfitting small n"
+      ],
+      "obs_hash": "472bea2cc23b5c1b",
+      "partition": "test",
+      "player": "Kyo_s_s",
+      "source": "teacher_v2_scaled",
+      "step": 17,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 118726.6,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 1,
+        "hand_mean_value": -494.6875,
+        "hand_norm_advantage": 118726.6,
+        "hand_value_variance": 326283.7701612903,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 1,
+        "outcome_playouts": 16,
+        "outcome_se": 0.103,
+        "outcome_winrate": 0.781,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1233,
+          null,
+          null,
+          null
+        ],
+        "teacher_option_eq_class": 1
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "8bd74373b969"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 0.0,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -1000000.0,
+          "hand_norm_advantage": 0.0,
+          "hand_value_variance": 0.0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            1,
+            null,
+            4,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 0.0,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -1000000.0,
+          "hand_norm_advantage": 0.0,
+          "hand_value_variance": 0.0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            1,
+            null,
+            4,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 0.0,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -1000000.0,
+          "hand_norm_advantage": 0.0,
+          "hand_value_variance": 0.0,
+          "name": "old_ranker",
+          "option_index": 2,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1264,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 0.0,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -1000000.0,
+          "hand_norm_advantage": 0.0,
+          "hand_value_variance": 0.0,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            1,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 0.0,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -1000000.0,
+          "hand_norm_advantage": 0.0,
+          "hand_value_variance": 0.0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 0.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            1,
+            null,
+            4,
+            0
+          ]
+        }
+      },
+      "classifications": [
+        "teacher_v2_model_correct_old_ranker_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80253882.json:173",
+      "game_file": "80253882.json",
+      "index": 19,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 5,
+          "score": 0.325
+        },
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 0.0,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise"
+      ],
+      "obs_hash": "c0dd34b1d730dfbf",
+      "partition": "test",
+      "player": "trisector",
+      "source": "teacher_v2_scaled",
+      "step": 173,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 0.0,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -1000000.0,
+        "hand_norm_advantage": 0.0,
+        "hand_value_variance": 0.0,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 0.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          1,
+          null,
+          4,
+          0
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "af3d4b0601b6"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "full_model_zero_deltas",
+          "option_index": 3,
+          "outcome_playouts": 16,
+          "outcome_se": 0.121,
+          "outcome_winrate": 0.375,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "full_model_zero_effects",
+          "option_index": 3,
+          "outcome_playouts": 16,
+          "outcome_se": 0.121,
+          "outcome_winrate": 0.375,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 111.5,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -13.5,
+          "hand_norm_advantage": 111.5,
+          "hand_value_variance": 10.064516129032258,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            743,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 111.5,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -13.5,
+          "hand_norm_advantage": 111.5,
+          "hand_value_variance": 10.064516129032258,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            743,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "outcome_playouts": 16,
+          "outcome_se": 0.108,
+          "outcome_winrate": 0.25,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "option0_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80252701.json:58",
+      "game_file": "80252701.json",
+      "index": 20,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0
+        ],
+        "ambiguity_reasons": [
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 4,
+          "score": 0.3
+        },
+        "hand_advantage_margin": 139.375,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 114.76209677419355,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.4,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 139.375
+      },
+      "likely_causes": [
+        "label noise",
+        "option-0 prior issue",
+        "overfitting small n"
+      ],
+      "obs_hash": "62ea593401c7fecb",
+      "partition": "test",
+      "player": "Manato TAKAI",
+      "source": "teacher_v2_scaled",
+      "step": 58,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 111.5,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -13.5,
+        "hand_norm_advantage": 111.5,
+        "hand_value_variance": 10.064516129032258,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 1.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          743,
+          null,
+          null,
+          null
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "3de8d9e9228b"
+    }
+  ],
+  "failures": [
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 54.0,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 25.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 54.0,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "regret": 25.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 7,
+          "advantage": 29.0,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 50.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 16.5,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 62.5,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 7,
+          "advantage": 29.0,
+          "correct": false,
+          "eq_class": 2,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "regret": 50.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:b6b923d3b78763de",
+      "game_file": "80459198.json",
+      "index": 1,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 25.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 3575.0,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 25.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "b6b923d3b78763de",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 79.0,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1233,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "full_model_zero_deltas",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "full_model_zero_effects",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 55.0,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 52.5,
+          "correct": false,
+          "eq_class": 2,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "regret": 2.5,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:ce0691111c953258",
+      "game_file": "80459198.json",
+      "index": 4,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 512.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "ce0691111c953258",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 55.0,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "old_ranker",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 49.166666666666664,
+          "correct": false,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:8e74004879647369",
+      "game_file": "80459198.json",
+      "index": 5,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 3016.6666666666665,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "8e74004879647369",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 49.166666666666664,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1121,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": 0.75,
+          "correct": false,
+          "eq_class": 8,
+          "name": "full_model_zero_effects",
+          "option_index": 13,
+          "regret": 128.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 9,
+          "advantage": 128.75,
+          "correct": true,
+          "eq_class": 6,
+          "name": "old_ranker",
+          "option_index": 6,
+          "regret": 0.0,
+          "semantic_action_key": [
+            9,
+            271,
+            null,
+            5,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 5.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 123.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:f5b724f91efe6f35",
+      "game_file": "80459198.json",
+      "index": 8,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          6
+        ],
+        "ambiguity_reasons": [],
+        "criticality": null,
+        "hand_advantage_margin": 91.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 415.0,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 91.0
+      },
+      "likely_causes": [
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "f5b724f91efe6f35",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 9,
+        "advantage": 128.75,
+        "correct": true,
+        "eq_class": 6,
+        "name": "teacher_best_current_label",
+        "option_index": 6,
+        "regret": 0.0,
+        "semantic_action_key": [
+          9,
+          271,
+          null,
+          5,
+          0
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 459.5833333333333,
+          "correct": true,
+          "eq_class": 7,
+          "name": "full_model_zero_effects",
+          "option_index": 12,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": -337.9166666666667,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 797.5,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:d611fd2e8e215a0e",
+      "game_file": "80459198.json",
+      "index": 9,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          2,
+          3,
+          4,
+          5,
+          7
+        ],
+        "ambiguity_reasons": [
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 138.25,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 80565.05555555556,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 193.25
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "decoded-effect / interaction overreaction"
+      ],
+      "obs_hash": "d611fd2e8e215a0e",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 0.5,
+        "action_type": 10,
+        "advantage": 459.5833333333333,
+        "correct": true,
+        "eq_class": 7,
+        "name": "teacher_best_current_label",
+        "option_index": 12,
+        "regret": 0.0,
+        "semantic_action_key": [
+          10,
+          269,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 9.375,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 5.0,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 3,
+          "advantage": -30.625,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 0,
+          "regret": 45.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:b038053a08b986aa",
+      "game_file": "80459198.json",
+      "index": 10,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 5.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 2368.75,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 2.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "b038053a08b986aa",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 14.375,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          270,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": -446.75,
+          "correct": false,
+          "eq_class": 5,
+          "name": "full_model_zero_deltas",
+          "option_index": 5,
+          "regret": 695.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": 128.25,
+          "correct": false,
+          "eq_class": 6,
+          "name": "full_model_zero_effects",
+          "option_index": 6,
+          "regret": 120.0,
+          "semantic_action_key": [
+            10,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 208.25,
+          "correct": false,
+          "eq_class": 0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "regret": 40.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 208.25,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 40.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 10,
+          "advantage": -446.75,
+          "correct": false,
+          "eq_class": 5,
+          "name": "teacher_v2_model",
+          "option_index": 5,
+          "regret": 695.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:868c45838611644f",
+      "game_file": "80459198.json",
+      "index": 11,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 20412.5,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "868c45838611644f",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 248.25,
+        "correct": true,
+        "eq_class": 1,
+        "name": "teacher_best_current_label",
+        "option_index": 1,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          4,
+          null,
+          5,
+          0
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_deltas",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 3.75,
+          "correct": false,
+          "eq_class": 2,
+          "name": "old_ranker",
+          "option_index": 2,
+          "regret": 27.5,
+          "semantic_action_key": [
+            3,
+            269,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -48.75,
+          "correct": false,
+          "eq_class": 0,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 80.0,
+          "semantic_action_key": [
+            3,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:afc4fd8179f65a5a",
+      "game_file": "80459198.json",
+      "index": 12,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 17.5,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 5006.25,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 22.5
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "afc4fd8179f65a5a",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 31.25,
+        "correct": true,
+        "eq_class": 3,
+        "name": "teacher_best_current_label",
+        "option_index": 3,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          270,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 349.66666666666663,
+          "correct": true,
+          "eq_class": 0,
+          "name": "full_model_zero_effects",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "old_ranker",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 10,
+          "advantage": 349.66666666666663,
+          "correct": true,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 12,
+          "advantage": 138.66666666666666,
+          "correct": false,
+          "eq_class": 1,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "regret": 210.99999999999997,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "option0_correct_teacher_v2_model_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:e56d4d21aebddea8",
+      "game_file": "80459198.json",
+      "index": 13,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1
+        ],
+        "ambiguity_reasons": [
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 210.99999999999997,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 60991.666666666664,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 0.175,
+        "teacher_stability": "unstable",
+        "top_outcome_se": null,
+        "top_two_margin": 299.0
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue",
+        "decoded-effect / interaction overreaction",
+        "option-0 prior issue"
+      ],
+      "obs_hash": "e56d4d21aebddea8",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 0.5,
+        "action_type": 10,
+        "advantage": 349.66666666666663,
+        "correct": true,
+        "eq_class": 0,
+        "name": "teacher_best_current_label",
+        "option_index": 0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          10,
+          271,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_deltas",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_effects",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 12,
+          "advantage": 150.72727272727275,
+          "correct": true,
+          "eq_class": 9,
+          "name": "old_ranker",
+          "option_index": 19,
+          "regret": 0.0,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 52.72727272727275,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 98.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 0.5,
+          "action_type": 8,
+          "advantage": 111.89393939393938,
+          "correct": false,
+          "eq_class": 4,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 38.83333333333337,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:74d0ba20b067c588",
+      "game_file": "80459198.json",
+      "index": 14,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          9
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions"
+        ],
+        "criticality": null,
+        "hand_advantage_margin": 38.83333333333337,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 2390.909090909091,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 38.83333333333337
+      },
+      "likely_causes": [
+        "label noise",
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "74d0ba20b067c588",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 12,
+        "advantage": 150.72727272727275,
+        "correct": true,
+        "eq_class": 9,
+        "name": "teacher_best_current_label",
+        "option_index": 19,
+        "regret": 0.0,
+        "semantic_action_key": [
+          12,
+          265,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_deltas",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "full_model_zero_effects",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 12,
+          "advantage": 180.80303030303037,
+          "correct": true,
+          "eq_class": 9,
+          "name": "old_ranker",
+          "option_index": 19,
+          "regret": 0.0,
+          "semantic_action_key": [
+            12,
+            265,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 7,
+          "advantage": 47.80303030303037,
+          "correct": false,
+          "eq_class": 0,
+          "name": "option0",
+          "option_index": 0,
+          "regret": 133.0,
+          "semantic_action_key": [
+            7,
+            1121,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": 122.80303030303037,
+          "correct": false,
+          "eq_class": 4,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "regret": 58.0,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            5,
+            2
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong"
+      ],
+      "current_label_source": "existing_contextual_dataset_label",
+      "decision_id": "80459198.json:8b77118073e4277b",
+      "game_file": "80459198.json",
+      "index": 15,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          9
+        ],
+        "ambiguity_reasons": [],
+        "criticality": null,
+        "hand_advantage_margin": 56.33333333333337,
+        "hand_outcome_argmax_disagree": null,
+        "hand_value_variance_mean": 80.30303030303031,
+        "outcome_winrate_margin": null,
+        "teacher_confidence": 1.0,
+        "teacher_stability": "stable",
+        "top_outcome_se": null,
+        "top_two_margin": 55.5
+      },
+      "likely_causes": [
+        "old-ranker teacher-alignment issue"
+      ],
+      "obs_hash": "8b77118073e4277b",
+      "partition": "test",
+      "player": "nobker",
+      "source": "replay_test",
+      "step": null,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 12,
+        "advantage": 180.80303030303037,
+        "correct": true,
+        "eq_class": 9,
+        "name": "teacher_best_current_label",
+        "option_index": 19,
+        "regret": 0.0,
+        "semantic_action_key": [
+          12,
+          265,
+          null,
+          null,
+          null
+        ]
+      },
+      "teacher_v2_label_available": false,
+      "teacher_v2_obs_hash": null
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "full_model_zero_deltas",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 18.912499999999994,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -122.0,
+          "hand_norm_advantage": 18.912499999999994,
+          "hand_value_variance": 0.0,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 18.912499999999994,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -122.0,
+          "hand_norm_advantage": 18.912499999999994,
+          "hand_value_variance": 0.0,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 8,
+          "advantage": -10.462500000000006,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 1,
+          "hand_mean_value": -151.375,
+          "hand_norm_advantage": -10.462500000000006,
+          "hand_value_variance": 177.91935483870967,
+          "name": "teacher_v2_model",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 29.375,
+          "semantic_action_key": [
+            8,
+            5,
+            null,
+            5,
+            0
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "option0_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80252701.json:55",
+      "game_file": "80252701.json",
+      "index": 16,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          6,
+          7,
+          8
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 10,
+          "score": 0.35
+        },
+        "hand_advantage_margin": 0.0,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 78.49516129032257,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.4,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 0.0
+      },
+      "likely_causes": [
+        "label noise",
+        "option-0 prior issue",
+        "overfitting small n"
+      ],
+      "obs_hash": "4165444b3634c2ba",
+      "partition": "test",
+      "player": "Manato TAKAI",
+      "source": "teacher_v2_scaled",
+      "step": 55,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 8,
+        "advantage": 18.912499999999994,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -122.0,
+        "hand_norm_advantage": 18.912499999999994,
+        "hand_value_variance": 0.0,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 1.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          8,
+          5,
+          null,
+          4,
+          0
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "0f3846927812"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 10,
+          "advantage": 118708.475,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 2,
+          "hand_mean_value": -512.8125,
+          "hand_norm_advantage": 118708.475,
+          "hand_value_variance": 363317.64112903224,
+          "name": "full_model_zero_deltas",
+          "option_index": 2,
+          "outcome_playouts": 16,
+          "outcome_se": 0.124,
+          "outcome_winrate": 0.438,
+          "regret": 18.125,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 7,
+          "advantage": 118726.6,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 1,
+          "hand_mean_value": -494.6875,
+          "hand_norm_advantage": 118726.6,
+          "hand_value_variance": 326283.7701612903,
+          "name": "full_model_zero_effects",
+          "option_index": 1,
+          "outcome_playouts": 16,
+          "outcome_se": 0.103,
+          "outcome_winrate": 0.781,
+          "regret": 0.0,
+          "semantic_action_key": [
+            7,
+            1233,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 118579.725,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 0,
+          "hand_mean_value": -641.5625,
+          "hand_norm_advantage": 118579.725,
+          "hand_value_variance": 453168.44758064515,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.125,
+          "outcome_winrate": 0.531,
+          "regret": 146.875,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 8,
+          "advantage": 118579.725,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 0,
+          "hand_mean_value": -641.5625,
+          "hand_norm_advantage": 118579.725,
+          "hand_value_variance": 453168.44758064515,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.125,
+          "outcome_winrate": 0.531,
+          "regret": 146.875,
+          "semantic_action_key": [
+            8,
+            4,
+            null,
+            4,
+            0
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 10,
+          "advantage": 118708.475,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 2,
+          "hand_mean_value": -512.8125,
+          "hand_norm_advantage": 118708.475,
+          "hand_value_variance": 363317.64112903224,
+          "name": "teacher_v2_model",
+          "option_index": 2,
+          "outcome_playouts": 16,
+          "outcome_se": 0.124,
+          "outcome_winrate": 0.438,
+          "regret": 18.125,
+          "semantic_action_key": [
+            10,
+            271,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "all_wrong",
+        "all_acceptable",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80251230.json:17",
+      "game_file": "80251230.json",
+      "index": 18,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ambiguity_reasons": [
+          "small_hand_advantage_margin",
+          "multiple_acceptable_actions",
+          "low_stability_or_confidence",
+          "very_high_hand_value_variance"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 5,
+          "score": 0.325
+        },
+        "hand_advantage_margin": 18.125,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 49757592626.86049,
+        "outcome_winrate_margin": 0.25,
+        "teacher_confidence": 0.2,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.103,
+        "top_two_margin": 18.125
+      },
+      "likely_causes": [
+        "label noise",
+        "decoded-effect / interaction overreaction",
+        "overfitting small n"
+      ],
+      "obs_hash": "472bea2cc23b5c1b",
+      "partition": "test",
+      "player": "Kyo_s_s",
+      "source": "teacher_v2_scaled",
+      "step": 17,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 7,
+        "advantage": 118726.6,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 1,
+        "hand_mean_value": -494.6875,
+        "hand_norm_advantage": 118726.6,
+        "hand_value_variance": 326283.7701612903,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 1,
+        "outcome_playouts": 16,
+        "outcome_se": 0.103,
+        "outcome_winrate": 0.781,
+        "regret": 0.0,
+        "semantic_action_key": [
+          7,
+          1233,
+          null,
+          null,
+          null
+        ],
+        "teacher_option_eq_class": 1
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "8bd74373b969"
+    },
+    {
+      "choices": {
+        "full_model_zero_deltas": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "full_model_zero_deltas",
+          "option_index": 3,
+          "outcome_playouts": 16,
+          "outcome_se": 0.121,
+          "outcome_winrate": 0.375,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        },
+        "full_model_zero_effects": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "full_model_zero_effects",
+          "option_index": 3,
+          "outcome_playouts": 16,
+          "outcome_se": 0.121,
+          "outcome_winrate": 0.375,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        },
+        "old_ranker": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 111.5,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -13.5,
+          "hand_norm_advantage": 111.5,
+          "hand_value_variance": 10.064516129032258,
+          "name": "old_ranker",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            743,
+            null,
+            null,
+            null
+          ]
+        },
+        "option0": {
+          "acceptable": true,
+          "acceptable_score": 1.0,
+          "action_type": 3,
+          "advantage": 111.5,
+          "completed_determinizations": 32,
+          "correct": true,
+          "eq_class": 0,
+          "hand_mean_value": -13.5,
+          "hand_norm_advantage": 111.5,
+          "hand_value_variance": 10.064516129032258,
+          "name": "option0",
+          "option_index": 0,
+          "outcome_playouts": 16,
+          "outcome_se": 0.0,
+          "outcome_winrate": 1.0,
+          "regret": 0.0,
+          "semantic_action_key": [
+            3,
+            743,
+            null,
+            null,
+            null
+          ]
+        },
+        "teacher_v2_model": {
+          "acceptable": false,
+          "acceptable_score": 0.0,
+          "action_type": 3,
+          "advantage": -27.875,
+          "completed_determinizations": 32,
+          "correct": false,
+          "eq_class": 3,
+          "hand_mean_value": -152.875,
+          "hand_norm_advantage": -27.875,
+          "hand_value_variance": 149.66129032258064,
+          "name": "teacher_v2_model",
+          "option_index": 4,
+          "outcome_playouts": 16,
+          "outcome_se": 0.108,
+          "outcome_winrate": 0.25,
+          "regret": 139.375,
+          "semantic_action_key": [
+            3,
+            305,
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "classifications": [
+        "old_ranker_correct_teacher_v2_model_wrong",
+        "option0_correct_teacher_v2_model_wrong",
+        "teacher_v2_label_or_current_label_ambiguous_noisy"
+      ],
+      "current_label_source": "teacher_v2",
+      "decision_id": "80252701.json:58",
+      "game_file": "80252701.json",
+      "index": 20,
+      "label_diagnostics": {
+        "acceptable_eqs": [
+          0
+        ],
+        "ambiguity_reasons": [
+          "outcome_near_tie_vs_se"
+        ],
+        "criticality": {
+          "can_ko": 0.0,
+          "endgame": 0.0,
+          "ko_back": 1.0,
+          "n_eq_classes": 4,
+          "score": 0.3
+        },
+        "hand_advantage_margin": 139.375,
+        "hand_outcome_argmax_disagree": false,
+        "hand_value_variance_mean": 114.76209677419355,
+        "outcome_winrate_margin": 0.0,
+        "teacher_confidence": 1.4,
+        "teacher_stability": "teacher_v2_covered",
+        "top_outcome_se": 0.0,
+        "top_two_margin": 139.375
+      },
+      "likely_causes": [
+        "label noise",
+        "option-0 prior issue",
+        "overfitting small n"
+      ],
+      "obs_hash": "62ea593401c7fecb",
+      "partition": "test",
+      "player": "Manato TAKAI",
+      "source": "teacher_v2_scaled",
+      "step": 58,
+      "teacher_best": {
+        "acceptable": true,
+        "acceptable_score": 1.0,
+        "action_type": 3,
+        "advantage": 111.5,
+        "completed_determinizations": 32,
+        "correct": true,
+        "eq_class": 0,
+        "hand_mean_value": -13.5,
+        "hand_norm_advantage": 111.5,
+        "hand_value_variance": 10.064516129032258,
+        "name": "teacher_best_hand_norm_advantage",
+        "option_index": 0,
+        "outcome_playouts": 16,
+        "outcome_se": 0.0,
+        "outcome_winrate": 1.0,
+        "regret": 0.0,
+        "semantic_action_key": [
+          3,
+          743,
+          null,
+          null,
+          null
+        ],
+        "teacher_option_eq_class": 0
+      },
+      "teacher_v2_label_available": true,
+      "teacher_v2_obs_hash": "3de8d9e9228b"
+    }
+  ],
+  "inputs": {
+    "dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\contextual_action_ranker_v1_teacher_v2_mixed_dataset.json",
+    "model": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\agent\\contextual_ranker_teacher_v2.json",
+    "replay_dir": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\data\\external\\replays",
+    "teacher_v2": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_labels_scaled.jsonl"
+  },
+  "live_agent_consumed": "none",
+  "recommendation": {
+    "choice": "B",
+    "rationale": "The data path is solved, but 16/21 held-out mixed-test rows still lack Teacher V2 labels. The model loses most clearly against old-ranker/option-0 on those old-target rows, so another training change would confound objective tuning with label-source mismatch.",
+    "title": "ask Model A for labels on the specific failure/test states"
+  },
+  "request_for_A": {
+    "criteria": "unique held-out replay-test roots lacking Teacher V2 labels",
+    "n_requested": 15,
+    "path": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_label_request_for_A.json"
+  },
+  "summary": {
+    "by_source": {
+      "replay_test": 16,
+      "teacher_v2_scaled": 5
+    },
+    "classification_counts": {
+      "all_acceptable": 11,
+      "all_wrong": 6,
+      "old_ranker_correct_teacher_v2_model_wrong": 5,
+      "option0_correct_teacher_v2_model_wrong": 5,
+      "teacher_v2_label_or_current_label_ambiguous_noisy": 19,
+      "teacher_v2_model_correct_old_ranker_wrong": 3
+    },
+    "likely_cause_counts": {
+      "decoded-effect / interaction overreaction": 3,
+      "label noise": 19,
+      "old-ranker teacher-alignment issue": 16,
+      "option-0 prior issue": 5,
+      "overfitting small n": 3
+    },
+    "n_test_decisions": 21,
+    "teacher_v2_labels_available": 5,
+    "teacher_v2_labels_missing": 16
+  }
+}
