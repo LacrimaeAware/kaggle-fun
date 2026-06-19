@@ -106,7 +106,8 @@ def main():
         lab["legal_options"] = (obs.get("select") or {}).get("option") or []
         lab["source"] = src
         lab["deck_source"] = deck_src
-        lab["request_reason"] = e.get("reason")
+        lab["request_reason"] = e.get("why_requested") or e.get("reason")
+        lab["request_id"] = e.get("request_id")
         labels.append(lab)
         print(f"  labeled {lab['decision_id']} (crit {lab['criticality']['score']}, deck={deck_src})", flush=True)
 
