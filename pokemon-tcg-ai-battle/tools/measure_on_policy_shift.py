@@ -403,6 +403,7 @@ def summarize_rows(rows: list[dict], total_override: int | None = None) -> dict:
         "hard_top1_agreement_rate": mean(hard_values),
         "mean_regret": mean(regrets),
         "p90_regret": percentile(regrets, 0.90),
+        "p95_regret": percentile(regrets, 0.95),
         "high_regret_count": sum(1 for r in rows if (r.get("regret") or 0.0) >= 1000.0),
     }
 

@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import time
 from collections import Counter, defaultdict
@@ -67,6 +68,22 @@ def resolve_base_data(path_arg: str | None) -> Path:
         if p.exists():
             return p
     raise SystemExit("Could not find action_adv.jsonl; pass --base-data explicitly.")
+
+
+def resolve_under_root(path: Path) -> Path:
+    if path.is_absolute():
+        return path
+    parts = path.parts
+    if parts and parts[0] == ROOT.name:
+        return ROOT.parent / path
+    return ROOT / path
+
+
+def display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 
 def load_base_distill(path: Path, limit_decisions: int, base_weight: float,
@@ -273,6 +290,8 @@ def load_stable_replay_decisions(artifact: Path, limit: int, args) -> list[dict]
 
 
 def collect_recovery_decisions(args) -> tuple[list[dict], dict]:
+    if args.collection_ranker_model:
+        os.environ["CABT_RANKER_MODEL"] = args.collection_ranker_model
     decisions, game_summary = OPS.run_traced_games("rank", "heuristic", args.recovery_games, args.progress)
     if args.max_recovery_decisions:
         decisions = decisions[:args.max_recovery_decisions]
@@ -348,7 +367,8 @@ def class_view(option_logits: torch.Tensor, eqs: list[int]) -> tuple[list[int], 
     return class_ids, torch.stack(logits)
 
 
-def one_loss(model, decision, mean, std, id2ix, emb_dim, lam_rank, lam_accept):
+def one_loss(model, decision, mean, std, id2ix, emb_dim, lam_rank, lam_accept,
+             anchor_model=None, anchor_weight: float = 0.0, anchor_sources: set[str] | None = None):
     opt_logits = score_options(model, decision, mean, std, id2ix, emb_dim)
     class_ids, logits = class_view(opt_logits, decision["eq"])
     soft = torch.tensor([float(decision["soft"].get(e, 0.0)) for e in class_ids], dtype=torch.float32)
@@ -370,7 +390,18 @@ def one_loss(model, decision, mean, std, id2ix, emb_dim, lam_rank, lam_accept):
             w = min(1.0, (adv[i] - adv[j]) / max_diff)
             pair_losses.append(w * F.softplus(-(logits[i] - logits[j])))
     rank_loss = torch.stack(pair_losses).mean() if pair_losses else torch.tensor(0.0)
-    return float(decision["weight"]) * (policy_loss + lam_rank * rank_loss + lam_accept * accept_loss)
+    loss = policy_loss + lam_rank * rank_loss + lam_accept * accept_loss
+
+    if anchor_model is not None and anchor_weight > 0.0 and (
+        anchor_sources is None or decision["source"] in anchor_sources
+    ):
+        with torch.no_grad():
+            anchor_opt_logits = score_options(anchor_model, decision, mean, std, id2ix, emb_dim)
+            _, anchor_logits = class_view(anchor_opt_logits, decision["eq"])
+            anchor_probs = F.softmax(anchor_logits, dim=0)
+        anchor_loss = F.kl_div(F.log_softmax(logits, dim=0), anchor_probs, reduction="batchmean")
+        loss = loss + anchor_weight * anchor_loss
+    return float(decision["weight"]) * loss
 
 
 def eval_decisions(model, decisions, mean, std, id2ix, emb_dim) -> dict:
@@ -399,12 +430,14 @@ def eval_decisions(model, decisions, mean, std, id2ix, emb_dim) -> dict:
             return {"n": 0}
         regrets = sorted(x["regret"] for x in xs)
         p90 = regrets[int(0.9 * (len(regrets) - 1))]
+        p95 = regrets[int(0.95 * (len(regrets) - 1))]
         return {
             "n": len(xs),
             "acceptable_agreement": sum(1 for x in xs if x["acceptable"]) / len(xs),
             "hard_top1": sum(1 for x in xs if x["hard_top1"]) / len(xs),
             "mean_regret": sum(regrets) / len(regrets),
             "p90_regret": p90,
+            "p95_regret": p95,
             "high_regret_count": sum(1 for r in regrets if r >= 1000.0),
         }
 
@@ -419,6 +452,11 @@ def train(model, decisions, blob, args):
     std = torch.tensor(blob["std"], dtype=torch.float32)
     id2ix = {int(c): i for i, c in enumerate(blob["card_ids"])}
     emb_dim = int(blob["emb"])
+    anchor_model = None
+    if args.anchor_model:
+        _anchor_blob, anchor_model = load_model(args.anchor_model)
+        anchor_model.eval()
+    anchor_sources = set(args.anchor_sources.split(",")) if args.anchor_sources else None
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)
     before = eval_decisions(model, decisions, mean, std, id2ix, emb_dim)
     order = list(range(len(decisions)))
@@ -430,15 +468,31 @@ def train(model, decisions, blob, args):
         nb = 0
         opt.zero_grad()
         for n, i in enumerate(order, start=1):
-            loss = one_loss(model, decisions[i], mean, std, id2ix, emb_dim, args.lam_rank, args.lam_accept)
+            loss = one_loss(
+                model,
+                decisions[i],
+                mean,
+                std,
+                id2ix,
+                emb_dim,
+                args.lam_rank,
+                args.lam_accept,
+                anchor_model,
+                args.anchor_weight,
+                anchor_sources,
+            )
             if loss is None:
                 continue
             (loss / args.batch_decisions).backward()
             total += float(loss.detach())
             nb += 1
             if n % args.batch_decisions == 0:
+                if args.max_grad_norm > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
                 opt.step()
                 opt.zero_grad()
+        if args.max_grad_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
         opt.step()
         opt.zero_grad()
         epoch_losses.append(total / max(1, nb))
@@ -450,20 +504,25 @@ def train(model, decisions, blob, args):
 def save_model(model, blob, out_path: Path, args, n_decisions: int) -> None:
     new_blob = dict(blob)
     new_blob["state_dict"] = {k: v.detach().cpu().tolist() for k, v in model.state_dict().items()}
-    new_blob["target"] = "dagger_round1_soft_adv_acceptable"
+    new_blob["target"] = f"dagger_round{args.dagger_round}_soft_adv_acceptable"
     new_blob["trained"] = "base_action_adv_plus_rank_recovery"
-    new_blob["dagger_round"] = 1
+    new_blob["dagger_round"] = args.dagger_round
     new_blob["n_decisions"] = n_decisions
-    new_blob["round1_config"] = {
+    new_blob[f"round{args.dagger_round}_config"] = {
         "epochs": args.epochs,
         "lr": args.lr,
         "lam_rank": args.lam_rank,
         "lam_accept": args.lam_accept,
+        "anchor_model": str(args.anchor_model) if args.anchor_model else None,
+        "anchor_weight": args.anchor_weight,
+        "anchor_sources": args.anchor_sources,
+        "max_grad_norm": args.max_grad_norm,
         "teacher_repeats": args.teacher_repeats,
         "n_determ": args.n_determ,
         "time_budget": args.time_budget,
         "recovery_games": args.recovery_games,
         "max_recovery_decisions": args.max_recovery_decisions,
+        "collection_ranker_model": args.collection_ranker_model,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(new_blob, separators=(",", ":")), encoding="utf-8")
@@ -491,6 +550,8 @@ def main() -> None:
     ap.add_argument("--max-recovery-decisions", type=int, default=800)
     ap.add_argument("--recovery-stable-weight", type=float, default=1.0)
     ap.add_argument("--recovery-unstable-weight", type=float, default=0.35)
+    ap.add_argument("--collection-ranker-model", default=None,
+                    help="optional CABT_RANKER_MODEL value used while collecting recovery states")
     ap.add_argument("--teacher-repeats", type=int, default=3)
     ap.add_argument("--min-teacher-agreement", type=float, default=1.0)
     ap.add_argument("--n-determ", type=int, default=3)
@@ -501,6 +562,12 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=5e-4)
     ap.add_argument("--lam-rank", type=float, default=0.25)
     ap.add_argument("--lam-accept", type=float, default=0.15)
+    ap.add_argument("--anchor-model", type=Path, default=None,
+                    help="optional deploy model used as a KL anchor for selected sources")
+    ap.add_argument("--anchor-weight", type=float, default=0.0)
+    ap.add_argument("--anchor-sources", default="base_distill,stable_replay")
+    ap.add_argument("--max-grad-norm", type=float, default=0.0)
+    ap.add_argument("--dagger-round", type=int, default=1)
     ap.add_argument("--seed", type=int, default=9001)
     ap.add_argument("--model-in", type=Path, default=ROOT / "agent" / "ranker_model.json")
     ap.add_argument("--model-out", type=Path, default=ROOT / "agent" / "ranker_model_dagger_round1.json")
@@ -511,6 +578,12 @@ def main() -> None:
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+    args.model_in = resolve_under_root(args.model_in)
+    args.model_out = resolve_under_root(args.model_out)
+    args.report = resolve_under_root(args.report)
+    if args.anchor_model:
+        args.anchor_model = resolve_under_root(args.anchor_model)
+    args.stable_replay_artifact = resolve_under_root(args.stable_replay_artifact)
 
     base_path = resolve_base_data(args.base_data)
     print(f"loading base distill rows from {base_path}", flush=True)
@@ -541,11 +614,23 @@ def main() -> None:
             "stable_replay_limit": args.stable_replay_limit,
             "recovery_games": args.recovery_games,
             "max_recovery_decisions": args.max_recovery_decisions,
+            "collection_ranker_model": args.collection_ranker_model,
             "teacher_repeats": args.teacher_repeats,
             "n_determ": args.n_determ,
             "time_budget": args.time_budget,
             "epochs": args.epochs,
             "lr": args.lr,
+            "base_weight": args.base_weight,
+            "stable_replay_weight": args.stable_replay_weight,
+            "recovery_stable_weight": args.recovery_stable_weight,
+            "recovery_unstable_weight": args.recovery_unstable_weight,
+            "lam_rank": args.lam_rank,
+            "lam_accept": args.lam_accept,
+            "anchor_model": str(args.anchor_model) if args.anchor_model else None,
+            "anchor_weight": args.anchor_weight,
+            "anchor_sources": args.anchor_sources,
+            "max_grad_norm": args.max_grad_norm,
+            "dagger_round": args.dagger_round,
             "seed": args.seed,
         },
         "dataset": summarize_dataset(decisions),
@@ -556,8 +641,8 @@ def main() -> None:
     }
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
-    print(f"saved model -> {args.model_out.relative_to(ROOT)}", flush=True)
-    print(f"saved report -> {args.report.relative_to(ROOT)}", flush=True)
+    print(f"saved model -> {display_path(args.model_out)}", flush=True)
+    print(f"saved report -> {display_path(args.report)}", flush=True)
     print(json.dumps({"before": before["overall"], "after": after["overall"], "dataset": report["dataset"]}, indent=2), flush=True)
 
 
