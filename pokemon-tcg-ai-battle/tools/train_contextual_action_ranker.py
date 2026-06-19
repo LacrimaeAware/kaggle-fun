@@ -485,6 +485,228 @@ def to_float_map(d: dict) -> dict[int, float]:
     return {int(k): float(v) for k, v in (d or {}).items()}
 
 
+def canonical_json(x) -> str:
+    return json.dumps(x, sort_keys=True, separators=(",", ":"))
+
+
+def adv_spread(d: dict) -> float:
+    vals = [float(v) for v in (d.get("adv") or {}).values()]
+    return max(vals) - min(vals) if vals else 0.0
+
+
+def criticality_score_for_weight(d: dict) -> float:
+    if d.get("criticality_score") is not None:
+        return max(0.0, min(1.0, float(d.get("criticality_score") or 0.0)))
+    # Teacher V1/recovery rows do not always have a criticality object. Use
+    # spread/margin as a conservative proxy so obvious high-regret states are not
+    # treated like tiny near-ties.
+    spread_proxy = min(1.0, adv_spread(d) / 1000.0)
+    margin_proxy = min(1.0, abs(float(d.get("top_two_margin") or 0.0)) / 1000.0)
+    return max(spread_proxy, margin_proxy)
+
+
+def row_is_high_criticality(d: dict, args) -> bool:
+    return (
+        bool(d.get("high_regret"))
+        or criticality_score_for_weight(d) >= args.high_criticality_threshold
+        or adv_spread(d) >= args.high_criticality_spread
+        or abs(float(d.get("top_two_margin") or 0.0)) >= args.high_criticality_margin
+    )
+
+
+def outcome_confidence_by_eq(outcome_se: dict[int, float]) -> dict[int, float]:
+    out = {}
+    for eq, se in outcome_se.items():
+        # 0.05 SE remains useful but weak; lower SE becomes stronger without
+        # allowing outcome labels to dominate hand advantage.
+        out[int(eq)] = 1.0 / (1.0 + max(0.0, float(se)) / 0.05)
+    return out
+
+
+def load_jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def label_obs_hash(label: dict) -> str | None:
+    obs = label.get("observation")
+    if isinstance(obs, dict):
+        return obs_hash(obs)
+    return label.get("obs_hash")
+
+
+def label_for_row(row: dict, labels: list[dict]) -> dict | None:
+    did = row.get("decision_id")
+    if did:
+        for label in labels:
+            if label.get("decision_id") == did:
+                return label
+    row_hash = row.get("teacher_v2_obs_hash") or row.get("obs_hash")
+    if row_hash:
+        for label in labels:
+            if label.get("obs_hash") == row_hash or label_obs_hash(label) == row_hash:
+                return label
+    return None
+
+
+def overlay_teacher_v2_targets(rows: list[dict], labels: list[dict]) -> dict:
+    stats = Counter()
+    stats["labels_loaded"] = len(labels)
+    for row in rows:
+        label = label_for_row(row, labels)
+        if not label:
+            continue
+        opts = label.get("options") or []
+        if not opts:
+            stats["empty_options"] += 1
+            continue
+        adv_acc = defaultdict(list)
+        soft_acc = defaultdict(list)
+        acceptable = {}
+        outcome = defaultdict(list)
+        outcome_se = defaultdict(list)
+        variance = []
+        completed = []
+        teacher_to_feature_eq = {}
+        option_matches = 0
+        for opt in opts:
+            try:
+                idx = int(opt.get("index"))
+            except Exception:
+                continue
+            if idx < 0 or idx >= len(row.get("eq") or []):
+                continue
+            if list(opt.get("semantic_action_key") or []) != list((row.get("keys") or [])[idx]):
+                stats["semantic_key_mismatch"] += 1
+                continue
+            feq = int(row["eq"][idx])
+            teq = int(opt.get("eq_class", feq))
+            teacher_to_feature_eq[teq] = feq
+            option_matches += 1
+            if opt.get("hand_norm_advantage") is not None:
+                adv_acc[feq].append(float(opt["hand_norm_advantage"]))
+            if opt.get("outcome_winrate") is not None:
+                outcome[feq].append(float(opt["outcome_winrate"]))
+            if opt.get("outcome_se") is not None:
+                outcome_se[feq].append(float(opt["outcome_se"]))
+            if opt.get("hand_value_variance") is not None:
+                variance.append(float(opt["hand_value_variance"]))
+            if opt.get("completed_determinizations") is not None:
+                completed.append(float(opt["completed_determinizations"]))
+
+        if not adv_acc:
+            stats["target_translation_failed"] += 1
+            continue
+        raw_soft = label.get("soft_policy_target") or label.get("hand_soft_policy") or {}
+        for teq, prob in raw_soft.items():
+            try:
+                feq = teacher_to_feature_eq[int(teq)]
+            except Exception:
+                continue
+            soft_acc[feq].append(float(prob))
+        soft = {k: sum(v) / len(v) for k, v in soft_acc.items()}
+        z = sum(soft.values())
+        if z <= 0:
+            vals = {k: sum(v) / len(v) for k, v in adv_acc.items()}
+            best = max(vals.values())
+            exp = {k: math.exp(min(20.0, max(-20.0, v - best))) for k, v in vals.items()}
+            z = sum(exp.values())
+            soft = {k: v / z for k, v in exp.items()}
+        else:
+            soft = {k: v / z for k, v in soft.items()}
+        for teq in label.get("acceptable_action_set") or label.get("acceptable_set") or []:
+            try:
+                acceptable[teacher_to_feature_eq[int(teq)]] = 1.0
+            except Exception:
+                continue
+        if not acceptable:
+            best_eq = max(adv_acc, key=lambda k: sum(adv_acc[k]) / len(adv_acc[k]))
+            acceptable[best_eq] = 1.0
+
+        row["adv"] = {str(k): sum(v) / len(v) for k, v in adv_acc.items()}
+        row["soft"] = {str(k): float(v) for k, v in soft.items()}
+        row["acceptable"] = {str(k): float(v) for k, v in acceptable.items()}
+        row["outcome_winrate"] = {str(k): sum(v) / len(v) for k, v in outcome.items()}
+        row["outcome_se"] = {str(k): sum(v) / len(v) for k, v in outcome_se.items()}
+        row["outcome_confidence"] = {
+            str(k): float(v)
+            for k, v in outcome_confidence_by_eq({k: sum(v) / len(v) for k, v in outcome_se.items()}).items()
+        }
+        row["teacher_v2_overlay"] = True
+        row["teacher_v2_overlay_decision_id"] = label.get("decision_id")
+        row["teacher_v2_overlay_obs_hash"] = label.get("obs_hash") or label_obs_hash(label)
+        row["teacher_v2_overlay_source"] = "teacher_v2_targeted_failures"
+        row["teacher_stability"] = "teacher_v2_covered"
+        row["teacher_confidence"] = max(float(row.get("teacher_confidence") or 0.0), 1.0)
+        row["coverage_weight"] = float((label.get("coverage") or {}).get("weight", 1.0) or 1.0)
+        row["criticality_score"] = (label.get("criticality") or {}).get("score", row.get("criticality_score"))
+        row["top_two_margin"] = label.get("top_two_margin", row.get("top_two_margin"))
+        row["value_variance_mean"] = sum(variance) / len(variance) if variance else row.get("value_variance_mean")
+        row["completed_determinizations_mean"] = (
+            sum(completed) / len(completed) if completed else row.get("completed_determinizations_mean")
+        )
+        row["hand_outcome_argmax_disagree"] = label.get("hand_outcome_agree") is False
+        row["target_source"] = "teacher_v2_overlay"
+        stats["rows_overlaid"] += 1
+        stats["options_overlaid"] += option_matches
+    return dict(stats)
+
+
+def apply_revised_weights(rows: list[dict], args) -> dict:
+    if not args.revised_objective_weights:
+        return {"enabled": False}
+    train_like = [r for r in rows if r.get("partition") in {"train", "recovery"}]
+    variances = [
+        max(0.0, float(r.get("value_variance_mean") or 0.0))
+        for r in train_like
+        if r.get("value_variance_mean") is not None
+    ]
+    nonzero = sorted(v for v in variances if v > 0.0)
+    variance_ref = nonzero[len(nonzero) // 2] if nonzero else 1.0
+    spread_ref = max(1e-6, args.low_spread_threshold)
+    updated = []
+    for row in rows:
+        base = float(row.get("weight", 1.0) or 1.0)
+        crit = criticality_score_for_weight(row)
+        crit_w = 1.0 + args.criticality_weight_scale * crit
+        variance = max(0.0, float(row.get("value_variance_mean") or 0.0))
+        var_w = 1.0 / math.sqrt(1.0 + variance / max(1e-6, variance_ref))
+        var_w = min(args.max_variance_weight, max(args.min_variance_weight, var_w))
+        coverage_w = float(row.get("coverage_weight", 1.0) or 1.0)
+        completed = float(row.get("completed_determinizations_mean") or 0.0)
+        completed_w = 1.0
+        if str(row.get("teacher_stability", "")).startswith("teacher_v2"):
+            completed_w = min(1.0, max(args.min_completed_weight, completed / max(1e-6, args.completed_ref)))
+        spread = adv_spread(row)
+        spread_w = args.low_spread_weight_scale if spread < spread_ref else 1.0
+        confidence = max(0.0, min(args.max_confidence_weight, float(row.get("teacher_confidence") or 1.0)))
+        conf_w = max(args.min_confidence_weight, confidence)
+        high_regret_w = args.revised_high_regret_weight_scale if row.get("high_regret") else 1.0
+        revised = base * crit_w * var_w * coverage_w * completed_w * spread_w * conf_w * high_regret_w
+        revised = min(args.max_row_weight, max(args.min_row_weight, revised))
+        row["base_weight_before_revision"] = base
+        row["revised_weight"] = float(revised)
+        row["revised_weight_factors"] = {
+            "criticality": crit_w,
+            "variance": var_w,
+            "coverage": coverage_w,
+            "completed": completed_w,
+            "spread": spread_w,
+            "confidence": conf_w,
+            "high_regret": high_regret_w,
+        }
+        updated.append(revised)
+    return {
+        "enabled": True,
+        "variance_ref": variance_ref,
+        "rows_weighted": len(rows),
+        "mean_revised_weight": sum(updated) / len(updated) if updated else None,
+        "min_revised_weight": min(updated) if updated else None,
+        "max_revised_weight": max(updated) if updated else None,
+    }
+
+
 class ContextualNet(nn.Module):
     def __init__(self, n_cards: int, dense_dim: int, emb: int = 24, hidden: int = 192, use_emb: bool = True):
         super().__init__()
@@ -513,9 +735,27 @@ def class_logits(option_logits: torch.Tensor, eqs: list[int]) -> tuple[list[int]
     return ids, torch.stack(vals)
 
 
+def apply_training_feature_dropout(dense: torch.Tensor, args) -> torch.Tensor:
+    if args is None:
+        return dense
+    out = dense
+    if float(getattr(args, "effect_feature_dropout", 0.0) or 0.0) > 0:
+        p = float(args.effect_feature_dropout)
+        for section in ("effects", "interactions"):
+            a, b = CR.SLICES[section]
+            out = out.clone()
+            out[:, a:b] = F.dropout(out[:, a:b], p=p, training=True)
+    if float(getattr(args, "delta_feature_dropout", 0.0) or 0.0) > 0:
+        p = float(args.delta_feature_dropout)
+        a, b = CR.SLICES["deltas"]
+        out = out.clone()
+        out[:, a:b] = F.dropout(out[:, a:b], p=p, training=True)
+    return out
+
+
 def score_decision(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tensor,
                    id2ix: dict[int, int], emb_dim: int, ablate: dict | None = None,
-                   clip_z: float = 0.0) -> tuple[list[int], torch.Tensor]:
+                   clip_z: float = 0.0, args=None) -> tuple[list[int], torch.Tensor]:
     dense_np = np.array(d["dense"], dtype=np.float32)
     dense_np = (dense_np - mean.numpy()) / std.numpy()
     if clip_z > 0:
@@ -523,6 +763,8 @@ def score_decision(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch
     if ablate:
         dense_np = CR.apply_ablation(dense_np, ablate)
     dense = torch.tensor(dense_np, dtype=torch.float32)
+    if model.training:
+        dense = apply_training_feature_dropout(dense, args)
     idxs = [id2ix.get(int(cid), -1) for cid in d["cids"]]
     cidx = torch.tensor([i if i >= 0 else 0 for i in idxs], dtype=torch.long)
     if not model.use_emb:
@@ -539,7 +781,7 @@ def score_decision(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch
 
 def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tensor,
              id2ix: dict[int, int], emb_dim: int, args, ablate: dict | None = None):
-    ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate, args.clip_z)
+    ids, logits = score_decision(model, d, mean, std, id2ix, emb_dim, ablate, args.clip_z, args)
     soft_map = to_float_map(d["soft"])
     soft = torch.tensor([soft_map.get(e, 0.0) for e in ids], dtype=torch.float32)
     if float(soft.sum()) <= 0:
@@ -550,6 +792,11 @@ def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tenso
     acc_map = to_float_map(d["acceptable"])
     accept = torch.tensor([acc_map.get(e, 0.0) for e in ids], dtype=torch.float32)
     accept_loss = F.binary_cross_entropy_with_logits(logits, accept)
+    accept_scale = 1.0
+    if row_is_high_criticality(d, args):
+        accept_scale += args.high_criticality_accept_scale
+    if d.get("high_regret"):
+        accept_scale += args.high_regret_accept_scale
 
     adv_map = to_float_map(d["adv"])
     adv = [adv_map.get(e, 0.0) for e in ids]
@@ -563,7 +810,14 @@ def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tenso
             pair_losses.append(w * F.softplus(-(logits[i] - logits[j])))
     rank_loss = torch.stack(pair_losses).mean() if pair_losses else torch.tensor(0.0)
 
-    loss = policy_loss + args.lam_rank * rank_loss + args.lam_accept * accept_loss
+    loss = policy_loss + args.lam_rank * rank_loss + args.lam_accept * accept_scale * accept_loss
+    if args.lam_unacceptable_margin > 0:
+        acc_mask = accept >= 0.5
+        unacc_mask = accept < 0.5
+        if bool(acc_mask.any()) and bool(unacc_mask.any()):
+            acc_anchor = torch.logsumexp(logits[acc_mask], dim=0)
+            unacceptable_loss = F.softplus(logits[unacc_mask] - acc_anchor + args.unacceptable_margin).mean()
+            loss = loss + args.lam_unacceptable_margin * accept_scale * unacceptable_loss
     outcome_map = to_float_map(d.get("outcome_winrate") or {})
     if outcome_map and args.lam_outcome > 0:
         outcome_conf = to_float_map(d.get("outcome_confidence") or {})
@@ -586,7 +840,7 @@ def one_loss(model: ContextualNet, d: dict, mean: torch.Tensor, std: torch.Tenso
     chosen = d.get("chosen_eq")
     if chosen is not None and chosen in ids and args.lam_aux_choice > 0:
         loss = loss + args.lam_aux_choice * F.cross_entropy(logits.unsqueeze(0), torch.tensor([ids.index(chosen)]))
-    return float(d.get("weight", 1.0)) * loss
+    return float(d.get("revised_weight", d.get("weight", 1.0))) * loss
 
 
 def percentile(xs: list[float], q: float) -> float | None:
@@ -803,9 +1057,17 @@ def dataset_summary(rows: list[dict]) -> dict:
 
 
 def config_dict(args) -> dict:
+    def clean(v):
+        if isinstance(v, Path):
+            return str(v)
+        if isinstance(v, list):
+            return [clean(x) for x in v]
+        if isinstance(v, tuple):
+            return [clean(x) for x in v]
+        return v
     out = {}
     for k, v in vars(args).items():
-        out[k] = str(v) if isinstance(v, Path) else v
+        out[k] = clean(v)
     return out
 
 
@@ -843,6 +1105,21 @@ def save_model(model: ContextualNet, path: Path, card_ids: list[int], mean: np.n
         "use_emb": True,
         "target": "teacher_soft_policy_advantage_acceptable_confidence",
         "trained": "contextual_action_ranker_v1",
+        "training_revision": getattr(args, "training_revision", "v1"),
+        "objective_revision": {
+            "primary": "hand_norm_advantage",
+            "soft_policy": True,
+            "acceptable_set": True,
+            "unacceptable_margin": getattr(args, "lam_unacceptable_margin", 0.0),
+            "outcome_auxiliary": getattr(args, "lam_outcome", 0.0),
+            "outcome_argmax_primary": False,
+            "revised_objective_weights": getattr(args, "revised_objective_weights", False),
+        },
+        "feature_regularization": {
+            "effect_feature_dropout": getattr(args, "effect_feature_dropout", 0.0),
+            "delta_feature_dropout": getattr(args, "delta_feature_dropout", 0.0),
+            "hidden": args.hidden,
+        },
         "dataset": display(dataset_path),
         "min_std": args.min_std,
         "clip_z": args.clip_z,
@@ -883,6 +1160,11 @@ def main() -> None:
     ap.add_argument("--lam-aux-choice", type=float, default=0.04)
     ap.add_argument("--lam-outcome", type=float, default=0.0,
                     help="weak auxiliary BCE target for Teacher V2 outcome_winrate; never uses outcome argmax")
+    ap.add_argument("--lam-unacceptable-margin", type=float, default=0.0,
+                    help="extra margin penalty against unacceptable classes on critical/high-regret states")
+    ap.add_argument("--unacceptable-margin", type=float, default=0.25)
+    ap.add_argument("--high-criticality-accept-scale", type=float, default=0.0)
+    ap.add_argument("--high-regret-accept-scale", type=float, default=0.0)
     ap.add_argument("--max-grad-norm", type=float, default=1.0)
     ap.add_argument("--min-std", type=float, default=0.05,
                     help="floor dense feature std to prevent sparse unseen values from exploding")
@@ -893,6 +1175,27 @@ def main() -> None:
     ap.add_argument("--unstable-weight-scale", type=float, default=0.35)
     ap.add_argument("--high-regret-threshold", type=float, default=1000.0)
     ap.add_argument("--high-regret-weight-scale", type=float, default=1.6)
+    ap.add_argument("--training-revision", default="v1")
+    ap.add_argument("--teacher-v2-overlay", type=Path, nargs="*", default=[],
+                    help="Teacher V2 JSONL labels to overlay onto matching dataset rows, preserving partitions")
+    ap.add_argument("--revised-objective-weights", action="store_true")
+    ap.add_argument("--criticality-weight-scale", type=float, default=0.0)
+    ap.add_argument("--min-variance-weight", type=float, default=0.2)
+    ap.add_argument("--max-variance-weight", type=float, default=1.2)
+    ap.add_argument("--min-confidence-weight", type=float, default=0.25)
+    ap.add_argument("--max-confidence-weight", type=float, default=1.4)
+    ap.add_argument("--min-completed-weight", type=float, default=0.5)
+    ap.add_argument("--completed-ref", type=float, default=16.0)
+    ap.add_argument("--low-spread-threshold", type=float, default=0.0)
+    ap.add_argument("--low-spread-weight-scale", type=float, default=1.0)
+    ap.add_argument("--revised-high-regret-weight-scale", type=float, default=1.0)
+    ap.add_argument("--min-row-weight", type=float, default=0.03)
+    ap.add_argument("--max-row-weight", type=float, default=4.0)
+    ap.add_argument("--high-criticality-threshold", type=float, default=0.3)
+    ap.add_argument("--high-criticality-spread", type=float, default=1000.0)
+    ap.add_argument("--high-criticality-margin", type=float, default=500.0)
+    ap.add_argument("--effect-feature-dropout", type=float, default=0.0)
+    ap.add_argument("--delta-feature-dropout", type=float, default=0.0)
     ap.add_argument("--old-ranker-baseline", action="store_true", default=True)
     ap.add_argument("--skip-collection", action="store_true")
     ap.add_argument("--dataset-in", type=Path, default=None)
@@ -910,6 +1213,10 @@ def main() -> None:
     args.report_out = args.report_out if args.report_out.is_absolute() else ROOT / args.report_out
     if args.dataset_in:
         args.dataset_in = args.dataset_in if args.dataset_in.is_absolute() else ROOT / args.dataset_in
+    args.teacher_v2_overlay = [
+        path if path.is_absolute() else ROOT / path
+        for path in (args.teacher_v2_overlay or [])
+    ]
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -940,6 +1247,33 @@ def main() -> None:
         }
         save_dataset(rows, args.dataset_out, args, collection)
         print(f"saved dataset -> {display(args.dataset_out)}", flush=True)
+
+    transforms = {}
+    if args.teacher_v2_overlay:
+        labels = []
+        for path in args.teacher_v2_overlay:
+            labels.extend(load_jsonl(path))
+        transforms["teacher_v2_overlay"] = overlay_teacher_v2_targets(rows, labels)
+        transforms["teacher_v2_overlay"]["paths"] = [display(p) for p in args.teacher_v2_overlay]
+        print(f"overlayed Teacher V2 labels: {transforms['teacher_v2_overlay']}", flush=True)
+
+    transforms["revised_objective_weights"] = apply_revised_weights(rows, args)
+    if transforms["revised_objective_weights"].get("enabled"):
+        print(f"applied revised weights: {transforms['revised_objective_weights']}", flush=True)
+
+    if args.dataset_out and (args.teacher_v2_overlay or args.revised_objective_weights):
+        derived_payload = {
+            "artifact_version": "contextual_action_ranker_v1.dataset.revised_objective",
+            "source_dataset": display(args.dataset_in) if args.dataset_in else None,
+            "config": config_dict(args),
+            "collection": collection,
+            "transforms": transforms,
+            "summary": dataset_summary(rows),
+            "decisions": rows,
+        }
+        args.dataset_out.parent.mkdir(parents=True, exist_ok=True)
+        args.dataset_out.write_text(json.dumps(derived_payload, indent=2, sort_keys=True), encoding="utf-8")
+        print(f"saved derived dataset -> {display(args.dataset_out)}", flush=True)
 
     if not rows:
         raise SystemExit("No decisions collected; refusing to train.")
@@ -990,6 +1324,7 @@ def main() -> None:
         "config": config_dict(args),
         "dataset": dataset_summary(rows),
         "collection": collection,
+        "transforms": transforms,
         "model": {
             "dense_dim": int(len(mean)),
             "card_ids": len(card_ids),
