@@ -51,7 +51,10 @@ def main():
         if not lab.get("evaluated"):
             continue
         evald += 1
-        lab["source"] = {"file": d["file"], "step": d["step"], "deck_n": len(d["deck"])}
+        lab["decision_id"] = f"{d['file']}:{d['step']}:{d.get('player')}"
+        lab["source"] = {"file": d["file"], "step": d["step"], "player": d.get("player"), "deck_n": len(d["deck"])}
+        lab["observation"] = d["obs"]                                  # serialized root state for B to featurize
+        lab["legal_options"] = (d["obs"].get("select") or {}).get("option") or []
         labels.append(lab)
         if lab.get("hand_outcome_agree") is False and lab.get("outcome_argmax_option") is not None:
             disagree += 1
