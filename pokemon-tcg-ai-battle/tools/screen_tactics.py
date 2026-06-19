@@ -18,7 +18,8 @@ import main as M                # noqa: E402
 import search_live_v2 as V2     # noqa: E402
 
 CANDS = {"draw": V2.agent_search_draw, "gust": V2.agent_search_gust,
-         "evolve": V2.agent_search_evolve, "tactical": V2.agent_search_tactical}
+         "evolve": V2.agent_search_evolve, "tactical": V2.agent_search_tactical,
+         "prior": V2.agent_search_prior}
 
 
 def wilson(w, n, z=1.96):

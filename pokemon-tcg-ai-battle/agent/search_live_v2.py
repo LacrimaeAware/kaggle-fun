@@ -14,10 +14,14 @@ submission until a cheap A/B clears it.
 """
 from __future__ import annotations
 
+import json
+import os
+
 import main as M
 import search as S
 import state_action_schema_v2 as SCH
 import features as FT
+import tactics_ontology as TO
 
 # draw-engine abilities in the DENPA92 deck (card ids; all carry a draw effect)
 DRAW_ABILITY_IDS = {66, 742, 743}   # Dudunsparce, Kadabra, Alakazam
@@ -155,3 +159,76 @@ def agent_search_evolve(obs: dict):
 def agent_search_tactical(obs: dict):
     """agent_search + gust-target + evolve-line floors (no draw floor; that one sacrificed board)."""
     return _floored(obs, [_gust_floor, _evolve_floor])
+
+
+# --- Tactic Miner V1: SOFT state-conditioned prior. Acts ONLY on the search's near-ties (where A2 showed
+#     the search is noisy/indifferent), breaking them toward the mined high-confidence pattern. Not a floor;
+#     search decides whenever it has a clear value preference. -----------------------------------------
+_MINED = None
+ACCEPT_FRAC = 0.15          # an option is a "near-tie" with the best if within this frac of the value spread
+MIN_MECH_CONF = 0.85        # only use clean-mechanics patterns (attack/ko/gust), not draw etc.
+
+
+def _mined_lifts():
+    global _MINED
+    if _MINED is not None:
+        return _MINED
+    _MINED = {}
+    try:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "manifests",
+                            "mined_tactics_v1.json")
+        art = json.load(open(path, encoding="utf-8"))
+        for p in art.get("context_patterns_ranked", []):
+            if p.get("mechanics_confidence", 0) >= MIN_MECH_CONF and "=" in p["context"]:
+                ck, cv = p["context"].split("=", 1)
+                _MINED[(ck, cv, p["tactic"])] = p["lift"]
+    except Exception:
+        pass
+    return _MINED
+
+
+def _prior_score(o: dict, obs: dict, mp: dict) -> float:
+    """How much strong players favor this option's tactic in the current context (sum of mined lift-1)."""
+    mined = _mined_lifts()
+    if not mined:
+        return 0.0
+    tactic = TO.classify_tactic(o, obs, mp)
+    s = 0.0
+    for ck, cv in TO.context_features(obs).items():
+        lift = mined.get((ck, str(cv), tactic))
+        if lift is not None:
+            s += (lift - 1.0)
+    return s
+
+
+def agent_search_prior(obs: dict):
+    """Search evaluates; the mined prior only breaks near-ties toward the strong-player tactic."""
+    try:
+        if obs.get("select") is None:
+            return list(M.DECK)
+        mv = M._forced_move(obs)
+        if mv is not None:
+            return mv
+        ev = S.option_evals(obs, M.DECK, leaf_mode="hand")
+        if ev:
+            vals = [(e[0] if e else None) for e in ev]
+            present = [v for v in vals if v is not None]
+            if present:
+                best, worst = max(present), min(present)
+                margin = ACCEPT_FRAC * (best - worst) if best > worst else 0.0
+                acceptable = [i for i, v in enumerate(vals) if v is not None and v >= best - margin]
+                if len(acceptable) == 1:
+                    return [acceptable[0]]
+                cur = obs.get("current") or {}
+                players = cur.get("players") or []
+                me = cur.get("yourIndex", 0)
+                mp = players[me] if me < len(players) else {}
+                opts = obs["select"]["option"]
+                best_i = max(acceptable, key=lambda i: (_prior_score(opts[i], obs, mp), vals[i]))
+                return [best_i]
+        mv = S.best_option(obs, M.DECK, leaf_mode="hand")
+        if mv is not None:
+            return mv
+    except Exception:
+        pass
+    return M.agent(obs)

@@ -1,0 +1,642 @@
+{
+ "miner": "tactic_miner_v1",
+ "snapshot": "replays_20260618.json",
+ "strong_proxy": "game winners",
+ "n_winner_decisions": 46889,
+ "n_decks_or_players": 169,
+ "top_players": [
+  "DENPA92",
+  "llkarill",
+  "\u304f\u308a\u305f\u3093\u3068\u305f\u3051\u3061\u3083\u3093",
+  "YT",
+  "Zscorpio",
+  "FreddyH",
+  "Quan Nguyen",
+  "nobker"
+ ],
+ "tactic_base_rates": [
+  {
+   "tactic": "end",
+   "available": 29754,
+   "chosen": 2361,
+   "choose_rate": 0.079,
+   "mechanics_confidence": 0.5
+  },
+  {
+   "tactic": "retreat",
+   "available": 17302,
+   "chosen": 995,
+   "choose_rate": 0.058,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "select",
+   "available": 14810,
+   "chosen": 14800,
+   "choose_rate": 0.999,
+   "mechanics_confidence": 0.4
+  },
+  {
+   "tactic": "tutor",
+   "available": 14694,
+   "chosen": 4689,
+   "choose_rate": 0.319,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "available": 14540,
+   "chosen": 7400,
+   "choose_rate": 0.509,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attack",
+   "available": 14403,
+   "chosen": 2693,
+   "choose_rate": 0.187,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "draw",
+   "available": 10592,
+   "chosen": 2537,
+   "choose_rate": 0.24,
+   "mechanics_confidence": 0.4
+  },
+  {
+   "tactic": "play",
+   "available": 8434,
+   "chosen": 2018,
+   "choose_rate": 0.239,
+   "mechanics_confidence": 0.4
+  },
+  {
+   "tactic": "develop_board",
+   "available": 6810,
+   "chosen": 1712,
+   "choose_rate": 0.251,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "gust",
+   "available": 6808,
+   "chosen": 2286,
+   "choose_rate": 0.336,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "ability_unlock",
+   "available": 6607,
+   "chosen": 1143,
+   "choose_rate": 0.173,
+   "mechanics_confidence": 0.6
+  },
+  {
+   "tactic": "evolve",
+   "available": 5767,
+   "chosen": 1783,
+   "choose_rate": 0.309,
+   "mechanics_confidence": 0.75
+  },
+  {
+   "tactic": "accelerate",
+   "available": 5031,
+   "chosen": 307,
+   "choose_rate": 0.061,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "ko",
+   "available": 3988,
+   "chosen": 724,
+   "choose_rate": 0.182,
+   "mechanics_confidence": 0.95
+  },
+  {
+   "tactic": "other",
+   "available": 1298,
+   "chosen": 1298,
+   "choose_rate": 1.0,
+   "mechanics_confidence": 0.5
+  },
+  {
+   "tactic": "disruption",
+   "available": 293,
+   "chosen": 68,
+   "choose_rate": 0.232,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "heal",
+   "available": 253,
+   "chosen": 75,
+   "choose_rate": 0.296,
+   "mechanics_confidence": 0.7
+  }
+ ],
+ "context_patterns_ranked": [
+  {
+   "tactic": "attach",
+   "context": "supporter_available=1",
+   "support": 8447,
+   "chosen_in_context": 3397,
+   "choose_rate": 0.402,
+   "base_rate": 0.509,
+   "lift": 0.79,
+   "leverage": 902.0,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "supporter_available=0",
+   "support": 6093,
+   "chosen_in_context": 4003,
+   "choose_rate": 0.657,
+   "base_rate": 0.509,
+   "lift": 1.29,
+   "leverage": 902.0,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "gust",
+   "context": "supporter_available=1",
+   "support": 4677,
+   "chosen_in_context": 1194,
+   "choose_rate": 0.255,
+   "base_rate": 0.336,
+   "lift": 0.76,
+   "leverage": 376.4,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "supporter_available=0",
+   "support": 2131,
+   "chosen_in_context": 1092,
+   "choose_rate": 0.512,
+   "base_rate": 0.336,
+   "lift": 1.53,
+   "leverage": 376.4,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "fixing_available=1",
+   "support": 13417,
+   "chosen_in_context": 2164,
+   "choose_rate": 0.161,
+   "base_rate": 0.187,
+   "lift": 0.86,
+   "leverage": 344.6,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "fixing_available=0",
+   "support": 986,
+   "chosen_in_context": 529,
+   "choose_rate": 0.537,
+   "base_rate": 0.187,
+   "lift": 2.87,
+   "leverage": 344.6,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "hand_low=0",
+   "support": 12778,
+   "chosen_in_context": 2105,
+   "choose_rate": 0.165,
+   "base_rate": 0.187,
+   "lift": 0.88,
+   "leverage": 284.2,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "hand_low=1",
+   "support": 1625,
+   "chosen_in_context": 588,
+   "choose_rate": 0.362,
+   "base_rate": 0.187,
+   "lift": 1.94,
+   "leverage": 284.2,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "supporter_available=1",
+   "support": 7366,
+   "chosen_in_context": 1108,
+   "choose_rate": 0.15,
+   "base_rate": 0.187,
+   "lift": 0.8,
+   "leverage": 269.3,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "supporter_available=0",
+   "support": 7037,
+   "chosen_in_context": 1585,
+   "choose_rate": 0.225,
+   "base_rate": 0.187,
+   "lift": 1.2,
+   "leverage": 269.3,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "can_ko_now=0",
+   "support": 5284,
+   "chosen_in_context": 1508,
+   "choose_rate": 0.285,
+   "base_rate": 0.336,
+   "lift": 0.85,
+   "leverage": 266.3,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "can_ko_now=1",
+   "support": 1524,
+   "chosen_in_context": 778,
+   "choose_rate": 0.51,
+   "base_rate": 0.336,
+   "lift": 1.52,
+   "leverage": 266.3,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attack",
+   "context": "my_prizes_left=6",
+   "support": 5632,
+   "chosen_in_context": 1315,
+   "choose_rate": 0.233,
+   "base_rate": 0.187,
+   "lift": 1.25,
+   "leverage": 262.0,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "develop_board",
+   "context": "supporter_available=1",
+   "support": 3872,
+   "chosen_in_context": 722,
+   "choose_rate": 0.186,
+   "base_rate": 0.251,
+   "lift": 0.74,
+   "leverage": 251.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "develop_board",
+   "context": "supporter_available=0",
+   "support": 2938,
+   "chosen_in_context": 990,
+   "choose_rate": 0.337,
+   "base_rate": 0.251,
+   "lift": 1.34,
+   "leverage": 251.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "prize_lead_bucket=even",
+   "support": 7610,
+   "chosen_in_context": 4088,
+   "choose_rate": 0.537,
+   "base_rate": 0.509,
+   "lift": 1.06,
+   "leverage": 215.0,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "early=1",
+   "support": 7363,
+   "chosen_in_context": 3955,
+   "choose_rate": 0.537,
+   "base_rate": 0.509,
+   "lift": 1.06,
+   "leverage": 207.7,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "early=0",
+   "support": 7177,
+   "chosen_in_context": 3445,
+   "choose_rate": 0.48,
+   "base_rate": 0.509,
+   "lift": 0.94,
+   "leverage": 207.7,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attack",
+   "context": "prize_lead_bucket=even",
+   "support": 5873,
+   "chosen_in_context": 1293,
+   "choose_rate": 0.22,
+   "base_rate": 0.187,
+   "lift": 1.18,
+   "leverage": 194.9,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "attach",
+   "context": "my_prizes_left=6",
+   "support": 8052,
+   "chosen_in_context": 4278,
+   "choose_rate": 0.531,
+   "base_rate": 0.509,
+   "lift": 1.04,
+   "leverage": 180.0,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "tutor",
+   "context": "supporter_available=1",
+   "support": 9443,
+   "chosen_in_context": 3185,
+   "choose_rate": 0.337,
+   "base_rate": 0.319,
+   "lift": 1.06,
+   "leverage": 171.6,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "tutor",
+   "context": "supporter_available=0",
+   "support": 5251,
+   "chosen_in_context": 1504,
+   "choose_rate": 0.286,
+   "base_rate": 0.319,
+   "lift": 0.9,
+   "leverage": 171.6,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "ability_unlock",
+   "context": "hand_low=0",
+   "support": 5323,
+   "chosen_in_context": 752,
+   "choose_rate": 0.141,
+   "base_rate": 0.173,
+   "lift": 0.82,
+   "leverage": 168.9,
+   "mechanics_confidence": 0.6
+  },
+  {
+   "tactic": "ability_unlock",
+   "context": "hand_low=1",
+   "support": 1284,
+   "chosen_in_context": 391,
+   "choose_rate": 0.305,
+   "base_rate": 0.173,
+   "lift": 1.76,
+   "leverage": 168.9,
+   "mechanics_confidence": 0.6
+  },
+  {
+   "tactic": "gust",
+   "context": "active_can_attack=1",
+   "support": 4328,
+   "chosen_in_context": 1621,
+   "choose_rate": 0.375,
+   "base_rate": 0.336,
+   "lift": 1.12,
+   "leverage": 167.7,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "active_energy_short=0",
+   "support": 4328,
+   "chosen_in_context": 1621,
+   "choose_rate": 0.375,
+   "base_rate": 0.336,
+   "lift": 1.12,
+   "leverage": 167.7,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "active_can_attack=0",
+   "support": 2480,
+   "chosen_in_context": 665,
+   "choose_rate": 0.268,
+   "base_rate": 0.336,
+   "lift": 0.8,
+   "leverage": 167.7,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "gust",
+   "context": "active_energy_short=1",
+   "support": 2480,
+   "chosen_in_context": 665,
+   "choose_rate": 0.268,
+   "base_rate": 0.336,
+   "lift": 0.8,
+   "leverage": 167.7,
+   "mechanics_confidence": 0.9
+  },
+  {
+   "tactic": "evolve",
+   "context": "supporter_available=1",
+   "support": 3421,
+   "chosen_in_context": 893,
+   "choose_rate": 0.261,
+   "base_rate": 0.309,
+   "lift": 0.84,
+   "leverage": 164.7,
+   "mechanics_confidence": 0.75
+  },
+  {
+   "tactic": "evolve",
+   "context": "supporter_available=0",
+   "support": 2346,
+   "chosen_in_context": 890,
+   "choose_rate": 0.379,
+   "base_rate": 0.309,
+   "lift": 1.23,
+   "leverage": 164.7,
+   "mechanics_confidence": 0.75
+  },
+  {
+   "tactic": "evolve",
+   "context": "my_prizes_left=6",
+   "support": 3326,
+   "chosen_in_context": 1189,
+   "choose_rate": 0.357,
+   "base_rate": 0.309,
+   "lift": 1.16,
+   "leverage": 160.7,
+   "mechanics_confidence": 0.75
+  },
+  {
+   "tactic": "attach",
+   "context": "fixing_available=1",
+   "support": 13810,
+   "chosen_in_context": 6868,
+   "choose_rate": 0.497,
+   "base_rate": 0.509,
+   "lift": 0.98,
+   "leverage": 160.5,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "fixing_available=0",
+   "support": 730,
+   "chosen_in_context": 532,
+   "choose_rate": 0.729,
+   "base_rate": 0.509,
+   "lift": 1.43,
+   "leverage": 160.5,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "hand_low=0",
+   "support": 13814,
+   "chosen_in_context": 6879,
+   "choose_rate": 0.498,
+   "base_rate": 0.509,
+   "lift": 0.98,
+   "leverage": 151.5,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attach",
+   "context": "hand_low=1",
+   "support": 726,
+   "chosen_in_context": 521,
+   "choose_rate": 0.718,
+   "base_rate": 0.509,
+   "lift": 1.41,
+   "leverage": 151.5,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "retreat",
+   "context": "active_can_attack=0",
+   "support": 3001,
+   "chosen_in_context": 312,
+   "choose_rate": 0.104,
+   "base_rate": 0.058,
+   "lift": 1.81,
+   "leverage": 139.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "retreat",
+   "context": "active_energy_short=1",
+   "support": 3001,
+   "chosen_in_context": 312,
+   "choose_rate": 0.104,
+   "base_rate": 0.058,
+   "lift": 1.81,
+   "leverage": 139.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "retreat",
+   "context": "active_can_attack=1",
+   "support": 14301,
+   "chosen_in_context": 683,
+   "choose_rate": 0.048,
+   "base_rate": 0.058,
+   "lift": 0.83,
+   "leverage": 139.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "retreat",
+   "context": "active_energy_short=0",
+   "support": 14301,
+   "chosen_in_context": 683,
+   "choose_rate": 0.048,
+   "base_rate": 0.058,
+   "lift": 0.83,
+   "leverage": 139.4,
+   "mechanics_confidence": 0.7
+  },
+  {
+   "tactic": "attack",
+   "context": "early=1",
+   "support": 5391,
+   "chosen_in_context": 1145,
+   "choose_rate": 0.212,
+   "base_rate": 0.187,
+   "lift": 1.14,
+   "leverage": 137.0,
+   "mechanics_confidence": 0.9
+  }
+ ],
+ "macros_within_turn": [
+  {
+   "sequence": "attach -> select",
+   "count": 2018
+  },
+  {
+   "sequence": "select -> attach",
+   "count": 1946
+  },
+  {
+   "sequence": "select -> select",
+   "count": 1661
+  },
+  {
+   "sequence": "tutor -> select",
+   "count": 1162
+  },
+  {
+   "sequence": "attach -> attach",
+   "count": 946
+  },
+  {
+   "sequence": "select -> tutor",
+   "count": 868
+  },
+  {
+   "sequence": "tutor -> tutor",
+   "count": 437
+  },
+  {
+   "sequence": "select -> draw",
+   "count": 385
+  },
+  {
+   "sequence": "draw -> select",
+   "count": 344
+  },
+  {
+   "sequence": "gust -> gust",
+   "count": 324
+  },
+  {
+   "sequence": "select -> develop_board",
+   "count": 309
+  },
+  {
+   "sequence": "select -> play",
+   "count": 295
+  },
+  {
+   "sequence": "select -> ability_unlock",
+   "count": 292
+  },
+  {
+   "sequence": "select -> attack",
+   "count": 281
+  },
+  {
+   "sequence": "select -> retreat",
+   "count": 271
+  }
+ ]
+}
