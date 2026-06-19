@@ -1,0 +1,52 @@
+{
+  "artifact_version": "teacher_v2_risk_labels_for_B_request.summary.v1",
+  "request_file": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\planner-teacher-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_risk_label_request_for_A.json",
+  "output": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\planner-teacher-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_risk_labels_for_B_request.jsonl",
+  "requested_seed_count": 2,
+  "target_count": 60,
+  "labeled_count": 51,
+  "option_count": 490,
+  "failures": [
+    {
+      "decision_id": "80251230.json:3",
+      "reason": "not_applicable"
+    },
+    {
+      "decision_id": "80252178.json:3",
+      "reason": "not_applicable"
+    },
+    {
+      "decision_id": "80252178.json:4",
+      "reason": "not_applicable"
+    }
+  ],
+  "seed_examples_included": {
+    "80251230.json:12": true,
+    "80252701.json:56": true
+  },
+  "selection_reasons": {
+    "seed_example": 2,
+    "near_miss_risk_boundary": 46,
+    "safe_search_choice_false_positive_analogs": 32,
+    "search_selected_high_regret_analogs": 1
+  },
+  "class_balance": {
+    "high_regret_positive_options": 19,
+    "high_regret_negative_options": 471,
+    "unacceptable_positive_options": 234,
+    "unacceptable_negative_options": 256,
+    "search_selected_high_regret_decisions": 1
+  },
+  "high_regret_options": 19,
+  "unacceptable_options": 234,
+  "densifies_sparse_high_regret_class": true,
+  "residual_delta": {
+    "mean": 2130.12,
+    "p50": -1.88,
+    "abs_mean": 3657.67
+  },
+  "mean_outcome_se": 0.0835,
+  "all_siblings_completed": "51/51",
+  "elapsed_s": 335.5,
+  "recommendation_for_B": "Use this as a targeted high-regret recall calibration batch; verify the two seed cases first, then retrain one high-regret-primary risk-only model with threshold calibration."
+}
