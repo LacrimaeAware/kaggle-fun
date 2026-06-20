@@ -24,6 +24,20 @@ W_PRIZE = 1000.0      # prizes win the game -> dominates
 W_HP = 1.0            # damage race (hp is 0..340-ish)
 W_BODY = 30.0         # board presence; a KO costs the opponent a body
 W_ENERGY = 8.0        # energy developed on my active attacker
+# Gated "hoard for Powerful Hand" term. OFF (0.0) by default -> agent_search is UNCHANGED. When >0 AND a
+# Powerful Hand attacker (Alakazam) is in play for `me`, value each card held in hand. Rationale: the 4 terms
+# above are hand-blind, and W_BODY actively rewards emptying the hand into bodies; but Alakazam's Powerful Hand
+# deals 2 damage counters (20 HP) per card in hand, so this deck wants to HOARD. Gated on Alakazam-in-play so
+# it cannot distort normal decks. ~15/card ~= 0.75 of a future damage-counter pair, discounted, << W_PRIZE.
+W_POWERFUL_HAND = 0.0
+_POWERFUL_HAND_IDS = (743,)   # Alakazam
+
+
+def _powerful_hand_online(p: dict) -> bool:
+    for slot in (p.get("active") or []) + (p.get("bench") or []):
+        if isinstance(slot, dict) and slot.get("id") in _POWERFUL_HAND_IDS:
+            return True
+    return False
 
 
 def _board_hp(p: dict) -> int:
@@ -68,6 +82,11 @@ def evaluate(cur: dict, me: int) -> float:
     score += W_HP * (_board_hp(P) - _board_hp(O))
     score += W_BODY * (_n_pokemon(P) - _n_pokemon(O))
     score += W_ENERGY * _active_energy(P)
+    if W_POWERFUL_HAND and _powerful_hand_online(P):
+        hand = P.get("handCount")
+        if hand is None:
+            hand = len(P.get("hand") or [])
+        score += W_POWERFUL_HAND * hand
     return score
 
 
