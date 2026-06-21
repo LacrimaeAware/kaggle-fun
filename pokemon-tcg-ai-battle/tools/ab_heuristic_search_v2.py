@@ -35,6 +35,7 @@ CANDIDATES = {
     "s32_m0_poffin": {"s32": True, "m0": True, "resolvers": {"poffin"}},
     "phfix":        {"forced": "phaware"},
     "phfix_poffin": {"forced": "phaware", "resolvers": {"poffin"}},
+    "phfix_s32":    {"forced": "phaware", "s32": True},   # ship candidate: both confirmed wins combined
 }
 
 

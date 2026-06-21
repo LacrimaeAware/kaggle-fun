@@ -163,5 +163,44 @@
    "choice_NUMBER": 8,
    "choice_6": 3
   }
+ },
+ "phfix_s32": {
+  "candidate": "phfix_s32",
+  "config": {
+   "n_determ": 32,
+   "budget": 15.0,
+   "resolvers": [],
+   "forced": "phaware"
+  },
+  "games": 20,
+  "win_rate": 0.45,
+  "wilson95": [
+   0.258,
+   0.658
+  ],
+  "wins": 9,
+  "losses": 11,
+  "draws": 0,
+  "errors": 0,
+  "s_per_game": 52.605,
+  "instrumentation": {
+   "decisions": 1539,
+   "forced": 70,
+   "choice_YES": 87,
+   "search_applicable": 1235,
+   "search_used": 1225,
+   "choice_CARD": 361,
+   "fallback": 244,
+   "choice_NUMBER": 6,
+   "choice_ATTACH": 105,
+   "choice_PLAY": 376,
+   "choice_RETREAT": 16,
+   "choice_EVOLVE": 158,
+   "choice_END": 36,
+   "choice_ATTACK": 77,
+   "choice_6": 7,
+   "choice_NO": 18,
+   "choice_ABILITY": 58
+  }
  }
 }

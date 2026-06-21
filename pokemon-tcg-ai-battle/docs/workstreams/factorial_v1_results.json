@@ -1,0 +1,133 @@
+{
+ "table": {
+  "a0": {
+   "win_rate": 0.5,
+   "wilson95": [
+    0.095,
+    0.905
+   ],
+   "wins": 1,
+   "losses": 1,
+   "draws": 0,
+   "errors": 0,
+   "n": 2
+  },
+  "phfix": {
+   "win_rate": 0.5,
+   "wilson95": [
+    0.095,
+    0.905
+   ],
+   "wins": 1,
+   "losses": 1,
+   "draws": 0,
+   "errors": 0,
+   "n": 2
+  },
+  "s32": {
+   "win_rate": 0.5,
+   "wilson95": [
+    0.095,
+    0.905
+   ],
+   "wins": 1,
+   "losses": 1,
+   "draws": 0,
+   "errors": 0,
+   "n": 2
+  },
+  "phfix_s32": {
+   "win_rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.658
+   ],
+   "wins": 0,
+   "losses": 2,
+   "draws": 0,
+   "errors": 0,
+   "n": 2
+  }
+ },
+ "effects": {
+  "PH_effect_at_N8": 0.0,
+  "PH_effect_at_N32": -0.5,
+  "N32_effect_at_PHoff": 0.0,
+  "N32_effect_at_PHon": -0.5,
+  "interaction": -0.5
+ },
+ "games_per_shard": 2,
+ "shards": 1,
+ "wall_seconds": 173.3,
+ "instrumentation": {
+  "a0": {
+   "decisions": 126,
+   "forced": 1,
+   "choice_YES": 6,
+   "search_applicable": 105,
+   "fallback": 22,
+   "choice_CARD": 32,
+   "search_used": 103,
+   "choice_PLAY": 31,
+   "choice_EVOLVE": 13,
+   "choice_ATTACH": 7,
+   "choice_ATTACK": 6,
+   "choice_NO": 2,
+   "choice_ABILITY": 7,
+   "choice_NUMBER": 1,
+   "choice_END": 1
+  },
+  "phfix": {
+   "decisions": 170,
+   "forced": 8,
+   "choice_YES": 10,
+   "fallback": 24,
+   "search_applicable": 139,
+   "search_used": 138,
+   "choice_PLAY": 47,
+   "choice_ATTACH": 10,
+   "choice_EVOLVE": 16,
+   "choice_CARD": 42,
+   "choice_END": 5,
+   "choice_RETREAT": 1,
+   "choice_ATTACK": 8,
+   "choice_NUMBER": 1,
+   "choice_NO": 3,
+   "choice_ABILITY": 4
+  },
+  "s32": {
+   "decisions": 202,
+   "forced": 1,
+   "choice_YES": 13,
+   "search_applicable": 178,
+   "fallback": 24,
+   "choice_CARD": 52,
+   "search_used": 177,
+   "choice_ATTACH": 13,
+   "choice_PLAY": 51,
+   "choice_EVOLVE": 25,
+   "choice_NO": 4,
+   "choice_ATTACK": 9,
+   "choice_ABILITY": 9,
+   "choice_6": 1,
+   "choice_END": 2
+  },
+  "phfix_s32": {
+   "decisions": 153,
+   "forced": 5,
+   "choice_YES": 5,
+   "search_applicable": 122,
+   "search_used": 121,
+   "choice_CARD": 42,
+   "fallback": 27,
+   "choice_PLAY": 40,
+   "choice_ATTACH": 6,
+   "choice_EVOLVE": 14,
+   "choice_ABILITY": 7,
+   "choice_ATTACK": 5,
+   "choice_NO": 3,
+   "choice_END": 4,
+   "choice_6": 1
+  }
+ }
+}

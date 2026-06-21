@@ -1,0 +1,31 @@
+{
+ "table": {
+  "selfbase": {
+   "win_rate": 0.567,
+   "wilson95": [
+    0.477,
+    0.652
+   ],
+   "wins": 68,
+   "losses": 52,
+   "draws": 0,
+   "errors": 0,
+   "n": 120
+  },
+  "control": {
+   "win_rate": 0.483,
+   "wilson95": [
+    0.396,
+    0.572
+   ],
+   "wins": 58,
+   "losses": 62,
+   "draws": 0,
+   "errors": 0,
+   "n": 120
+  }
+ },
+ "wall_seconds": 780.8,
+ "games_per_shard": 20,
+ "shards": 6
+}
