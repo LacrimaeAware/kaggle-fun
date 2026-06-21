@@ -1,6 +1,6 @@
 # H024-v2: the action-conditioned sibling ranker (the plan we follow; do not deviate)
 
-Authority: `dropoff/inbox/pokemon_tcg_agent_roadblock_diagnosis` (ChatGPT) +
+Authority: `dropoff/inbox/2026-06-18-roadblock-diagnosis.md` (ChatGPT) +
 `dropoff/inbox/2026-06-18-methodology-compliance-review.md` +
 `dropoff/inbox/2026-06-18-external-current-state-methodology-review.txt` + the deep-research report.
 This is the execution plan. `docs/CURRENT.md` is the live controller. The living docs (RESEARCH.md

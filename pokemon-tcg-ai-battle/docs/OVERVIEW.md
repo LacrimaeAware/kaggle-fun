@@ -345,8 +345,9 @@ sample policy piloting the most over-contested archetype.
   gated side branch while deeper-search is the near-term scoring path, NOT a pure big-learned bet.
 - **Open fork:** policy-first imitation from strong evolution-deck pilots (highest ceiling, data ready) vs
   deck-first refinement of decks our agent pilots well. Awaiting user steer.
-- **Branch B half is not summarized here** (its `ROBUST_LEARNER_V2.md` lives on the other branch); the
-  Teacher V2 labels above are A's deliverables to B.
+- **Branch B half is not summarized here** (see `docs/workstreams/ROBUST_LEARNER_V2.md`, now present
+  on this branch alongside its DAGGER_ROUND1/ROUND2/NEXT notes); the Teacher V2 labels above are A's
+  deliverables to B.
 - **Loose threads:** record the N=8 LB score when it lands (compare to N=4 697.7); keep the rolling replay
   fetcher + dated snapshots; close the search technical-debt list before any 2-ply work.
 - **Speculative / parked:** neuro-symbolic "learned interpretable heuristic" layer (kept alive as an
