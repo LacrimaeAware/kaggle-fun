@@ -1,0 +1,14 @@
+{
+ "index": 3,
+ "label": "CROSS Snover (ov0/60, 69g, exp-wr 0.188)",
+ "win_rate_vs_denpa92": 0.45,
+ "wilson95": [
+  0.307,
+  0.602
+ ],
+ "wins": 18,
+ "losses": 22,
+ "errors": 0,
+ "s_per_game": 8.27,
+ "verdict": "tie (CI spans 0.5)"
+}

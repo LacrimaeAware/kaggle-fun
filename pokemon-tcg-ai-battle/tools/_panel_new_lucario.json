@@ -1,0 +1,13 @@
+{
+ "side": "new",
+ "opp": "lucario",
+ "win_rate": 0.825,
+ "wilson95": [
+  0.68,
+  0.913
+ ],
+ "wins": 33,
+ "losses": 7,
+ "errors": 0,
+ "s_per_game": 21.47
+}

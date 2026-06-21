@@ -1,0 +1,121 @@
+{
+ "decisions_compared": 164,
+ "agreement_plain": 0.244,
+ "agreement_hoard": 0.268,
+ "by_decision_type": {
+  "PLAY": {
+   "n": 83,
+   "agree_plain": 0.12,
+   "agree_hoard": 0.169
+  },
+  "CARD": {
+   "n": 41,
+   "agree_plain": 0.366,
+   "agree_hoard": 0.317
+  },
+  "YES": {
+   "n": 10,
+   "agree_plain": 0.8,
+   "agree_hoard": 0.9
+  },
+  "EVOLVE": {
+   "n": 8,
+   "agree_plain": 0.375,
+   "agree_hoard": 0.375
+  },
+  "ATTACH": {
+   "n": 7,
+   "agree_plain": 0.286,
+   "agree_hoard": 0.429
+  },
+  "ABILITY": {
+   "n": 5,
+   "agree_plain": 0.2,
+   "agree_hoard": 0.2
+  },
+  "END": {
+   "n": 4,
+   "agree_plain": 0.25,
+   "agree_hoard": 0.25
+  },
+  "ATTACK": {
+   "n": 3,
+   "agree_plain": 0.0,
+   "agree_hoard": 0.0
+  }
+ },
+ "divergence_examples": [
+  {
+   "decision_type": "PLAY",
+   "hand": 11,
+   "his_choice": "PLAY Hilda",
+   "our_choice": "END ?"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 19,
+   "his_choice": "PLAY Abra",
+   "our_choice": "PLAY Dunsparce"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 23,
+   "his_choice": "PLAY Abra",
+   "our_choice": "PLAY Battle Cage"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 16,
+   "his_choice": "PLAY Pok\u00e9 Pad",
+   "our_choice": "END ?"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 24,
+   "his_choice": "PLAY Dunsparce",
+   "our_choice": "PLAY Pok\u00e9 Pad"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 14,
+   "his_choice": "PLAY Night Stretcher",
+   "our_choice": "RETREAT Kadabra"
+  },
+  {
+   "decision_type": "CARD",
+   "hand": 9,
+   "his_choice": "CARD ?",
+   "our_choice": "CARD ?"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 12,
+   "his_choice": "PLAY Night Stretcher",
+   "our_choice": "PLAY Dunsparce"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 25,
+   "his_choice": "PLAY Boss\u2019s Orders",
+   "our_choice": "PLAY Dunsparce"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 8,
+   "his_choice": "PLAY Abra",
+   "our_choice": "PLAY Dunsparce"
+  },
+  {
+   "decision_type": "END",
+   "hand": 9,
+   "his_choice": "END ?",
+   "our_choice": "EVOLVE Alakazam"
+  },
+  {
+   "decision_type": "PLAY",
+   "hand": 11,
+   "his_choice": "PLAY Enhanced Hammer",
+   "our_choice": "ATTACH Basic {P} Energy"
+  }
+ ]
+}

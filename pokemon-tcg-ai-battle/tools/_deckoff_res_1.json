@@ -1,0 +1,14 @@
+{
+ "index": 1,
+ "label": "CROSS Iono\u2019s Voltorb (ov6/60, 321g, exp-wr 0.773)",
+ "win_rate_vs_denpa92": 0.35,
+ "wilson95": [
+  0.221,
+  0.505
+ ],
+ "wins": 14,
+ "losses": 26,
+ "errors": 0,
+ "s_per_game": 28.77,
+ "verdict": "tie (CI spans 0.5)"
+}
