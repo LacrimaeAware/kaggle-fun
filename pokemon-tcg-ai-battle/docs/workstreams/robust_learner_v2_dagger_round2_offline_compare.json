@@ -1,0 +1,132 @@
+{
+  "dataset": {
+    "by_source_stability": {
+      "base_distill/original": 1218,
+      "stable_replay/stable": 22,
+      "stable_replay/unstable": 23
+    },
+    "total_decisions": 1263
+  },
+  "models": {
+    "round0": {
+      "by_source_stability": {
+        "base_distill/original": {
+          "acceptable_agreement": 0.9671592775041051,
+          "hard_top1": 0.7807881773399015,
+          "high_regret_count": 7,
+          "mean_regret": 1661.9535628763,
+          "n": 1218,
+          "p90_regret": 18.541666666666668,
+          "p95_regret": 54.625
+        },
+        "stable_replay/stable": {
+          "acceptable_agreement": 0.8181818181818182,
+          "hard_top1": 0.5,
+          "high_regret_count": 0,
+          "mean_regret": 158.53030303030303,
+          "n": 22,
+          "p90_regret": 382.2222222222222,
+          "p95_regret": 572.7777777777778
+        },
+        "stable_replay/unstable": {
+          "acceptable_agreement": 0.8695652173913043,
+          "hard_top1": 0.43478260869565216,
+          "high_regret_count": 0,
+          "mean_regret": 141.9694041867955,
+          "n": 23,
+          "p90_regret": 363.88888888888874,
+          "p95_regret": 593.3333333333333
+        }
+      },
+      "overall": {
+        "acceptable_agreement": 0.9627870150435471,
+        "hard_top1": 0.7695961995249406,
+        "high_regret_count": 7,
+        "mean_regret": 1608.085829411161,
+        "n": 1263,
+        "p90_regret": 20.3125,
+        "p95_regret": 90.0
+      }
+    },
+    "round1": {
+      "by_source_stability": {
+        "base_distill/original": {
+          "acceptable_agreement": 0.8407224958949097,
+          "hard_top1": 0.47044334975369456,
+          "high_regret_count": 92,
+          "mean_regret": 19970.538119184457,
+          "n": 1218,
+          "p90_regret": 620.75,
+          "p95_regret": 1164.0
+        },
+        "stable_replay/stable": {
+          "acceptable_agreement": 0.8181818181818182,
+          "hard_top1": 0.5,
+          "high_regret_count": 1,
+          "mean_regret": 178.92929292929296,
+          "n": 22,
+          "p90_regret": 382.2222222222222,
+          "p95_regret": 522.7777777777778
+        },
+        "stable_replay/unstable": {
+          "acceptable_agreement": 0.8260869565217391,
+          "hard_top1": 0.43478260869565216,
+          "high_regret_count": 0,
+          "mean_regret": 132.9355877616747,
+          "n": 23,
+          "p90_regret": 363.88888888888874,
+          "p95_regret": 593.3333333333333
+        }
+      },
+      "overall": {
+        "acceptable_agreement": 0.8400633412509897,
+        "hard_top1": 0.47030878859857483,
+        "high_regret_count": 93,
+        "mean_regret": 19264.536335811266,
+        "n": 1263,
+        "p90_regret": 593.3333333333333,
+        "p95_regret": 1149.25
+      }
+    },
+    "round2": {
+      "by_source_stability": {
+        "base_distill/original": {
+          "acceptable_agreement": 0.8407224958949097,
+          "hard_top1": 0.46551724137931033,
+          "high_regret_count": 85,
+          "mean_regret": 19248.980579501917,
+          "n": 1218,
+          "p90_regret": 522.0,
+          "p95_regret": 1149.25
+        },
+        "stable_replay/stable": {
+          "acceptable_agreement": 0.8181818181818182,
+          "hard_top1": 0.5,
+          "high_regret_count": 1,
+          "mean_regret": 185.6767676767677,
+          "n": 22,
+          "p90_regret": 382.2222222222222,
+          "p95_regret": 572.7777777777778
+        },
+        "stable_replay/unstable": {
+          "acceptable_agreement": 0.8260869565217391,
+          "hard_top1": 0.43478260869565216,
+          "high_regret_count": 0,
+          "mean_regret": 132.9355877616747,
+          "n": 23,
+          "p90_regret": 363.88888888888874,
+          "p95_regret": 593.3333333333333
+        }
+      },
+      "overall": {
+        "acceptable_agreement": 0.8400633412509897,
+        "hard_top1": 0.4655581947743468,
+        "high_regret_count": 86,
+        "mean_regret": 18568.805030277705,
+        "n": 1263,
+        "p90_regret": 535.125,
+        "p95_regret": 1090.25
+      }
+    }
+  }
+}

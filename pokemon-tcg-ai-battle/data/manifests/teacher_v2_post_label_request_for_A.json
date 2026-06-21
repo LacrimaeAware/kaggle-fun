@@ -1,0 +1,24 @@
+{
+  "artifact_version": "teacher_v2_label_request_for_A.v1",
+  "branch": "exp/robust-learner-v2",
+  "labeling_requirements": [
+    "observation",
+    "legal_options",
+    "decision_id",
+    "obs_hash",
+    "option index",
+    "semantic_action_key",
+    "eq_class",
+    "hand_norm_advantage",
+    "hand_value_variance",
+    "criticality",
+    "outcome_winrate",
+    "outcome_se",
+    "coverage",
+    "timing",
+    "seed / paired metadata"
+  ],
+  "purpose": "Targeted labels for Branch B Teacher V2 retrain failure analysis; not a generic larger batch.",
+  "requested_output": "data/manifests/teacher_v2_labels_for_B_failures.jsonl",
+  "requests": []
+}

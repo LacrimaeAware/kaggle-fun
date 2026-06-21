@@ -1,0 +1,345 @@
+{
+  "agent_search_modified": false,
+  "arena_screen": "not run",
+  "artifact_version": "search_metadata_dominance_audit_v1",
+  "branch": "exp/robust-learner-v2",
+  "dataset": {
+    "decisions": 702,
+    "failures": [],
+    "games": 160,
+    "options": 5743,
+    "test_decisions": 90,
+    "test_options": 763
+  },
+  "decision": {
+    "recommendation": "Next, build a tiny offline extra-search simulator for only the triggered test states, or ask Model A for higher-k labels on the triggered false positives/false negatives. Do not promote a live risk rule from this audit alone.",
+    "summary": "Strict live N=8 metadata retains strong high-regret signal and an oracle stronger-search upper bound improves, but the deployable live-next-unflagged proxy gets worse.",
+    "verdict": "B. LIVE N8 WARNING SIGNAL; EXTRA-SEARCH MECHANISM STILL UNPROVEN"
+  },
+  "feature_sets": {
+    "leakage_control_stronger": "Known label-derived stronger/value/residual/flag fields; upper-bound leakage control only.",
+    "live_n8_strict_postchoice": "Strict prechoice plus the N=8 selected-option bit.",
+    "live_n8_strict_prechoice": "Live N=8 values plus uncertainty and stability, no selected bit.",
+    "live_n8_uncertainty_only": "Only live N=8 variance/SE/completion/distribution stability/count.",
+    "live_n8_values_only": "Only live N=8 sibling values/rank/margin/spread/count.",
+    "previous_R1_suspect": "Original R1 vector from the prior run; includes criticality and ambiguous SE."
+  },
+  "input": "data\\manifests\\continuous_terrain_v1.jsonl",
+  "leakage_and_metric_integrity": {
+    "previous_r1_feature_audit": {
+      "direct_stronger_value_fields_used": false,
+      "fields": [
+        "live value margin",
+        "live value spread",
+        "option value variance through alias",
+        "option value SE through alias",
+        "live action entropy",
+        "modal action stability",
+        "criticality score",
+        "selected option bit"
+      ],
+      "live_variance_missing_but_stronger_variance_present_options": 0,
+      "non_deployable_or_suspect_fields": [
+        "criticality score is dataset-selection/label metadata, not an N=8 live-search output",
+        "value_se provenance is not explicit enough to keep in strict live-only R1"
+      ],
+      "value_se_present_options": 5743
+    },
+    "r4_fusion_audit": {
+      "action_scalars_contain_teacher_policy_target": true,
+      "interpretation": "R4 fusion metrics should be treated as diagnostic only; they are not a live-safe fusion of semantic plus search metadata.",
+      "metadata_branch_contains_criticality_and_coverage": true
+    },
+    "semantic_feature_leakage": {
+      "policy_target_in_action_scalars": true,
+      "why_it_matters": "semantic_action_scalars appends policy_prob from stronger_soft_policy/policy_from_label, so R3/R4 are not leakage-clean deployable feature conclusions."
+    },
+    "target_construction_coupling": {
+      "high_regret_uses_live_vs_stronger_residual": true,
+      "why_it_matters": "Live value features can predict residual/high-regret labels partly because live value is one input to the label definition; this is not direct stronger-label leakage, but it is not independent causal evidence either."
+    },
+    "unacceptable_table_audit": {
+      "all_rows_high_regret_equals_unacceptable": 5743,
+      "all_rows_total": 5743,
+      "high_regret_positive_count": 599,
+      "interpretation": "The odd unacceptable table is mostly label identity/near-identity, not a learned-score key mismatch.",
+      "previous_high_regret_R4_ap": 0.25239693109916883,
+      "previous_unacceptable_R4_ap": 0.29606343839147636,
+      "score_key_bug_found": false,
+      "test_rows_high_regret_equals_unacceptable": 763,
+      "test_rows_total": 763,
+      "unacceptable_positive_count": 599
+    }
+  },
+  "offline_trigger_eval": {
+    "live_n8_strict_postchoice": {
+      "after_live_next_unflagged_proxy": {
+        "high_regret_count": 3,
+        "mean_regret": 1039.9252222222224,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 3
+      },
+      "after_oracle_extra_search_upper_bound": {
+        "high_regret_count": 1,
+        "mean_regret": 1.4515555555555506,
+        "p95_regret": 7.785499999999987,
+        "unacceptable_count": 1
+      },
+      "before_live_selected": {
+        "high_regret_count": 2,
+        "mean_regret": 866.9302222222224,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 2
+      },
+      "caught_selected_high_regret": 2,
+      "false_positive_safe_selected": 7,
+      "missed_selected_high_regret": 0,
+      "test_decisions": 90,
+      "threshold_train_fpr_10": 0.3266468942165375,
+      "trigger_count": 9,
+      "trigger_rate": 0.1
+    },
+    "live_n8_strict_prechoice": {
+      "after_live_next_unflagged_proxy": {
+        "high_regret_count": 3,
+        "mean_regret": 1039.9252222222224,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 3
+      },
+      "after_oracle_extra_search_upper_bound": {
+        "high_regret_count": 1,
+        "mean_regret": 1.4515555555555506,
+        "p95_regret": 7.785499999999987,
+        "unacceptable_count": 1
+      },
+      "before_live_selected": {
+        "high_regret_count": 2,
+        "mean_regret": 866.9302222222224,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 2
+      },
+      "caught_selected_high_regret": 2,
+      "false_positive_safe_selected": 7,
+      "missed_selected_high_regret": 0,
+      "test_decisions": 90,
+      "threshold_train_fpr_10": 0.32664674520492554,
+      "trigger_count": 9,
+      "trigger_rate": 0.1
+    },
+    "previous_R1_suspect": {
+      "after_live_next_unflagged_proxy": {
+        "high_regret_count": 2,
+        "mean_regret": 876.4031111111112,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 2
+      },
+      "after_oracle_extra_search_upper_bound": {
+        "high_regret_count": 1,
+        "mean_regret": 1.3525555555555655,
+        "p95_regret": 7.785499999999987,
+        "unacceptable_count": 1
+      },
+      "before_live_selected": {
+        "high_regret_count": 2,
+        "mean_regret": 866.9302222222224,
+        "p95_regret": 16.838999999999995,
+        "unacceptable_count": 2
+      },
+      "caught_selected_high_regret": 2,
+      "false_positive_safe_selected": 9,
+      "missed_selected_high_regret": 0,
+      "test_decisions": 90,
+      "threshold_train_fpr_10": 0.35720524191856384,
+      "trigger_count": 11,
+      "trigger_rate": 0.12222222222222222
+    }
+  },
+  "probe_metrics": {
+    "high_regret": {
+      "leakage_control_stronger": {
+        "auroc": 1.0,
+        "average_precision": 1.0,
+        "brier": 0.0017232247493572943,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_postchoice": {
+        "auroc": 0.9983395599833956,
+        "average_precision": 0.961314719484113,
+        "brier": 0.015322426312571278,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_prechoice": {
+        "auroc": 0.9983810709838107,
+        "average_precision": 0.9605960905678097,
+        "brier": 0.01533296699236661,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_uncertainty_only": {
+        "auroc": 0.4713781652137817,
+        "average_precision": 0.10441363244985058,
+        "brier": 0.18753622909062412,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 0.2727272727272727,
+        "recall_at_fpr_10": 0.2727272727272727
+      },
+      "live_n8_values_only": {
+        "auroc": 0.9986716479867165,
+        "average_precision": 0.9637922777676878,
+        "brier": 0.014289270161163374,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "previous_R1_suspect": {
+        "auroc": 0.989975093399751,
+        "average_precision": 0.7470607412748353,
+        "brier": 0.020987457950586885,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      }
+    },
+    "selected_high_regret": {
+      "leakage_control_stronger": {
+        "auroc": 1.0,
+        "average_precision": 1.0,
+        "brier": 0.0014829409993789985,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_postchoice": {
+        "auroc": 0.9772727272727273,
+        "average_precision": 0.45,
+        "brier": 0.051519687811162396,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_prechoice": {
+        "auroc": 0.9772727272727273,
+        "average_precision": 0.45,
+        "brier": 0.0515196767832736,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_uncertainty_only": {
+        "auroc": 0.9488636363636364,
+        "average_precision": 0.24285714285714285,
+        "brier": 0.10720963747989566,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 0.5,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_values_only": {
+        "auroc": 0.9772727272727273,
+        "average_precision": 0.41666666666666663,
+        "brier": 0.056174226917437904,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "previous_R1_suspect": {
+        "auroc": 0.9659090909090909,
+        "average_precision": 0.39285714285714285,
+        "brier": 0.07590015826337616,
+        "n": 90,
+        "positive_rate": 0.022222222222222223,
+        "positives": 2,
+        "recall_at_fpr_05": 0.5,
+        "recall_at_fpr_10": 1.0
+      }
+    },
+    "unacceptable": {
+      "leakage_control_stronger": {
+        "auroc": 1.0,
+        "average_precision": 1.0,
+        "brier": 0.0017232247493572943,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_postchoice": {
+        "auroc": 0.9983395599833956,
+        "average_precision": 0.961314719484113,
+        "brier": 0.015322426312571278,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_strict_prechoice": {
+        "auroc": 0.9983810709838107,
+        "average_precision": 0.9605960905678097,
+        "brier": 0.01533296699236661,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "live_n8_uncertainty_only": {
+        "auroc": 0.4713781652137817,
+        "average_precision": 0.10441363244985058,
+        "brier": 0.18753622909062412,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 0.2727272727272727,
+        "recall_at_fpr_10": 0.2727272727272727
+      },
+      "live_n8_values_only": {
+        "auroc": 0.9986716479867165,
+        "average_precision": 0.9637922777676878,
+        "brier": 0.014289270161163374,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      },
+      "previous_R1_suspect": {
+        "auroc": 0.989975093399751,
+        "average_precision": 0.7470607412748353,
+        "brier": 0.020987457950586885,
+        "n": 763,
+        "positive_rate": 0.04325032765399738,
+        "positives": 33,
+        "recall_at_fpr_05": 1.0,
+        "recall_at_fpr_10": 1.0
+      }
+    }
+  }
+}

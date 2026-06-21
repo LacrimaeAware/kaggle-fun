@@ -1,0 +1,176 @@
+{
+  "audit_version": "branch_b_dagger_round1.0",
+  "config": {
+    "anchor_model": "pokemon-tcg-ai-battle\\agent\\ranker_model.json",
+    "anchor_sources": "base_distill,stable_replay",
+    "anchor_weight": 0.75,
+    "base_data": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\pokemon-tcg-ai-battle\\data\\replay_db\\action_adv.jsonl",
+    "base_limit": 1218,
+    "base_weight": 1.0,
+    "collection_ranker_model": "ranker_model_dagger_round1.json",
+    "dagger_round": 2,
+    "epochs": 5,
+    "lam_accept": 0.03,
+    "lam_rank": 0.05,
+    "lr": 0.0001,
+    "max_grad_norm": 1.0,
+    "max_recovery_decisions": 800,
+    "model_in": "pokemon-tcg-ai-battle\\agent\\ranker_model_dagger_round1.json",
+    "model_out": "pokemon-tcg-ai-battle\\agent\\ranker_model_dagger_round2.json",
+    "n_determ": 3,
+    "recovery_games": 30,
+    "recovery_stable_weight": 0.45,
+    "recovery_unstable_weight": 0.1,
+    "seed": 9102,
+    "stable_replay_limit": 64,
+    "stable_replay_weight": 1.2,
+    "teacher_repeats": 3,
+    "time_budget": 4.0
+  },
+  "dataset": {
+    "by_source_stability": {
+      "base_distill/original": 1218,
+      "recovery/stable": 442,
+      "recovery/unstable": 228,
+      "stable_replay/stable": 18,
+      "stable_replay/unstable": 27
+    },
+    "total_decisions": 1933
+  },
+  "epoch_losses": [
+    55.01535904836497,
+    23.046981217169076,
+    14.77194331600815,
+    10.30212308606157,
+    9.756401148691689
+  ],
+  "offline_eval_after": {
+    "by_source_stability": {
+      "base_distill/original": {
+        "acceptable_agreement": 0.8407224958949097,
+        "hard_top1": 0.46551724137931033,
+        "high_regret_count": 85,
+        "mean_regret": 19248.980579501917,
+        "n": 1218,
+        "p90_regret": 522.0,
+        "p95_regret": 1149.25
+      },
+      "recovery/stable": {
+        "acceptable_agreement": 0.6312217194570136,
+        "hard_top1": 0.34615384615384615,
+        "high_regret_count": 41,
+        "mean_regret": 4475.470169264287,
+        "n": 442,
+        "p90_regret": 888.8888888888889,
+        "p95_regret": 1298.0
+      },
+      "recovery/unstable": {
+        "acceptable_agreement": 0.7456140350877193,
+        "hard_top1": 0.2412280701754386,
+        "high_regret_count": 11,
+        "mean_regret": 10308.434454191032,
+        "n": 228,
+        "p90_regret": 305.1111111111111,
+        "p95_regret": 890.8888888888889
+      },
+      "stable_replay/stable": {
+        "acceptable_agreement": 0.7777777777777778,
+        "hard_top1": 0.5555555555555556,
+        "high_regret_count": 2,
+        "mean_regret": 183.67283950617283,
+        "n": 18,
+        "p90_regret": 470.55555555555554,
+        "p95_regret": 1033.333333333333
+      },
+      "stable_replay/unstable": {
+        "acceptable_agreement": 0.8518518518518519,
+        "hard_top1": 0.3333333333333333,
+        "high_regret_count": 0,
+        "mean_regret": 151.06995884773664,
+        "n": 27,
+        "p90_regret": 478.14814814814815,
+        "p95_regret": 513.1111111111111
+      }
+    },
+    "overall": {
+      "acceptable_agreement": 0.7811691670977755,
+      "hard_top1": 0.4107604759441283,
+      "high_regret_count": 139,
+      "mean_regret": 14372.02494371635,
+      "n": 1933,
+      "p90_regret": 620.75,
+      "p95_regret": 1190.0
+    }
+  },
+  "offline_eval_before": {
+    "by_source_stability": {
+      "base_distill/original": {
+        "acceptable_agreement": 0.8407224958949097,
+        "hard_top1": 0.47044334975369456,
+        "high_regret_count": 92,
+        "mean_regret": 19970.538119184457,
+        "n": 1218,
+        "p90_regret": 620.75,
+        "p95_regret": 1164.0
+      },
+      "recovery/stable": {
+        "acceptable_agreement": 0.6176470588235294,
+        "hard_top1": 0.3438914027149321,
+        "high_regret_count": 38,
+        "mean_regret": 6724.075414781298,
+        "n": 442,
+        "p90_regret": 837.1111111111111,
+        "p95_regret": 1238.888888888889
+      },
+      "recovery/unstable": {
+        "acceptable_agreement": 0.7368421052631579,
+        "hard_top1": 0.2412280701754386,
+        "high_regret_count": 12,
+        "mean_regret": 10804.637183235865,
+        "n": 228,
+        "p90_regret": 366.55555555555566,
+        "p95_regret": 942.4444444444443
+      },
+      "stable_replay/stable": {
+        "acceptable_agreement": 0.7777777777777778,
+        "hard_top1": 0.5555555555555556,
+        "high_regret_count": 1,
+        "mean_regret": 177.96913580246914,
+        "n": 18,
+        "p90_regret": 420.55555555555554,
+        "p95_regret": 980.6666666666665
+      },
+      "stable_replay/unstable": {
+        "acceptable_agreement": 0.8518518518518519,
+        "hard_top1": 0.3333333333333333,
+        "high_regret_count": 0,
+        "mean_regret": 142.14403292181072,
+        "n": 27,
+        "p90_regret": 478.14814814814815,
+        "p95_regret": 513.1111111111111
+      }
+    },
+    "overall": {
+      "acceptable_agreement": 0.7770305225038799,
+      "hard_top1": 0.413347128815313,
+      "high_regret_count": 143,
+      "mean_regret": 15399.200917543254,
+      "n": 1933,
+      "p90_regret": 635.2222222222222,
+      "p95_regret": 1194.875
+    }
+  },
+  "recovery_game_summary": {
+    "draws": 0,
+    "errors": 0,
+    "games": 30,
+    "kept_recovery_decisions": 670,
+    "seconds": 23.158674478530884,
+    "skipped_features": 123,
+    "skipped_forced_floor": 6,
+    "skipped_not_applicable": 1,
+    "traced_decisions": 800,
+    "wins_opponent": 11,
+    "wins_student": 19
+  }
+}

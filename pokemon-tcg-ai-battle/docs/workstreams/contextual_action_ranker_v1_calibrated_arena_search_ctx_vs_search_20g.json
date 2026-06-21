@@ -1,0 +1,21 @@
+{
+  "a": "search_ctx",
+  "artifact_version": "contextual_action_ranker_v1.calibrated_arena_screen",
+  "b": "search",
+  "calibration": "min_std=0.05, clip_z=8.0, corrected normalized-feature ablations",
+  "games": 20,
+  "model": "agent/contextual_ranker_v1.json",
+  "result": {
+    "a_win_rate": 0.5,
+    "a_win_rate_decided": 0.5,
+    "draws": 0,
+    "errors": 0,
+    "games": 20,
+    "s_per_game": 22.04,
+    "seconds": 440.8,
+    "wins_a": 10,
+    "wins_b": 10
+  },
+  "same_deck": true,
+  "wall_clock_note": "agent_search_ctx debits contextual scoring time from search.DEFAULT_BUDGET before forward-model search"
+}

@@ -1,0 +1,497 @@
+{
+  "arena_screen": "not run",
+  "artifact_version": "contextual_risk_only_v1.eval",
+  "branch": "exp/robust-learner-v2",
+  "dataset_summary": {
+    "by_partition": {
+      "test": 22,
+      "train": 28
+    },
+    "by_source": {
+      "B_failure_state": 15,
+      "high_criticality": 35
+    },
+    "decisions": 50,
+    "high_regret_options": 13,
+    "options": 451,
+    "unacceptable_options": 261
+  },
+  "decision": {
+    "choice": "C",
+    "rationale": "The A-label risk-only model did not improve the required offline safety metrics over agent_search.",
+    "title": "risk-only fails; request more/different labels from Model A"
+  },
+  "inputs": {
+    "b_bootstrap_model": "agent\\contextual_residual_risk_v1.json",
+    "dataset": "docs\\workstreams\\contextual_risk_only_v1_dataset.json",
+    "labels": "data\\manifests\\teacher_v2_residual_risk_labels.jsonl",
+    "model": "agent\\contextual_risk_only_v1.json",
+    "no_deltas_model": "agent\\contextual_risk_only_v1_no_deltas.json",
+    "no_effects_model": "agent\\contextual_risk_only_v1_no_effects.json",
+    "previous_full_model": "agent\\contextual_ranker_teacher_v2.json"
+  },
+  "label_ingest": {
+    "decisions_loaded": 50,
+    "failures": [],
+    "feature_rows_generated": 451,
+    "missing_fields": [],
+    "option_alignment": {
+      "decisions_aligned": 50,
+      "options_aligned": 451
+    },
+    "options_loaded": 451,
+    "training_ready": true
+  },
+  "live_agent_consumed": "none",
+  "offline_eval": {
+    "detection": {
+      "all:new_a_label_risk_only": {
+        "false_positive_risk_rate": 0.10326086956521739,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.9230769230769231,
+        "safe_options": 184,
+        "unacceptable_action_recall": 0.8812260536398467,
+        "unacceptable_options": 261
+      },
+      "all:no_deltas_risk_only": {
+        "false_positive_risk_rate": 0.125,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 184,
+        "unacceptable_action_recall": 0.9157088122605364,
+        "unacceptable_options": 261
+      },
+      "all:no_effects_risk_only": {
+        "false_positive_risk_rate": 0.11956521739130435,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 184,
+        "unacceptable_action_recall": 0.9272030651340997,
+        "unacceptable_options": 261
+      },
+      "b_failure:new_a_label_risk_only": {
+        "false_positive_risk_rate": 0.13636363636363635,
+        "high_regret_options": 0,
+        "high_regret_recall": 0.0,
+        "safe_options": 66,
+        "unacceptable_action_recall": 0.5689655172413793,
+        "unacceptable_options": 58
+      },
+      "b_failure:no_deltas_risk_only": {
+        "false_positive_risk_rate": 0.19696969696969696,
+        "high_regret_options": 0,
+        "high_regret_recall": 0.0,
+        "safe_options": 66,
+        "unacceptable_action_recall": 0.6896551724137931,
+        "unacceptable_options": 58
+      },
+      "b_failure:no_effects_risk_only": {
+        "false_positive_risk_rate": 0.21212121212121213,
+        "high_regret_options": 0,
+        "high_regret_recall": 0.0,
+        "safe_options": 66,
+        "unacceptable_action_recall": 0.7586206896551724,
+        "unacceptable_options": 58
+      },
+      "high_criticality:new_a_label_risk_only": {
+        "false_positive_risk_rate": 0.0847457627118644,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.9230769230769231,
+        "safe_options": 118,
+        "unacceptable_action_recall": 0.9704433497536946,
+        "unacceptable_options": 203
+      },
+      "high_criticality:no_deltas_risk_only": {
+        "false_positive_risk_rate": 0.0847457627118644,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 118,
+        "unacceptable_action_recall": 0.9802955665024631,
+        "unacceptable_options": 203
+      },
+      "high_criticality:no_effects_risk_only": {
+        "false_positive_risk_rate": 0.06779661016949153,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 118,
+        "unacceptable_action_recall": 0.9753694581280788,
+        "unacceptable_options": 203
+      },
+      "high_regret_decisions:new_a_label_risk_only": {
+        "false_positive_risk_rate": 0.18181818181818182,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.9230769230769231,
+        "safe_options": 11,
+        "unacceptable_action_recall": 1.0,
+        "unacceptable_options": 7
+      },
+      "high_regret_decisions:no_deltas_risk_only": {
+        "false_positive_risk_rate": 0.18181818181818182,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 11,
+        "unacceptable_action_recall": 1.0,
+        "unacceptable_options": 7
+      },
+      "high_regret_decisions:no_effects_risk_only": {
+        "false_positive_risk_rate": 0.18181818181818182,
+        "high_regret_options": 13,
+        "high_regret_recall": 0.8461538461538461,
+        "safe_options": 11,
+        "unacceptable_action_recall": 1.0,
+        "unacceptable_options": 7
+      },
+      "test:new_a_label_risk_only": {
+        "false_positive_risk_rate": 0.2,
+        "high_regret_options": 6,
+        "high_regret_recall": 0.8333333333333334,
+        "safe_options": 85,
+        "unacceptable_action_recall": 0.6923076923076923,
+        "unacceptable_options": 91
+      },
+      "test:no_deltas_risk_only": {
+        "false_positive_risk_rate": 0.25882352941176473,
+        "high_regret_options": 6,
+        "high_regret_recall": 0.6666666666666666,
+        "safe_options": 85,
+        "unacceptable_action_recall": 0.7802197802197802,
+        "unacceptable_options": 91
+      },
+      "test:no_effects_risk_only": {
+        "false_positive_risk_rate": 0.23529411764705882,
+        "high_regret_options": 6,
+        "high_regret_recall": 0.6666666666666666,
+        "safe_options": 85,
+        "unacceptable_action_recall": 0.8351648351648352,
+        "unacceptable_options": 91
+      }
+    },
+    "selection": {
+      "all": {
+        "agent_search": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 634.4176,
+          "n": 50,
+          "p95_regret": 71.51649999999985,
+          "p99_regret": 16010.27129999994,
+          "top1": 0.56
+        },
+        "new_a_label_risk_only": {
+          "acceptable_action_rate": 0.98,
+          "high_regret_count": 1,
+          "mean_regret": 636.5876000000001,
+          "n": 50,
+          "p95_regret": 102.31249999999997,
+          "p99_regret": 16010.27129999994,
+          "top1": 0.54
+        },
+        "no_deltas_risk_only": {
+          "acceptable_action_rate": 0.98,
+          "high_regret_count": 1,
+          "mean_regret": 636.5876000000001,
+          "n": 50,
+          "p95_regret": 102.31249999999997,
+          "p99_regret": 16010.27129999994,
+          "top1": 0.54
+        },
+        "no_effects_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 634.4176,
+          "n": 50,
+          "p95_regret": 71.51649999999985,
+          "p99_regret": 16010.27129999994,
+          "top1": 0.56
+        },
+        "old_ranker": {
+          "acceptable_action_rate": 0.54,
+          "high_regret_count": 1,
+          "mean_regret": 764.8861999999999,
+          "n": 50,
+          "p95_regret": 612.2539999999985,
+          "p99_regret": 17106.523799999944,
+          "top1": 0.3
+        },
+        "previous_b_bootstrap_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 632.5226,
+          "n": 50,
+          "p95_regret": 33.86799999999994,
+          "p99_regret": 16010.27129999994,
+          "top1": 0.58
+        },
+        "previous_full_teacher_v2": {
+          "acceptable_action_rate": 0.78,
+          "high_regret_count": 1,
+          "mean_regret": 685.7824,
+          "n": 50,
+          "p95_regret": 279.1909999999998,
+          "p99_regret": 16348.98379999994,
+          "top1": 0.42
+        }
+      },
+      "b_failure": {
+        "agent_search": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 0,
+          "mean_regret": 4.0,
+          "n": 15,
+          "p95_regret": 16.58299999999999,
+          "p99_regret": 20.1166,
+          "top1": 0.4666666666666667
+        },
+        "new_a_label_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 0,
+          "mean_regret": 4.0,
+          "n": 15,
+          "p95_regret": 16.58299999999999,
+          "p99_regret": 20.1166,
+          "top1": 0.4666666666666667
+        },
+        "no_deltas_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 0,
+          "mean_regret": 4.0,
+          "n": 15,
+          "p95_regret": 16.58299999999999,
+          "p99_regret": 20.1166,
+          "top1": 0.4666666666666667
+        },
+        "no_effects_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 0,
+          "mean_regret": 4.0,
+          "n": 15,
+          "p95_regret": 16.58299999999999,
+          "p99_regret": 20.1166,
+          "top1": 0.4666666666666667
+        },
+        "old_ranker": {
+          "acceptable_action_rate": 0.8666666666666667,
+          "high_regret_count": 0,
+          "mean_regret": 85.43733333333333,
+          "n": 15,
+          "p95_regret": 406.9339999999994,
+          "p99_regret": 745.3867999999997,
+          "top1": 0.6
+        },
+        "previous_b_bootstrap_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 0,
+          "mean_regret": 4.0,
+          "n": 15,
+          "p95_regret": 16.58299999999999,
+          "p99_regret": 20.1166,
+          "top1": 0.4666666666666667
+        },
+        "previous_full_teacher_v2": {
+          "acceptable_action_rate": 0.6666666666666666,
+          "high_regret_count": 0,
+          "mean_regret": 103.90866666666668,
+          "n": 15,
+          "p95_regret": 398.58299999999934,
+          "p99_regret": 743.7165999999996,
+          "top1": 0.4666666666666667
+        }
+      },
+      "high_criticality": {
+        "agent_search": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 904.5965714285715,
+          "n": 35,
+          "p95_regret": 107.94999999999987,
+          "p99_regret": 20678.365799999894,
+          "top1": 0.6
+        },
+        "new_a_label_risk_only": {
+          "acceptable_action_rate": 0.9714285714285714,
+          "high_regret_count": 1,
+          "mean_regret": 907.6965714285715,
+          "n": 35,
+          "p95_regret": 117.5749999999999,
+          "p99_regret": 20678.365799999894,
+          "top1": 0.5714285714285714
+        },
+        "no_deltas_risk_only": {
+          "acceptable_action_rate": 0.9714285714285714,
+          "high_regret_count": 1,
+          "mean_regret": 907.6965714285715,
+          "n": 35,
+          "p95_regret": 117.5749999999999,
+          "p99_regret": 20678.365799999894,
+          "top1": 0.5714285714285714
+        },
+        "no_effects_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 904.5965714285715,
+          "n": 35,
+          "p95_regret": 107.94999999999987,
+          "p99_regret": 20678.365799999894,
+          "top1": 0.6
+        },
+        "old_ranker": {
+          "acceptable_action_rate": 0.4,
+          "high_regret_count": 1,
+          "mean_regret": 1056.0785714285714,
+          "n": 35,
+          "p95_regret": 955.0839999999943,
+          "p99_regret": 21439.030799999902,
+          "top1": 0.17142857142857143
+        },
+        "previous_b_bootstrap_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 901.8894285714287,
+          "n": 35,
+          "p95_regret": 71.80899999999973,
+          "p99_regret": 20678.365799999894,
+          "top1": 0.6285714285714286
+        },
+        "previous_full_teacher_v2": {
+          "acceptable_action_rate": 0.8285714285714286,
+          "high_regret_count": 1,
+          "mean_regret": 935.1568571428572,
+          "n": 35,
+          "p95_regret": 259.7859999999998,
+          "p99_regret": 20737.991599999896,
+          "top1": 0.4
+        }
+      },
+      "high_regret_decisions": {
+        "agent_search": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7849.5325,
+          "n": 4,
+          "p95_regret": 26591.28549999999,
+          "p99_regret": 30325.761099999992,
+          "top1": 0.5
+        },
+        "new_a_label_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7849.5325,
+          "n": 4,
+          "p95_regret": 26591.28549999999,
+          "p99_regret": 30325.761099999992,
+          "top1": 0.5
+        },
+        "no_deltas_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7849.5325,
+          "n": 4,
+          "p95_regret": 26591.28549999999,
+          "p99_regret": 30325.761099999992,
+          "top1": 0.5
+        },
+        "no_effects_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7849.5325,
+          "n": 4,
+          "p95_regret": 26591.28549999999,
+          "p99_regret": 30325.761099999992,
+          "top1": 0.5
+        },
+        "old_ranker": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7839.375,
+          "n": 4,
+          "p95_regret": 26585.19099999999,
+          "p99_regret": 30324.542199999993,
+          "top1": 0.5
+        },
+        "previous_b_bootstrap_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7849.5325,
+          "n": 4,
+          "p95_regret": 26591.28549999999,
+          "p99_regret": 30325.761099999992,
+          "top1": 0.5
+        },
+        "previous_full_teacher_v2": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 7843.5175,
+          "n": 4,
+          "p95_regret": 26587.67649999999,
+          "p99_regret": 30325.039299999993,
+          "top1": 0.5
+        }
+      },
+      "test": {
+        "agent_search": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 1425.574090909091,
+          "n": 22,
+          "p95_regret": 20.824999999999996,
+          "p99_regret": 24699.320199999973,
+          "top1": 0.4090909090909091
+        },
+        "new_a_label_risk_only": {
+          "acceptable_action_rate": 0.9545454545454546,
+          "high_regret_count": 1,
+          "mean_regret": 1430.5059090909092,
+          "n": 22,
+          "p95_regret": 104.12499999999993,
+          "p99_regret": 24717.695199999973,
+          "top1": 0.36363636363636365
+        },
+        "no_deltas_risk_only": {
+          "acceptable_action_rate": 0.9545454545454546,
+          "high_regret_count": 1,
+          "mean_regret": 1430.5059090909092,
+          "n": 22,
+          "p95_regret": 104.12499999999993,
+          "p99_regret": 24717.695199999973,
+          "top1": 0.36363636363636365
+        },
+        "no_effects_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 1425.574090909091,
+          "n": 22,
+          "p95_regret": 20.824999999999996,
+          "p99_regret": 24699.320199999973,
+          "top1": 0.4090909090909091
+        },
+        "old_ranker": {
+          "acceptable_action_rate": 0.7272727272727273,
+          "high_regret_count": 1,
+          "mean_regret": 1503.3522727272727,
+          "n": 22,
+          "p95_regret": 799.7809999999996,
+          "p99_regret": 24869.210199999972,
+          "top1": 0.45454545454545453
+        },
+        "previous_b_bootstrap_risk_only": {
+          "acceptable_action_rate": 1.0,
+          "high_regret_count": 1,
+          "mean_regret": 1425.574090909091,
+          "n": 22,
+          "p95_regret": 20.824999999999996,
+          "p99_regret": 24699.320199999973,
+          "top1": 0.4090909090909091
+        },
+        "previous_full_teacher_v2": {
+          "acceptable_action_rate": 0.7272727272727273,
+          "high_regret_count": 1,
+          "mean_regret": 1497.685,
+          "n": 22,
+          "p95_regret": 799.1844999999996,
+          "p99_regret": 24869.210199999972,
+          "top1": 0.45454545454545453
+        }
+      }
+    }
+  }
+}

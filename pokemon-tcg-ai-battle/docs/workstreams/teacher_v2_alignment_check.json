@@ -1,0 +1,149 @@
+{
+  "alignment": {
+    "alignment_ready_for_training": false,
+    "contextual_decisions": 160,
+    "contextual_id_collisions": [
+      {
+        "decision_id": "obs:8ac7b8cc6106ff71",
+        "first": 0,
+        "second": 1
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 1
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 2
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 3
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 4
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 5
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 6
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 7
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 8
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 9
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 10
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 11
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 12
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 13
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 14
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 15
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 16
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 17
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 18
+      },
+      {
+        "decision_id": "replay:80251230.json:None",
+        "first": 0,
+        "second": 19
+      }
+    ],
+    "matched_decisions": 0,
+    "option_totals": {},
+    "sample_alignment_mismatches": [],
+    "sample_unmatched_teacher": [],
+    "status": "implemented_loader_no_teacher_rows",
+    "teacher_decisions": 0,
+    "unmatched_teacher_decisions": 0,
+    "usable_outcome_aux_decisions": 0,
+    "usable_primary_hand_advantage_decisions": 0
+  },
+  "artifact_version": "teacher_v2_alignment_check.1",
+  "branch": "exp/robust-learner-v2",
+  "contextual_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\contextual_action_ranker_v1_dataset.json",
+  "live_agent_consumed": "none; this tool is offline preparation only",
+  "required_schema": {
+    "decision_required": [
+      "decision_id or obs_hash",
+      "legal_siblings/options/actions",
+      "hand_soft_policy or soft_policy",
+      "acceptable_set",
+      "criticality_score",
+      "coverage/timing/determinization metadata"
+    ],
+    "option_auxiliary": [
+      "outcome_winrate",
+      "outcome_playouts",
+      "outcome_variance or outcome_confidence"
+    ],
+    "option_required": [
+      "option_index",
+      "semantic_action_key",
+      "eq_class",
+      "hand_mean_value",
+      "hand_value_variance",
+      "hand_norm_advantage"
+    ],
+    "outcome_rule": "outcome_winrate is auxiliary only unless Model A validates higher-k reliability",
+    "primary_target_rule": "hand_norm_advantage weighted by criticality and inverse variance/stability"
+  },
+  "self_test": false,
+  "status": "implemented",
+  "teacher_v2_artifact": null
+}

@@ -1,0 +1,50 @@
+{
+  "artifact_version": "teacher_v2_contextual_featurization.v1",
+  "base_dataset": null,
+  "base_rows_removed_by_teacher_v2_signature": 0,
+  "baseline": "agent_search",
+  "branch": "exp/robust-learner-v2",
+  "direct_dataset": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\docs\\workstreams\\teacher_v2_B_failures_contextual_dataset.json",
+  "direct_summary": {
+    "by_partition": {
+      "test": 1,
+      "train": 13,
+      "val": 1
+    },
+    "by_source": {
+      "teacher_v2_targeted_failures": 15
+    },
+    "by_teacher_stability": {
+      "teacher_v2_covered": 15
+    },
+    "decks": 1,
+    "high_regret": 0,
+    "players": 1,
+    "total_decisions": 15
+  },
+  "failures": [],
+  "featurized_decisions": 15,
+  "live_agent_consumed": "none; offline replay reconstruction only",
+  "missing_fields_failures": 0,
+  "mixed_dataset": null,
+  "mixed_summary": null,
+  "option_level_alignment": {
+    "counts": {
+      "eq_exact_match": 124,
+      "eq_remappable": 124,
+      "index_in_range": 124,
+      "semantic_key_match": 124,
+      "teacher_options": 124
+    },
+    "eq_exact_match_rate": 1.0,
+    "eq_remappable_rate": 1.0,
+    "index_alignment_rate": 1.0,
+    "semantic_key_alignment_rate": 1.0,
+    "teacher_options": 124
+  },
+  "reconstruction_failures": 0,
+  "target_translation_failures": 0,
+  "teacher_v2_artifact": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\.claude\\worktrees\\robust-learner-v2\\pokemon-tcg-ai-battle\\data\\manifests\\teacher_v2_labels_for_B_failures.jsonl",
+  "teacher_v2_decisions_loaded": 15,
+  "training_ready": true
+}

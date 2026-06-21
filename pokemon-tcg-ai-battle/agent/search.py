@@ -157,8 +157,25 @@ def _hidden_pool(deck: list, player: dict, exclude_hand: bool) -> list:
     return pool
 
 
+def _ordered_indices(n: int, option_order: list | None) -> list[int]:
+    if not option_order:
+        return list(range(n))
+    out, seen = [], set()
+    for raw in option_order:
+        try:
+            i = int(raw)
+        except Exception:
+            continue
+        if 0 <= i < n and i not in seen:
+            out.append(i)
+            seen.add(i)
+    out.extend(i for i in range(n) if i not in seen)
+    return out
+
+
 def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
-            opp_k: int = 0, opp_prior: list = None):
+            opp_k: int = 0, opp_prior: list = None, option_order: list | None = None,
+            option_prior: list | None = None):
     """Core search. Returns (best_option_index, best_backed_up_value), or (None, None) if search
     is not applicable. The backed-up value is the max over options of the determinization-averaged
     leaf value -- the A0GB-style search-bootstrapped value of this state (used as a learning target
@@ -225,7 +242,7 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
         if sums is None:
             sums, counts = [0.0] * nn, [0] * nn
         try:
-            for i in range(min(len(sums), nn)):
+            for i in _ordered_indices(min(len(sums), nn), option_order):
                 if time.time() - t0 > time_budget:
                     break
                 try:
@@ -247,17 +264,20 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
     for i in range(len(sums)):
         if counts[i] > 0:
             avg = sums[i] / counts[i]
-            if best_avg is None or avg > best_avg:
+            prior_i = float(option_prior[i]) if option_prior and i < len(option_prior) else 0.0
+            prior_best = float(option_prior[best_i]) if option_prior and best_i is not None and best_i < len(option_prior) else 0.0
+            if best_avg is None or avg > best_avg or (abs(avg - best_avg) <= 1e-9 and prior_i > prior_best):
                 best_avg, best_i = avg, i
     return best_i, best_avg
 
 
 def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
-                opp_k: int = 0, opp_prior: list = None):
+                opp_k: int = 0, opp_prior: list = None, option_order: list | None = None,
+                option_prior: list | None = None):
     """The chosen option as a 1-element list, or None if search does not apply (caller falls back).
     opp_k>0 enables 2-ply opponent-reply branching. opp_prior fills the opponent's hidden zones from a
     meta deck prior (belief-conditioned determinization) instead of assuming our own deck."""
-    i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k, opp_prior)
+    i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k, opp_prior, option_order, option_prior)
     return [i] if i is not None else None
 
 

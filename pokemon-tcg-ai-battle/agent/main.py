@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 
 import features as FT        # L1 state encoder (card_features.json bundled alongside)
 
@@ -191,6 +192,43 @@ def _agent_search(obs: dict, leaf_mode: str, opp_k: int = 0) -> list[int]:
     except Exception:
         pass
     return agent(obs)
+
+
+def agent_search_ctx(obs: dict) -> list[int]:
+    """Contextual-ranker-guided hand-search.
+
+    The learned model only orders/tie-breaks legal siblings. Search still
+    evaluates candidates with the forward model and remains the final chooser.
+    Contextual scoring time is debited from the normal per-decision budget so
+    screens compare against standalone search under the same wall-clock cap.
+    """
+    try:
+        if obs.get("select") is None:
+            return list(DECK)
+        mv = _forced_move(obs)
+        if mv is not None:
+            return mv
+        import contextual_ranker
+        import search
+        t0 = time.time()
+        scores = contextual_ranker.score_options(obs, DECK)
+        elapsed = time.time() - t0
+        if scores:
+            order = sorted(range(len(scores)), key=lambda i: (-scores[i], i))
+            budget = max(0.03, search.DEFAULT_BUDGET - elapsed)
+            mv = search.best_option(
+                obs,
+                DECK,
+                time_budget=budget,
+                leaf_mode="hand",
+                option_order=order,
+                option_prior=scores,
+            )
+            if mv is not None:
+                return mv
+    except Exception:
+        pass
+    return agent_search(obs)
 
 
 def agent_search(obs: dict) -> list[int]:

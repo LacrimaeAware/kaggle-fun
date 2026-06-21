@@ -29,6 +29,7 @@ PLAY, ATTACH, EVOLVE, ABILITY, RETREAT, ATTACK = 7, 8, 9, 10, 12, 13
 A_HAND, A_ACTIVE, A_BENCH, A_DISCARD = 2, 4, 5, 6
 
 _MODEL = None
+_MODEL_NAME = None
 
 
 def _load_json(name):
@@ -44,12 +45,14 @@ def _load_json(name):
 
 def _model():
     """Load + cache the deploy blob once. Returns a dict of numpy arrays + spec, or None (no model)."""
-    global _MODEL
-    if _MODEL is not None:
+    global _MODEL, _MODEL_NAME
+    model_name = os.environ.get("CABT_RANKER_MODEL", "ranker_model.json")
+    if _MODEL is not None and _MODEL_NAME == model_name:
         return _MODEL or None
-    blob = _load_json("ranker_model.json")
+    blob = _load_json(model_name)
     if not blob:
         _MODEL = False
+        _MODEL_NAME = model_name
         return None
     sd = blob["state_dict"]
     m = {
@@ -65,6 +68,7 @@ def _model():
         "atk": _load_json("attack_stats.json") or {},
     }
     _MODEL = m
+    _MODEL_NAME = model_name
     return m
 
 
