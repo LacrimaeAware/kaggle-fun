@@ -1,5 +1,7 @@
 # Learning plan: features -> state -> search + RL (the systemic version)
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for the 5-layer architecture skeleton; slated for slimming.
+
 > CURRENT PLAN OF RECORD (2026-06-18): `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md`. The
 > active build is ONE integrated, replay-trained, OFFLINE action-ranker (card embedding + decoded
 > effects + state x effect interactions + forward-model deltas -> listwise outcome/horizon-weighted

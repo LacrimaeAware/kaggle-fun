@@ -1,5 +1,7 @@
 # Landscape and forks (the "is this worth it and where do we go" doc)
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for the problem characterization + quant-transfer framing; slated for slimming.
+
 Written 2026-06-16 to support one decision: how seriously to take this, and which direction.
 Grounded in the engine as actually read and run, not in generalities. Provenance tiers as
 in `COMPETITION.md`: verified / claim / unconfirmed.

@@ -1,5 +1,7 @@
 # Plan (plain version)
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for the viewer-regen runbook; slated for slimming.
+
 The short, flat plan. No jargon, no deep nesting. Full reasoning in `LANDSCAPE.md`, the
 notebook digest in `research/notebooks/SUMMARY.md`.
 

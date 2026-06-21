@@ -1,5 +1,7 @@
 # Model communication notes
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for the deduped code-issues/audit-targets list; slated for slimming.
+
 > LATEST HANDOFF (2026-06-18): read `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md` first,
 > and the inbox handoffs in `dropoff/inbox/`. Fixed since the notes below: `eval.evaluate_blend`
 > NameError (blend now runs); the dead card-join in the imitation diagnostic. Confirmed: search_v /

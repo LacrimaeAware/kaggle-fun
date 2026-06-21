@@ -1,5 +1,7 @@
 # Pokemon TCG AI Battle
 
+> **Start here:** [docs/OVERVIEW.md](docs/OVERVIEW.md) is the single-document project summary (findings, methodologies, experiments, runbooks, the dropped reports, and the doc map).
+
 Work on The Pokemon Company's Pokemon TCG AI Battle Challenge on Kaggle. The contest has
 two Kaggle pages that are two tracks of one competition, so this is one folder, not two.
 One agent serves both tracks.

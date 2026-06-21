@@ -1,5 +1,7 @@
 # Pokemon TCG AI Battle: Strategy Memo
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for unique detail (the 15 seed hypotheses, novel angles); slated for slimming.
+
 > SUPERSEDED IN PART, 2026-06-17. This is the original long memo from before the official Data
 > tab was opened. The current front doors are `docs/LEARNING_PLAN.md` (the staged build + current
 > results) and `docs/RESEARCH.md` (deep-research findings + priority plan); `docs/PLAN.md` and

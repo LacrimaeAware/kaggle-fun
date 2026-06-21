@@ -1,5 +1,7 @@
 # Research state and open ideas (LIVING doc)
 
+> CONSOLIDATED 2026-06-19: see [docs/OVERVIEW.md](OVERVIEW.md) for the single-document project summary. Retained for the replay-access runbook + live unstabilized notes; slated for slimming.
+
 > CONTROLLER: `docs/CURRENT.md` (compact, check every step). PLAN: `docs/ACTION_RANKER_PLAN.md` (the
 > H024-v2 action-conditioned ranker; do not deviate). These supersede the
 > `dropoff/outbox/2026-06-18-CONSENSUS-and-way-forward.md` framing with the diagnosis-precise version
