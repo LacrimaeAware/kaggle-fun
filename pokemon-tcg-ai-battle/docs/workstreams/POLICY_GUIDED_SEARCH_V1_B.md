@@ -33,6 +33,14 @@ Used as a PRIOR (top-3 candidates + baseline/default + forced tactical candidate
 ## B7 — expert iteration (later)
 After A's real H2 works: label hard states with higher-compute H2 search, add soft targets, retrain, <=2 bounded rounds. Reuse DAgger machinery; do not restart the old ranker objective unchanged.
 
+## B2 first result (HONEST, does NOT pass the gate yet)
+`tools/train_expert_policy_v1.py --role our_deck` (23,874 train / 4,135 held-out decisions, split by game; permutation aug on).
+Held-out: **top-1 0.393, top-3 0.685, MRR 0.573, option-0 baseline 0.575.** Train loss 1.74->1.72 (near random) = underfit / weak content signal.
+- The content-only policy does **not** beat the trivial "pick index 0" baseline overall -> NOT a usable general prior yet (fails B4 gate).
+- But strong exactly where proposals matter: CARD/tutor top-3 **0.824**, PLAY 0.739, ATTACK 0.717. Weak on ATTACH 0.259, RETREAT, END.
+- Implication: usable as a **tutor-target candidate generator** for A's fail-closed search, not as a standalone chooser. To become a real prior it needs more capacity / richer features / the option-order signal modeled separately. Matches this repo's history of learned attempts struggling.
+
 ## Status (2026-06-21)
-- B1 dataset built (above). remainingOverageTime confirmed live (600s, readable) for A's time governor.
-- Next: B2 train + B4 metrics. A-side builds search_v2 H1/H2 in parallel on `exp/planner-teacher-v2`.
+- B1 dataset built; remainingOverageTime confirmed live (600s readable) for A's time governor.
+- B2 trained, weak overall but tutor-strong. Next: either iterate B2 (capacity/features) or wire the tutor-strong slice as a candidate generator into A's validator; A-side builds search_v2 H1/H2 on `exp/planner-teacher-v2`.
+- A-side already has two CONFIRMED local wins (separate from B): Powerful-Hand KO fix 0.75 (15-5), N=32 sampling 0.625.
