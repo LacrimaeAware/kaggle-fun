@@ -1,0 +1,27 @@
+# Project-local ignores for pokemon-tcg-ai-battle.
+# Rationale: dropoff/inbox/2026-06-21-project-audit-and-refactor-plan.md (Phase 0 hygiene).
+# NOTE: tools/_v3_src/ is TRACKED staged source that the ab_v3_ablate tooling reads from.
+# Do NOT add it here.
+
+# Regenerable A/B build packages (leaked copies of the agent; rebuilt by the A/B tools).
+_candv1/
+_v3_control_*/
+_v3_*/
+!tools/_v3_src/
+
+# Per-run A/B scratch outputs (run state, not canonical results).
+/tools/_v3ab_*.json
+/tools/_ab_candidate_v1.json
+/tools/_runs/
+*.tmp
+
+# Per-run result scratch, untracked from the index on 2026-06-21.
+# Canonical results belong in the registry (registry/results.jsonl) or as small
+# committed summaries; these underscore-prefixed dumps are per-run and regenerable.
+/tools/_deckoff_res_*.json
+/tools/_deckoff_slate.json
+/tools/_hoard_denpa92.json
+/tools/_panel_*.json
+
+# Committed build artifact, reproducible via tools/build_submission.sh.
+/submission/*.tar.gz
