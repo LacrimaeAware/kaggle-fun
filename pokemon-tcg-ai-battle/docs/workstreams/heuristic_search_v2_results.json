@@ -1,0 +1,167 @@
+{
+ "a0": {
+  "candidate": "a0",
+  "config": {
+   "n_determ": 8,
+   "budget": 0.6,
+   "resolvers": [],
+   "m0": false
+  },
+  "games": 16,
+  "win_rate": 0.688,
+  "wilson95": [
+   0.444,
+   0.858
+  ],
+  "wins": 11,
+  "losses": 5,
+  "draws": 0,
+  "errors": 0,
+  "s_per_game": 35.5,
+  "instrumentation": {
+   "decisions": 1589,
+   "forced": 8,
+   "choice_YES": 79,
+   "fallback": 232,
+   "search_applicable": 1355,
+   "search_used": 1349,
+   "choice_PLAY": 414,
+   "choice_CARD": 377,
+   "choice_ATTACH": 108,
+   "choice_RETREAT": 17,
+   "choice_EVOLVE": 167,
+   "choice_NO": 21,
+   "choice_ATTACK": 85,
+   "choice_ABILITY": 65,
+   "choice_END": 22,
+   "choice_NUMBER": 3,
+   "choice_6": 5
+  }
+ },
+ "m0": {
+  "candidate": "m0",
+  "config": {
+   "n_determ": 8,
+   "budget": 0.6,
+   "resolvers": [],
+   "m0": true
+  },
+  "games": 10,
+  "win_rate": 0.3,
+  "wilson95": [
+   0.108,
+   0.603
+  ],
+  "wins": 3,
+  "losses": 7,
+  "draws": 0,
+  "errors": 0,
+  "s_per_game": 37.42,
+  "instrumentation": {
+   "decisions": 943,
+   "forced": 7,
+   "choice_YES": 39,
+   "fallback": 154,
+   "search_applicable": 784,
+   "choice_NUMBER": 1,
+   "search_used": 782,
+   "choice_PLAY": 259,
+   "choice_CARD": 213,
+   "choice_ATTACH": 60,
+   "choice_EVOLVE": 99,
+   "choice_ATTACK": 34,
+   "choice_ABILITY": 46,
+   "choice_END": 17,
+   "choice_NO": 13,
+   "choice_RETREAT": 7,
+   "choice_6": 3
+  }
+ },
+ "m0_poffin": {
+  "candidate": "m0_poffin",
+  "config": {
+   "n_determ": 8,
+   "budget": 0.6,
+   "resolvers": [
+    "poffin"
+   ],
+   "m0": true
+  },
+  "games": 10,
+  "win_rate": 0.4,
+  "wilson95": [
+   0.168,
+   0.687
+  ],
+  "wins": 4,
+  "losses": 6,
+  "draws": 0,
+  "errors": 0,
+  "s_per_game": 26.32,
+  "instrumentation": {
+   "decisions": 718,
+   "forced": 9,
+   "choice_YES": 39,
+   "search_applicable": 610,
+   "search_used": 606,
+   "choice_CARD": 168,
+   "fallback": 102,
+   "choice_ATTACH": 46,
+   "choice_RETREAT": 8,
+   "choice_PLAY": 180,
+   "choice_EVOLVE": 80,
+   "choice_ABILITY": 27,
+   "choice_ATTACK": 38,
+   "choice_END": 19,
+   "choice_6": 2,
+   "choice_NO": 9,
+   "choice_NUMBER": 3,
+   "proposal_calls": 2,
+   "accepted": 1,
+   "tiebreak": 0,
+   "incomplete": 0,
+   "val_error": 0,
+   "heuristic_rejected": 1,
+   "heuristic_used": 1
+  }
+ },
+ "phfix": {
+  "candidate": "phfix",
+  "config": {
+   "n_determ": 8,
+   "budget": 0.6,
+   "resolvers": [],
+   "forced": "phaware"
+  },
+  "games": 20,
+  "win_rate": 0.75,
+  "wilson95": [
+   0.531,
+   0.888
+  ],
+  "wins": 15,
+  "losses": 5,
+  "draws": 0,
+  "errors": 0,
+  "s_per_game": 25.975,
+  "instrumentation": {
+   "decisions": 1548,
+   "forced": 89,
+   "choice_YES": 94,
+   "fallback": 225,
+   "search_applicable": 1247,
+   "search_used": 1234,
+   "choice_ATTACH": 104,
+   "choice_PLAY": 351,
+   "choice_END": 21,
+   "choice_EVOLVE": 177,
+   "choice_NO": 29,
+   "choice_CARD": 384,
+   "choice_RETREAT": 13,
+   "choice_ABILITY": 60,
+   "choice_ATTACK": 92,
+   "choice_NUMBER": 8,
+   "choice_6": 3
+  }
+ }
+}
