@@ -1,0 +1,21 @@
+{
+ "requested_count": "40-80, if practical",
+ "labeled": 60,
+ "seeds": 2,
+ "mined_c1": 15,
+ "failed": [],
+ "screened_candidates": 197,
+ "n_options": 588,
+ "search_selected_high_regret_states": 9,
+ "high_regret_options": 127,
+ "unacceptable_options": 404,
+ "criterion_tag_counts": {
+  "SEED": 2,
+  "c1_search_selected_high_regret": 9,
+  "c3_near_miss_boundary": 21,
+  "c2_safe_search_false_positive": 49,
+  "MINED_c1": 15
+ },
+ "high_regret_option_rate": 0.216,
+ "cost_s": 219.0
+}

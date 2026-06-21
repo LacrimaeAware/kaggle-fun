@@ -1,0 +1,54 @@
+{
+ "decisions": 702,
+ "options": 5743,
+ "games": 160,
+ "class_counts": {
+  "c1": 44,
+  "ring1": 44,
+  "ring2": 32,
+  "ring3": 44,
+  "ring4": 44,
+  "c2": 372,
+  "safe_ordinary": 118,
+  "c1_seed": 1,
+  "c2_seed": 1,
+  "unstable_proxy": 2
+ },
+ "ring_counts": {
+  "0": 46,
+  "1": 44,
+  "2": 32,
+  "3": 44,
+  "4": 44
+ },
+ "authoritative_terrain": {
+  "repro_c1": 32,
+  "unstable": 240,
+  "boundary": 241,
+  "safe_selected": 207,
+  "has_dangerous_sibling": 489
+ },
+ "c1_candidates": 45,
+ "reproduced_c1": 24,
+ "reproduced_c1_games": 16,
+ "reproduced_c1_top_game_share": 0.125,
+ "c2": 416,
+ "c3_boundary": 32,
+ "high_regret_options(prob>=.5)": 599,
+ "unacceptable_options(prob>=.5)": 3348,
+ "mean_modal_action_stability": 0.793,
+ "mean_live_action_entropy": 0.449,
+ "all_siblings_completed": "702/702",
+ "semantic_coverage": {
+  "decoded": 2255,
+  "tool": 216,
+  "energy": 1652,
+  "unknown": 704,
+  "pokemon_meta": 563,
+  "override": 353
+ },
+ "semantic_trust_rate": 0.877,
+ "eval_only": 2,
+ "failed": [],
+ "label_cost_s": 0.0
+}

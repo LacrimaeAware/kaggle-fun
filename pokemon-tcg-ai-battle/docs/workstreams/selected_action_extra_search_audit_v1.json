@@ -1,0 +1,221 @@
+{
+ "decisions": 700,
+ "games": 158,
+ "counts": {
+  "selected_high_regret": {
+   "positives": 31,
+   "games": 18,
+   "top_game_share": 0.129,
+   "rate": 0.044
+  },
+  "selected_unacceptable": {
+   "positives": 54,
+   "games": 34,
+   "top_game_share": 0.093,
+   "rate": 0.077
+  },
+  "extra_search_changes_action": {
+   "positives": 221,
+   "games": 85,
+   "top_game_share": 0.086,
+   "rate": 0.316
+  },
+  "extra_search_beneficial": {
+   "positives": 72,
+   "games": 42,
+   "top_game_share": 0.069,
+   "rate": 0.103
+  }
+ },
+ "oracle": {
+  "pct_decisions_stronger_changes_action": 0.316,
+  "pct_decisions_change_beneficial": 0.103,
+  "pct_selected_high_regret_fixed_by_switch": 0.968,
+  "mean_regret_avoided_on_beneficial": 19024.0,
+  "oracle_trigger_rate": 0.103
+ },
+ "triggers": {
+  "high_live_entropy": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.46,
+    "recall": 1.0,
+    "precision": 0.096,
+    "fpr": 0.435,
+    "extra_compute_x": 1.84,
+    "games_with_caught_pos": 18
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.46,
+    "recall": 0.986,
+    "precision": 0.22,
+    "fpr": 0.4,
+    "extra_compute_x": 1.84,
+    "games_with_caught_pos": 42
+   }
+  },
+  "low_modal_stability(<0.99)": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.46,
+    "recall": 1.0,
+    "precision": 0.096,
+    "fpr": 0.435,
+    "extra_compute_x": 1.84,
+    "games_with_caught_pos": 18
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.46,
+    "recall": 0.986,
+    "precision": 0.22,
+    "fpr": 0.4,
+    "extra_compute_x": 1.84,
+    "games_with_caught_pos": 42
+   }
+  },
+  "low_top2_margin": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.5,
+    "recall": 0.194,
+    "precision": 0.017,
+    "fpr": 0.514,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 6
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.5,
+    "recall": 0.333,
+    "precision": 0.069,
+    "fpr": 0.519,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 18
+   }
+  },
+  "high_sel_live_variance": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.5,
+    "recall": 0.871,
+    "precision": 0.077,
+    "fpr": 0.483,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 16
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.5,
+    "recall": 0.806,
+    "precision": 0.166,
+    "fpr": 0.465,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 37
+   }
+  },
+  "high_criticality(>0.3)": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.713,
+    "recall": 0.323,
+    "precision": 0.02,
+    "fpr": 0.731,
+    "extra_compute_x": 2.85,
+    "games_with_caught_pos": 8
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.713,
+    "recall": 0.625,
+    "precision": 0.09,
+    "fpr": 0.723,
+    "extra_compute_x": 2.85,
+    "games_with_caught_pos": 28
+   }
+  },
+  "high_live_value_spread": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.5,
+    "recall": 1.0,
+    "precision": 0.089,
+    "fpr": 0.477,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 18
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.5,
+    "recall": 0.681,
+    "precision": 0.14,
+    "fpr": 0.479,
+    "extra_compute_x": 2.0,
+    "games_with_caught_pos": 33
+   }
+  },
+  "crit>0.3 AND modal<0.99": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.293,
+    "recall": 0.323,
+    "precision": 0.049,
+    "fpr": 0.291,
+    "extra_compute_x": 1.17,
+    "games_with_caught_pos": 8
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.293,
+    "recall": 0.611,
+    "precision": 0.215,
+    "fpr": 0.256,
+    "extra_compute_x": 1.17,
+    "games_with_caught_pos": 28
+   }
+  },
+  "crit>0.3 AND low_margin": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.343,
+    "recall": 0.097,
+    "precision": 0.013,
+    "fpr": 0.354,
+    "extra_compute_x": 1.37,
+    "games_with_caught_pos": 3
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.343,
+    "recall": 0.278,
+    "precision": 0.083,
+    "fpr": 0.35,
+    "extra_compute_x": 1.37,
+    "games_with_caught_pos": 15
+   }
+  },
+  "learned_logistic(selected_high_regret OOF)": {
+   "vs_selected_high_regret": {
+    "trigger_rate": 0.309,
+    "recall": 0.871,
+    "precision": 0.125,
+    "fpr": 0.283,
+    "extra_compute_x": 1.23,
+    "games_with_caught_pos": 16
+   },
+   "vs_extra_search_beneficial": {
+    "trigger_rate": 0.309,
+    "recall": 0.653,
+    "precision": 0.218,
+    "fpr": 0.269,
+    "extra_compute_x": 1.23,
+    "games_with_caught_pos": 32
+   }
+  }
+ },
+ "learned_oof": {
+  "selected_high_regret_OOF_AUROC_AP": [
+   0.895,
+   0.323
+  ],
+  "selected_high_regret_AUROC_95CI": [
+   0.804,
+   0.96
+  ],
+  "extra_search_beneficial_OOF_AUROC_AP": [
+   0.839,
+   0.333
+  ],
+  "extra_search_beneficial_AUROC_95CI": [
+   0.776,
+   0.893
+  ]
+ },
+ "underpowered_lt20": false,
+ "forbidden_features_guard": "passed"
+}
