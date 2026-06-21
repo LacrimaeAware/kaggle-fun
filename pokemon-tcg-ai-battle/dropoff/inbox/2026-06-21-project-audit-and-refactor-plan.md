@@ -345,3 +345,39 @@ and the measured agent and the shipped agent are the same object (fixing A3/M7).
 - Whether `submission/submission.tar.gz` currently matches `submission/main.py` + deck.csv.
 - The 38k-LOC figure in the prompt counts docs/JSON; measured Python is ~30,333 LOC
   (5,232 agent + 25,101 tools).
+
+---
+
+## 8. Implementation progress (2026-06-21, same day)
+
+Done and committed (safe, additive, no live-agent behavior change):
+- Phase 0 hygiene (`6783a16`): project-local `.gitignore` for scratch/build artifacts;
+  untracked the 19 per-run scratch JSONs + `submission.tar.gz` (index-only, files kept on
+  disk). Two audit assumptions were corrected before acting: `tools/_v3_src/` is TRACKED
+  source (not ignored/deleted), and `v3_ablation_results.json` / `factorial_v1_results.json`
+  are now tracked (the n=80 evidence is preserved).
+- Fixed-state test layer (`da71929`): `tests/test_heuristics_fixed_state.py` (11 tests) +
+  `tests/run_all.py`. Tests a heuristic / leaf eval / forced-move on a frozen state in
+  milliseconds with no game. Locks `_forced_move` to the golden `forced_option` label
+  (130/130), the `_attack_value` KO/lethal threshold contract, and adds the first coverage of
+  the never-throw / never-timeout rule on the shipped `agent_search` (all 130 fixtures, each
+  under a per-decision bound). All 11 green; the existing 8 still green. Side finding: the
+  `eval.evaluate` docstring claim that prizes dominate "regardless of board fluff" is not
+  strictly true (W_PRIZE=1000 vs board-HP at W_HP=1.0 can reach ~1500-2000); the test asserts
+  the invariant that holds (each prize = W_PRIZE under equal boards). Not changed (live-agent
+  behavior).
+- tools/README catalog + 2 doc-drift fixes (`cceb4d6`): script map (stable CLI vs probe vs
+  scratch, the two harness lineages, known duplication); fixed ACTION_RANKER_PLAN dangling
+  citation and OVERVIEW ROBUST_LEARNER_V2 branch-location drift.
+
+Deferred deliberately (DO NOT do unilaterally): the destructive consolidation -- Phase 1
+repoint of the 10 ab_* harnesses + dedup, and Phase 2 collapse of the 9 agent variants /
+heuristic-registry refactor. A concurrent session is actively rewriting the same files
+(commit `5671b0b` added `agent/deck_policy_v3.py`, `agent/search_v3.py` and edited
+`ab_factorial_v1.py` / `ab_v3_ablate_v1.py`). Land these only after that work settles or in
+coordination, to avoid breaking in-flight experiments.
+
+Still open (low-conflict, recommended next): registry backfill of the post-06-18 results
+(M2) with n + baseline + verdict; a `registry.py check` integrity subcommand; reconcile the
+README/AGENTS session-start path away from the superseded STRATEGY.md; re-run the key
+depth/sampling A/Bs seeded+paired at a realistic per-decision budget (M4).
