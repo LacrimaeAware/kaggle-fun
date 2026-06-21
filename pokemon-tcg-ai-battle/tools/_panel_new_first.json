@@ -1,0 +1,13 @@
+{
+ "side": "new",
+ "opp": "first",
+ "win_rate": 0.875,
+ "wilson95": [
+  0.739,
+  0.945
+ ],
+ "wins": 35,
+ "losses": 5,
+ "errors": 0,
+ "s_per_game": 15.77
+}

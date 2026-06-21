@@ -1,0 +1,13 @@
+{
+ "side": "old",
+ "opp": "dragapult",
+ "win_rate": 0.75,
+ "wilson95": [
+  0.598,
+  0.858
+ ],
+ "wins": 30,
+ "losses": 10,
+ "errors": 0,
+ "s_per_game": 21.48
+}
