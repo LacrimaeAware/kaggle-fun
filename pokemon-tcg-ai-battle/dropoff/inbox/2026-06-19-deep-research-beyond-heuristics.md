@@ -130,3 +130,74 @@ Information Monte Carlo (PIMC) -- sample N_DETERM hidden worlds, short forward r
 average. That is DIFFERENT from DouZero's "Deep Monte Carlo (DMC)", which is an RL method (average self-play
 returns into a net, no search). CFR/ReBeL is a third family (regret minimization over belief states). Same
 word, three different machines. So "did we use Monte Carlo" = yes, the determinized-search kind.
+
+# Run B (2026-06-19, wf_a8c22da9): history + what RELIABLY improves game AI
+Provenance: deep-research run wf_a8c22da9-475, 103 agents, 21 sources, 102 claims, 25 verified
+(23 confirmed / 2 killed). Answers: how poker/chess were actually built, does simulating more help,
+and what is closest to "guaranteed if done right." [V]=verified, [K]=killed (do not cite).
+
+## Headline ranking of reliable levers (the answer to "what is guaranteed")
+1. **Real-time SEARCH on an approximate value/equilibrium** — strongest causal evidence. BUT it must be a
+   CONSISTENT / equilibrium-aware search (CFR/OOS-style), NOT naive determinization.
+2. **A good LEARNED leaf evaluation** — necessary (search alone has a low ceiling), but only SOUND in
+   imperfect-info games when defined over BELIEF STATES (ReBeL), not action/observation history.
+3. **Raw compute** — lawful (power-law in params/compute) but only LOGARITHMIC in search count, saturates,
+   and mostly demonstrated for perfect-information self-play.
+
+## Q1 Poker — NOT pure math, NOT heuristics, NOT pure deep learning [V]
+- Limit hold'em was essentially solved by PURE CFR+ regret math (Cepheus, 2015; no neural net, no online
+  search, a precomputed table).
+- No-limit required SEARCH. The Libratus ablation is the cleanest causal evidence in the whole field: the
+  raw self-play blueprint LOST to the prior best bot (-8 mbb/g); adding full nested subgame solving WON
+  (+63 mbb/g) vs the SAME opponent. Search was the decisive lever. Libratus used no neural nets / no human data.
+- Modern (ReBeL, 2020): self-play deep RL training a value+policy net over PUBLIC BELIEF STATES + CFR search
+  at train AND test time; provably converges to Nash; beat pros under a <2s/decision budget.
+- Sources: Cepheus http://johanson.ca/publications/poker/2015-science-hulhe/2015-science-hulhe.html ,
+  Libratus https://noambrown.com/papers/17-Science-Superhuman.pdf ,
+  ReBeL https://proceedings.neurips.cc/paper/2020/file/c61f571dbd2fb949d3fe5ae1608dd48b-Paper.pdf
+
+## Q2 Chess — almost entirely search + handcrafted eval until ~2017; now a HYBRID [V]
+Classical alpha-beta + handcrafted eval (Deep Blue, classical Stockfish) until AlphaZero (2017, RL+MCTS),
+Leela (2018), and Stockfish NNUE (2020, learned eval, ~80-100 Elo). Top chess today = classical search +
+a learned (NNUE) evaluation TOGETHER, not one replacing the other. Source: https://arxiv.org/pdf/2209.01506
+
+## Q3 Are we under-simulating? Split the blocker in TWO [V — the key insight]
+- Determinized / Perfect-Information Monte Carlo (PIMC) -- which is exactly what agent_search is -- has TWO
+  STRUCTURAL failure modes that more simulation provably CANNOT fix:
+  - **Strategy fusion**: each determinization is solved as if fully observable, so the solver wrongly assumes
+    it can pick a different strategy in each world; it OVERESTIMATES option values and can pick inferior moves.
+  - **Non-locality**: search wastes effort on worlds the opponent can make vanishingly likely; breaks the
+    minimax assumption even in tiny games (Biased RPS, Kuhn poker).
+  These are BIAS, not sampling variance. ISMCTS exploitability stays FLAT with more search time (0.95/0.96/
+  0.91); a consistent OOS/CFR method's exploitability FALLS with time.
+- Determinization scaling SATURATES: strength rises with determinizations only to ~20 (in Dou Di Zhu), then
+  flat; logarithmic in iterations per world. PIMC is WORST when leaf correlation is LOW. Whether PIMC works
+  is predictable a priori from 3 measurable game-tree properties: leaf correlation, bias, disambiguation.
+- [K] "doubling MCTS rollouts = +200 Elo" (refuted 0-3); [K] exact "saturate at 20 determ / 300 iter"
+  thresholds (refuted 1-2) -- the qualitative saturation holds, the exact numbers do not.
+- Sources: PIMC bias https://webdocs.cs.ualberta.ca/~nathanst/papers/pimc.pdf ; OOS vs ISMCTS
+  https://mlanctot.info/files/papers/aaai14-w4-iioos.pdf ; determinization scaling
+  http://orangehelicopter.com/academic/papers/aisb11.pdf
+
+## Q4/Q5 What reliably FAILS, and THE DIAGNOSIS FOR US [V — most important]
+- RELIABLY BACKFIRES: naive AlphaZero-style RL+search in imperfect-info games is PROVABLY UNSOUND -- an
+  action's value can depend on the probability it is played, so a state defined by action/observation
+  history has no unique value (ReBeL paper). Also: "just simulate more" on determinized search; and trusting
+  determinized values where leaf correlation is low.
+- **Our pattern -- every learned addition only matches the search at equal budget -- is the EXPECTED
+  signature of training on biased/high-variance DETERMINIZED labels. It is a methodology signature, not a
+  modeling-capacity failure.** Two fixes depending on which problem dominates:
+  - If it is sampling VARIANCE: **common random numbers** (evaluate compared options on the SAME sampled
+    rollouts so the noise cancels = paired/antithetic evaluation), more determinizations up to saturation,
+    and a lower-variance leaf value. (heuristic-search-v2's compare_selections paired evaluation IS this.)
+  - If it is structural BIAS (strategy fusion / non-locality): no rollout count or learned ranker trained on
+    those labels will help; the fix is a CONSISTENT / belief-state search (CFR / ReBeL-style).
+- **DECISIVE DIAGNOSTIC (do this before more learning):** measure leaf correlation / bias / disambiguation
+  on the Pokemon TCG game tree, and test whether a consistent-search's error FALLS with budget while the
+  determinized one PLATEAUS. That tells us whether we are under-simulating (variance, cheaply fixable) or
+  hitting PIMC bias (needs a different algorithm). Also: is the deployed agent past the determinization
+  saturation point, or genuinely under-simulating?
+- Sources: ReBeL (unsoundness) as above; Stratego PC-PIMC
+  https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2023.1014561/full ;
+  variance reduction in MCTS https://eprints.whiterose.ac.uk/id/eprint/75048/1/CowlingPowleyWhitehouse2012.pdf ;
+  AlphaZero scaling laws https://arxiv.org/pdf/2210.00849 .
