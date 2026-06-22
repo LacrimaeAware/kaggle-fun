@@ -22,7 +22,10 @@ Companion machine-readable file: `FEATURE_DATABASE.csv`
 | `public_061918` | 0.61918 | protected older public baseline | `Downloads/0P61918_submission_local.csv` |
 | `public_058910` | 0.58910 | pre-calibration public base (burn #11 / #13 line) | `results/submission_burn_11_temporal_subpixel_shape_neighbor_scale.csv`; tied by burn #13 |
 | `public_055033_pa25` | 0.55033 | PA+2.5 calibration base for FL/MT probes | `results/submission_pa_shift_p25.csv` |
-| `public_052570` | 0.52570 | current public best | `results/submission_fl_x105.csv` |
+| `public_052570_fl105` | 0.52570 | pre-band-fix calibrated best | `results/submission_fl_x105.csv` |
+| `public_familyb147_approx` | ~0.488 | family_b scale-repair stage | `EXPERIMENT_LOG.md` |
+| `public_046076_bandfix` | 0.46076 | band-fix base before the final FL re-bracket | `results/submission_bandfix.csv` |
+| `public_046041` | 0.46041 | current best public stack | `results/submission_bandfix_flx105.csv` |
 | `bench_raw_true_scale_0251` | 0.251 | raw true-scale expert-benchmark geometry before robust triangle | `SUBMISSION_TRIANGLE_CANDIDATE_2026-06-12.md` |
 | `bench_robust_triangle_0170` | 0.170 | robust-triangle expert-benchmark anchor | `results/benchmark_pred_robust_triangle.csv` |
 
@@ -70,22 +73,22 @@ Negative deltas are good. Positive deltas are bad.
 | `F036` | Saturating visible-fragment support and projected-position weighting | bench-tested / mixed research | PA+FL support | -0.023 | n/a | bench robust 0.170 -> 0.147 | EXP52 validates the mechanism as sane, but it does not beat EXP50. Best use is future target-label scoring, not current promotion. |
 | `F037` | Median anchor blended with weighted support reducers | bench-tested / current local research best | PA+FL support blend | -0.027 | n/a | bench robust 0.170 -> 0.143 | EXP53 best: PA median blended 25% toward saturating support/position PA; FL median blended 85% toward EXP50 weighted-trim FL; tiny gain over EXP50. |
 | `F038` | Allowed-only class and term route over local story models | bench-tested / benchmark-best research route | class-aware PA+FL+MT routing | -0.039 | n/a | bench robust 0.170 -> 0.131; bench median-weight 0.143 -> 0.131 | EXP55/EXP56: excludes `DLTrack`, `SMA`, and `our_pipeline_true_scale`. Full route is benchmark-best but not production-wired; prefix-5 captures most gain. |
-| `F039` | Production split stack from current public best | public-tested / rejected | public burn planning | n/a | +0.01192 / +0.05601 / +0.01810 | public 0.58910 anchor -> #15 0.60102, #16 0.64511, #17 0.60720 | EXP57 proxy stacks all regressed. These were production-delta proxies, not the full EXP55 route; do not promote them as defaults. |
+| `F039` | Production split stack from the former 0.58910 public-best anchor | public-tested / rejected | public burn planning | n/a | +0.01192 / +0.05601 / +0.01810 | public 0.58910 anchor -> #15 0.60102, #16 0.64511, #17 0.60720 | EXP57 proxy stacks all regressed. These were production-delta proxies, not the full EXP55 route; do not promote them as defaults. |
 | `F040` | Test scale status tiers | diagnostic / tracking | scale verification | n/a | n/a | `scale_partition.csv` | EXP58: 147 independently confirmed, 294 detector-scaled, 15 unresolved/fallback. Scale is not hidden-label ground truth; tick-only rows remain plausible but not proven. |
-| `F041` | Configurable high-resolution segmentation retraining | generated control / hold | training/data | pending | pending | current U-Net 384 baseline | EXP59 adds image size, architecture, encoder, loss, augmentation, threshold, batch-size, and weight-tag knobs. It is now the conservative segmentation control, not the repo-level next submission lever after the PA/FL calibration wins. |
+| `F041` | Configurable high-resolution segmentation retraining | generated control / hold | training/data | pending | pending | current U-Net 384 baseline | EXP59 adds image size, architecture, encoder, loss, augmentation, threshold, batch-size, and weight-tag knobs. It is now the conservative segmentation control, not the repo-level next move after the band-fix / methodology-reset state. |
 | `F042` | Human-oracle scale review pack | infrastructure / next candidate | scale verification | n/a | pending | EXP58 scale partition | EXP60 creates a full 309-row scale manifest and 41-row starter pack for the user to verify confident, tick-only, and fallback scale guesses. Corrections save locally under ignored `results/scale_oracle_review/`. |
 | `F043` | Human-oracle scale override CSV | infrastructure / candidate | scale correction | n/a | pending | EXP60/EXP63 reviewed notes | EXP61 now parses depth labels consistently and supports opt-in `UMUD_SCALE_OVERRIDE_CSV`. Full-depth audit finds 193 rows confirming existing scale and 116 field-depth scale candidates; many candidates likely reflect field-rectangle overcounting UI height, so broad override is not submission-safe. |
 | `F044` | Isolated oracle scale candidate for IMG_00198-00200 | generated / submission candidate | scale correction | n/a | pending | public 0.58910 | EXP62 changes only three rows from public-best using field-depth scale; FL rises +10.7 to +16.9 mm and MT shifts -0.3 to -2.2 mm. |
 | `F045` | Depth-first oracle review UI | infrastructure | scale/depth verification | n/a | n/a | EXP60 scale manifest | EXP63 makes the review workflow ask only for field depth first, with `Q/W/E` status and `A/D` navigation. This separates the human-readable fact from later px/cm computation. |
 | `F046` | Tick-scale family repair for stale OCR-50 depth | implemented / reviewed | scale/depth parsing | n/a | pending | EXP63 reviewed notes | The 32 wrong reviewed depths all came from stale OCR accepting `50 mm`. New 1200x800 tick-scale family rules map 110.7->55mm, 135.4->45mm, 152.3->40mm, 159.5->35mm, 174.0->70mm. Algorithm-only depth audit now matches the full 309-row human review 309/309 without using notes as predictor input. |
 | `F047` | Multi-region text scale OCR audit | implemented / reviewed | scale/depth OCR | n/a | pending | EXP63 reviewed notes | EXP64 runs EasyOCR over targeted UI crops and caches tokens. Direct OCR finds displayed depth on 237/309; OCR plus deterministic fallbacks covers 309/309 with zero misses versus review. This fixes the "OCR not installed / OCR only full-frame" gap. |
-| `F048` | Conservative 3 cm scale-span probe | generated / hold | scale correction | n/a | pending | public 0.58910 | EXP65 creates burn #19: current public best plus `IMG_00198-00200` and `IMG_00251` using the 3 cm OCR/ruler span (`478px / 30mm = 159.333 px/cm`). Existing burn #18 tests only `IMG_00198-00200`. | low expected impact after broad scale failures; use only as an isolated diagnostic, not the active plan |
+| `F048` | Conservative 3 cm scale-span probe | generated / hold | scale correction | n/a | pending | public 0.58910 | EXP65 creates burn #19: the former 0.58910 public-best plus `IMG_00198-00200` and `IMG_00251` using the 3 cm OCR/ruler span (`478px / 30mm = 159.333 px/cm`). Existing burn #18 tests only `IMG_00198-00200`. | low expected impact after broad scale failures; use only as an isolated diagnostic, not the active plan |
 | `F049` | Robust triangle retested with conservative 3 cm scale repair | generated / hold | upper boundary + scale correction | bench robust triangle 0.170; public old robust 0.60102 | pending | burn #15 robust triangle | EXP66 creates burn #20 by changing `IMG_00198-00200` and burn #21 by also changing `IMG_00251`, recomputing FL/MT from robust debug pixels at `159.333 px/cm`. | deprioritized because robust triangle already regressed publicly and #28 rejected stacked proxy behavior |
-| `F050` | Guarded field-depth scale probe from algorithmic depth plus scan-field height | public-tested / rejected | broad scale correction | n/a | +0.07287 | public 0.58910 | EXP67 creates burn #22 from current public best, changing 114 rows where EXP64 depth and EXP61 field height imply a plausible 80-180 px/cm scale and old-vs-new disagreement is moderate. Public score `0.66197`. | reject broad field-height override; improve span detector before revisiting |
+| `F050` | Guarded field-depth scale probe from algorithmic depth plus scan-field height | public-tested / rejected | broad scale correction | n/a | +0.07287 | public 0.58910 | EXP67 creates burn #22 from the former 0.58910 public-best anchor, changing 114 rows where EXP64 depth and EXP61 field height imply a plausible 80-180 px/cm scale and old-vs-new disagreement is moderate. Public score `0.66197`. | reject broad field-height override; improve span detector before revisiting |
 | `F051` | Robust triangle plus broad field-depth scale probe | generated / diagnostic | upper boundary + broad scale correction | public old robust 0.60102 | pending | burn #15 robust triangle | EXP68 creates burn #23 by applying EXP67's failed broad scale adjustment to robust triangle. Changes 114 rows and mostly lowers FL/MT. | diagnostic only; submit only to test interaction, not because it is expected to improve |
 | `F052` | Non-full-height field-depth scale probe | generated / superseded | scale correction | n/a | pending | public 0.58910 and burn #15 robust | EXP69 fixes the worst #22 failure mode by keeping only field spans where `field_h / image_h < 0.98`. Creates burn #24 from public best and burn #25 from robust triangle; each changes 9 rows. | superseded by F053 because it still changes rows with existing scales |
 | `F053` | Missing-scale-only field-depth scale probe | generated / hold | scale correction | n/a | pending | public 0.58910 and burn #15 robust | EXP70 wires the scan-outward field heuristic into EXP61, but uses field-depth scale only for rows with no finite existing `scale_px_per_cm`, changing `IMG_00198-00200` and `IMG_00251` at `478px / 30mm = 159.333 px/cm`. Burn #26 equals older #19; burn #27 equals older #21. | not active after #22/#28 scale failures; use only if deliberately isolating those four rows |
-| `F054` | Local-benchmark proxy plus safe scale | public-tested / rejected | benchmark proxy stack | local best story proxy | +0.07007 | public 0.58910 -> 0.65917 | EXP71 creates burn #28 from current public best plus robust triangle, visibility-weighted FL proxy, vertical MT proxy, and EXP70 safe scale delta. Public result rejected it. Column-level audit: outside the 4 scale-patch rows, FL equals burn #16's visibility-weighted proxy and MT equals burn #17's vertical-MT proxy, so this was not a clean "burn #15 plus scale" retest. | reject as a default; do not stack the rejected proxy deltas again without production-wiring and target-label validation |
+| `F054` | Local-benchmark proxy plus safe scale | public-tested / rejected | benchmark proxy stack | local best story proxy | +0.07007 | public 0.58910 -> 0.65917 | EXP71 creates burn #28 from the former 0.58910 public-best anchor plus robust triangle, visibility-weighted FL proxy, vertical MT proxy, and EXP70 safe scale delta. Public result rejected it. Column-level audit: outside the 4 scale-patch rows, FL equals burn #16's visibility-weighted proxy and MT equals burn #17's vertical-MT proxy, so this was not a clean "burn #15 plus scale" retest. | reject as a default; do not stack the rejected proxy deltas again without production-wiring and target-label validation |
 | `F055` | Heavy thin-structure segmentation formulation | implemented / held | segmentation target + decoding | EXP59 conservative segmentation | pending | n/a | EXP72 changes the actual thin-mask problem formulation: soft/dilated fascicle targets, validation threshold sweep, skeleton-style decoding, heavy augmentation, and debug mask exports in pipeline version `2026-06-13.03`. Partial `seg72_01` underperformed the EXP59 control, and EXP73 found the matrix too confounded to diagnose. | stop/bundle `seg72_01`; do not continue the full EXP72 matrix blindly |
 | `F056` | Controlled thin-line segmentation instrumentation and ablation | planned / next notebook | segmentation diagnostics + training | EXP59 conservative segmentation | pending | pending | EXP74 plan | Add decoder sweeps, probability/debug outputs, component counts, accepted fragment counts, geometry distributions, and one-axis target/decoder ablations before another long GPU run. |
 | `F057` | Classical ultrasound fascicle-line extractor | planned / next local harness | PA+FL texture geometry | pending | pending | EXP75 external method review | CLAHE inside the band, ridge/line filtering, skeletonized segments, collinear connection, dominant-orientation clustering, boundary extension, and non-crossing cleanup. This directly tests whether raw ultrasound texture contains a recoverable line story that the neural fascicle masks miss. | build `experiments/exp75_classical_fascicle_extractor.py` and viewer overlays |
@@ -98,39 +101,37 @@ Negative deltas are good. Positive deltas are bad.
 | `F064` | Full 309-image depth review as scale audit set | implemented / documented | scale depth audit | n/a | n/a | EXP63/EXP64/EXP78 | User manually reviewed proposed displayed depth for all 309 test images. Repaired algorithm-only guesser matches reviewed depth 309/309 without using notes as predictor input. This solves displayed depth, not trusted `px/cm` span. | use as audit/evaluation set; do not read human notes in default production; build trusted span detector before broad scale changes |
 | `F065` | Recall-heavy fascicle inference variants from trained checkpoints | planned / next segmentation diagnostic | segmentation inference + geometry filtering | pending | pending | EXP78 recall synthesis | User diagnosis: masks may be too timid; better to over-detect plausible fascicle fragments and let geometry reject bad ones. Generate lower-threshold/lower-min-area variants from EXP77 weights without retraining. | after EXP77 checkpoint, generate threshold/min-area/postprocess variants and compare accepted fragments, PA/FL/MT distributions, debug masks, and public-safe CSVs |
 | `F066` | Flat PA calibration shift on the burn #13 base | public-tested / accepted calibration | PA | n/a | -0.03877 | public 0.58910 -> 0.55033 at +2.5 deg (`+2.0 -> 0.55075`, `+3.0 -> 0.55168`) | Hidden-test PA is under-read by about 2 to 2.5 degrees. A flat shift is a real isolated lever, but it is now a calibrated base rather than an open search direction. |
-| `F067` | FL global scale x1.05 on the PA+2.5 base | public-tested / current best | FL calibration | n/a | -0.02463 | public 0.55033 -> 0.52570 | The leaderboard wants FL longer. This is the strongest isolated public win in the repo, and it falsifies the old claim that the FL recenter was a no-op. Finish the FL bracket, probe MT once on the best FL base, then bake the winning calibration into the pipeline. |
+| `F067` | FL global scale x1.05 on the PA+2.5 base | public-tested / accepted calibration | FL calibration | n/a | -0.02463 | public 0.55033 -> 0.52570 | The leaderboard wants FL longer. This was the strongest isolated public win in the repo, and it falsified the old recenter no-op claim, but it was later superseded by the family_b scale repair and the band-fix ladder. |
+| `F068` | family_b scale repair from 134.5 to 147 px/cm on 41 rows | public-tested / accepted mechanism | scale correction | n/a | about -0.0377 | public 0.52570 -> ~0.488 | The user hand-read the family_b ticks at about 147 px/cm. This is a mechanistic scale repair, not a hidden-statistic calibration. |
+| `F069` | Aponeurosis band selection fix | public-tested / accepted mechanism | apo pairing to FL+MT | n/a | about -0.0272 | public ~0.488 -> 0.46076 | Pick the aponeurosis pair the fascicles actually sit between and drop out-of-band fragments. This is the main per-image win after the family_b repair. |
+| `F070` | FL x1.05 re-applied on the band-fix base | public-tested / current best stack | FL calibration | n/a | -0.00035 | public 0.46076 -> 0.46041 | Tiny but real final improvement on top of the mechanistic fixes. This is the current best public score in the repo. |
+| `F071` | FL x1.10 on the band-fix base | public-tested / rejected bracket completion | FL calibration | n/a | +0.02328 | public 0.46041 -> 0.48369 | Completes the two-sided FL bracket on the best base and confirms x1.05, not x1.10. |
+| `F072` | MT x0.95 on the current best stack | public-tested / rejected bracket completion | MT calibration | n/a | +0.07354 | public 0.46041 -> 0.53395 | Confirms MT x1.0 is optimal on the current best stack; the MT global lever is spent. |
 
 ## Current Read
 
-The current best public improvement stack is not a single magic geometry fix. It is:
+The current best public stack is not a single geometry trick. It is the old 0.58910
+scale-fallback base plus PA +2.5, FL x1.05, the family_b 147 px/cm repair, the aponeurosis band fix,
+and a final FL x1.05 on the band-fix base, finishing at **0.46041**.
 
-1. temporal smoothing;
-2. subpixel scale precision;
-3. clean shape-neighbor scale fallback;
-4. PA +2.5 flat calibration;
-5. FL x1.05 on the PA+2.5 base;
-6. optionally the public-neutral isolated OCR correction.
+Global calibration is now exhausted on evidence, not by opinion: PA is bracketed (`+2.0 / +2.5 / +3.0`
+= `0.55075 / 0.55033 / 0.55168`), FL is bracketed on the band-fix base (`x1.00 / x1.05 / x1.10`
+= `0.46076 / 0.46041 / 0.48369`), and MT is bracketed (`x1.00 / x0.95` = `0.46041 / 0.53395`).
+Broad geometry proxies and broad field-depth scale overrides remain publicly rejected.
 
-The broad geometry proxy phase is now rejected publicly. Robust triangle, support/visibility FL, and vertical-MT proxies all regressed on the public board despite local wins. Keep them as diagnostic components, not defaults.
-
-The immediate repo-level next lever is still leaderboard calibration, not segmentation: finish the
-FL bracket (`x1.10/x1.15/x1.20/x1.25`), run one MT global-scale probe on the best FL base, then
-stack the winners and bake the result into `segment_then_measure.py`. Segmentation remains queued
-after those probes. When the repo pivots back to segmentation, EXP59 is the conservative control,
-EXP72 stays a confounded negative, EXP77 is the first serious implemented notebook, EXP76 is the
-follow-up diagnostic matrix, and EXP75 is the separate classical texture-line harness.
+The repo-level next work is the 2026-06-15 methodology reset: quantify segmentation-vs-measurement
+error on held-out train masks, build the test-distribution gate from the correction-UI labels,
+restore GroupKFold by subject/device/muscle model validation, then choose between route-by-class,
+a new segmentation target, or a measurement rebuild. If work returns to Kaggle GPU runs, EXP77 is
+the first serious notebook and EXP59 is the conservative control.
 
 ## Next Tests To Add To This Database
 
-1. Finish the FL bracket on the leaderboard: `x1.10`, `x1.15`, `x1.20`, `x1.25`.
-2. Run one MT global-scale probe on the best FL base.
-3. Stack the winning PA/FL/MT calibrations and confirm the combined score on the leaderboard.
-4. Bake the winning FL calibration into `segment_then_measure.py` so the best file regenerates from code.
-5. Use EXP64 depth/text inference as the audited algorithmic depth source; OCR/fallback depth is solved, but `px/cm` still needs a trusted span.
-6. Improve/validate visible-field rectangle and ruler-span detection before accepting EXP61 field-depth scale candidates as production defaults; current full pass still depends on a heuristic rectangle.
-7. Treat any `UMUD_SCALE_OVERRIDE_CSV` submission as an explicit human-reviewed scale probe, not as the default production path.
-8. When the calibration probes are spent, run EXP77's best-effort heavy segmentation notebook and download the output zip.
-9. If EXP77 produces weights, generate recall-heavy inference-only variants before another full training run.
-10. Run EXP76's controlled segmentation matrix only if EXP77 leaves an unclear diagnostic question.
-11. Build EXP75's classical ultrasound fascicle-line extractor harness and viewer overlays.
-12. Add masked in-domain ultrasound pretraining only after the controlled segmentation diagnostics exist.
+1. Run the held-out train-mask error decomposition to separate segmentation cost from measurement cost.
+2. Build the correction-UI test-distribution gate and score candidate mechanisms on that gate before another public probe.
+3. Recover GroupKFold-by-subject/device/muscle validation for any segmentation/model change.
+4. Decide the next branch with the user: route-by-class, new segmentation target, or measurement rebuild.
+5. Keep EXP64 depth/text inference as the audited algorithmic depth source, but do not promote field-depth `px/cm` overrides without a trusted span detector.
+6. If the project pivots back to GPU segmentation, run EXP77 first and treat EXP59 as the control, not the default objective.
+7. If EXP77 produces usable weights, generate recall-heavy inference-only variants before another full training run.
+8. Only then use EXP76 for one-axis diagnostics and EXP75 for the classical texture-line harness.

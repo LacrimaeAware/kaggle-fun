@@ -9,8 +9,9 @@ Caveat throughout: the 35 benchmark images are different devices than the Kaggle
 rankings must be treated as diagnostic rather than submission evidence: robust triangle,
 visibility/support FL, and vertical-MT proxies all looked locally plausible and regressed publicly.
 Use this README as chronological experiment history. Before deciding what to submit, check
-`../docs/CURRENT_STATE.md`: the current best is `0.52570` from the PA+2.5 base plus FL x1.05, so the
-immediate live lever is the remaining leaderboard calibration bracket, not a fresh segmentation guess.
+`../docs/CURRENT_STATE.md`: the current best is `0.46041` (`submission_bandfix_flx105.csv`), the
+global PA/FL/MT multipliers are already bracketed/spent, and the live plan is the methodology reset
+(error decomposition + test-distribution gate), not more blind leaderboard calibration or notebook churn.
 
 ## exp01 - fascicle-length estimators (`exp01_fl_estimators.py`)
 

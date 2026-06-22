@@ -1,7 +1,9 @@
 # UMUD Experiment Log
 
 One place to see what we tried, what it scored, the exact program/flag that produced it, and how to
-roll back. Newest at top. Append, do not rewrite history.
+roll back. Newest at top. Append, do not rewrite history. For the live decision-driver use
+`docs/CURRENT_STATE.md` / `docs/HANDOFF.md`; the "next" text inside older rows is historical context
+unless a newer living doc repeats it.
 
 Conventions: "LB" = Kaggle public leaderboard (lower is better). "bench" = 35-expert OSF benchmark
 (local, CPU, NOT an oracle - see the leakage/recenter notes below). Safe baseline file:
