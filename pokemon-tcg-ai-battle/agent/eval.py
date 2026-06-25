@@ -32,6 +32,15 @@ W_ENERGY = 8.0        # energy developed on my active attacker
 W_POWERFUL_HAND = 0.0
 _POWERFUL_HAND_IDS = (743,)   # Alakazam
 
+# V3 deck-aware leaf terms (separately gated; all OFF by default so the deployed leaf_mode="hand" is unchanged).
+W_V3_PH_POTENTIAL = 0.0       # realized Powerful Hand damage (Alakazam active + energy), 20/card, capped at opp HP
+W_V3_BACKUP_ATTACKER = 0.0    # a benched, energized Alakazam ready to promote
+W_V3_DECKOUT = 0.0            # penalize MY deck approaching empty (the self-deck-out loss the board eval can't see)
+# Magnitudes used by the dedicated A/B leaf_modes ("deckout"/"ph"/"deck"); kept separate from the off-by-default
+# module weights above so turning a test mode on never touches the deployed path.
+DECKOUT_TEST = 100.0
+PH_TEST = 1.0
+
 
 def _powerful_hand_online(p: dict) -> bool:
     for slot in (p.get("active") or []) + (p.get("bench") or []):
@@ -61,6 +70,20 @@ def _active_energy(p: dict) -> int:
     if a and a[0]:
         return len(a[0].get("energies") or [])
     return 0
+
+
+def _active(p: dict):
+    a = p.get("active") or []
+    return a[0] if a and a[0] else None
+
+
+def _attached_count(slot: dict) -> int:
+    return len((slot or {}).get("energies") or [])
+
+
+def _hand_count(p: dict) -> int:
+    h = p.get("handCount")
+    return h if h is not None else len(p.get("hand") or [])
 
 
 def evaluate(cur: dict, me: int) -> float:
@@ -104,6 +127,70 @@ def _terminal(cur: dict, me: int):
 def evaluate_obs(obs: dict, me: int) -> float:
     """Hand eval over the State inside an observation dict."""
     return evaluate(obs.get("current") or obs, me)
+
+
+W_CA_HAND = 25.0   # card-advantage term: value each card in MY hand. A line that draws/tutors more ends
+                   # with a bigger hand -> higher score, so search prefers the draw/tutor cascade.
+
+
+def evaluate_ca(cur: dict, me: int) -> float:
+    """Board eval plus card advantage: each card in my hand is worth W_CA_HAND. Terminals still dominate
+    (evaluate() returns +/-WIN), so a KO/prize line always outranks a hand-hoarding one."""
+    base = evaluate(cur, me)
+    if _terminal(cur, me) is not None:
+        return base
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return base
+    P = players[me]
+    hand = P.get("handCount")
+    if hand is None:
+        hand = len(P.get("hand") or [])
+    return base + W_CA_HAND * (hand or 0)
+
+
+def evaluate_ca_obs(obs: dict, me: int) -> float:
+    return evaluate_ca(obs.get("current") or obs, me)
+
+
+def evaluate_deck_v3(cur: dict, me: int, *, ph_weight: float = W_V3_PH_POTENTIAL,
+                     backup_weight: float = W_V3_BACKUP_ATTACKER,
+                     deckout_weight: float = W_V3_DECKOUT) -> float:
+    """Board eval plus separately-gated deck-aware terms (all weights default OFF):
+      - ph_weight: realized Powerful Hand damage when Alakazam(743) is active and energized, 20/card,
+        capped at the opponent active's current HP (a hoarded hand beyond a KO is not over-rewarded).
+      - backup_weight: a benched, energized Alakazam ready to promote.
+      - deckout_weight: hinge penalty as MY deck approaches empty (deck <= 5), the self-deck-out loss
+        that prizes/HP/bodies/energy are all blind to.
+    Terminal states still dominate via evaluate() (+/-WIN)."""
+    base = evaluate(cur, me)
+    if _terminal(cur, me) is not None:
+        return base
+    players = cur.get("players") or []
+    if len(players) < 2:
+        return base
+    P, O = players[me], players[1 - me]
+    score = base
+    a = _active(P)
+    if ph_weight and a and a.get("id") == 743 and _attached_count(a) >= 1:
+        potential = 20.0 * _hand_count(P)
+        oa = _active(O)
+        if oa:
+            potential = min(potential, float(oa.get("hp", 0) or 0))
+        score += ph_weight * potential
+    if backup_weight:
+        ready = sum(1 for b in (P.get("bench") or [])
+                    if b and b.get("id") == 743 and _attached_count(b) >= 1)
+        score += backup_weight * ready
+    if deckout_weight:
+        deck_left = float(P.get("deckCount", 0) or 0)
+        if deck_left <= 5:
+            score -= deckout_weight * (6.0 - deck_left)
+    return score
+
+
+def evaluate_deck_v3_obs(obs: dict, me: int, **kw) -> float:
+    return evaluate_deck_v3(obs.get("current") or obs, me, **kw)
 
 
 def evaluate_learned(obs: dict, me: int) -> float:

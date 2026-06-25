@@ -70,19 +70,33 @@ def _selection_from_observation(value):
     return getattr(value, "select", None) or value
 
 
-def _rollout_pick(observation, is_me: bool = False) -> list:
+# Safe develop actions for the develop-first rollout: play / attach-energy / evolve. Excludes ability(10)
+# on purpose, so the simulated continuation never fires the draw engine and decks itself out mid-rollout.
+DEV_ROLLOUT_OPT = (7, 8, 9)
+
+
+def _rollout_pick(observation, is_me: bool = False, mode: str = "default") -> list:
     """Baseline continuation with dynamic attack arithmetic.
 
     This deliberately does *not* restore the broad deck-policy controller.  It
     changes only attack comparison, so Alakazam's Powerful Hand is no longer a
     printed-zero attack inside simulations.  All non-attack prompts keep the
     original default-order behavior.
+
+    mode="develop": on MY turn, prefer a safe develop action (play/attach/evolve) over attacking, so the
+    continuation builds the board and attacks LAST (the KO-sequencing principle) instead of swinging on the
+    first chance. Opponent prompts keep the default punish behavior so their reply stays realistic.
     """
     sel = _selection_from_observation(observation)
     opts = sel.option
     n = len(opts)
     k = sel.maxCount or 0
     mn = sel.minCount or 0
+    if mode == "develop" and is_me and k == 1 and n > 0:
+        for i, option in enumerate(opts):
+            if getattr(option, "type", None) in DEV_ROLLOUT_OPT:
+                return [i]
+        # no safe develop action available -> fall through to the attack/default logic below
     if k == 1 and n > 0:
         best_i, best_value = None, float("-inf")
         for i, option in enumerate(opts):
@@ -189,7 +203,9 @@ def _ordered_indices(n: int, option_order: list | None) -> list[int]:
 def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
             opp_k: int = 0, opp_prior: list = None, option_order: list | None = None,
             option_prior: list | None = None, allowed_indices: list[int] | None = None,
-            n_determ: int | None = None, require_complete_world: bool = True):
+            n_determ: int | None = None, require_complete_world: bool = True,
+            opp_decks: list | None = None, opp_weights: list | None = None,
+            rollout_mode: str = "default"):
     """Core search. Returns (best_option_index, best_backed_up_value), or (None, None) if search
     is not applicable. The backed-up value is the max over options of the determinization-averaged
     leaf value -- the A0GB-style search-bootstrapped value of this state (used as a learning target
@@ -256,7 +272,8 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
         my_pool += [3] * max(0, (n_my_deck + n_my_prize) - len(my_pool))
         your_deck = my_pool[:n_my_deck]
         your_prize = my_pool[n_my_deck:n_my_deck + n_my_prize]
-        op_pool = _hidden_pool(opp_prior or deck, O, exclude_hand=True)
+        op_src = (random.choices(opp_decks, weights=opp_weights, k=1)[0] if opp_decks else (opp_prior or deck))
+        op_pool = _hidden_pool(op_src, O, exclude_hand=True)
         op_pool += [3] * max(0, (n_op_deck + n_op_prize + n_op_hand) - len(op_pool))
         opp_hand = op_pool[:n_op_hand]
         opp_prize = op_pool[n_op_hand:n_op_hand + n_op_prize]
@@ -287,7 +304,8 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
                     break
                 try:
                     world_values[i] = (_simulate2(A, root.searchId, i, me, leaf_mode, opp_k)
-                                       if opp_k > 0 else _simulate(A, root.searchId, i, me, leaf_mode))
+                                       if opp_k > 0 else _simulate(A, root.searchId, i, me, leaf_mode,
+                                                                   rollout_mode=rollout_mode))
                 except Exception:
                     complete = False
                     break
@@ -322,12 +340,16 @@ def _search(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mod
 def best_option(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET, leaf_mode: str = "hand",
                 opp_k: int = 0, opp_prior: list = None, option_order: list | None = None,
                 option_prior: list | None = None, allowed_indices: list[int] | None = None,
-                n_determ: int | None = None, require_complete_world: bool = True):
+                n_determ: int | None = None, require_complete_world: bool = True,
+                opp_decks: list | None = None, opp_weights: list | None = None,
+                rollout_mode: str = "default"):
     """The chosen option as a 1-element list, or None if search does not apply (caller falls back).
-    opp_k>0 enables 2-ply opponent-reply branching. opp_prior fills the opponent's hidden zones from a
-    meta deck prior (belief-conditioned determinization) instead of assuming our own deck."""
+    opp_k>0 enables 2-ply opponent-reply branching. opp_decks (with opp_weights) samples a real meta
+    opponent deck per determinization world instead of assuming the opponent runs our own deck.
+    rollout_mode="develop" makes the turn continuation develop-first / attack-last (the turn-planner v1)."""
     i, _v = _search(obs, deck, time_budget, leaf_mode, opp_k, opp_prior, option_order,
-                    option_prior, allowed_indices, n_determ, require_complete_world)
+                    option_prior, allowed_indices, n_determ, require_complete_world,
+                    opp_decks=opp_decks, opp_weights=opp_weights, rollout_mode=rollout_mode)
     return [i] if i is not None else None
 
 
@@ -338,7 +360,8 @@ def best_option_value(obs: dict, deck: list, time_budget: float = DEFAULT_BUDGET
     return ([i] if i is not None else None), v
 
 
-def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", want_features: bool = False):
+def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", want_features: bool = False,
+              rollout_mode: str = "default"):
     """Take `first_choice`, then play out my turn AND the opponent's reply with the engine
     default policy, and evaluate the state at the start of my next turn (so the score reflects
     the opponent's punish, not just how my board looks before they answer).
@@ -362,14 +385,20 @@ def _simulate(A, root_id, first_choice: int, me: int, leaf_mode: str = "hand", w
             break
         if not my_move:
             saw_opp = True
-        st = A.search_step(st.searchId, _rollout_pick(ob, is_me=my_move))   # my-turn finish vs opp punish
+        st = A.search_step(st.searchId, _rollout_pick(ob, is_me=my_move, mode=rollout_mode))   # my-turn finish vs opp punish
     obs = _obs_dict(st.observation)
     cur = obs.get("current") or {}
     res = cur.get("result", -1)
     if leaf_mode == "hand":
         val = EV.evaluate_obs(obs, me)
+    elif leaf_mode == "ca":
+        val = EV.evaluate_ca_obs(obs, me)
     elif leaf_mode == "deck":
-        val = EV.evaluate_deck_v3(cur, me)
+        val = EV.evaluate_deck_v3(cur, me, ph_weight=EV.PH_TEST, deckout_weight=EV.DECKOUT_TEST)
+    elif leaf_mode == "deckout":
+        val = EV.evaluate_deck_v3(cur, me, ph_weight=0.0, deckout_weight=EV.DECKOUT_TEST)
+    elif leaf_mode == "ph":
+        val = EV.evaluate_deck_v3(cur, me, ph_weight=EV.PH_TEST, deckout_weight=0.0)
     elif res == me:
         val = 1.0
     elif res == (1 - me):
@@ -573,8 +602,14 @@ def _leaf_val(st, me: int, leaf_mode: str = "hand") -> float:
     res = cur.get("result", -1)
     if leaf_mode == "hand":
         return EV.evaluate_obs(obs, me)
+    if leaf_mode == "ca":
+        return EV.evaluate_ca_obs(obs, me)
     if leaf_mode == "deck":
-        return EV.evaluate_deck_v3(cur, me)
+        return EV.evaluate_deck_v3(cur, me, ph_weight=EV.PH_TEST, deckout_weight=EV.DECKOUT_TEST)
+    if leaf_mode == "deckout":
+        return EV.evaluate_deck_v3(cur, me, ph_weight=0.0, deckout_weight=EV.DECKOUT_TEST)
+    if leaf_mode == "ph":
+        return EV.evaluate_deck_v3(cur, me, ph_weight=EV.PH_TEST, deckout_weight=0.0)
     if res == me:
         return 1.0
     if res == (1 - me):

@@ -58,11 +58,15 @@ CEFF = _load("card_effects.json")  # id(str) -> {draw,search,energy_accel,heal,.
 # Pokemon vs the old 6, fixing a mulligan outlier (our old deck shuffled up to 6x at setup; field
 # mean 0.26). Old deck (Kyogre/Snover/Mega-Abomasnow, 6 basics, 0.44 ladder wr) kept for reference:
 #   [721]*2 + [722]*4 + [723]*4 + [1092] + [1121]*2 + [1145]*2 + [1163]*2 + [1219]*4 + [1227]*4 + [1262]*2 + [3]*33
+# hiroingk Alakazam list (data/decks/current_deck.csv; the deck the 770.9 agent and all A/Bs use).
+# NOTE: this REPLACED the old denpa92 list (Dunsparce 65, Dudunsparce x4, Alakazam x3) which the kaggle-fun
+# submissions had been shipping by mistake. Key diffs: Dunsparce 305 (not 65), Dudunsparce x3, Alakazam x4.
 DECK = (
-    [5] * 3 + [19] * 4 + [65] * 4 + [66] * 4 + [741] * 4 + [742] * 4 + [743] * 3
-    + [1079] * 3 + [1081] * 3 + [1086] * 4 + [1097] + [1129] + [1146] + [1152] * 4
-    + [1159] + [1182] * 3 + [1184] + [1225] * 4 + [1231] * 4 + [1264] * 4
+    [5] * 3 + [13] * 1 + [19] * 4 + [66] * 3 + [305] * 4 + [741] * 4 + [742] * 4 + [743] * 4
+    + [1079] * 4 + [1081] * 4 + [1086] * 4 + [1097] * 3 + [1129] * 1 + [1152] * 4
+    + [1182] * 3 + [1184] * 1 + [1225] * 4 + [1231] * 4 + [1264] * 1
 )
+assert len(DECK) == 60, f"deck must be 60 cards, got {len(DECK)}"
 
 
 def _cs(cid) -> dict:
@@ -250,6 +254,105 @@ def agent_combine(obs: dict) -> list[int]:
     """Combine v1: clean heuristic floor + forward-model search with the BLENDED leaf eval
     (hand eval for local ranking + learned value for global judgment). Never raises."""
     return _agent_search(obs, "blend")
+
+
+def _no_suicide(obs: dict):
+    """Hard safety floor: never remove your LAST Pokemon from play. If I have exactly one Pokemon in play
+    (active, empty bench) and an option is a self-removing ability -- e.g. Dudunsparce's Run Away Draw
+    shuffles itself into the deck, leaving 0 Pokemon = an instant loss -- end the turn instead. Returns
+    [end_index] or None. (With a bench, shuffling the active just promotes a benched Pokemon, so it is only
+    catastrophic at one Pokemon in play.)"""
+    sel = obs.get("select")
+    if not sel or (sel.get("maxCount") or 0) != 1:
+        return None
+    opts = sel.get("option") or []
+    cur = obs.get("current") or {}
+    players = cur.get("players") or []
+    yi = cur.get("yourIndex", 0)
+    me = players[yi] if yi < len(players) else {}
+    in_play = sum(1 for a in (me.get("active") or []) if a) + len(me.get("bench") or [])
+    if in_play > 1:
+        return None
+    end_idx = next((i for i, o in enumerate(opts) if o.get("type") == END), None)
+    if end_idx is None:
+        return None
+    if any(o.get("type") == ABILITY for o in opts):    # a self-shuffle ability on my only Pokemon -> end
+        return [end_idx]
+    return None
+
+
+def agent_phaware(obs: dict) -> list[int]:
+    """PH-aware heuristic: take a Powerful-Hand-aware KO when one exists (deck_policy_v3.best_ko_attack
+    scores Alakazam's Powerful Hand as 20*hand damage counters, which the legacy floor reads as 0), else
+    the heuristic floor. No search. Never raises."""
+    try:
+        if obs.get("select") is None:
+            return list(DECK)
+        import deck_policy_v3 as DP3
+        ko = DP3.best_ko_attack(obs)
+        if ko is not None:
+            return [ko[0]]
+        safe = _no_suicide(obs)
+        if safe is not None:
+            return safe
+    except Exception:
+        pass
+    return agent(obs)
+
+
+def agent_planner(obs: dict) -> list[int]:
+    """STRONGEST combined agent: PH-aware KO floor, then forward-model search (search_v3) for development
+    with the deck-out-aware leaf and the develop-first / attack-last rollout. Combines the validated
+    findings: PH KO detection, the deck-out eval term, and develop-first sequencing. Degrades to the
+    heuristic if the forward model or time budget fails, so it never forfeits. Never raises."""
+    try:
+        if obs.get("select") is None:
+            return list(DECK)
+        import deck_policy_v3 as DP3
+        ko = DP3.best_ko_attack(obs)
+        if ko is not None:
+            return [ko[0]]
+        safe = _no_suicide(obs)                            # never shuffle away your last Pokemon
+        if safe is not None:
+            return safe
+        import search_v3 as S
+        S.USE_DYNAMIC_ATTACKS = True                       # PH-aware attack arithmetic inside the search
+        mv = S.best_option(obs, DECK, leaf_mode="deckout", rollout_mode="develop")
+        if mv is not None:
+            return mv
+    except Exception:
+        pass
+    return agent(obs)
+
+
+STARMIE_DECK = (
+    [3] * 9 + [17] * 4 + [666] * 4 + [1030] * 3 + [1031] * 3 + [1086] * 4 + [1097] * 2 + [1120] * 4
+    + [1121] * 1 + [1122] * 4 + [1145] * 4 + [1159] * 1 + [1182] * 1 + [1189] * 4 + [1223] * 2
+    + [1225] * 2 + [1227] * 4 + [1229] * 4
+)
+assert len(STARMIE_DECK) == 60, f"starmie deck must be 60, got {len(STARMIE_DECK)}"
+
+
+def agent_starmie(obs: dict) -> list[int]:
+    """Pilot the Cinderace/Mega-Starmie deck (the most common Starmie list in the replay meta) with the
+    GENERIC forward-model search -- no Alakazam-specific heuristics; deck_policy_v3.best_ko_attack falls back
+    to static damage for Starmie's plain 120/210 attacks. Local pilot A/Bs (tools/deck_pilot_ab_v1.py): this
+    deck beats our Alakazam pilot 33-7 (generic) and 28-12 vs heuristic_first (best Alakazam). Never raises."""
+    try:
+        if obs.get("select") is None:
+            return list(STARMIE_DECK)
+        import deck_policy_v3 as DP3
+        ko = DP3.best_ko_attack(obs)
+        if ko is not None:
+            return [ko[0]]
+        import search_v3 as S
+        S.USE_DYNAMIC_ATTACKS = True
+        mv = S.best_option(obs, STARMIE_DECK, leaf_mode="deckout", rollout_mode="develop")
+        if mv is not None:
+            return mv
+    except Exception:
+        pass
+    return agent(obs)
 
 
 def agent_rank(obs: dict) -> list[int]:
