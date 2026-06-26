@@ -1,0 +1,68 @@
+{
+  "focus": "deployed Starmie mirror -- where top3_selector regressed (20% vs 55% off)",
+  "outcome_from_smoke": {
+    "S0_off_win_pct": 55.0,
+    "S1_top1_gate_win_pct": 45.0,
+    "S2_top3_selector_win_pct": 20.0,
+    "games_per_matchup": 20
+  },
+  "per_game_first_changed_decision_analysis": "UNAVAILABLE -- requires instrumented game logs; smoke saved aggregate win/loss only and games may not be re-run.",
+  "mechanism_top3_vs_top1": {
+    "top3_override_rate_pct": 51.8,
+    "top1_override_rate_pct": 43.2,
+    "top3_terminal_overrides": 388,
+    "top1_terminal_overrides": 261,
+    "top3_develop_to_attack": 287,
+    "top3_develop_to_end": 81,
+    "top1_develop_to_attack": 205,
+    "top1_develop_to_end": 37
+  },
+  "terminal_override_context_top3": {
+    "safe_development_available_pct": 99.2,
+    "no_ko_no_gamewin_pct": 54.9,
+    "nonterminal_attack_available_pct": 36.3,
+    "prize_diff_when_terminating": {
+      "n": 388,
+      "mean": 0.7552,
+      "median": 0.0,
+      "p10": -1,
+      "p90": 3
+    },
+    "my_ready_main_attackers_when_terminating": {
+      "n": 388,
+      "mean": 0.982,
+      "median": 1.0,
+      "p10": 0,
+      "p90": 2
+    }
+  },
+  "interpretation": "top3_selector overrides more often and terminates the turn (ATTACK/END) far more than top1_gate. On expert states most terminal overrides occur with no KO/gamewin available; a share occur while safe development still remains (premature). Because the mirror regression is on OUR-AGENT states (which develop more and reach different boards), the live premature-termination rate is expected to exceed these expert-state rates -- consistent with develop-before-attack: terminating early surrenders tempo in the mirror.",
+  "field_vs_mirror_contrast": {
+    "top3_delta_vs_off_pp": {
+      "deployed": -35.0,
+      "alakazam": 10.0,
+      "denpa92": 0.0,
+      "first": 10.0,
+      "random": 10.0
+    },
+    "reading": "top3_selector BEATS off on 3/5 field opponents (+10pp) but crashes the deployed mirror (-35pp). The same terminal aggression that helps against weaker/differently-piloted decks is punished by the disciplined mirror -- the classic 'selection helps weak policies, hurts strong policies' failure: premature termination surrenders tempo exactly where the opponent exploits it."
+  },
+  "mode_difference_is_terminal": {
+    "develop_to_attack": {
+      "top1": 205,
+      "top3": 287,
+      "extra_in_top3": 82
+    },
+    "develop_to_end": {
+      "top1": 37,
+      "top3": 81,
+      "extra_in_top3": 44
+    },
+    "select_card_change": {
+      "top1": 539,
+      "top3": 567
+    },
+    "reading": "The top1->top3 difference is concentrated in DEVELOP->ATTACK/END (terminal). Nonterminal SELECT_CARD changes are ~equal across modes, so they are not the differentiator."
+  },
+  "distribution_shift_caveat": "classification is on expert-pilot states; the top3_selector regression manifested on OUR-AGENT mirror states, which differ. Terminal-override rates here are a LOWER BOUND for the live mirror regression."
+}

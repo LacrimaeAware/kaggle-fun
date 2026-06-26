@@ -1,0 +1,282 @@
+{
+  "data_provenance": {
+    "decisions_source": "Starmie single-select decisions sampled from replay episodes (expert-pilot states)",
+    "per_game_outcome_linkage": "UNAVAILABLE -- live smoke saved aggregate win/loss only; games not re-run",
+    "outcome_evidence": "mode x opponent aggregate win rate from live_smoke_report.json",
+    "distribution_shift_caveat": "classification is on expert-pilot states; the top3_selector regression manifested on OUR-AGENT mirror states, which differ. Terminal-override rates here are a LOWER BOUND for the live mirror regression."
+  },
+  "modes": {
+    "top1_gate": {
+      "baseline_decisions": 2564,
+      "overrides": 1107,
+      "override_rate_pct": 43.2,
+      "terminal_overrides": 261,
+      "terminal_override_rate_of_overrides_pct": 23.6,
+      "premature_terminal_overrides": 128,
+      "premature_terminal_rate_of_overrides_pct": 11.6,
+      "develop_to_attack": 205,
+      "develop_to_end": 37,
+      "transition_matrix": {
+        "OTHER": 161,
+        "DEVELOP_TO_ATTACK": 205,
+        "PLAY_CHANGE": 86,
+        "SELECT_CARD_CHANGE": 539,
+        "ATTACH_TARGET_CHANGE": 65,
+        "DEVELOP_TO_END": 37,
+        "ATTACK_CHANGE": 14
+      },
+      "family_transition_matrix": {
+        "SELECT_CARD->SELECT_CARD": 539,
+        "ATTACH->ATTACK": 103,
+        "PLAY->ATTACK": 102,
+        "ATTACH->PLAY": 101,
+        "PLAY->PLAY": 86,
+        "ATTACH->ATTACH": 65,
+        "PLAY->END": 35,
+        "PLAY->ATTACH": 19,
+        "ATTACK->ATTACK": 19,
+        "PLAY->EVOLVE": 11,
+        "ATTACH->EVOLVE": 10,
+        "ATTACK->PLAY": 8,
+        "ATTACK->EVOLVE": 4,
+        "ATTACH->END": 2,
+        "ATTACK->ATTACH": 1,
+        "EVOLVE->EVOLVE": 1,
+        "ATTACK->ABILITY": 1
+      },
+      "hard_veto_blocked_overrides": 6,
+      "confidence_terminal_overrides": {
+        "proposer_prob": {
+          "n": 261,
+          "mean": 0.7072,
+          "median": 0.7783,
+          "p10": 0.4058,
+          "p90": 0.9433
+        },
+        "selector_score_margin": {
+          "n": 261,
+          "mean": 6.6694,
+          "median": 6.8976,
+          "p10": 1.7524,
+          "p90": 10.6013
+        },
+        "entropy": {
+          "n": 261,
+          "mean": 0.8313,
+          "median": 0.7289,
+          "p10": 0.273,
+          "p90": 1.5203
+        }
+      },
+      "confidence_nonterminal_overrides": {
+        "proposer_prob": {
+          "n": 846,
+          "mean": 0.6909,
+          "median": 0.6903,
+          "p10": 0.3332,
+          "p90": 0.999
+        },
+        "selector_score_margin": {
+          "n": 846,
+          "mean": 3.9609,
+          "median": 2.0839,
+          "p10": 0.4531,
+          "p90": 10.8159
+        }
+      },
+      "win_rate_by_opponent": {
+        "deployed": {
+          "mode_win_pct": 45.0,
+          "off_win_pct": 55.0,
+          "delta_pp": -10.0
+        },
+        "alakazam": {
+          "mode_win_pct": 90.0,
+          "off_win_pct": 85.0,
+          "delta_pp": 5.0
+        },
+        "denpa92": {
+          "mode_win_pct": 100.0,
+          "off_win_pct": 95.0,
+          "delta_pp": 5.0
+        },
+        "first": {
+          "mode_win_pct": 75.0,
+          "off_win_pct": 70.0,
+          "delta_pp": 5.0
+        },
+        "random": {
+          "mode_win_pct": 95.0,
+          "off_win_pct": 90.0,
+          "delta_pp": 5.0
+        }
+      },
+      "aggregate_win_pct": 81.0
+    },
+    "top3_selector": {
+      "baseline_decisions": 2564,
+      "overrides": 1327,
+      "override_rate_pct": 51.8,
+      "terminal_overrides": 388,
+      "terminal_override_rate_of_overrides_pct": 29.2,
+      "premature_terminal_overrides": 213,
+      "premature_terminal_rate_of_overrides_pct": 16.1,
+      "develop_to_attack": 287,
+      "develop_to_end": 81,
+      "transition_matrix": {
+        "OTHER": 176,
+        "DEVELOP_TO_END": 81,
+        "DEVELOP_TO_ATTACK": 287,
+        "PLAY_CHANGE": 88,
+        "SELECT_CARD_CHANGE": 567,
+        "ATTACH_TARGET_CHANGE": 78,
+        "RETREAT_CHANGE": 14,
+        "ATTACK_CHANGE": 36
+      },
+      "family_transition_matrix": {
+        "SELECT_CARD->SELECT_CARD": 567,
+        "ATTACH->ATTACK": 153,
+        "PLAY->ATTACK": 134,
+        "ATTACH->PLAY": 101,
+        "PLAY->PLAY": 88,
+        "ATTACH->ATTACH": 78,
+        "PLAY->END": 63,
+        "PLAY->ATTACH": 27,
+        "ATTACK->RETREAT": 19,
+        "ATTACK->ATTACK": 19,
+        "ATTACH->END": 18,
+        "ATTACH->EVOLVE": 14,
+        "PLAY->EVOLVE": 12,
+        "ATTACH->RETREAT": 9,
+        "ATTACK->PLAY": 8,
+        "ATTACK->EVOLVE": 6,
+        "PLAY->RETREAT": 5,
+        "EVOLVE->ATTACH": 2,
+        "ATTACK->ATTACH": 1,
+        "EVOLVE->EVOLVE": 1,
+        "ATTACK->ABILITY": 1,
+        "ATTACK->END": 1
+      },
+      "hard_veto_blocked_overrides": 9,
+      "confidence_terminal_overrides": {
+        "proposer_prob": {
+          "n": 388,
+          "mean": 0.5359,
+          "median": 0.573,
+          "p10": 0.126,
+          "p90": 0.911
+        },
+        "selector_score_margin": {
+          "n": 388,
+          "mean": 5.532,
+          "median": 4.9455,
+          "p10": 1.3666,
+          "p90": 10.1444
+        },
+        "entropy": {
+          "n": 388,
+          "mean": 0.8599,
+          "median": 0.8031,
+          "p10": 0.3428,
+          "p90": 1.5156
+        }
+      },
+      "confidence_nonterminal_overrides": {
+        "proposer_prob": {
+          "n": 939,
+          "mean": 0.6393,
+          "median": 0.6166,
+          "p10": 0.2684,
+          "p90": 0.9988
+        },
+        "selector_score_margin": {
+          "n": 939,
+          "mean": 3.8746,
+          "median": 1.7682,
+          "p10": 0.3865,
+          "p90": 10.8159
+        }
+      },
+      "win_rate_by_opponent": {
+        "deployed": {
+          "mode_win_pct": 20.0,
+          "off_win_pct": 55.0,
+          "delta_pp": -35.0
+        },
+        "alakazam": {
+          "mode_win_pct": 95.0,
+          "off_win_pct": 85.0,
+          "delta_pp": 10.0
+        },
+        "denpa92": {
+          "mode_win_pct": 95.0,
+          "off_win_pct": 95.0,
+          "delta_pp": 0.0
+        },
+        "first": {
+          "mode_win_pct": 80.0,
+          "off_win_pct": 70.0,
+          "delta_pp": 10.0
+        },
+        "random": {
+          "mode_win_pct": 100.0,
+          "off_win_pct": 90.0,
+          "delta_pp": 10.0
+        }
+      },
+      "aggregate_win_pct": 78.0
+    }
+  },
+  "key_finding_rank_confidence": {
+    "claim": "The top1_gate (neutral) vs top3_selector (regressive) difference is the rank-2/3 terminal overrides that top3 admits and the rank-1 gate filters. These are LOW proposer-confidence.",
+    "terminal_overrides": {
+      "top1_gate": {
+        "count": 261,
+        "by_proposer_rank": {
+          "1": 261
+        }
+      },
+      "top3_selector": {
+        "count": 388,
+        "by_proposer_rank": {
+          "1": 261,
+          "2": 82,
+          "3": 45
+        }
+      }
+    },
+    "premature_terminal_overrides": {
+      "top1_gate": {
+        "count": 128,
+        "by_proposer_rank": {
+          "1": 128
+        }
+      },
+      "top3_selector": {
+        "count": 213,
+        "by_proposer_rank": {
+          "1": 128,
+          "2": 56,
+          "3": 29
+        }
+      }
+    },
+    "top3_extra_terminal_overrides_rank2plus": 127,
+    "top3_extra_premature_terminal_rank2plus": 85,
+    "proposer_prob_terminal_rank1": {
+      "n": 261,
+      "mean": 0.7072,
+      "median": 0.7783,
+      "p10": 0.4058,
+      "p90": 0.9433
+    },
+    "proposer_prob_terminal_rank2plus": {
+      "n": 127,
+      "mean": 0.184,
+      "median": 0.1537,
+      "p10": 0.0549,
+      "p90": 0.394
+    },
+    "implication": "A conservative selector must gate terminal (ATTACK/END) overrides on high confidence (proposer rank-1 / KO or gamewin available / no safe development remaining). Low-confidence rank-2/3 proposer picks must never override development into a turn-ending action."
+  }
+}
