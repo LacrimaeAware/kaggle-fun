@@ -41,6 +41,88 @@ W_V3_DECKOUT = 0.0            # penalize MY deck approaching empty (the self-dec
 DECKOUT_TEST = 100.0
 PH_TEST = 1.0
 
+# ---- ATTACKER_CONTINUITY_V1 (tactical-leaf task, Section 4) -- DISABLED BY DEFAULT ---------------------------
+# The current deckout leaf is DECK-BLIND about the Starmie attacker: W_ENERGY * active-energy-CARDS rewards energy
+# on the Cinderace ENGINE exactly as much as on the Mega Starmie ATTACKER, and counts an Ignition (3 functional
+# units) as one card, so search cannot prefer a ready/continuing Mega attacker over Cinderace development
+# (structurally proven + 2339/22083 Cinderace-active-while-Mega-ready decisions in the corpus audit). This single
+# term gives the leaf a MAIN-ATTACKER-CONTINUITY signal: reward a ready Mega attacker (active or bench) and main
+# continuity; PENALIZE energy wasted on the engine, redundant energy that crosses no readiness threshold, and
+# energy piled on an exposed 3-prize Mega. It is Ignition-UNIT-aware and BOUNDED well under W_PRIZE/KO terms (it
+# never flips a prize/KO decision). Enable with env STARMIE_LEAF_ATTACKER_CONTINUITY=1.
+import os as _os
+ATTACKER_CONTINUITY_ON = _os.environ.get("STARMIE_LEAF_ATTACKER_CONTINUITY", "") == "1"
+_MEGA_STARMIE, _CINDERACE, _IGNITION = 1031, 666, 17
+# Frozen weights (hand-set + bounded; validated by the offline audit + A/B, NOT learned). w1..w4 reward; w5..w8 penalize.
+ACW = {"ready_main_active": 20.0, "ready_main_bench": 15.0, "one_short_main": 8.0, "viable_backups": 6.0,
+       "no_main_online": 25.0, "engine_overinvest": 6.0, "redundant_energy": 4.0, "exposed_concentration": 5.0}
+
+
+def _cont_units(slot: dict) -> int:
+    """Energy UNITS on a slot, Ignition-aware (3 on Mega Starmie, 1 otherwise) -- matches the live agent."""
+    if not slot:
+        return 0
+    cards = slot.get("energies") or slot.get("energyCards") or []
+    is_mega = slot.get("id") == _MEGA_STARMIE
+    u = 0
+    for c in cards:
+        cid = c.get("id") if isinstance(c, dict) else c
+        u += 3 if (cid == _IGNITION and is_mega) else 1
+    return u
+
+
+def _cont_slots(p: dict) -> list:
+    return [a for a in (p.get("active") or []) if a] + [b for b in (p.get("bench") or []) if b]
+
+
+def attacker_continuity_vector(P: dict, O: dict) -> dict:
+    """Public diagnostic components (Section 4). Mega Starmie (1031)=main attacker; Cinderace (666)=energy engine.
+    Ready main = a Mega with >=1 energy unit (Jetting-ready). One-short = a Mega in play with 0 units (one
+    ordinary attachment makes it ready)."""
+    active = (P.get("active") or [None])[0] if P.get("active") else None
+    bench = [b for b in (P.get("bench") or []) if b]
+
+    def is_mega(s):
+        return bool(s) and s.get("id") == _MEGA_STARMIE
+
+    ready_main_active = 1 if (is_mega(active) and _cont_units(active) >= 1) else 0
+    ready_main_bench = sum(1 for b in bench if is_mega(b) and _cont_units(b) >= 1)
+    one_short_main = sum(1 for s in _cont_slots(P) if is_mega(s) and _cont_units(s) == 0)
+    total_ready_main = ready_main_active + ready_main_bench
+    viable_backups = max(0, total_ready_main - 1)            # ready Megas beyond the one you'd attack with
+    no_main_online = 1 if total_ready_main == 0 else 0
+    engine_overinvest = sum(max(0, _cont_units(s) - 1) for s in _cont_slots(P) if s.get("id") == _CINDERACE)
+    redundant_energy = 0
+    for s in _cont_slots(P):
+        if is_mega(s):
+            u = _cont_units(s)
+            if u == 2:           # past Jetting(1), one short of Nebula(3): crosses no new threshold
+                redundant_energy += 1
+            elif u > 3:          # beyond Nebula(3): overkill this turn
+                redundant_energy += (u - 3)
+    exposed_concentration = 0
+    for s in _cont_slots(P):
+        if is_mega(s) and _cont_units(s) >= 3:
+            hp = float(s.get("hp", 0) or 0)
+            if 0 < hp <= 0.5 * 330.0:    # a damaged Mega holding 3 prizes + invested energy -> exposed
+                exposed_concentration += 1
+    return {"ready_main_active": ready_main_active, "ready_main_bench": ready_main_bench,
+            "one_short_main": one_short_main, "viable_backups": viable_backups, "no_main_online": no_main_online,
+            "engine_overinvest": engine_overinvest, "redundant_energy": redundant_energy,
+            "exposed_concentration": exposed_concentration}
+
+
+def attacker_continuity_score(P: dict, O: dict) -> float:
+    v = attacker_continuity_vector(P, O)
+    return (ACW["ready_main_active"] * v["ready_main_active"]
+            + ACW["ready_main_bench"] * v["ready_main_bench"]
+            + ACW["one_short_main"] * v["one_short_main"]
+            + ACW["viable_backups"] * v["viable_backups"]
+            - ACW["no_main_online"] * v["no_main_online"]
+            - ACW["engine_overinvest"] * v["engine_overinvest"]
+            - ACW["redundant_energy"] * v["redundant_energy"]
+            - ACW["exposed_concentration"] * v["exposed_concentration"])
+
 
 def _powerful_hand_online(p: dict) -> bool:
     for slot in (p.get("active") or []) + (p.get("bench") or []):
@@ -155,7 +237,7 @@ def evaluate_ca_obs(obs: dict, me: int) -> float:
 
 def evaluate_deck_v3(cur: dict, me: int, *, ph_weight: float = W_V3_PH_POTENTIAL,
                      backup_weight: float = W_V3_BACKUP_ATTACKER,
-                     deckout_weight: float = W_V3_DECKOUT) -> float:
+                     deckout_weight: float = W_V3_DECKOUT, continuity: bool | None = None) -> float:
     """Board eval plus separately-gated deck-aware terms (all weights default OFF):
       - ph_weight: realized Powerful Hand damage when Alakazam(743) is active and energized, 20/card,
         capped at the opponent active's current HP (a hoarded hand beyond a KO is not over-rewarded).
@@ -186,6 +268,10 @@ def evaluate_deck_v3(cur: dict, me: int, *, ph_weight: float = W_V3_PH_POTENTIAL
         deck_left = float(P.get("deckCount", 0) or 0)
         if deck_left <= 5:
             score -= deckout_weight * (6.0 - deck_left)
+    # ATTACKER_CONTINUITY_V1 (disabled by default): a bounded main-attacker-continuity nudge between non-terminal
+    # states. Terminal/prize/KO terms already returned/dominate, so this never flips a win/KO/deck-out decision.
+    if (ATTACKER_CONTINUITY_ON if continuity is None else continuity):
+        score += attacker_continuity_score(P, O)
     return score
 
 

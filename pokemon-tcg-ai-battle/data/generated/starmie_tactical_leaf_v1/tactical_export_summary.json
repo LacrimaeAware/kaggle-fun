@@ -1,0 +1,26 @@
+{
+  "rows_in_scanned": 52335,
+  "rows_exported": 22083,
+  "skipped_trivial": 589,
+  "skipped_no_obs": 0,
+  "skipped_err": 0,
+  "by_family": {
+    "PLAY": 6472,
+    "SELECT_CARD": 8425,
+    "OTHER": 744,
+    "ATTACH": 2454,
+    "ATTACK": 2915,
+    "EVOLVE": 813,
+    "RETREAT": 260
+  },
+  "by_split": {
+    "val": 3813,
+    "train": 14595,
+    "test": 3675
+  },
+  "by_cohort": {
+    "C0": 18794,
+    "C2": 3289
+  },
+  "output": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\kaggle-fun\\pokemon-tcg-ai-battle\\data\\generated\\starmie_tactical_leaf_v1\\starmie_tactical_state_v1.jsonl"
+}

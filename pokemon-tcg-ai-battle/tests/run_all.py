@@ -15,6 +15,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 MODULES = [
     "test_split_base_v2",          # schema / encoding / teacher parity
     "test_heuristics_fixed_state",  # heuristics + leaf eval + agent legality on frozen states
+    "test_starmie_audit_fixes_v1",  # Model B audit-fix correctness on frozen states
+    "test_attacker_continuity_v1",  # ATTACKER_CONTINUITY_V1 leaf term (tactical-leaf task)
 ]
 
 

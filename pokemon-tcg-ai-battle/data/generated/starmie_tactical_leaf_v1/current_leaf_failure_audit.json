@@ -1,0 +1,444 @@
+{
+  "section": "S3_current_leaf_failure_audit",
+  "leaf": "evaluate_deck_v3(leaf_mode='deckout') = W_PRIZE*prizes + W_HP*boardHP + W_BODY*bodies + W_ENERGY*activeEnergyCards - deckout",
+  "structural_proof": {
+    "weights": {
+      "W_PRIZE": 1000.0,
+      "W_HP": 1.0,
+      "W_BODY": 30.0,
+      "W_ENERGY": 8.0
+    },
+    "case1_cinderace_vs_mega_active_same_3_water": {
+      "cinderace_active": {
+        "W_PRIZE_term": 0.0,
+        "W_HP_term": 370.0,
+        "W_BODY_term": 30.0,
+        "W_ENERGY_term": 24.0,
+        "active_energy_cards_counted": 3,
+        "total_evaluate": 424.0,
+        "total_deckout_leaf": 424.0
+      },
+      "mega_active": {
+        "W_PRIZE_term": 0.0,
+        "W_HP_term": 370.0,
+        "W_BODY_term": 30.0,
+        "W_ENERGY_term": 24.0,
+        "active_energy_cards_counted": 3,
+        "total_evaluate": 424.0,
+        "total_deckout_leaf": 424.0
+      },
+      "W_ENERGY_identical": true,
+      "leaf_prefers_mega_attacker": false,
+      "finding": "DECK-BLIND on the attacker: W_ENERGY rewards energy on the active engine (Cinderace) exactly as much as on the Mega Starmie attacker; the only difference is raw board HP (same bodies either way), so the leaf has NO signal to prefer promoting/keeping the Mega attacker over the Cinderace engine."
+    },
+    "case2_ignition_undercounted": {
+      "mega_one_ignition_3_units": {
+        "W_PRIZE_term": 0.0,
+        "W_HP_term": 210.0,
+        "W_BODY_term": 0.0,
+        "W_ENERGY_term": 8.0,
+        "active_energy_cards_counted": 1,
+        "total_evaluate": 218.0,
+        "total_deckout_leaf": 218.0
+      },
+      "mega_three_basic_water": {
+        "W_PRIZE_term": 0.0,
+        "W_HP_term": 210.0,
+        "W_BODY_term": 0.0,
+        "W_ENERGY_term": 24.0,
+        "active_energy_cards_counted": 3,
+        "total_evaluate": 234.0,
+        "total_deckout_leaf": 234.0
+      },
+      "W_ENERGY_ignition": 8.0,
+      "W_ENERGY_3water": 24.0,
+      "finding": "The leaf's _active_energy counts energy CARDS, so one Ignition (3 functional units, Nebula-ready) scores LESS than three Basic Water though both enable the same attacks; the leaf undervalues an Ignition-funded Nebula."
+    }
+  },
+  "corpus_prevalence": {
+    "rows_scanned": 22083,
+    "pattern_counts": {
+      "cinderace_active_while_mega_ready_or_short": 2339,
+      "energy_on_engine_overinvestment": 131,
+      "no_main_attacker_continuity": 2753,
+      "redundant_concentration_no_threshold": 2504,
+      "mega_one_attachment_short": 6523
+    },
+    "pattern_counts_in_disagreement": {
+      "cinderace_active_while_mega_ready_or_short": 768,
+      "energy_on_engine_overinvestment": 41,
+      "no_main_attacker_continuity": 939,
+      "redundant_concentration_no_threshold": 576,
+      "mega_one_attachment_short": 2392
+    },
+    "examples": {
+      "cinderace_active_while_mega_ready_or_short": [
+        {
+          "decision_id": "80949772_34_0",
+          "family": "RETREAT",
+          "baseline_action": [
+            4
+          ],
+          "pilot_action": [
+            12
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80949772_35_0",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80951290_54_0",
+          "family": "RETREAT",
+          "baseline_action": [
+            7
+          ],
+          "pilot_action": [
+            11
+          ],
+          "prize_diff": 1,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80951290_55_0",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 1,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80951290_75_0",
+          "family": "RETREAT",
+          "baseline_action": [
+            2
+          ],
+          "pilot_action": [
+            2
+          ],
+          "prize_diff": 2,
+          "my_ready_main": 2
+        },
+        {
+          "decision_id": "80951290_76_0",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 2,
+          "my_ready_main": 2
+        }
+      ],
+      "energy_on_engine_overinvestment": [
+        {
+          "decision_id": "81285742_37_1",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 1,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "81349719_22_1",
+          "family": "ATTACK",
+          "baseline_action": [
+            0
+          ],
+          "pilot_action": [
+            1
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "81349719_23_1",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1,
+            2
+          ],
+          "pilot_action": [
+            0,
+            1,
+            2
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "81349719_27_1",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "81363032_46_0",
+          "family": "ATTACK",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "81363032_47_0",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1,
+            2
+          ],
+          "pilot_action": [
+            0,
+            1,
+            2
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        }
+      ],
+      "no_main_attacker_continuity": [
+        {
+          "decision_id": "80951822_15_1",
+          "family": "PLAY",
+          "baseline_action": [
+            5
+          ],
+          "pilot_action": [
+            5
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_16_1",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1
+          ],
+          "pilot_action": [
+            0,
+            1
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_17_1",
+          "family": "PLAY",
+          "baseline_action": [
+            4
+          ],
+          "pilot_action": [
+            8
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_18_1",
+          "family": "ATTACH",
+          "baseline_action": [
+            4
+          ],
+          "pilot_action": [
+            4
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_19_1",
+          "family": "ATTACK",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_20_1",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1,
+            2
+          ],
+          "pilot_action": [
+            0,
+            1,
+            2
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        }
+      ],
+      "redundant_concentration_no_threshold": [
+        {
+          "decision_id": "80949772_18_0",
+          "family": "PLAY",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80949772_19_0",
+          "family": "PLAY",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80949772_20_0",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80949772_21_0",
+          "family": "ATTACK",
+          "baseline_action": null,
+          "pilot_action": [
+            1
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80949772_22_0",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1,
+            2
+          ],
+          "pilot_action": [
+            0,
+            1,
+            2
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80949772_23_0",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0
+          ],
+          "pilot_action": [
+            0
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        }
+      ],
+      "mega_one_attachment_short": [
+        {
+          "decision_id": "80951290_88_0",
+          "family": "SELECT_CARD",
+          "baseline_action": null,
+          "pilot_action": [
+            1
+          ],
+          "prize_diff": 2,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80951290_89_0",
+          "family": "ATTACH",
+          "baseline_action": [
+            2
+          ],
+          "pilot_action": [
+            4
+          ],
+          "prize_diff": 2,
+          "my_ready_main": 1
+        },
+        {
+          "decision_id": "80951822_15_1",
+          "family": "PLAY",
+          "baseline_action": [
+            5
+          ],
+          "pilot_action": [
+            5
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_16_1",
+          "family": "SELECT_CARD",
+          "baseline_action": [
+            0,
+            1
+          ],
+          "pilot_action": [
+            0,
+            1
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_17_1",
+          "family": "PLAY",
+          "baseline_action": [
+            4
+          ],
+          "pilot_action": [
+            8
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        },
+        {
+          "decision_id": "80951822_18_1",
+          "family": "ATTACH",
+          "baseline_action": [
+            4
+          ],
+          "pilot_action": [
+            4
+          ],
+          "prize_diff": 0,
+          "my_ready_main": 0
+        }
+      ]
+    },
+    "interpretation": "These are decisions whose tactical distinction (engine vs main attacker, ready vs one-short, redundant energy) is INVISIBLE to the current leaf -- the exact cases an ATTACKER_CONTINUITY leaf term targets. Disagreement overlap = where our baseline already diverged from the pilot in such a state."
+  }
+}
