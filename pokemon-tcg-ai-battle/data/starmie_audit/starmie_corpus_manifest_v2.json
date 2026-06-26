@@ -1,0 +1,78 @@
+{
+  "corpus_version": "starmie_specialist_corpus_v2",
+  "built_on": "V1 (preserved verbatim) + new #1 pilot cohort",
+  "v1_reference": {
+    "jsonl": "data/starmie_corpus/starmie_specialist_corpus_v1.jsonl",
+    "manifest": "data/starmie_audit/starmie_corpus_manifest_v1.json",
+    "rows": 52335,
+    "cohorts": {
+      "C0": 19301,
+      "C3": 29663,
+      "C2": 3371
+    },
+    "yushin_ito_exact_rows_already_in_v1": 0
+  },
+  "new_top1_pilot": {
+    "pilot": "Yushin Ito",
+    "submission_id": 54038721,
+    "rank_source": {
+      "source": "kaggle competition_leaderboard_view (frozen)",
+      "rank": 1,
+      "elo_like_score": 1397.2
+    },
+    "new_games": 65,
+    "win_loss": {
+      "win": 54,
+      "loss": 11
+    },
+    "deck_distance_distribution": {
+      "0": 65
+    },
+    "deck_exact_match": true,
+    "card_diffs_vs_our_deck": {},
+    "new_decisions": 2182,
+    "action_families": {
+      "YES_NO": 84,
+      "OTHER": 76,
+      "PLAY": 560,
+      "SELECT_CARD": 697,
+      "ATTACH": 299,
+      "EVOLVE": 101,
+      "ATTACK": 331,
+      "RETREAT": 34
+    },
+    "split_distribution_new_rows": {
+      "val": 508,
+      "train": 1515,
+      "test": 159
+    },
+    "cohort": "C_NEW_TOP1_EXACT"
+  },
+  "exact_deck_sha1": "2d66d4996d0c",
+  "rows_total_v2": 54517,
+  "split_views": {
+    "A_NEW_TOP1_EXACT_SINGLE_PILOT": {
+      "desc": "Yushin Ito exact-deck rows (V1-origin + new), partitioned by each row's `split` (train/val/test). For training a single-pilot specialist.",
+      "filter": "meta.pilot=='Yushin Ito' AND deck_distance==0 AND is_opponent==false",
+      "split_field": "split"
+    },
+    "B_OLD_STARMIE_EXACT_ALL_PILOTS": {
+      "desc": "V1 exact-deck cohort (all pilots), preserved unchanged.",
+      "filter": "cohort=='C0'",
+      "split_field": "split"
+    },
+    "C_OLD_PLUS_NEW_EXACT": {
+      "desc": "All exact-deck rows: V1 C0 + new C_NEW_TOP1_EXACT.",
+      "filter": "cohort=='C0' OR cohort=='C_NEW_TOP1_EXACT'",
+      "split_field": "split"
+    },
+    "D_NEW_TOP1_ZERO_SHOT_EVAL_ONLY": {
+      "desc": "Yushin Ito decisions from the 65 NEW games only (not in V1 -> teacher never trained on them). EVAL ONLY, use all rows regardless of split.",
+      "filter": "new_top1_zero_shot==true",
+      "split_field": null,
+      "n_rows": 2182
+    }
+  },
+  "underpowered": false,
+  "notes": "Forbidden as model inputs (metadata only): meta.pilot, episode/replay id, meta.won (outcome), split, meta.same_turn_family_sequence, source, new_top1_zero_shot. V1 rows are byte-identical to V1; only new rows are appended. Replay-grouped splits via sha1(episode)%100; the 65 new episodes are disjoint from V1 episodes, so no replay appears in two splits."
+}

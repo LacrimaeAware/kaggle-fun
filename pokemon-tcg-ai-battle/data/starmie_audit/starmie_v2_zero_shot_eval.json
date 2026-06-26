@@ -1,0 +1,39 @@
+{
+  "eval_set": "starmie_v2_zero_shot_newtop1 (Yushin Ito, leaderboard #1, exact deck) -- HELD OUT; the teacher trained on V1 and these 65 episodes are not in V1",
+  "file": "data/starmie_corpus/starmie_v2_zero_shot_newtop1.jsonl",
+  "n_decisions": 2182,
+  "decisions_with_real_choice_n_legal_ge_2": 2182,
+  "by_family": {
+    "YES_NO": 84,
+    "OTHER": 76,
+    "PLAY": 560,
+    "SELECT_CARD": 697,
+    "ATTACH": 299,
+    "EVOLVE": 101,
+    "ATTACK": 331,
+    "RETREAT": 34
+  },
+  "split_tags_ignore_for_zeroshot_use_all": {
+    "val": 508,
+    "train": 1515,
+    "test": 159
+  },
+  "label_field": "pilot_action_label (indices into legal_actions)",
+  "feature_resolution": "resolve root_obs_pointer -> steps[step][seat].observation in pokemon-ai-agent/data/external/replays",
+  "forbidden_as_features": [
+    "episode/decision_id",
+    "pilot identity",
+    "outcome",
+    "split"
+  ],
+  "command_for_model_a": [
+    "# Run the FROZEN Starmie teacher (do NOT retrain) zero-shot on this held-out new-#1-pilot set.",
+    "# Group candidates by legal_actions; label = pilot_action_label; report top-1/3/5, MRR, NLL, option-zero",
+    "# rate, predicted option-zero rate, nonzero-label top-1/3, and a by-family breakdown",
+    "# (PLAY / SELECT_CARD / ATTACH / EVOLVE / ATTACK / RETREAT / ABILITY / END).",
+    "python tools/eval_starmie_teacher.py --teacher <frozen_starmie_teacher_ckpt> --eval-jsonl <KF>/pokemon-tcg-ai-battle/data/starmie_corpus/starmie_v2_zero_shot_newtop1.jsonl --replays <PAA>/data/external/replays --group-by legal_actions --label pilot_action_label --by-family --report data/generated/starmie_v2_newtop1_zeroshot_metrics.json",
+    "# <KF>  = C:/Users/EcceNihilum/Desktop/GithubRepos/kaggle-fun",
+    "# <PAA> = C:/Users/EcceNihilum/Desktop/GithubRepos/pokemon-ai-agent"
+  ],
+  "note": "Model B cannot run this: the frozen Starmie teacher + its feature pipeline live in Model A's .codex worktree (off-limits). Eval set is prepared and ready."
+}
