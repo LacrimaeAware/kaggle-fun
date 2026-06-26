@@ -1,0 +1,83 @@
+{
+  "schema_version": "starmie_tactical_state_v1",
+  "row_layout": {
+    "decision_id": "stable id episode_step_seat",
+    "runtime": "PUBLIC feature payload consumable at runtime (no hidden info, no outcome, no pilot/replay id)",
+    "eval_meta": "EVALUATION-ONLY metadata; MUST NOT be a runtime model input"
+  },
+  "public_at_runtime": "EVERY field under runtime.* is computed only from the seat's public observation.",
+  "evaluation_only": [
+    "eval_meta.pilot_action",
+    "eval_meta.pilot",
+    "eval_meta.won",
+    "eval_meta.same_turn_sequence",
+    "eval_meta.replay_id",
+    "eval_meta.split",
+    "eval_meta.in_disagreement_class",
+    "runtime.baseline_action (advisory)"
+  ],
+  "feature_classes": {
+    "deck_independent": [
+      "board_features.prize_diff",
+      "board_features.my_prizes_left",
+      "board_features.opp_prizes_left",
+      "board_features.my_pokemon",
+      "board_features.opp_pokemon",
+      "board_features.my_board_hp",
+      "board_features.opp_board_hp",
+      "board_features.my_units",
+      "board_features.opp_units",
+      "board_features.my_hand_count",
+      "board_features.opp_hand_count",
+      "board_features.my_deck_count",
+      "board_features.opp_deck_count",
+      "board_features.my_deckout_risk",
+      "board_features.my_bench_capacity",
+      "board_features.max_energy_concentration",
+      "entity.hp_remaining",
+      "entity.hp_max",
+      "entity.damage",
+      "entity.prize_liability",
+      "entity.attached_cards",
+      "entity.retreat_cost",
+      "entity.retreat_affordable",
+      "coordinates.VALUE_STATE.*",
+      "coordinates.RACE_STATE.prize_diff"
+    ],
+    "starmie_semantic_role_dependent": [
+      "entity.role",
+      "entity.is_main_attacker",
+      "entity.is_energy_engine",
+      "board_features.my_ready_main_attackers",
+      "board_features.my_backup_ready",
+      "board_features.my_main_one_short",
+      "board_features.my_engine_count",
+      "board_features.engine_overinvestment_units",
+      "board_features.energy_on_main_attackers",
+      "coordinates.SWEEP_PRESSURE.*",
+      "coordinates.RACE_STATE.both_mains_online"
+    ],
+    "exact_card_id_dependent": [
+      "role classification: Mega Starmie ex=1031 (main_attacker), Cinderace=666 (energy_engine), Staryu=1030 (setup_basic)",
+      "Ignition Energy=17 -> 3 energy UNITS on a Mega (unit-aware affordability)",
+      "verified attack ids: Jetting Blow 1487 (>=1 unit, 120 +50 snipe), Nebula Beam 1488 (>=3 units, 210 flat), Turbo Flare 965 (>=1 unit, 50)",
+      "entity.attached_units",
+      "entity.affordable_attacks",
+      "entity.max_affordable_damage",
+      "entity.can_ko_opposing_active",
+      "entity.attack_ready",
+      "entity.one_attachment_from_ready"
+    ],
+    "uncertain_for_opponents": [
+      "entity.damage_uncertainty=True for non-Starmie cards (damage estimated from card_stats, cost field unreliable for conditional/special-energy attacks); opponent attack readiness is approximate."
+    ]
+  },
+  "coordinates": {
+    "RACE_STATE": "immediate-KO capability both sides, both mains online, prize + backup-continuity diff",
+    "SWEEP_PRESSURE": "ready main + backup vs opponent response; expected consecutive KOs",
+    "WALL_PRESSURE": "opponent active HP vs my max damage; bench-behind; (gust/retreat are agent-side, not encoded here)",
+    "VALUE_STATE": "prize / ready-attacker / backup / energy / hand / board-HP diffs; deckout pressure",
+    "COMMITMENT_STATE": "which action families are available now (game-win / KO / nonterminal attack / develop / attach / supporter / info-reveal / retreat / end)"
+  },
+  "consumption_note": "Model A may consume runtime.* as a situation representation for specialist/value experiments. Do NOT feed any eval_meta field as a model input. The deck-independent block transfers to other decks; the role-dependent and card-id blocks are Starmie-specific."
+}

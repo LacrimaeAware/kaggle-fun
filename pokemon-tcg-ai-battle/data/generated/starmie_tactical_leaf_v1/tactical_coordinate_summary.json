@@ -1,0 +1,124 @@
+{
+  "rows": 22083,
+  "by_family": {
+    "PLAY": 6472,
+    "SELECT_CARD": 8425,
+    "OTHER": 744,
+    "ATTACH": 2454,
+    "ATTACK": 2915,
+    "EVOLVE": 813,
+    "RETREAT": 260
+  },
+  "board_feature_distributions": {
+    "prize_diff": {
+      "n": 22083,
+      "mean": 0.646,
+      "median": 0,
+      "p10": -1,
+      "p90": 3,
+      "min": -5,
+      "max": 6
+    },
+    "my_ready_main_attackers": {
+      "n": 22083,
+      "mean": 0.88,
+      "median": 1,
+      "p10": 0,
+      "p90": 2,
+      "min": 0,
+      "max": 3
+    },
+    "my_backup_ready": {
+      "n": 22083,
+      "mean": 0.344,
+      "median": 0,
+      "p10": 0,
+      "p90": 1,
+      "min": 0,
+      "max": 3
+    },
+    "my_main_one_short": {
+      "n": 22083,
+      "mean": 0.377,
+      "median": 0,
+      "p10": 0,
+      "p90": 1,
+      "min": 0,
+      "max": 3
+    },
+    "my_units": {
+      "n": 22083,
+      "mean": 2.018,
+      "median": 1,
+      "p10": 0,
+      "p90": 5,
+      "min": 0,
+      "max": 11
+    },
+    "opp_units": {
+      "n": 22083,
+      "mean": 1.507,
+      "median": 1,
+      "p10": 0,
+      "p90": 4,
+      "min": 0,
+      "max": 19
+    },
+    "max_energy_concentration": {
+      "n": 22083,
+      "mean": 0.605,
+      "median": 0.6666666666666666,
+      "p10": 0.0,
+      "p90": 1.0,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "engine_overinvestment_units": {
+      "n": 22083,
+      "mean": 0.008,
+      "median": 0,
+      "p10": 0,
+      "p90": 0,
+      "min": 0,
+      "max": 2
+    },
+    "my_immediate_ko": {
+      "n": 22083,
+      "mean": 0.207,
+      "median": 0,
+      "p10": 0,
+      "p90": 1,
+      "min": 0,
+      "max": 1
+    },
+    "opp_immediate_ko": {
+      "n": 22083,
+      "mean": 0.095,
+      "median": 0,
+      "p10": 0,
+      "p90": 0,
+      "min": 0,
+      "max": 1
+    },
+    "my_deck_count": {
+      "n": 22083,
+      "mean": 35.123,
+      "median": 36,
+      "p10": 25,
+      "p90": 44,
+      "min": 0,
+      "max": 53
+    }
+  },
+  "commitment_state_true_rate": {
+    "game_winning_attack_available": 0.03,
+    "guaranteed_ko_available": 0.208,
+    "nonterminal_attack_available": 0.218,
+    "safe_development_available": 0.527,
+    "attachment_unused": 0.333,
+    "supporter_or_play_unused": 0.459,
+    "information_action_available": 0.376,
+    "retreat_available": 0.241,
+    "end_available": 0.604
+  }
+}

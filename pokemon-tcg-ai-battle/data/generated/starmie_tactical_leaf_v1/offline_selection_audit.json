@@ -1,0 +1,79 @@
+{
+  "section": "S6_offline_selection_audit",
+  "budget": 0.15,
+  "roots_evaluated": 232,
+  "no_obs": 0,
+  "picks_changed": 65,
+  "picks_changed_pct": 28.0,
+  "changed_toward_continuity": 3,
+  "changed_toward_continuity_pct_of_changed": 4.6,
+  "pilot_agreement_triggered_baseline": 58.2,
+  "pilot_agreement_triggered_continuity": 57.8,
+  "by_stratum": {
+    "value_even": {
+      "n": 100,
+      "changed": 31,
+      "cont_dir": 2
+    },
+    "value_ahead": {
+      "n": 105,
+      "changed": 29,
+      "cont_dir": 1
+    },
+    "race": {
+      "n": 17,
+      "changed": 2,
+      "cont_dir": 0
+    },
+    "value_behind": {
+      "n": 27,
+      "changed": 5,
+      "cont_dir": 0
+    }
+  },
+  "examples_changed_toward_continuity": [
+    {
+      "decision_id": "80985911_26_0",
+      "family": "PLAY",
+      "p0": [
+        0
+      ],
+      "p1": [
+        3
+      ],
+      "pilot": [
+        0
+      ],
+      "p1_option_type": 12
+    },
+    {
+      "decision_id": "81299522_26_0",
+      "family": "RETREAT",
+      "p0": [
+        0
+      ],
+      "p1": [
+        2
+      ],
+      "pilot": [
+        2
+      ],
+      "p1_option_type": 12
+    },
+    {
+      "decision_id": "81764555_48_0",
+      "family": "PLAY",
+      "p0": [
+        0
+      ],
+      "p1": [
+        2
+      ],
+      "pilot": [
+        0
+      ],
+      "p1_option_type": 13
+    }
+  ],
+  "note": "Pilot agreement is reported but is NOT the promotion criterion (Section 6). The mechanism signal is picks_changed_toward_continuity on triggered states."
+}
