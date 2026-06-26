@@ -1,0 +1,33 @@
+{
+  "baseline": {
+    "commit": "359f9ae",
+    "note": "main; includes opp-prior, Boss/Wally KO-gate, Ignition fix, tutor-zone, no-suicide-scope, develop-before-attack, dig-for-line, thin-END veto, Ignition-waste veto"
+  },
+  "isolation": "candidates implemented as default-off STARMIE_VARIANT toggles, committed to branch exp/starmie-heuristic-lab-v3 (NOT main), per stop conditions",
+  "screen": "imitation 24 games, process-isolated (low-frequency rules -> aggregate within noise, cannot rank): BASELINE 57.8, retreat_guard 58.0, hammer_threshold 56.9, cape_conditional 57.0",
+  "candidates": {
+    "retreat_guard_v1": {
+      "rule": "do not retreat Mega Starmie (best attacker/tank) without a benched ready Mega replacement",
+      "imitation_delta": "+0.2 (flat)",
+      "mechanism": "sound -- targets the promotion/transition failure seen in losses",
+      "verdict": "B. DIRECTIONAL_REFINEMENT",
+      "recommendation": "keep as toggle; plausibly helpful; needs a field A/B / ladder to verify (low frequency)"
+    },
+    "hammer_threshold_v1": {
+      "rule": "play Crushing Hammer only when opp Active energy in 1-2 band AND Active HP>=100 (vs any>=1)",
+      "imitation_delta": "-0.9 (within noise)",
+      "mechanism": "matches the dominant pilot band (Hammer inventory: 57% on 1-energy actives) but loses 0-energy bench-target and 3+ cases; Hammer is a coin flip",
+      "verdict": "C. BASELINE_PREFERRED (lean)",
+      "recommendation": "broad rule matches pilots slightly better; threshold is a reasonable but unproven narrowing -> baseline for now"
+    },
+    "cape_conditional_v1": {
+      "rule": "play Heros Cape only when Mega Starmie remaining HP<=230 (damaged enough that +100 matters)",
+      "imitation_delta": "-0.8 (within noise)",
+      "mechanism": "matches dominant pilot pattern (Cape inventory: 58% on Megas<=165) but loses the 19% proactive full-HP capes",
+      "verdict": "B. DIRECTIONAL_REFINEMENT",
+      "recommendation": "plausible (do not waste the 1-of ACE SPEC early); unproven -> keep as toggle"
+    }
+  },
+  "OVERALL": "The three rule candidates are MINOR (low-frequency, within-noise on imitation). The high-value finding is the eval.py audit: the search LEAF is deck-agnostic and cannot prefer a Mega Starmie attacker over Cinderace -- the search-level ROOT of the Turbo-Flare-loop / 0-prize losses. The concrete improvements that matter most this round are the committed BUG FIXES (dig-for-line, thin-END veto, Ignition-waste veto) which directly change the bad ladder behavior. Recommended next: a Starmie-aware leaf ATTACK-READINESS term (separate isolated experiment).",
+  "submission_recommendation": "a fresh submission is warranted from main (359f9ae) -- it has the real bug fixes the ladder build lacks; but that is a MANUAL decision (no auto-build)."
+}

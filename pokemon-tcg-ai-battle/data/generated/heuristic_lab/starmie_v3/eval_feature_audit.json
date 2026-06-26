@@ -1,0 +1,89 @@
+{
+  "task": "Heuristic Lab v3 - READ-ONLY eval.py leaf-term audit (section 11; no weights changed)",
+  "current_leaf_terms": {
+    "W_PRIZE": {
+      "val": 1000.0,
+      "represents": "prize differential (win condition)",
+      "status": "PRESENT, correctly dominant"
+    },
+    "W_HP": {
+      "val": 1.0,
+      "represents": "board HP / damage race",
+      "status": "PRESENT"
+    },
+    "W_BODY": {
+      "val": 30.0,
+      "represents": "Pokemon count (a KO costs a body)",
+      "status": "PRESENT"
+    },
+    "W_ENERGY": {
+      "val": 8.0,
+      "represents": "energy on MY active",
+      "status": "PRESENT but deck-agnostic -- counts energy on ANY active, incl. Cinderace; does NOT distinguish a real attacker"
+    },
+    "W_V3_DECKOUT": {
+      "val": "on via leaf_mode=deckout",
+      "represents": "deck-out hinge",
+      "status": "PRESENT"
+    },
+    "W_V3_BACKUP_ATTACKER": {
+      "val": 0.0,
+      "represents": "benched energized ALAKAZAM",
+      "status": "OFF + Alakazam-specific -> no Starmie backup term"
+    },
+    "W_CA_HAND": {
+      "val": 25.0,
+      "represents": "cards in hand",
+      "status": "PRESENT in evaluate_ca but NOT used by evaluate_deck_v3 (the deckout leaf the agent uses)"
+    }
+  },
+  "KEY_FINDING": "The search leaf is DECK-AGNOSTIC and cannot tell a Mega Starmie ex attacker (Jetting 120 / Nebula 210) from Cinderace (Turbo Flare 50). W_ENERGY rewards energy on ANY active equally, so search has no reason to prefer promoting Mega Starmie over looping Cinderace. THIS is the search-level root of the Turbo-Flare-loop / 0-prize losses -- the heuristics keep patching what the leaf eval is blind to.",
+  "proposed_terms_ranked": [
+    {
+      "term": "starmie_attack_readiness",
+      "priority": 1,
+      "exposed": true,
+      "represented": false,
+      "sign": "+",
+      "where": "search leaf (eval.py) AND/OR hard heuristic",
+      "note": "value having a Mega Starmie ex active/promotable that can pay Jetting (1 W) or Nebula (3); de-value an active Cinderace that can only Turbo Flare. Would make search prefer promoting the real attacker."
+    },
+    {
+      "term": "three_prize_liability",
+      "priority": 2,
+      "exposed": true,
+      "represented": false,
+      "sign": "- (penalty)",
+      "where": "search leaf",
+      "note": "penalize exposing our Mega Starmie ex (KO on it = opp takes 3 prizes); currently W_BODY treats it like any body."
+    },
+    {
+      "term": "backup_attacker_starmie",
+      "priority": 3,
+      "exposed": true,
+      "represented": "partial (Alakazam term off)",
+      "sign": "+",
+      "where": "search leaf",
+      "note": "a benched energized Mega Starmie ready to promote -> avoids the collapse when the active Mega dies."
+    },
+    {
+      "term": "energy_concentration",
+      "priority": 4,
+      "exposed": true,
+      "represented": false,
+      "sign": "+ (on the line) / - (scattered/on Cinderace)",
+      "where": "search leaf",
+      "note": "reward energy concentrated on the Mega Starmie line, not spread or stuck on Cinderace."
+    },
+    {
+      "term": "visible_opponent_threat",
+      "priority": 5,
+      "exposed": "partial",
+      "represented": false,
+      "sign": "-",
+      "where": "opponent model / search leaf",
+      "note": "whether the opponent active can KO our active next turn; needs opponent damage estimate (attack_stats unreliable) -> opponent-model territory, not a naive leaf term."
+    }
+  ],
+  "recommendation": "Do NOT change weights in this task. The highest-leverage follow-up is a Starmie-aware leaf term for ATTACK READINESS (value a promotable Mega Starmie attacker over a Turbo-Flaring Cinderace) -- it addresses the diagnosed root, not just the symptoms. Validate any leaf change with isolated tests + a field A/B, separately from the three rule candidates."
+}

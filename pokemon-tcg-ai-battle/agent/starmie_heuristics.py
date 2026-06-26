@@ -98,6 +98,13 @@ DISABLED = set(x.strip() for x in os.environ.get("STARMIE_DISABLE", "").split(",
 # stands (engine not starved). Enable with env STARMIE_ATTACH_MEGA_NOT_ENGINE_V1=1.
 ATTACH_MEGA = os.environ.get("STARMIE_ATTACH_MEGA_NOT_ENGINE_V1", "") == "1"
 
+# Heuristic Lab v3: one experimental candidate at a time (default "" = frozen baseline). Each is an ISOLATED,
+# default-off variant so it can be A/B'd vs the baseline independently and never contaminates main until verified.
+#   retreat_guard    : do not retreat Mega Starmie (our best attacker/tank) without a ready replacement payoff
+#   hammer_threshold : play Crushing Hammer only when opp Active energy is in the threshold band (1-2), not any>=1
+#   cape_conditional : play Hero's Cape only when the Mega Starmie is damaged enough that +100 HP matters
+VARIANT = os.environ.get("STARMIE_VARIANT", "").strip()
+
 
 def _on(key):
     return key not in DISABLED
@@ -299,7 +306,12 @@ def _high_value_play(obs, opts, player, opp):
         return idx[WALLYS]
     a = DP._active(player)
     if _on("R6") and HEROS_CAPE in idx and a and DP._cid(a) == MEGA_STARMIE:
-        return idx[HEROS_CAPE]
+        # Candidate C (cape_conditional, default off): only when the Mega Starmie is already damaged enough that
+        # +100 HP changes whether a hit KOs it (remaining <= 230, i.e. taken >=100). Idea audit: avoids burning
+        # the 1-of ACE SPEC Cape on a full-HP, unthreatened Mega; risk = playing it a turn "late". Baseline =
+        # play on any active Mega Starmie. (We do not infer hidden opponent damage as certain.)
+        if VARIANT != "cape_conditional" or float(DP._get(a, "hp", 0) or 0) <= 230:
+            return idx[HEROS_CAPE]
     return None
 
 
@@ -399,6 +411,14 @@ def _crushing_hammer_play(obs, opts, opp):
     d = DP._active(opp)
     if not d or DP._attached_count(d) < 1:
         return None
+    # Candidate B (hammer_threshold, default off): play only when opp Active energy is in the 1-2 band (removing
+    # one is most likely to cross an attack threshold) AND the Active is a real attacker (HP>=100), not on a
+    # heavily-loaded Active (3+, one removal rarely matters) or a tiny setup mon. Idea audit: Hammer is a coin
+    # flip so we do not assume success; this only narrows WHEN we spend the card. Baseline = play on any energy.
+    if VARIANT == "hammer_threshold":
+        e = DP._attached_count(d)
+        if not (1 <= e <= 2 and float(DP._get(d, "hp", 0) or 0) >= 100):
+            return None
     for i, o in enumerate(opts):
         if o.get("type") == PLAY and DP.option_card_id(o, obs) == CRUSHING_HAMMER:
             return i
@@ -697,6 +717,20 @@ def _veto_search_pick(obs, mv):
         return None
     o = opts[i]
     player, opp, _ = _me_opp(obs)
+    # Candidate A (retreat_guard, default off): do NOT retreat Mega Starmie ex (our best attacker/tank) unless a
+    # benched Mega Starmie is ready to attack (>=1 energy). Reject a retreat whose only rationale is "the active
+    # cannot attack this turn" -- keep the Mega and attack (chip) or end. Idea audit: triggers on RETREAT picks
+    # with active Mega; risk = blocking a legitimate pivot (mitigated: allowed when a ready benched Mega exists).
+    if VARIANT == "retreat_guard" and o.get("type") == RETREAT:
+        a = DP._active(player)
+        if a and DP._cid(a) == MEGA_STARMIE and not any(
+                DP._cid(b) == MEGA_STARMIE and DP._attached_count(b) >= 1 for b in DP._bench(player)):
+            atk = _best_attack_index(obs, opts, opp)
+            if atk is not None:
+                return [atk]
+            end_idx = next((k for k, ok in enumerate(opts) if ok.get("type") == END), None)
+            if end_idx is not None:
+                return [end_idx]
     if o.get("type") == PLAY and DP.option_card_id(o, obs) == WALLYS:
         if not _wally_useful(player):
             atk = _best_attack_index(obs, opts, opp)
