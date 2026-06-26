@@ -1,0 +1,53 @@
+{
+  "n_candidates": 6,
+  "candidates": [
+    {
+      "id": "attack_nebula_at_3plus_units_v1",
+      "family": "ATTACK",
+      "hypothesis": "Pilot chooses Nebula Beam (vs Jetting) when the active has >=3 energy units.",
+      "support_coverage": 91,
+      "lift": 0.934,
+      "recommended_use": "search_leaf_or_heuristic"
+    },
+    {
+      "id": "attach_to_mega_when_one_short_v1",
+      "family": "ATTACH",
+      "hypothesis": "Pilot attaches energy to the Mega Starmie (not engine/basic) when a Mega is one attachment from ready.",
+      "support_coverage": 194,
+      "lift": 0.571,
+      "recommended_use": "heuristic_or_feature"
+    },
+    {
+      "id": "attach_energy_to_mega_not_engine_v1",
+      "family": "ATTACH",
+      "hypothesis": "Pilot attaches energy to the Mega Starmie attacker (~80%), almost never to the Cinderace engine; our agent attaches to Cinderace far more.",
+      "support_coverage": 299,
+      "lift": null,
+      "recommended_use": "heuristic_or_search_leaf"
+    },
+    {
+      "id": "attack_when_ko_available_v1",
+      "family": "ATTACK",
+      "hypothesis": "Pilot takes the attack on the turn-ending decision when a guaranteed KO is available (vs developing).",
+      "support_coverage": 328,
+      "lift": 0.284,
+      "recommended_use": "heuristic"
+    },
+    {
+      "id": "tutor_target_priority_v1",
+      "family": "SELECT_CARD",
+      "hypothesis": "Pilot's tutor/select-card targets concentrate on specific cards (priority order observed).",
+      "support_coverage": 697,
+      "lift": null,
+      "recommended_use": "heuristic_or_feature"
+    },
+    {
+      "id": "play_card_priority_v1",
+      "family": "PLAY",
+      "hypothesis": "Pilot's PLAY usage (Wally/Hammer/Boss/Cape/draw/search) frequency profile.",
+      "support_coverage": 560,
+      "lift": null,
+      "recommended_use": "visual_review_or_feature"
+    }
+  ]
+}

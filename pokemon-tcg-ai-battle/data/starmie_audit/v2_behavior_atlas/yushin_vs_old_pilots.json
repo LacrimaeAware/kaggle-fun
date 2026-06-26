@@ -1,0 +1,126 @@
+{
+  "yushin": {
+    "n_decisions": 2182,
+    "family_mix_pct": {
+      "SELECT_CARD": 31.9,
+      "PLAY": 25.7,
+      "ATTACK": 15.2,
+      "ATTACH": 13.7,
+      "EVOLVE": 4.6,
+      "YES_NO": 3.8,
+      "OTHER": 3.5,
+      "RETREAT": 1.6
+    },
+    "attack_choice_dist": {
+      "n": 331,
+      "dist_pct": {
+        "ATTACK:Jetting": 70.7,
+        "ATTACK:Nebula": 25.7,
+        "ATTACK:Turbo": 2.1,
+        "ATTACK:Water": 1.5
+      }
+    },
+    "attach_target_dist": {
+      "n": 299,
+      "dist_pct": {
+        "Mega": 79.9,
+        "Staryu": 17.7,
+        "Cinderace": 2.3
+      }
+    },
+    "play_card_dist": {
+      "n": 560,
+      "dist_pct": {
+        "PLAY:Mega Signal": 16.6,
+        "PLAY:Wally's Compassion": 12.7,
+        "PLAY:Buddy-Buddy Poffin": 12.5,
+        "PLAY:Pok\u00e9gear 3.0": 12.5,
+        "PLAY:Lillie's Determination": 11.8,
+        "PLAY:Crushing Hammer": 10.4,
+        "PLAY:Staryu": 6.1,
+        "PLAY:Hilda": 4.8
+      }
+    },
+    "select_card_dist": {
+      "n": 697,
+      "dist_pct": {
+        "SELECT_CARD:?": 74.9,
+        "SELECT_CARD:Mega Starmie ex": 12.8,
+        "SELECT_CARD:Staryu": 5.9,
+        "SELECT_CARD:Ignition Energy": 2.9,
+        "SELECT_CARD:Basic {W} Energy": 2.0,
+        "SELECT_CARD:Cinderace": 1.1,
+        "SELECT_CARD:Salvatore": 0.1,
+        "SELECT_CARD:Mega Signal": 0.1
+      }
+    },
+    "develop_vs_attack": {
+      "attack_available_n": 806,
+      "attack_rate_pct": 41.1,
+      "chip_only_attack_rate_pct": 29.5
+    },
+    "retreat_rate_pct": 1.6
+  },
+  "keidroid": {
+    "n_decisions": 4000,
+    "family_mix_pct": {
+      "SELECT_CARD": 39.7,
+      "PLAY": 27.6,
+      "ATTACK": 13.2,
+      "ATTACH": 9.3,
+      "EVOLVE": 3.3,
+      "OTHER": 3.1,
+      "YES_NO": 2.7,
+      "RETREAT": 1.1
+    },
+    "attack_choice_dist": {
+      "n": 527,
+      "dist_pct": {
+        "ATTACK:Jetting": 58.1,
+        "ATTACK:Nebula": 22.0,
+        "ATTACK:Turbo": 18.8,
+        "ATTACK:Water": 1.1
+      }
+    },
+    "attach_target_dist": {
+      "n": 372,
+      "dist_pct": {
+        "Mega": 64.5,
+        "Cinderace": 21.2,
+        "Staryu": 14.2
+      }
+    },
+    "play_card_dist": {
+      "n": 1106,
+      "dist_pct": {
+        "PLAY:Pok\u00e9gear 3.0": 15.8,
+        "PLAY:Mega Signal": 14.6,
+        "PLAY:Lillie's Determination": 11.6,
+        "PLAY:Crushing Hammer": 10.8,
+        "PLAY:Hilda": 8.7,
+        "PLAY:Buddy-Buddy Poffin": 7.4,
+        "PLAY:Salvatore": 7.4,
+        "PLAY:Wally's Compassion": 5.6
+      }
+    },
+    "select_card_dist": {
+      "n": 1589,
+      "dist_pct": {
+        "SELECT_CARD:?": 59.4,
+        "SELECT_CARD:Mega Starmie ex": 11.8,
+        "SELECT_CARD:Basic {W} Energy": 10.2,
+        "SELECT_CARD:Staryu": 5.0,
+        "SELECT_CARD:Ignition Energy": 3.2,
+        "SELECT_CARD:Cinderace": 3.0,
+        "SELECT_CARD:Wally's Compassion": 1.4,
+        "SELECT_CARD:Mega Signal": 1.1
+      }
+    },
+    "develop_vs_attack": {
+      "attack_available_n": 1521,
+      "attack_rate_pct": 34.6,
+      "chip_only_attack_rate_pct": 29.2
+    },
+    "retreat_rate_pct": 1.1
+  }
+}

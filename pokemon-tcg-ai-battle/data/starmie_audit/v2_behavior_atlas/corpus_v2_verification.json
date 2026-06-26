@@ -1,0 +1,26 @@
+{
+  "cohort": "C_NEW_TOP1_EXACT / Yushin Ito / leaderboard #1 (Elo-like 1397.2) / submission 54038721",
+  "decisions": 2182,
+  "replays_episodes": 64,
+  "splits": {
+    "train": 1515,
+    "val": 508,
+    "test": 159
+  },
+  "families": {
+    "SELECT_CARD": 697,
+    "PLAY": 560,
+    "ATTACK": 331,
+    "ATTACH": 299,
+    "EVOLVE": 101,
+    "YES_NO": 84,
+    "OTHER": 76,
+    "RETREAT": 34
+  },
+  "deck_distance": 0,
+  "card_diffs_vs_our_deck": {},
+  "overlap_with_v1_episodes": 0,
+  "clean_zero_shot": true,
+  "pointer_resolution_sample": "50/50 ok",
+  "note": "V1 preserved; new episodes disjoint from V1 -> teacher never saw them."
+}

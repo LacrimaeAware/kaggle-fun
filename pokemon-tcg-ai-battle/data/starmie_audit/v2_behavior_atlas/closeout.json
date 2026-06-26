@@ -1,0 +1,64 @@
+{
+  "verdict": "A_CLEAR_INTERACTION_CANDIDATES_FOUND",
+  "n_yushin_decisions": 2182,
+  "n_keidroid_decisions": 4000,
+  "overall_agreement_pct": 51.7,
+  "develop_vs_attack": {
+    "yushin": {
+      "attack_available_n": 806,
+      "attack_rate_pct": 41.1,
+      "chip_only_attack_rate_pct": 29.5
+    },
+    "keidroid": {
+      "attack_available_n": 1521,
+      "attack_rate_pct": 34.6,
+      "chip_only_attack_rate_pct": 29.2
+    },
+    "agent_attack_rate_when_available_pct": 26.1
+  },
+  "top5_for_heuristic_test": [
+    "attack_nebula_at_3plus_units_v1",
+    "attach_to_mega_when_one_short_v1",
+    "attach_energy_to_mega_not_engine_v1",
+    "attack_when_ko_available_v1",
+    "tutor_target_priority_v1"
+  ],
+  "artifacts": [
+    "closeout.json",
+    "interaction_candidate_summary.json",
+    "interaction_candidates.jsonl",
+    "keidroid_decisions.jsonl",
+    "newtop1_decisions.jsonl",
+    "top_review_examples.html",
+    "top_review_examples.jsonl",
+    "yushin_vs_agent_gap.json",
+    "yushin_vs_old_pilots.json"
+  ],
+  "top_recommendations": {
+    "immediate_heuristic_test": [
+      "attach_energy_to_mega_not_engine_v1 (agent puts 18% energy on Cinderace; #1 pilot 2%)",
+      "attack_when_ko_available_v1",
+      "attack_nebula_at_3plus_units_v1"
+    ],
+    "search_eval_leaf": [
+      "attack_nebula_at_3plus_units_v1",
+      "attach_energy_to_mega_not_engine_v1"
+    ],
+    "model_a_semantic_feature": [
+      "attach target role (Mega vs engine)",
+      "attack affordability + Nebula/Jetting threshold",
+      "develop-vs-attack commitment state"
+    ],
+    "future_learned_adviser": [
+      "tutor_target_priority_v1",
+      "play_card_priority_v1 (Wally/Hammer/Boss timing -- needs richer context)"
+    ]
+  },
+  "headline_findings": [
+    "Agent agreement with #1 pilot = 51.7% (worst families: PLAY 33%, ATTACH 39%).",
+    "ATTACH: #1 pilot energizes the Mega 80% / Cinderace 2%; our agent attaches Cinderace 18%. keidroid 64.5%/21%.",
+    "When an attack is available, #1 pilot attacks 41% vs our agent 26%; KO-available pilot 58%, chip-only 29.5%.",
+    "Cross-pilot consistency: chip-attack rate Yushin 29.5% ~= keidroid 29.2%.",
+    "Attack choice: Yushin Jetting 71% / Nebula 26% / Turbo 2%; keidroid Turbo 19% (Yushin is more Mega-centric)."
+  ]
+}

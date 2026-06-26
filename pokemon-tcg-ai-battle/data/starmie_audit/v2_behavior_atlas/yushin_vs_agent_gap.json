@@ -1,0 +1,201 @@
+{
+  "overall_agreement_pct": 51.7,
+  "overall_n": 2182,
+  "by_family": {
+    "ATTACH": {
+      "agree_pct": 39.1,
+      "n": 299
+    },
+    "ATTACK": {
+      "agree_pct": 51.7,
+      "n": 331
+    },
+    "EVOLVE": {
+      "agree_pct": 83.2,
+      "n": 101
+    },
+    "OTHER": {
+      "agree_pct": 30.3,
+      "n": 76
+    },
+    "PLAY": {
+      "agree_pct": 33.4,
+      "n": 560
+    },
+    "RETREAT": {
+      "agree_pct": 70.6,
+      "n": 34
+    },
+    "SELECT_CARD": {
+      "agree_pct": 65.9,
+      "n": 697
+    },
+    "YES_NO": {
+      "agree_pct": 76.2,
+      "n": 84
+    }
+  },
+  "agent_source_breakdown": {
+    "heuristic": 1501,
+    "search_default": 681
+  },
+  "develop_vs_attack_when_attack_available": {
+    "n_decisions_attack_available": 806,
+    "pilot_attack_rate_pct": 41.1,
+    "agent_attack_rate_pct": 26.1,
+    "ko_available_pilot_attack_pct": 57.9,
+    "chip_only_pilot_attack_pct": 29.5
+  },
+  "top_disagreement_patterns": [
+    {
+      "family": "SELECT_CARD",
+      "pilot": "SELECT_CARD:?",
+      "agent": "SELECT_CARD:?",
+      "count": 183
+    },
+    {
+      "family": "ATTACH",
+      "pilot": "ATTACH:Basic {W} Energy",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 54
+    },
+    {
+      "family": "ATTACK",
+      "pilot": "ATTACK:Jetting",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 38
+    },
+    {
+      "family": "SELECT_CARD",
+      "pilot": "SELECT_CARD:Staryu",
+      "agent": "SELECT_CARD:Staryu",
+      "count": 36
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Mega Signal",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 33
+    },
+    {
+      "family": "ATTACK",
+      "pilot": "ATTACK:Jetting",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 27
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Pok\u00e9gear 3.0",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 25
+    },
+    {
+      "family": "ATTACH",
+      "pilot": "ATTACH:Ignition Energy",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 24
+    },
+    {
+      "family": "ATTACH",
+      "pilot": "ATTACH:Basic {W} Energy",
+      "agent": "ATTACH:Ignition Energy",
+      "count": 24
+    },
+    {
+      "family": "ATTACH",
+      "pilot": "ATTACH:Basic {W} Energy",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 24
+    },
+    {
+      "family": "YES_NO",
+      "pilot": "NO",
+      "agent": "YES",
+      "count": 20
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Crushing Hammer",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 20
+    },
+    {
+      "family": "OTHER",
+      "pilot": "NUMBER",
+      "agent": "NUMBER",
+      "count": 17
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Wally's Compassion",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 17
+    },
+    {
+      "family": "ATTACK",
+      "pilot": "ATTACK:Jetting",
+      "agent": "ATTACH:Ignition Energy",
+      "count": 16
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Mega Signal",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 16
+    },
+    {
+      "family": "OTHER",
+      "pilot": "END",
+      "agent": "PLAY:Pok\u00e9gear 3.0",
+      "count": 15
+    },
+    {
+      "family": "ATTACK",
+      "pilot": "ATTACK:Jetting",
+      "agent": "PLAY:Crushing Hammer",
+      "count": 15
+    },
+    {
+      "family": "ATTACH",
+      "pilot": "ATTACH:Ignition Energy",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 15
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Wally's Compassion",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 15
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Hilda",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 14
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Crushing Hammer",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 14
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Lillie's Determination",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 13
+    },
+    {
+      "family": "ATTACK",
+      "pilot": "ATTACK:Nebula",
+      "agent": "PLAY:Buddy-Buddy Poffin",
+      "count": 13
+    },
+    {
+      "family": "PLAY",
+      "pilot": "PLAY:Salvatore",
+      "agent": "ATTACH:Basic {W} Energy",
+      "count": 12
+    }
+  ]
+}
