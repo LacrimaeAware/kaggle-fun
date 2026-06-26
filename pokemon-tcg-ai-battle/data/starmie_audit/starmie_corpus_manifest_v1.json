@@ -1,0 +1,78 @@
+{
+  "name": "STARMIE_SPECIALIST_CORPUS_V1",
+  "producer": "Model B (data only; Model A trains with shared C8 infra)",
+  "jsonl": "data\\starmie_corpus\\starmie_specialist_corpus_v1.jsonl",
+  "n_rows": 52335,
+  "exact_deck_sha1": "2d66d4996d0c",
+  "exact_deck_len": 60,
+  "max_deck_distance": 10,
+  "min_pilot_games": 10,
+  "supported_pilots": [
+    "EF",
+    "Kimiaki Nakamura",
+    "Mogja J",
+    "Shishio Makoto",
+    "Shun",
+    "keidroid",
+    "uuji-qvp"
+  ],
+  "n_supported_pilots": 7,
+  "c1_high_volume_pilots": [
+    "EF",
+    "Kimiaki Nakamura",
+    "Mogja J",
+    "Shishio Makoto",
+    "Shun",
+    "blue0620",
+    "keidroid",
+    "kouki__k_4869",
+    "protoLabs.studio",
+    "uuji-qvp"
+  ],
+  "cohorts": {
+    "C0": 19301,
+    "C3": 29663,
+    "C2": 3371
+  },
+  "splits_replay_grouped": {
+    "val": 9175,
+    "train": 34579,
+    "test": 8581
+  },
+  "support_report_by_family": {
+    "ATTACH": 5515,
+    "SELECT_CARD_tutor": 17924,
+    "ATTACK": 5293,
+    "RETREAT": 513,
+    "PLAY_incl_Wally_Hammer_Boss": 15469,
+    "EVOLVE": 2876,
+    "ABILITY": 1801,
+    "ATTACK_Jetting": 1686,
+    "ATTACK_Nebula": 733,
+    "ATTACK_TurboFlare": 431
+  },
+  "row_schema": {
+    "inputs_runtime": [
+      "root_state",
+      "root_obs_pointer",
+      "legal_actions"
+    ],
+    "label": [
+      "pilot_action",
+      "family",
+      "family_detail"
+    ],
+    "grouping": [
+      "episode",
+      "split",
+      "cohort",
+      "deck_distance"
+    ],
+    "META_NOT_runtime_inputs": [
+      "meta.pilot",
+      "meta.won",
+      "meta.same_turn_family_sequence"
+    ]
+  },
+  "notes": "Pilot identity, game outcome, and future (same-turn) sequence are under meta and MUST NOT be runtime inputs. Full observable features can be re-extracted from the replay via root_obs_pointer with the shared C8 observation pipeline; root_state is a compact convenience summary."
+}

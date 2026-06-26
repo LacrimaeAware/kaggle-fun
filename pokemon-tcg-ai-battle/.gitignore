@@ -25,3 +25,4 @@ _v3_*/
 
 # Committed build artifact, reproducible via tools/build_submission.sh.
 /submission/*.tar.gz
+data/starmie_corpus/
