@@ -29,9 +29,9 @@ confirm direction, then the ladder is the real test. Top Starmie pilots win 65-8
   `STARMIE_DECK` constant in `agent/starmie_heuristics.py`.
 
 ## Result so far
-Heavy agent agreement 49.4% (deployed) -> ~54% over 40 top-pilot winning games. Per-category heavy vs deployed:
-evolve 25->73%, energy_attach 30->57%, go_first 55->86%, retreat 0->64%; attack/select_card ~= deployed
-(deferred to search); `play` 32->25% (we still develop less than pilots in some spots -- a known soft spot).
+Heavy agent agreement 49.4% (deployed) -> 55.3% over 40 top-pilot winning games. Per-category heavy vs deployed:
+evolve 25->69%, energy_attach 30->59%, go_first 55->86%, retreat 0->60%, select_card 63->66% (effect.id tutor);
+attack ~= deployed; `play` 32->27% (we still develop less than pilots in nuanced spots -- the known soft spot).
 Local A/B (catastrophe check, NOT ladder-predictive -- mirror self-play has repeatedly failed to predict the
 ladder): heavy beats field decks (vs alakazam ~73%, vs denpa92 ~87%) but loses the same-deck mirror to the
 pure-search deployed agent (~37%, noisy). Submission built+verified: `submissions/sub_starmie2` (6/8 vs first).
@@ -53,16 +53,22 @@ IMPLEMENTED (forced):
   Starmie; Wally's only when Mega Starmie <=50% HP (+ a veto that stops search playing a pointless full-HP
   Wally's); Boss gust for ANY-prize bench KO when we can't KO the active; retreat-pivot Cinderace->Mega Starmie;
   Nebula ignores weakness/resistance (`_attack_kos_active`).
-DEFERRED to search (intentional): chip attack selection (Jetting vs Nebula when neither KOs); which supporter /
-  item; deck-out buffer (search leaf_mode="deckout").
-NOT IMPLEMENTED / MISSING (good audit targets):
-- Tutor/fetch TARGETS on searches (Mega Signal->Mega Starmie, Poffin->Staryu, Ultra Ball->missing piece).
-  `_tutor_target` exists but is OFF (a naive need-rank regressed select_card 63->53%). Needs solid card
-  resolution on deck-search prompts (option_card_id returns None there -> labels show "CARD ?").
-- Turbo Flare energy-accel TARGET (which benched Pokemon gets the 3 Basic energy) -- sub-prompt, deferred.
-- Jetting Blow 50-damage bench-SNIPE target -- no rule; deferred.
-- "Don't field two Mega Starmie ex at once"; "don't retreat the tank (Mega Starmie) needlessly".
-- Counter-specific play by weakness (vs Lightning: protect/race; vs Fire: Starmie hits weakness).
+- Tutor/fetch TARGETS (`_tutor_target`, NOW ON): keyed on `sel.effect.id` (the card prompting), resolves cards
+  via `sel.deck[index]`. Turbo Flare(666)->grab Basic Water; Poffin(1086)->Staryu; Mega Signal/Ultra Ball/
+  Salvatore/Hilda->highest-need card (`_need_value`). Raised select_card 53->66% (vs 63% deployed). Pokegear's
+  reveal zone (area 12) exposes no cards -> defers.
+- Jetting Blow bench-SNIPE target + Boss gust target (`_opp_bench_target`, keyed on effect.id 1031/1182):
+  pick the opponent benched Pokemon we can KO this turn (snipe=50, gust=main attack), preferring higher prize ->
+  Water-weak (counter-specific) -> lowest HP.
+- Crushing Hammer (`_crushing_hammer_play`): play when opp active has energy (free disruption).
+- Don't field a 3rd Mega Starmie: evolve->Mega is skipped once 2 are already in play.
+DEFERRED to search (intentional): chip attack selection (Jetting vs Nebula when neither KOs); which draw/search
+  SUPPORTER to play and the play-vs-develop timing; deck-out buffer (search leaf_mode="deckout"); Pokegear target.
+STILL MISSING / WEAK (audit targets):
+- `play` agreement only 27% (pilots play more setup; we still under-develop in nuanced spots -- the hardest gap).
+- "Don't retreat the tank (Mega Starmie) needlessly" beyond the Cinderace->Mega pivot (search may still retreat it).
+- Counter-specific beyond weakness-in-targeting (vs Lightning: protect/race) -- not modeled.
+- Wally's trigger is an HP proxy (<=50%), not a real incoming-KO check.
 
 ## Suspected weaknesses to investigate (prioritized)
 1. `play` agreement 25% (pilots play more setup than we do; we defer to search which under-develops or attacks).

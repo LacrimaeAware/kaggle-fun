@@ -326,6 +326,18 @@ def _wally_useful(player):
     return mx > 0 and 0 < hp <= mx * 0.5 and DP._attached_count(a) >= 1
 
 
+def _crushing_hammer_play(obs, opts, opp):
+    """Play Crushing Hammer (free item; coin flip discards 1 opp energy) when the opponent's active has energy
+    to strip. Pilots use it heavily; it costs only the card, not the attack."""
+    d = DP._active(opp)
+    if not d or DP._attached_count(d) < 1:
+        return None
+    for i, o in enumerate(opts):
+        if o.get("type") == PLAY and DP.option_card_id(o, obs) == CRUSHING_HAMMER:
+            return i
+    return None
+
+
 # ---------- rules ----------
 def _go_first(obs):
     sel = DP._selection(obs)
@@ -375,44 +387,111 @@ def _main_action(obs):
     ko = _best_ko_index(obs, opts, opp)
     if ko is not None:
         return [ko]
-    for i, o in enumerate(opts):
-        if o.get("type") == EVOLVE and DP.option_card_id(o, obs) == MEGA_STARMIE:
-            return [i]
+    # evolve Staryu->Mega Starmie, but never a 3rd (>=2 Mega in play is enough; a 3rd over-exposes prizes).
+    if sum(1 for c in _ids_in_play(player) if c == MEGA_STARMIE) < 2:
+        for i, o in enumerate(opts):
+            if o.get("type") == EVOLVE and DP.option_card_id(o, obs) == MEGA_STARMIE:
+                return [i]
     hv = _high_value_play(obs, opts, player, opp)
     if hv is not None:
         return [hv]
     ea = _best_attach_index(obs, opts, player)
     if ea is not None:
         return [ea]
+    ch = _crushing_hammer_play(obs, opts, opp)   # free disruption: discard opp energy (coin flip)
+    if ch is not None:
+        return [ch]
     rp = _retreat_pivot(obs, opts, player)
     if rp is not None:
         return [rp]
     return None   # defer the rest (which trainer / chip vs setup / end) to search
 
 
+def _sel_card(sel, o):
+    """Resolve a CARD option to its card id via the selection-local zones (deck/discard/prize/hand)."""
+    idx = DP._get(o, "index", None)
+    try:
+        idx = int(idx)
+    except Exception:
+        return None
+    for key in ("deck", "discard", "prize", "hand"):
+        zone = DP._items(DP._get(sel, key, []))
+        if 0 <= idx < len(zone):
+            return DP._cid(zone[idx])
+    return None
+
+
 def _tutor_target(obs):
-    """CARD-selection prompt (search/fetch): pick the card that fills our biggest need."""
+    """Search/fetch prompt -> pick what we need most. Keyed on sel.effect.id (the card whose effect prompts):
+    Turbo Flare (Cinderace) -> up to N Basic Water; Poffin -> Basic Pokemon (Staryu); Mega Signal / Ultra Ball /
+    Salvatore / Hilda / etc. -> the highest-need card. Cards resolve via sel.deck[index] (a hidden reveal zone,
+    e.g. Pokegear, exposes nothing -> defer to search)."""
     sel = DP._selection(obs)
-    if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1:
+    if not sel:
         return None
     opts = DP._items(DP._get(sel, "option", []))
     if len(opts) < 2 or not all(o.get("type") == CARD for o in opts):
         return None
+    eff = DP._get(sel, "effect", None)
+    eid = DP._get(eff, "id", None) if eff else None
+    maxc = max(1, int(DP._get(sel, "maxCount", 1) or 1))
+    cards = [(i, _sel_card(sel, o)) for i, o in enumerate(opts)]
+    if all(c is None for _, c in cards):
+        return None                                          # hidden zone -> defer
+    if eid == CINDERACE:                                     # Turbo Flare: grab Basic Water
+        waters = [i for i, c in cards if c == BASIC_WATER]
+        if waters:
+            return waters[:maxc]
+    if eid == POFFIN:                                        # Poffin: grab Basic Pokemon (Staryu)
+        staryu = [i for i, c in cards if c == STARYU]
+        if staryu:
+            return staryu[:maxc]
     player = _me_opp(obs)[0]
     need = _needs(player)
-    ranked = []
+    ranked = sorted(cards, key=lambda ic: -_need_value(ic[1], need))
+    pick = [i for i, c in ranked if _need_value(c, need) > 0][:maxc]
+    return pick or None
+
+
+def _opp_bench_target(obs):
+    """Gust (Boss's Orders) or Jetting Blow bench-snipe target. Keyed on sel.effect.id. Pick the opponent
+    benched Pokemon we can KO this turn (gust = main attack 120/210; snipe = 50), preferring higher prize then
+    Water-weak then lowest HP (counter-specific). Falls through to search if nothing resolves."""
+    sel = DP._selection(obs)
+    if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1:
+        return None
+    opts = DP._items(DP._get(sel, "option", []))
+    if len(opts) < 2:
+        return None
+    eff = DP._get(sel, "effect", None)
+    eid = DP._get(eff, "id", None) if eff else None
+    if eid not in (BOSS, MEGA_STARMIE):
+        return None
+    cur = DP._current(obs)
+    me = DP._perspective(cur)
+    cap = _our_max_hit(DP._player(cur, me)) if eid == BOSS else 50.0
+    rows = []
     for i, o in enumerate(opts):
+        pidx = DP._get(o, "playerIndex", None)
         try:
-            cid = DP.option_card_id(o, obs)
+            pidx = int(pidx)
         except Exception:
-            cid = None
-        if cid is None:
-            cid = DP._selection_card_id(sel, o)
-        ranked.append((_need_value(cid, need), i))
-    ranked.sort(reverse=True)
-    if ranked and ranked[0][0] > 0:
-        return [ranked[0][1]]
-    return None
+            pidx = None
+        if pidx == me:                                       # gust/snipe target the opponent
+            continue
+        tgt = DP.option_target_entity(o, obs)
+        if tgt is None:
+            continue
+        hp = float(DP._get(tgt, "hp", 0) or 0)
+        if hp <= 0:
+            continue
+        cid = DP._cid(tgt)
+        weak = (CDB.get(str(cid), {}) or {}).get("wk") == "W"
+        rows.append((hp <= cap, DP._prize_value(cid), weak, -hp, i))
+    if not rows:
+        return None
+    rows.sort(reverse=True)            # KO-able, then prize, then weak-to-Water, then lowest HP
+    return [rows[0][4]]
 
 
 def _need_value(cid, need):
@@ -440,9 +519,7 @@ def _need_value(cid, need):
     return 10.0
 
 
-# _tutor_target is defined but left OUT of RULES for now: search picks search-targets at ~63% agreement and a
-# naive need-rank regressed it (52.6%). Re-enable once card resolution on deck-search prompts is solid.
-RULES = (_go_first, _no_suicide, _main_action)
+RULES = (_go_first, _no_suicide, _main_action, _opp_bench_target, _tutor_target)
 
 
 def _veto_search_pick(obs, mv):

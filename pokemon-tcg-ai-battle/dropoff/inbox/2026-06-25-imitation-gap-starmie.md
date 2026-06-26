@@ -89,6 +89,18 @@ Local A/B (tools/starmie_ab_v1.py, budget 0.3 -- CATASTROPHE CHECK ONLY, mirror 
 Remaining heavy gaps vs pilots: imitation_review_heavy.html (play/select_card -- nuanced trainer choices left to
 search). See 2026-06-25-audit-handoff-starmie-heuristics.md for the auditor handoff + the coverage audit.
 
+UPDATE (all heuristics added, per user "include everything"): added effect.id-keyed tutor/fetch targets (Mega
+Signal->Mega Starmie, Poffin->Staryu, Turbo Flare->Basic Water, general search by need), Jetting snipe + Boss
+gust target selection (weakness-aware), Crushing Hammer disruption, and a don't-field-a-3rd-Mega guard. The
+KEY to non-naive tutor: `sel.effect.id` identifies the prompting card and CARD options resolve via
+`sel.deck[index]` (Pokegear's area-12 reveal exposes nothing -> defer). Result: imitation 53.3->55.3%
+(select_card 53->66%, beating deployed's 63%); minor evolve dip (-4pp from the no-3rd guard, intended). Local
+mirror A/B then read 38% (vs the prior 58%) -- but the mirror is noise-dominated (37/58/38 across versions, search
+RNG, coin-flippy same-deck matchup) and is NOT ladder-predictive; field A/B stayed strong (78-95%). Trusting the
+imitation signal (the user's chosen iteration metric, monotonic up) + field dominance over the mirror. Candidates
+to logic-check for the mirror dip: Crushing Hammer over-play and the no-3rd-Mega guard (an ablation toggle would
+isolate them -- left for the audit).
+
 ## attack_stats caveat (user)
 attack_stats.json is a flat per-attack number; it does NOT capture conditional/stacking damage (e.g. Hop's
 stacking) or "ignores weakness/resistance" (Nebula Beam). Treat it as advisory; rely on engine affordability
