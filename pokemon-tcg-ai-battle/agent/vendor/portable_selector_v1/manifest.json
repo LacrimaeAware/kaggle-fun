@@ -1,0 +1,77 @@
+{
+  "api_contract_sha256": "EE14A8770244F63CF3C06E4773BC6BFC9FFBE99D2E23EBF59204889AF110E29F",
+  "artifact_inventory_sha256": "D4B802E520DC9F83188938811E65611E4DA401A4EF3EDF89283CEC7CF2FF6D8B",
+  "callable": "rank_and_select(observation, legal_options, baseline_action=None, search_action=None, top_k=5)",
+  "created_utc": "2026-06-26T13:48:45.295345+00:00",
+  "default_mode": "off",
+  "expected_model_b_adapter_version": "starmie_selector_live_smoke_v1",
+  "files": {
+    "README_FOR_MODEL_B.md": {
+      "bytes": 457,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\README_FOR_MODEL_B.md",
+      "sha256": "A4B12994CA7C11BD0D9E07803035D53A9048C93B1122550D4FFD62DDB648E7DC"
+    },
+    "api_contract.json": {
+      "bytes": 3704,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\api_contract.json",
+      "sha256": "EE14A8770244F63CF3C06E4773BC6BFC9FFBE99D2E23EBF59204889AF110E29F"
+    },
+    "feature_manifest.json": {
+      "bytes": 2439,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\feature_manifest.json",
+      "sha256": "2A3DB26499E6AA094EF34530B70AABD6E3F44421650AA5021DC87D54D8690EF1"
+    },
+    "feature_vocab.json": {
+      "bytes": 354538,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\feature_vocab.json",
+      "sha256": "6D1D9A9A3F886648E9671047A7B1C0F647168182BB8204D806F1744220B34421"
+    },
+    "inference_config.json": {
+      "bytes": 1313,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\inference_config.json",
+      "sha256": "7DB1875002ED7FE5CD7C0DDFF3C4D3E2AD5D57E589D6C745878AD38E11C3DF68"
+    },
+    "model_checkpoint.json": {
+      "bytes": 934437,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\model_checkpoint.json",
+      "sha256": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8"
+    },
+    "parity_expected.jsonl": {
+      "bytes": 598809,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\parity_expected.jsonl",
+      "sha256": "C7DC7714C37459070F28B9EC9A236EBAE199F2E6B2F50AB655C4178FFA528411"
+    },
+    "parity_inputs.jsonl": {
+      "bytes": 6394003,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\parity_inputs.jsonl",
+      "sha256": "D3FCBC9932E19FEB0941200AA74A828C759622B8424DC2334DA2D2774188FD5A"
+    },
+    "selector_config.json": {
+      "bytes": 49277,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\selector_config.json",
+      "sha256": "01DD0A03C69ACF7D379C9E687A0E9845DA76F5C51DA5200777404A5B6A944637"
+    },
+    "starmie_selector_runtime.py": {
+      "bytes": 29290,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\starmie_selector_runtime.py",
+      "sha256": "3C6B058604A50D069811032682830E1FCD9FFD7F55BBA023127238DC718788E6"
+    }
+  },
+  "live_enabled": false,
+  "locked_metrics": {
+    "average_candidate_set_size": 3.625,
+    "fallback_rate": 0.0789,
+    "heuristic_test_exact_agreement": 0.4737,
+    "selected_selector_test_exact_agreement": 0.7368,
+    "test_candidate_coverage": 0.9737
+  },
+  "runtime_ready": true,
+  "schema_version": "starmie_portable_selector_v1.export_manifest",
+  "selected_selector": "S5_LIGHTWEIGHT_SELECTOR",
+  "stop_conditions": [
+    "Do not enable by default.",
+    "Do not build a Kaggle submission from this bundle.",
+    "Do not tune thresholds after seeing live-smoke results."
+  ],
+  "verdict_source": "A_SELECTOR_READY_FOR_TINY_LIVE_SMOKE"
+}

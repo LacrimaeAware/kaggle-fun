@@ -1,0 +1,10 @@
+{
+  "parity_decisions": 220,
+  "selected_match_pct": 100.0,
+  "top3_match_pct": 100.0,
+  "semantic_key_alignment": 1.0,
+  "max_logit_abs_diff": 0.0,
+  "obs_mutated": 0,
+  "deterministic": true,
+  "note": "vendored runtime reproduces Model A selected action + logits bit-exactly; obs not mutated"
+}

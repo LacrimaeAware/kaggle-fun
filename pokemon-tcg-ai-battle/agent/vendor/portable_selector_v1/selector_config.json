@@ -1,0 +1,960 @@
+{
+  "created_utc": "2026-06-26T12:56:55.152110+00:00",
+  "input_hashes": {
+    "corpus_v2_manifest": "665E3ACF206F25D7C749278015FF90861CE067BCDF9BE77D4F1F9C9B8E97EA52",
+    "feature_manifest": "2A3DB26499E6AA094EF34530B70AABD6E3F44421650AA5021DC87D54D8690EF1",
+    "model_a_bridge_input": "2BF125B5E2BA32E0E87F1031ABD6DA96C0EC77E62653B7CEF7EA89A0D0179322",
+    "pack_manifest": "D4117C360183BE6394715F841EDBB94C5102EA362DB73AD6ADCA1901D94ED8DA",
+    "runtime_export": "BC0CF1EB045A49D545E377A953BAC428A8F9762E2C4FF3952AA8F9839B542307",
+    "runtime_manifest": "EA6B181412AF8FB37A3A1B88571E1C795C7F02E7AE1285A232AD6F423E068FC3",
+    "runtime_test_logits": "930A69F08C64B164313CE9903381F26668F91B7EA2B38DA02C2291FD1F2A141C",
+    "runtime_validation_logits": "03F76E9EDC04A7FCC93BD880D74AD0D8426DD88EE01A6503C10F324AD7A2D3D2"
+  },
+  "live_enabled": false,
+  "reason_disabled": "Offline selector/arbitration artifact only; not integrated into live heuristics/submission.",
+  "runtime_system_id": "P2_S2_EXACT_ID_RUNTIME_V1",
+  "safety_filter": {
+    "V0_illegal_or_stale_option": "selected index absent from grouped legal options",
+    "V1_misses_immediate_game_winning_attack": "detectable tactical game-winning attack with heuristic ATTACK, but selector is not ATTACK",
+    "V2_loses_guaranteed_KO": "detectable tactical guaranteed KO with heuristic ATTACK, but selector is not ATTACK",
+    "V3_deck_out": "known draw amount exceeds remaining public deck count",
+    "V4_Wally_removes_required_attack_energy": "Wally's Compassion action while ready/near-ready energy is scarce",
+    "V5_Boss_worse_retarget": "Boss's Orders action without detectable immediate KO pressure",
+    "V6_Ignition_misuse": "Ignition Energy attaches to non-evolution or redundant ready target when detectable",
+    "V7_retreat_leaves_no_ready_attacker": "retreat action while no backup ready attacker is detectable",
+    "V8_unsupported_or_OOD": "missing bridge/support or unsupported runtime status"
+  },
+  "safety_summary": {
+    "decision_count": 152,
+    "examples": [
+      {
+        "decision_id": "81819358:23:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 3,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 3,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81819358:24:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 3,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 3,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81820273:26:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 0,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 0,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81820273:37:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 3,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 3,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81820273:48:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 3,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 3,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81820273:56:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 5,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 5,
+        "split": "test",
+        "vetoes": {
+          "V1_misses_immediate_game_winning_attack": true,
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81825476:89:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 1,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 1,
+        "split": "test",
+        "vetoes": {
+          "V1_misses_immediate_game_winning_attack": true,
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81825476:92:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 3,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 3,
+        "split": "test",
+        "vetoes": {
+          "V1_misses_immediate_game_winning_attack": true,
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81826409:111:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 4,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 4,
+        "split": "test",
+        "vetoes": {
+          "V1_misses_immediate_game_winning_attack": true,
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81826409:53:0",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 0,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 0,
+        "split": "test",
+        "vetoes": {
+          "V2_loses_guaranteed_KO": true
+        }
+      },
+      {
+        "decision_id": "81915137:57:1",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 1,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 5,
+        "split": "test",
+        "vetoes": {
+          "V4_Wally_removes_required_attack_energy": true
+        }
+      },
+      {
+        "decision_id": "81915137:98:1",
+        "fallback_equals_heuristic": true,
+        "fallback_selected_index": 4,
+        "pilot_action_in_c3": true,
+        "raw_selected_index": 4,
+        "split": "test",
+        "vetoes": {
+          "V1_misses_immediate_game_winning_attack": true,
+          "V2_loses_guaranteed_KO": true
+        }
+      }
+    ],
+    "fallback_count": 12,
+    "fallback_rate": 0.07894736842105263,
+    "fallback_sources": {
+      "safety_fallback_to_heuristic": 12
+    },
+    "raw_veto_count": 17,
+    "veto_counts": {
+      "V1_misses_immediate_game_winning_attack": 5,
+      "V2_loses_guaranteed_KO": 11,
+      "V4_Wally_removes_required_attack_energy": 1
+    }
+  },
+  "schema_version": "starmie_proposer_selector_arbitration_v1.selector_export",
+  "selected_selector": {
+    "candidate_set_id": "C4",
+    "model_family": "interpretable_sparse_linear_softmax",
+    "selector_id": "S5_LIGHTWEIGHT_SELECTOR",
+    "weight_count": 185,
+    "weights": {
+      "bias": -0.0012135170201456158,
+      "candidate:option_zero": 0.6520269495313007,
+      "family:ATTACH": -0.02878300156386727,
+      "family:ATTACK": -0.08223702544762716,
+      "family:END": 0.09483031862351059,
+      "family:EVOLVE": -0.14649865911093712,
+      "family:NO_PROMPT": 0.15976141614957684,
+      "family:PLAY": -0.08819553130653632,
+      "family:RETREAT": 0.039657794708790876,
+      "family:SELECT_CARD": -0.0007366197585253239,
+      "family:TYPE_6": -8.364690052769583e-05,
+      "family:YES_PROMPT": -0.15976141614957673,
+      "proposer:entropy_scaled": 1.27114101578421e-05,
+      "proposer:logit_scaled": 3.0958973872384146,
+      "proposer:margin": -0.0012295820914511408,
+      "proposer:probability": 1.4109483137775125,
+      "proposer:rank_reciprocal": 0.6294117081737756,
+      "safety:V1_misses_immediate_game_winning_attack": 0.0002640135986850748,
+      "safety:V1_misses_immediate_game_winning_attack&&family:ATTACH": -0.30507555097811806,
+      "safety:V1_misses_immediate_game_winning_attack&&family:ATTACK": 1.2122113596510036,
+      "safety:V1_misses_immediate_game_winning_attack&&family:END": -0.3676439500735994,
+      "safety:V1_misses_immediate_game_winning_attack&&family:PLAY": -1.2695243254525264,
+      "safety:V1_misses_immediate_game_winning_attack&&family:RETREAT": -0.5635947456920273,
+      "safety:V2_loses_guaranteed_KO": 4.8994011795657975e-05,
+      "safety:V2_loses_guaranteed_KO&&family:ATTACH": -0.30507555097811806,
+      "safety:V2_loses_guaranteed_KO&&family:ATTACK": -0.0424548725298997,
+      "safety:V2_loses_guaranteed_KO&&family:END": -1.9187115415902507,
+      "safety:V2_loses_guaranteed_KO&&family:PLAY": 0.13770550463345546,
+      "safety:V2_loses_guaranteed_KO&&family:RETREAT": -2.148194390801105,
+      "safety:V4_Wally_removes_required_attack_energy": -0.5271641812288548,
+      "safety:V4_Wally_removes_required_attack_energy&&family:PLAY": -0.5271641812288548,
+      "source:heuristic": 0.6833734821789766,
+      "source:heuristic_proposer_agree": -0.27438632247277267,
+      "source:proposer_top1": 0.13841786216551014,
+      "source:proposer_top3": 0.23327177471659377,
+      "source:proposer_top5": 0.8759987181225217,
+      "tactical:board.energy_on_main_attackers": 0.00030590370730282574,
+      "tactical:board.energy_on_main_attackers&&family:ATTACH": -0.8070593728569864,
+      "tactical:board.energy_on_main_attackers&&family:ATTACK": 0.6877370359954635,
+      "tactical:board.energy_on_main_attackers&&family:END": -4.0391402188780186,
+      "tactical:board.energy_on_main_attackers&&family:EVOLVE": 3.9526238293409275,
+      "tactical:board.energy_on_main_attackers&&family:PLAY": -0.5722943446375703,
+      "tactical:board.energy_on_main_attackers&&family:RETREAT": 1.2935799830306782,
+      "tactical:board.energy_on_main_attackers&&family:SELECT_CARD": 3.32084465620132e-05,
+      "tactical:board.energy_on_main_attackers&&family:TYPE_6": -2.0295891469075584e-06,
+      "tactical:board.exposed_three_prize_liability": 0.000222692278434837,
+      "tactical:board.exposed_three_prize_liability&&family:ATTACH": -0.8280278598599489,
+      "tactical:board.exposed_three_prize_liability&&family:ATTACK": 0.2255969902877472,
+      "tactical:board.exposed_three_prize_liability&&family:END": -3.564545955942894,
+      "tactical:board.exposed_three_prize_liability&&family:EVOLVE": 4.053828339420935,
+      "tactical:board.exposed_three_prize_liability&&family:PLAY": -0.413677025939218,
+      "tactical:board.exposed_three_prize_liability&&family:RETREAT": 2.496779097031927,
+      "tactical:board.exposed_three_prize_liability&&family:SELECT_CARD": -5.126536089924374e-05,
+      "tactical:board.exposed_three_prize_liability&&family:TYPE_6": -2.0295891469075584e-06,
+      "tactical:board.my_backup_ready": 7.52940619153865e-05,
+      "tactical:board.my_backup_ready&&family:ATTACH": -2.568343274830788,
+      "tactical:board.my_backup_ready&&family:ATTACK": 0.028404054755913143,
+      "tactical:board.my_backup_ready&&family:END": -2.3169145720452446,
+      "tactical:board.my_backup_ready&&family:EVOLVE": 1.6072039380318004,
+      "tactical:board.my_backup_ready&&family:PLAY": -0.9157641252330453,
+      "tactical:board.my_backup_ready&&family:RETREAT": 3.7981877795426118,
+      "tactical:board.my_backup_ready&&family:SELECT_CARD": -1.0048551553873115e-05,
+      "tactical:board.my_deck_count": -0.005457209123782232,
+      "tactical:board.my_deck_count&&family:ATTACH": -0.10789607414905343,
+      "tactical:board.my_deck_count&&family:ATTACK": -0.10410622192146105,
+      "tactical:board.my_deck_count&&family:END": 0.24489437738012027,
+      "tactical:board.my_deck_count&&family:EVOLVE": -0.2552835081199482,
+      "tactical:board.my_deck_count&&family:NO_PROMPT": 0.15976141614922532,
+      "tactical:board.my_deck_count&&family:PLAY": 0.0036777024514679305,
+      "tactical:board.my_deck_count&&family:RETREAT": -0.03642477641906957,
+      "tactical:board.my_deck_count&&family:SELECT_CARD": -0.003092204203889395,
+      "tactical:board.my_deck_count&&family:TYPE_6": -0.0003341554648870056,
+      "tactical:board.my_deck_count&&family:YES_PROMPT": -0.15976141614922543,
+      "tactical:board.my_main_one_short": 7.507828332316701e-05,
+      "tactical:board.my_main_one_short&&family:ATTACH": 0.3257017575259601,
+      "tactical:board.my_main_one_short&&family:ATTACK": 1.1951475276959285,
+      "tactical:board.my_main_one_short&&family:END": -1.4371169243052242,
+      "tactical:board.my_main_one_short&&family:EVOLVE": -1.230074599177907,
+      "tactical:board.my_main_one_short&&family:PLAY": -0.2327968547302744,
+      "tactical:board.my_main_one_short&&family:RETREAT": -1.0277718085404388,
+      "tactical:board.my_main_one_short&&family:SELECT_CARD": -3.0940201630483806e-05,
+      "tactical:board.my_main_one_short&&family:TYPE_6": -2.0295891469075584e-06,
+      "tactical:board.my_ready_main_attackers": 0.000222692278434837,
+      "tactical:board.my_ready_main_attackers&&family:ATTACH": -0.8280278598599489,
+      "tactical:board.my_ready_main_attackers&&family:ATTACK": 0.2255969902877472,
+      "tactical:board.my_ready_main_attackers&&family:END": -3.564545955942894,
+      "tactical:board.my_ready_main_attackers&&family:EVOLVE": 4.053828339420935,
+      "tactical:board.my_ready_main_attackers&&family:PLAY": -0.413677025939218,
+      "tactical:board.my_ready_main_attackers&&family:RETREAT": 2.496779097031927,
+      "tactical:board.my_ready_main_attackers&&family:SELECT_CARD": -5.126536089924374e-05,
+      "tactical:board.my_ready_main_attackers&&family:TYPE_6": -2.0295891469075584e-06,
+      "tactical:board.my_units": 0.00027873123011839374,
+      "tactical:board.my_units&&family:ATTACH": -0.5748454942896886,
+      "tactical:board.my_units&&family:ATTACK": 0.31225068606489453,
+      "tactical:board.my_units&&family:END": 0.41385916318138105,
+      "tactical:board.my_units&&family:EVOLVE": 3.512830866838383,
+      "tactical:board.my_units&&family:PLAY": -0.7509840771386727,
+      "tactical:board.my_units&&family:RETREAT": 0.9589401450178753,
+      "tactical:board.my_units&&family:SELECT_CARD": 8.552864237466934e-06,
+      "tactical:board.my_units&&family:TYPE_6": -2.0295891469075584e-06,
+      "tactical:board.opp_units": 0.00015224417370206464,
+      "tactical:board.opp_units&&family:ATTACH": 0.3934018481829409,
+      "tactical:board.opp_units&&family:ATTACK": 0.5264996848144277,
+      "tactical:board.opp_units&&family:END": -6.695352786561539,
+      "tactical:board.opp_units&&family:EVOLVE": -0.8323503376012931,
+      "tactical:board.opp_units&&family:PLAY": -0.5348652798218119,
+      "tactical:board.opp_units&&family:RETREAT": -0.05583480053029167,
+      "tactical:board.opp_units&&family:SELECT_CARD": -8.484102137398419e-05,
+      "tactical:board.opp_units&&family:TYPE_6": -2.684898127953875e-05,
+      "tactical:board.prize_diff": -0.0002572137311559024,
+      "tactical:board.prize_diff&&family:ATTACH": 0.3317877542834083,
+      "tactical:board.prize_diff&&family:ATTACK": -0.035819934348447255,
+      "tactical:board.prize_diff&&family:END": -3.2195182208367625,
+      "tactical:board.prize_diff&&family:EVOLVE": -1.6883158353149674,
+      "tactical:board.prize_diff&&family:NO_PROMPT": 0.5608940938857879,
+      "tactical:board.prize_diff&&family:PLAY": -0.7139731515382262,
+      "tactical:board.prize_diff&&family:RETREAT": 0.5615709327145959,
+      "tactical:board.prize_diff&&family:SELECT_CARD": -3.585722164920841e-05,
+      "tactical:board.prize_diff&&family:YES_PROMPT": -0.5608940938857881,
+      "tactical:commitment.attachment_unused=True": 0.00044907979095602655,
+      "tactical:commitment.attachment_unused=True&&family:ATTACH": -0.02878300156386727,
+      "tactical:commitment.attachment_unused=True&&family:ATTACK": -0.26701665775653155,
+      "tactical:commitment.attachment_unused=True&&family:END": -2.7998110085334798,
+      "tactical:commitment.attachment_unused=True&&family:EVOLVE": -0.058953645175459694,
+      "tactical:commitment.attachment_unused=True&&family:PLAY": 0.42156633731555654,
+      "tactical:commitment.attachment_unused=True&&family:RETREAT": 0.03506945977693609,
+      "tactical:commitment.end_available=True": -0.0005983341063292526,
+      "tactical:commitment.end_available=True&&family:ATTACH": -0.02878300156386727,
+      "tactical:commitment.end_available=True&&family:ATTACK": -0.08223702544762716,
+      "tactical:commitment.end_available=True&&family:END": 0.09483031862351059,
+      "tactical:commitment.end_available=True&&family:EVOLVE": -0.14649865911093712,
+      "tactical:commitment.end_available=True&&family:PLAY": -0.08819553130653632,
+      "tactical:commitment.end_available=True&&family:RETREAT": 0.039657794708790876,
+      "tactical:commitment.game_winning_attack_available=True": 0.0002640135986850748,
+      "tactical:commitment.game_winning_attack_available=True&&family:ATTACH": -0.30507555097811806,
+      "tactical:commitment.game_winning_attack_available=True&&family:ATTACK": 1.2122113596510036,
+      "tactical:commitment.game_winning_attack_available=True&&family:END": -0.3676439500735994,
+      "tactical:commitment.game_winning_attack_available=True&&family:PLAY": -1.2695243254525264,
+      "tactical:commitment.game_winning_attack_available=True&&family:RETREAT": -0.5635947456920273,
+      "tactical:commitment.guaranteed_ko_available=True": -0.000334898705842616,
+      "tactical:commitment.guaranteed_ko_available=True&&family:ATTACH": -0.6423874631581071,
+      "tactical:commitment.guaranteed_ko_available=True&&family:ATTACK": 0.6160091072855768,
+      "tactical:commitment.guaranteed_ko_available=True&&family:END": -2.29672351673166,
+      "tactical:commitment.guaranteed_ko_available=True&&family:EVOLVE": 2.7061536094720537,
+      "tactical:commitment.guaranteed_ko_available=True&&family:PLAY": -0.4766932791164658,
+      "tactical:commitment.guaranteed_ko_available=True&&family:RETREAT": -2.2380042410042864,
+      "tactical:commitment.nonterminal_attack_available=True": -0.0001425270692710498,
+      "tactical:commitment.nonterminal_attack_available=True&&family:ATTACH": 0.5914448663077304,
+      "tactical:commitment.nonterminal_attack_available=True&&family:ATTACK": -0.4815854017457069,
+      "tactical:commitment.nonterminal_attack_available=True&&family:END": -4.372309371582306,
+      "tactical:commitment.nonterminal_attack_available=True&&family:EVOLVE": 2.3257230515911913,
+      "tactical:commitment.nonterminal_attack_available=True&&family:PLAY": -0.17741703064659542,
+      "tactical:commitment.nonterminal_attack_available=True&&family:RETREAT": -0.4102981207857655,
+      "tactical:commitment.retreat_available=True": -0.000642532328700582,
+      "tactical:commitment.retreat_available=True&&family:ATTACH": -0.5414583245979812,
+      "tactical:commitment.retreat_available=True&&family:ATTACK": -0.21221126670265314,
+      "tactical:commitment.retreat_available=True&&family:END": 0.6833830701242632,
+      "tactical:commitment.retreat_available=True&&family:EVOLVE": 2.3805568563268835,
+      "tactical:commitment.retreat_available=True&&family:PLAY": -0.26928906894916094,
+      "tactical:commitment.retreat_available=True&&family:RETREAT": 0.039657794708790876,
+      "tactical:commitment.safe_development_available=True": 0.0004304747804931877,
+      "tactical:commitment.safe_development_available=True&&family:ATTACH": -0.02878300156386727,
+      "tactical:commitment.safe_development_available=True&&family:ATTACK": 0.4073512711325171,
+      "tactical:commitment.safe_development_available=True&&family:END": -0.4257192483184292,
+      "tactical:commitment.safe_development_available=True&&family:EVOLVE": -0.14649865911093712,
+      "tactical:commitment.safe_development_available=True&&family:PLAY": -0.08819553130653632,
+      "tactical:commitment.safe_development_available=True&&family:RETREAT": -0.9544554386356414,
+      "tactical:value.energy_dev_diff": 0.00030625448291343786,
+      "tactical:value.energy_dev_diff&&family:ATTACH": -1.1559443362400155,
+      "tactical:value.energy_dev_diff&&family:ATTACK": 0.19657805766883119,
+      "tactical:value.energy_dev_diff&&family:END": 1.5402909668341491,
+      "tactical:value.energy_dev_diff&&family:EVOLVE": 1.253559027260562,
+      "tactical:value.energy_dev_diff&&family:PLAY": -0.1531997840889755,
+      "tactical:value.energy_dev_diff&&family:RETREAT": 0.8897875039212596,
+      "tactical:value.energy_dev_diff&&family:SELECT_CARD": 0.00021423406470672443,
+      "tactical:value.energy_dev_diff&&family:TYPE_6": 2.5288276021192162e-05,
+      "tactical:value.ready_attacker_diff": 0.00019260349131955995,
+      "tactical:value.ready_attacker_diff&&family:ATTACH": -1.9209620638260605,
+      "tactical:value.ready_attacker_diff&&family:ATTACK": 0.055472424722769066,
+      "tactical:value.ready_attacker_diff&&family:END": 1.7644481871625277,
+      "tactical:value.ready_attacker_diff&&family:EVOLVE": 1.3792246455186967,
+      "tactical:value.ready_attacker_diff&&family:PLAY": -0.025849507713417586,
+      "tactical:value.ready_attacker_diff&&family:RETREAT": 2.046002234452251,
+      "tactical:value.ready_attacker_diff&&family:SELECT_CARD": 7.850105056200796e-05,
+      "tactical:value.ready_attacker_diff&&family:TYPE_6": 2.591398187998106e-05
+    }
+  },
+  "selected_using": "validation_only",
+  "selection_training": {
+    "s2_thresholds": {
+      "entropy_max": 0.65,
+      "logic": "probability >= min OR entropy <= max OR margin >= min",
+      "probability_top1_min": 0.0,
+      "top1_top2_margin_min": 0.0
+    },
+    "s3_thresholds_by_family": {
+      "ABILITY": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "ATTACH": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "ATTACK": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.45,
+        "top1_top2_margin_min": 0.15
+      },
+      "END": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "EVOLVE": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "PLAY": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "RETREAT": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "SELECT_CARD": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "UNKNOWN": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      },
+      "YES_NO": {
+        "entropy_max": 0.65,
+        "logic": "probability >= min OR entropy <= max OR margin >= min",
+        "probability_top1_min": 0.0,
+        "top1_top2_margin_min": 0.0
+      }
+    },
+    "s4_thresholds": {
+      "entropy_max": 0.65,
+      "logic": "probability >= min OR entropy <= max OR margin >= min",
+      "probability_top1_min": 0.0,
+      "top1_top2_margin_min": 0.0
+    },
+    "s5_candidates": [
+      {
+        "candidate_set_id": "C3",
+        "train": {
+          "candidate_set_id": "C3",
+          "epochs": 40,
+          "last_loss": 0.1561925455871795,
+          "mean_loss": 0.533028178443216,
+          "skipped_uncovered_updates": 720,
+          "trained_decision_updates": 18960,
+          "weight_count": 182
+        },
+        "validation_metrics": {
+          "abstention_rate": 0.0,
+          "average_candidate_set_size": 2.9451219512195124,
+          "brier": 0.33281204818046173,
+          "by_family": {
+            "ATTACH": {
+              "candidate_set_pilot_coverage": 0.9324324324324325,
+              "count": 74,
+              "exact_pilot_agreement": 0.6081081081081081
+            },
+            "ATTACK": {
+              "candidate_set_pilot_coverage": 0.961038961038961,
+              "count": 77,
+              "exact_pilot_agreement": 0.8311688311688312
+            },
+            "END": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 8,
+              "exact_pilot_agreement": 0.875
+            },
+            "EVOLVE": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 23,
+              "exact_pilot_agreement": 0.9130434782608695
+            },
+            "NO_PROMPT": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 7,
+              "exact_pilot_agreement": 0.0
+            },
+            "PLAY": {
+              "candidate_set_pilot_coverage": 0.9361702127659575,
+              "count": 141,
+              "exact_pilot_agreement": 0.6737588652482269
+            },
+            "RETREAT": {
+              "candidate_set_pilot_coverage": 0.8888888888888888,
+              "count": 9,
+              "exact_pilot_agreement": 0.6666666666666666
+            },
+            "SELECT_CARD": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 126,
+              "exact_pilot_agreement": 0.8412698412698413
+            },
+            "TYPE_0": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 6,
+              "exact_pilot_agreement": 1.0
+            },
+            "TYPE_6": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 4,
+              "exact_pilot_agreement": 1.0
+            },
+            "YES_PROMPT": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 17,
+              "exact_pilot_agreement": 1.0
+            }
+          },
+          "candidate_set_pilot_coverage": 0.9634146341463414,
+          "decision_count": 492,
+          "ece": 0.03843994650345191,
+          "exact_pilot_agreement": 0.7540650406504065,
+          "fallback_rate": 0.0,
+          "mrr": 0.8573170731707315,
+          "nll": 1.5024584471398206,
+          "nll_count": 492,
+          "replay_cluster_count": 15
+        },
+        "weight_count": 182
+      },
+      {
+        "candidate_set_id": "C4",
+        "train": {
+          "candidate_set_id": "C4",
+          "epochs": 40,
+          "last_loss": 0.16317602318098784,
+          "mean_loss": 0.6293544647722871,
+          "skipped_uncovered_updates": 120,
+          "trained_decision_updates": 19560,
+          "weight_count": 185
+        },
+        "validation_metrics": {
+          "abstention_rate": 0.0,
+          "average_candidate_set_size": 3.766260162601626,
+          "brier": 0.33018969747441,
+          "by_family": {
+            "ATTACH": {
+              "candidate_set_pilot_coverage": 0.972972972972973,
+              "count": 74,
+              "exact_pilot_agreement": 0.6081081081081081
+            },
+            "ATTACK": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 77,
+              "exact_pilot_agreement": 0.8311688311688312
+            },
+            "END": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 8,
+              "exact_pilot_agreement": 0.875
+            },
+            "EVOLVE": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 23,
+              "exact_pilot_agreement": 0.9130434782608695
+            },
+            "NO_PROMPT": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 7,
+              "exact_pilot_agreement": 0.0
+            },
+            "PLAY": {
+              "candidate_set_pilot_coverage": 0.9929078014184397,
+              "count": 141,
+              "exact_pilot_agreement": 0.6808510638297872
+            },
+            "RETREAT": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 9,
+              "exact_pilot_agreement": 0.7777777777777778
+            },
+            "SELECT_CARD": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 126,
+              "exact_pilot_agreement": 0.8412698412698413
+            },
+            "TYPE_0": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 6,
+              "exact_pilot_agreement": 1.0
+            },
+            "TYPE_6": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 4,
+              "exact_pilot_agreement": 1.0
+            },
+            "YES_PROMPT": {
+              "candidate_set_pilot_coverage": 1.0,
+              "count": 17,
+              "exact_pilot_agreement": 1.0
+            }
+          },
+          "candidate_set_pilot_coverage": 0.9939024390243902,
+          "decision_count": 492,
+          "ece": 0.04162905948398151,
+          "exact_pilot_agreement": 0.758130081300813,
+          "fallback_rate": 0.0,
+          "mrr": 0.8598964382500964,
+          "nll": 0.7711215478989298,
+          "nll_count": 492,
+          "replay_cluster_count": 15
+        },
+        "weight_count": 185
+      }
+    ],
+    "selected_on": "validation_only",
+    "selected_s5": {
+      "candidate_set_id": "C4",
+      "model_family": "interpretable_sparse_linear_softmax",
+      "selector_id": "S5_LIGHTWEIGHT_SELECTOR",
+      "weight_count": 185,
+      "weights": {
+        "bias": -0.0012135170201456158,
+        "candidate:option_zero": 0.6520269495313007,
+        "family:ATTACH": -0.02878300156386727,
+        "family:ATTACK": -0.08223702544762716,
+        "family:END": 0.09483031862351059,
+        "family:EVOLVE": -0.14649865911093712,
+        "family:NO_PROMPT": 0.15976141614957684,
+        "family:PLAY": -0.08819553130653632,
+        "family:RETREAT": 0.039657794708790876,
+        "family:SELECT_CARD": -0.0007366197585253239,
+        "family:TYPE_6": -8.364690052769583e-05,
+        "family:YES_PROMPT": -0.15976141614957673,
+        "proposer:entropy_scaled": 1.27114101578421e-05,
+        "proposer:logit_scaled": 3.0958973872384146,
+        "proposer:margin": -0.0012295820914511408,
+        "proposer:probability": 1.4109483137775125,
+        "proposer:rank_reciprocal": 0.6294117081737756,
+        "safety:V1_misses_immediate_game_winning_attack": 0.0002640135986850748,
+        "safety:V1_misses_immediate_game_winning_attack&&family:ATTACH": -0.30507555097811806,
+        "safety:V1_misses_immediate_game_winning_attack&&family:ATTACK": 1.2122113596510036,
+        "safety:V1_misses_immediate_game_winning_attack&&family:END": -0.3676439500735994,
+        "safety:V1_misses_immediate_game_winning_attack&&family:PLAY": -1.2695243254525264,
+        "safety:V1_misses_immediate_game_winning_attack&&family:RETREAT": -0.5635947456920273,
+        "safety:V2_loses_guaranteed_KO": 4.8994011795657975e-05,
+        "safety:V2_loses_guaranteed_KO&&family:ATTACH": -0.30507555097811806,
+        "safety:V2_loses_guaranteed_KO&&family:ATTACK": -0.0424548725298997,
+        "safety:V2_loses_guaranteed_KO&&family:END": -1.9187115415902507,
+        "safety:V2_loses_guaranteed_KO&&family:PLAY": 0.13770550463345546,
+        "safety:V2_loses_guaranteed_KO&&family:RETREAT": -2.148194390801105,
+        "safety:V4_Wally_removes_required_attack_energy": -0.5271641812288548,
+        "safety:V4_Wally_removes_required_attack_energy&&family:PLAY": -0.5271641812288548,
+        "source:heuristic": 0.6833734821789766,
+        "source:heuristic_proposer_agree": -0.27438632247277267,
+        "source:proposer_top1": 0.13841786216551014,
+        "source:proposer_top3": 0.23327177471659377,
+        "source:proposer_top5": 0.8759987181225217,
+        "tactical:board.energy_on_main_attackers": 0.00030590370730282574,
+        "tactical:board.energy_on_main_attackers&&family:ATTACH": -0.8070593728569864,
+        "tactical:board.energy_on_main_attackers&&family:ATTACK": 0.6877370359954635,
+        "tactical:board.energy_on_main_attackers&&family:END": -4.0391402188780186,
+        "tactical:board.energy_on_main_attackers&&family:EVOLVE": 3.9526238293409275,
+        "tactical:board.energy_on_main_attackers&&family:PLAY": -0.5722943446375703,
+        "tactical:board.energy_on_main_attackers&&family:RETREAT": 1.2935799830306782,
+        "tactical:board.energy_on_main_attackers&&family:SELECT_CARD": 3.32084465620132e-05,
+        "tactical:board.energy_on_main_attackers&&family:TYPE_6": -2.0295891469075584e-06,
+        "tactical:board.exposed_three_prize_liability": 0.000222692278434837,
+        "tactical:board.exposed_three_prize_liability&&family:ATTACH": -0.8280278598599489,
+        "tactical:board.exposed_three_prize_liability&&family:ATTACK": 0.2255969902877472,
+        "tactical:board.exposed_three_prize_liability&&family:END": -3.564545955942894,
+        "tactical:board.exposed_three_prize_liability&&family:EVOLVE": 4.053828339420935,
+        "tactical:board.exposed_three_prize_liability&&family:PLAY": -0.413677025939218,
+        "tactical:board.exposed_three_prize_liability&&family:RETREAT": 2.496779097031927,
+        "tactical:board.exposed_three_prize_liability&&family:SELECT_CARD": -5.126536089924374e-05,
+        "tactical:board.exposed_three_prize_liability&&family:TYPE_6": -2.0295891469075584e-06,
+        "tactical:board.my_backup_ready": 7.52940619153865e-05,
+        "tactical:board.my_backup_ready&&family:ATTACH": -2.568343274830788,
+        "tactical:board.my_backup_ready&&family:ATTACK": 0.028404054755913143,
+        "tactical:board.my_backup_ready&&family:END": -2.3169145720452446,
+        "tactical:board.my_backup_ready&&family:EVOLVE": 1.6072039380318004,
+        "tactical:board.my_backup_ready&&family:PLAY": -0.9157641252330453,
+        "tactical:board.my_backup_ready&&family:RETREAT": 3.7981877795426118,
+        "tactical:board.my_backup_ready&&family:SELECT_CARD": -1.0048551553873115e-05,
+        "tactical:board.my_deck_count": -0.005457209123782232,
+        "tactical:board.my_deck_count&&family:ATTACH": -0.10789607414905343,
+        "tactical:board.my_deck_count&&family:ATTACK": -0.10410622192146105,
+        "tactical:board.my_deck_count&&family:END": 0.24489437738012027,
+        "tactical:board.my_deck_count&&family:EVOLVE": -0.2552835081199482,
+        "tactical:board.my_deck_count&&family:NO_PROMPT": 0.15976141614922532,
+        "tactical:board.my_deck_count&&family:PLAY": 0.0036777024514679305,
+        "tactical:board.my_deck_count&&family:RETREAT": -0.03642477641906957,
+        "tactical:board.my_deck_count&&family:SELECT_CARD": -0.003092204203889395,
+        "tactical:board.my_deck_count&&family:TYPE_6": -0.0003341554648870056,
+        "tactical:board.my_deck_count&&family:YES_PROMPT": -0.15976141614922543,
+        "tactical:board.my_main_one_short": 7.507828332316701e-05,
+        "tactical:board.my_main_one_short&&family:ATTACH": 0.3257017575259601,
+        "tactical:board.my_main_one_short&&family:ATTACK": 1.1951475276959285,
+        "tactical:board.my_main_one_short&&family:END": -1.4371169243052242,
+        "tactical:board.my_main_one_short&&family:EVOLVE": -1.230074599177907,
+        "tactical:board.my_main_one_short&&family:PLAY": -0.2327968547302744,
+        "tactical:board.my_main_one_short&&family:RETREAT": -1.0277718085404388,
+        "tactical:board.my_main_one_short&&family:SELECT_CARD": -3.0940201630483806e-05,
+        "tactical:board.my_main_one_short&&family:TYPE_6": -2.0295891469075584e-06,
+        "tactical:board.my_ready_main_attackers": 0.000222692278434837,
+        "tactical:board.my_ready_main_attackers&&family:ATTACH": -0.8280278598599489,
+        "tactical:board.my_ready_main_attackers&&family:ATTACK": 0.2255969902877472,
+        "tactical:board.my_ready_main_attackers&&family:END": -3.564545955942894,
+        "tactical:board.my_ready_main_attackers&&family:EVOLVE": 4.053828339420935,
+        "tactical:board.my_ready_main_attackers&&family:PLAY": -0.413677025939218,
+        "tactical:board.my_ready_main_attackers&&family:RETREAT": 2.496779097031927,
+        "tactical:board.my_ready_main_attackers&&family:SELECT_CARD": -5.126536089924374e-05,
+        "tactical:board.my_ready_main_attackers&&family:TYPE_6": -2.0295891469075584e-06,
+        "tactical:board.my_units": 0.00027873123011839374,
+        "tactical:board.my_units&&family:ATTACH": -0.5748454942896886,
+        "tactical:board.my_units&&family:ATTACK": 0.31225068606489453,
+        "tactical:board.my_units&&family:END": 0.41385916318138105,
+        "tactical:board.my_units&&family:EVOLVE": 3.512830866838383,
+        "tactical:board.my_units&&family:PLAY": -0.7509840771386727,
+        "tactical:board.my_units&&family:RETREAT": 0.9589401450178753,
+        "tactical:board.my_units&&family:SELECT_CARD": 8.552864237466934e-06,
+        "tactical:board.my_units&&family:TYPE_6": -2.0295891469075584e-06,
+        "tactical:board.opp_units": 0.00015224417370206464,
+        "tactical:board.opp_units&&family:ATTACH": 0.3934018481829409,
+        "tactical:board.opp_units&&family:ATTACK": 0.5264996848144277,
+        "tactical:board.opp_units&&family:END": -6.695352786561539,
+        "tactical:board.opp_units&&family:EVOLVE": -0.8323503376012931,
+        "tactical:board.opp_units&&family:PLAY": -0.5348652798218119,
+        "tactical:board.opp_units&&family:RETREAT": -0.05583480053029167,
+        "tactical:board.opp_units&&family:SELECT_CARD": -8.484102137398419e-05,
+        "tactical:board.opp_units&&family:TYPE_6": -2.684898127953875e-05,
+        "tactical:board.prize_diff": -0.0002572137311559024,
+        "tactical:board.prize_diff&&family:ATTACH": 0.3317877542834083,
+        "tactical:board.prize_diff&&family:ATTACK": -0.035819934348447255,
+        "tactical:board.prize_diff&&family:END": -3.2195182208367625,
+        "tactical:board.prize_diff&&family:EVOLVE": -1.6883158353149674,
+        "tactical:board.prize_diff&&family:NO_PROMPT": 0.5608940938857879,
+        "tactical:board.prize_diff&&family:PLAY": -0.7139731515382262,
+        "tactical:board.prize_diff&&family:RETREAT": 0.5615709327145959,
+        "tactical:board.prize_diff&&family:SELECT_CARD": -3.585722164920841e-05,
+        "tactical:board.prize_diff&&family:YES_PROMPT": -0.5608940938857881,
+        "tactical:commitment.attachment_unused=True": 0.00044907979095602655,
+        "tactical:commitment.attachment_unused=True&&family:ATTACH": -0.02878300156386727,
+        "tactical:commitment.attachment_unused=True&&family:ATTACK": -0.26701665775653155,
+        "tactical:commitment.attachment_unused=True&&family:END": -2.7998110085334798,
+        "tactical:commitment.attachment_unused=True&&family:EVOLVE": -0.058953645175459694,
+        "tactical:commitment.attachment_unused=True&&family:PLAY": 0.42156633731555654,
+        "tactical:commitment.attachment_unused=True&&family:RETREAT": 0.03506945977693609,
+        "tactical:commitment.end_available=True": -0.0005983341063292526,
+        "tactical:commitment.end_available=True&&family:ATTACH": -0.02878300156386727,
+        "tactical:commitment.end_available=True&&family:ATTACK": -0.08223702544762716,
+        "tactical:commitment.end_available=True&&family:END": 0.09483031862351059,
+        "tactical:commitment.end_available=True&&family:EVOLVE": -0.14649865911093712,
+        "tactical:commitment.end_available=True&&family:PLAY": -0.08819553130653632,
+        "tactical:commitment.end_available=True&&family:RETREAT": 0.039657794708790876,
+        "tactical:commitment.game_winning_attack_available=True": 0.0002640135986850748,
+        "tactical:commitment.game_winning_attack_available=True&&family:ATTACH": -0.30507555097811806,
+        "tactical:commitment.game_winning_attack_available=True&&family:ATTACK": 1.2122113596510036,
+        "tactical:commitment.game_winning_attack_available=True&&family:END": -0.3676439500735994,
+        "tactical:commitment.game_winning_attack_available=True&&family:PLAY": -1.2695243254525264,
+        "tactical:commitment.game_winning_attack_available=True&&family:RETREAT": -0.5635947456920273,
+        "tactical:commitment.guaranteed_ko_available=True": -0.000334898705842616,
+        "tactical:commitment.guaranteed_ko_available=True&&family:ATTACH": -0.6423874631581071,
+        "tactical:commitment.guaranteed_ko_available=True&&family:ATTACK": 0.6160091072855768,
+        "tactical:commitment.guaranteed_ko_available=True&&family:END": -2.29672351673166,
+        "tactical:commitment.guaranteed_ko_available=True&&family:EVOLVE": 2.7061536094720537,
+        "tactical:commitment.guaranteed_ko_available=True&&family:PLAY": -0.4766932791164658,
+        "tactical:commitment.guaranteed_ko_available=True&&family:RETREAT": -2.2380042410042864,
+        "tactical:commitment.nonterminal_attack_available=True": -0.0001425270692710498,
+        "tactical:commitment.nonterminal_attack_available=True&&family:ATTACH": 0.5914448663077304,
+        "tactical:commitment.nonterminal_attack_available=True&&family:ATTACK": -0.4815854017457069,
+        "tactical:commitment.nonterminal_attack_available=True&&family:END": -4.372309371582306,
+        "tactical:commitment.nonterminal_attack_available=True&&family:EVOLVE": 2.3257230515911913,
+        "tactical:commitment.nonterminal_attack_available=True&&family:PLAY": -0.17741703064659542,
+        "tactical:commitment.nonterminal_attack_available=True&&family:RETREAT": -0.4102981207857655,
+        "tactical:commitment.retreat_available=True": -0.000642532328700582,
+        "tactical:commitment.retreat_available=True&&family:ATTACH": -0.5414583245979812,
+        "tactical:commitment.retreat_available=True&&family:ATTACK": -0.21221126670265314,
+        "tactical:commitment.retreat_available=True&&family:END": 0.6833830701242632,
+        "tactical:commitment.retreat_available=True&&family:EVOLVE": 2.3805568563268835,
+        "tactical:commitment.retreat_available=True&&family:PLAY": -0.26928906894916094,
+        "tactical:commitment.retreat_available=True&&family:RETREAT": 0.039657794708790876,
+        "tactical:commitment.safe_development_available=True": 0.0004304747804931877,
+        "tactical:commitment.safe_development_available=True&&family:ATTACH": -0.02878300156386727,
+        "tactical:commitment.safe_development_available=True&&family:ATTACK": 0.4073512711325171,
+        "tactical:commitment.safe_development_available=True&&family:END": -0.4257192483184292,
+        "tactical:commitment.safe_development_available=True&&family:EVOLVE": -0.14649865911093712,
+        "tactical:commitment.safe_development_available=True&&family:PLAY": -0.08819553130653632,
+        "tactical:commitment.safe_development_available=True&&family:RETREAT": -0.9544554386356414,
+        "tactical:value.energy_dev_diff": 0.00030625448291343786,
+        "tactical:value.energy_dev_diff&&family:ATTACH": -1.1559443362400155,
+        "tactical:value.energy_dev_diff&&family:ATTACK": 0.19657805766883119,
+        "tactical:value.energy_dev_diff&&family:END": 1.5402909668341491,
+        "tactical:value.energy_dev_diff&&family:EVOLVE": 1.253559027260562,
+        "tactical:value.energy_dev_diff&&family:PLAY": -0.1531997840889755,
+        "tactical:value.energy_dev_diff&&family:RETREAT": 0.8897875039212596,
+        "tactical:value.energy_dev_diff&&family:SELECT_CARD": 0.00021423406470672443,
+        "tactical:value.energy_dev_diff&&family:TYPE_6": 2.5288276021192162e-05,
+        "tactical:value.ready_attacker_diff": 0.00019260349131955995,
+        "tactical:value.ready_attacker_diff&&family:ATTACH": -1.9209620638260605,
+        "tactical:value.ready_attacker_diff&&family:ATTACK": 0.055472424722769066,
+        "tactical:value.ready_attacker_diff&&family:END": 1.7644481871625277,
+        "tactical:value.ready_attacker_diff&&family:EVOLVE": 1.3792246455186967,
+        "tactical:value.ready_attacker_diff&&family:PLAY": -0.025849507713417586,
+        "tactical:value.ready_attacker_diff&&family:RETREAT": 2.046002234452251,
+        "tactical:value.ready_attacker_diff&&family:SELECT_CARD": 7.850105056200796e-05,
+        "tactical:value.ready_attacker_diff&&family:TYPE_6": 2.591398187998106e-05
+      }
+    }
+  },
+  "selector_system_id": "STARMIE_SELECTOR_V1",
+  "status": "disabled",
+  "test_smoke_summary": {
+    "abstention_rate": 0.0,
+    "average_candidate_set_size": 3.625,
+    "brier": 0.39645158809993747,
+    "by_family": {
+      "ATTACH": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 20,
+        "exact_pilot_agreement": 0.5
+      },
+      "ATTACK": {
+        "candidate_set_pilot_coverage": 0.96,
+        "count": 25,
+        "exact_pilot_agreement": 0.92
+      },
+      "END": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 5,
+        "exact_pilot_agreement": 0.6
+      },
+      "EVOLVE": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 9,
+        "exact_pilot_agreement": 0.8888888888888888
+      },
+      "NO_PROMPT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 1,
+        "exact_pilot_agreement": 0.0
+      },
+      "PLAY": {
+        "candidate_set_pilot_coverage": 0.9230769230769231,
+        "count": 39,
+        "exact_pilot_agreement": 0.5641025641025641
+      },
+      "RETREAT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 1,
+        "exact_pilot_agreement": 1.0
+      },
+      "SELECT_CARD": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 45,
+        "exact_pilot_agreement": 0.8444444444444444
+      },
+      "TYPE_0": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 2,
+        "exact_pilot_agreement": 1.0
+      },
+      "TYPE_6": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 1,
+        "exact_pilot_agreement": 1.0
+      },
+      "YES_PROMPT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 4,
+        "exact_pilot_agreement": 1.0
+      }
+    },
+    "candidate_set_pilot_coverage": 0.9736842105263158,
+    "decision_count": 152,
+    "ece": 0.07120922126192383,
+    "exact_pilot_agreement": 0.7368421052631579,
+    "fallback_rate": 0.07894736842105263,
+    "mrr": 0.8460056390977441,
+    "nll": 0.9613486878512603,
+    "nll_count": 140,
+    "replay_cluster_count": 5
+  },
+  "unsupported_ood_policy": "fall back to current heuristic action; never force proposer action on unsupported/OOD rows",
+  "validation_summary": {
+    "abstention_rate": 0.0,
+    "average_candidate_set_size": 3.6036585365853657,
+    "brier": 0.3401478540142332,
+    "by_family": {
+      "ATTACH": {
+        "candidate_set_pilot_coverage": 0.972972972972973,
+        "count": 74,
+        "exact_pilot_agreement": 0.6081081081081081
+      },
+      "ATTACK": {
+        "candidate_set_pilot_coverage": 0.987012987012987,
+        "count": 77,
+        "exact_pilot_agreement": 0.8181818181818182
+      },
+      "END": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 8,
+        "exact_pilot_agreement": 0.875
+      },
+      "EVOLVE": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 23,
+        "exact_pilot_agreement": 0.9130434782608695
+      },
+      "NO_PROMPT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 7,
+        "exact_pilot_agreement": 0.0
+      },
+      "PLAY": {
+        "candidate_set_pilot_coverage": 0.9716312056737588,
+        "count": 141,
+        "exact_pilot_agreement": 0.6808510638297872
+      },
+      "RETREAT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 9,
+        "exact_pilot_agreement": 0.7777777777777778
+      },
+      "SELECT_CARD": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 126,
+        "exact_pilot_agreement": 0.8412698412698413
+      },
+      "TYPE_0": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 6,
+        "exact_pilot_agreement": 1.0
+      },
+      "TYPE_6": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 4,
+        "exact_pilot_agreement": 1.0
+      },
+      "YES_PROMPT": {
+        "candidate_set_pilot_coverage": 1.0,
+        "count": 17,
+        "exact_pilot_agreement": 1.0
+      }
+    },
+    "candidate_set_pilot_coverage": 0.9857723577235772,
+    "decision_count": 492,
+    "ece": 0.042221651212540054,
+    "exact_pilot_agreement": 0.7560975609756098,
+    "fallback_rate": 0.056910569105691054,
+    "mrr": 0.8592189314750288,
+    "nll": 0.799733651014379,
+    "nll_count": 464,
+    "replay_cluster_count": 15
+  }
+}

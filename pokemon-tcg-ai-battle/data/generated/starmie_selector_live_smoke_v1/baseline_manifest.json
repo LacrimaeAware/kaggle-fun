@@ -1,0 +1,20 @@
+{
+  "git_head": "8702b94a358a7a1871cc0b55cde2ba672912ad3d",
+  "branch": "exp/starmie-tactical-leaf-v1",
+  "starmie_heuristics_sha256": "906e3a219a1752e0",
+  "search_v3_sha256": "a5c19eddf7944189",
+  "eval_sha256": "0e76685754c5f196",
+  "deck_sha1": "2d0186cae2f4",
+  "R15_default_on": true,
+  "ATTACH_MEGA_default_off": true,
+  "selector_mode_default": "off",
+  "search": {
+    "budget": 0.6,
+    "N_DETERM": 8,
+    "leaf": "deckout",
+    "rollout": "develop"
+  },
+  "deployed_baseline": "sub_starmie2 lineage; selector default OFF; gameplay unchanged",
+  "bundle_vendored": "agent/vendor/portable_selector_v1/",
+  "bundle_manifest_sha": "0912a428617660ad"
+}

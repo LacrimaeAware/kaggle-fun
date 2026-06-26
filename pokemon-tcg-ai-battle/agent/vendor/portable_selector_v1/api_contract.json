@@ -1,0 +1,98 @@
+{
+  "callable": "rank_and_select(observation, legal_options, baseline_action=None, search_action=None, top_k=5)",
+  "config": {
+    "out_dir": "data/generated/starmie_specialist/portable_selector_v1",
+    "pack_dir": "data/generated/transition_ranker/starmie_behavior_v2/starmie_behavior_packs_v0/P5_NEW_TOP1_EXACT_SINGLE_PILOT",
+    "parity_max_decisions": 220,
+    "parity_min_decisions": 100,
+    "runtime_dir": "data/generated/starmie_specialist/proposer_runtime_v1",
+    "runtime_export_path": "data/generated/starmie_specialist/starmie_behavior_proposer_runtime_v1.json",
+    "runtime_source_path": "src/pokemon_ai_agent/transition_ranker/starmie_selector_runtime_portable.py",
+    "selector_closeout_path": "data/generated/starmie_specialist/selector_v1/closeout.json",
+    "selector_dir": "data/generated/starmie_specialist/selector_v1",
+    "selector_export_path": "data/generated/starmie_specialist/selector_v1/selector_export.json",
+    "top_k": 5
+  },
+  "created_utc": "2026-06-26T13:48:44.587112+00:00",
+  "forbidden_inputs": [
+    "pilot ID",
+    "replay ID",
+    "split ID",
+    "outcome",
+    "future sequence",
+    "pilot action label",
+    "test-only labels"
+  ],
+  "input_shape": {
+    "baseline_action": "semantic_action_key, packed/raw option index, or mapping with one of those fields; mapping may also include packed_option_indexes/raw_option_indexes for semantic-equivalent siblings",
+    "legal_options": {
+      "recommended": [
+        "semantic_action_key",
+        "raw_option_index",
+        "packed_option_index",
+        "action_family",
+        "hard_safety_flags"
+      ],
+      "required": [
+        "features"
+      ]
+    },
+    "observation": {
+      "notes": "Packed public Feature-V2 observation. Live CABT state must be converted by Model B adapter.",
+      "optional_public_fields": [
+        "zone_inventory",
+        "runtime_tactical",
+        "tactical_state_features"
+      ],
+      "required_public_fields": [
+        "state_features",
+        "board_entities"
+      ]
+    },
+    "search_action": "optional; accepted by API but S5 selected C4 does not include search-only candidates"
+  },
+  "locked_selector": {
+    "selected_candidate_set": "C4",
+    "selected_selector": "S5_LIGHTWEIGHT_SELECTOR",
+    "selection_source": "validation_only"
+  },
+  "output_shape": {
+    "entropy": "float",
+    "model_hash": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8",
+    "ranked_actions": [
+      {
+        "action_family": "string",
+        "logit": "float",
+        "probability": "float",
+        "rank": "int",
+        "raw_option_index": "int",
+        "semantic_action_key": "string"
+      }
+    ],
+    "selected_raw_option_index": "int|null",
+    "selected_semantic_key": "string|null",
+    "selector_features": "mapping",
+    "selector_hash": "01DD0A03C69ACF7D379C9E687A0E9845DA76F5C51DA5200777404A5B6A944637",
+    "selector_score": "float|null",
+    "source": "selector|proposer|baseline|fallback",
+    "status": "READY|ABSTAIN|UNSUPPORTED|ERROR",
+    "support_status": "string",
+    "top1_margin": "float"
+  },
+  "safety_filter_contract": {
+    "expected_option_field": "hard_safety_flags",
+    "known_flags": [
+      "V0_illegal_or_stale_option",
+      "V1_misses_immediate_game_winning_attack",
+      "V2_loses_guaranteed_KO",
+      "V3_deck_out",
+      "V4_Wally_removes_required_attack_energy",
+      "V5_Boss_worse_retarget",
+      "V6_Ignition_misuse",
+      "V7_retreat_leaves_no_ready_attacker",
+      "V8_unsupported_or_OOD"
+    ],
+    "model_b_required": true
+  },
+  "schema_version": "starmie_portable_selector_v1.api_contract"
+}
