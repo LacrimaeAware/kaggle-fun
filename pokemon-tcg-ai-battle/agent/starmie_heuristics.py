@@ -89,6 +89,15 @@ DRAW_SUPPORTERS = {LILLIE, HARLEQUIN}
 #   R13 wally_veto  R14 no_third_mega_guard  R15 attack_at_end_of_turn (force an attack instead of passing)
 DISABLED = set(x.strip() for x in os.environ.get("STARMIE_DISABLE", "").split(",") if x.strip())
 
+# CANDIDATE PROBE (default OFF): ATTACH_MEGA_NOT_ENGINE_V1. Behavioral-atlas finding -- the #1 pilot (Yushin Ito,
+# exact deck) attaches energy to the Mega Starmie / Staryu line ~80% and to Cinderace ~2%; our agent attaches to
+# Cinderace ~18% (ATTACH is the worst-agreement family, 39%). Cause: _attach_score gives Cinderace's first energy
+# 70 but a Mega already building toward Nebula only 62, so the engine's first energy beats continuing the
+# attacker. When enabled, a basic-energy attach that targets Cinderace is REDIRECTED to a useful Mega/Staryu-line
+# attach if one exists. Ignition keeps its Nebula-only gate; if no useful line attach exists the Cinderace attach
+# stands (engine not starved). Enable with env STARMIE_ATTACH_MEGA_NOT_ENGINE_V1=1.
+ATTACH_MEGA = os.environ.get("STARMIE_ATTACH_MEGA_NOT_ENGINE_V1", "") == "1"
+
 
 def _on(key):
     return key not in DISABLED
@@ -760,9 +769,50 @@ def _force_attack_over_end(obs, pick):
     return pick
 
 
+def _attach_mega_pref(obs, pick):
+    """ATTACH_MEGA_NOT_ENGINE_V1 (default off): if we are about to ATTACH a basic energy to the Cinderace ENGINE,
+    redirect it to the best USEFUL Mega-Starmie / Staryu-line attach instead (the #1 pilot energizes the Mega
+    line ~80%, Cinderace ~2%). Ignition is left to its own Nebula-only gate (not redirected). If the Mega/Staryu
+    line has no useful attach, the Cinderace attach stands -- so a genuinely needed engine energy is not stolen
+    and a redundant one is avoided. Touches ONLY attach targeting; attack timing/Hammer/Wally/Boss/Cape/tutor/
+    retreat are untouched."""
+    if not ATTACH_MEGA:
+        return pick
+    try:
+        sel = DP._selection(obs)
+        if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1 or not pick or len(pick) != 1:
+            return pick
+        opts = DP._items(DP._get(sel, "option", []))
+        i = pick[0]
+        if not (0 <= i < len(opts)) or opts[i].get("type") != ATTACH:
+            return pick
+        if DP.option_card_id(opts[i], obs) == IGNITION:      # Ignition keeps its existing Nebula-only logic
+            return pick
+        tgt = DP.option_target_entity(opts[i], obs)
+        if not tgt or DP._cid(tgt) != CINDERACE:             # only redirect attaches aimed at the engine
+            return pick
+        player = _me_opp(obs)[0]
+        best_j, best_s = None, 0.0
+        for j, oj in enumerate(opts):
+            if oj.get("type") != ATTACH or DP.option_card_id(oj, obs) == IGNITION:
+                continue
+            tj = DP.option_target_entity(oj, obs)
+            if not tj or DP._cid(tj) not in (MEGA_STARMIE, STARYU):
+                continue
+            s = _attach_score(obs, oj, player)               # >0 only when it actually advances the line
+            if s > best_s:
+                best_s, best_j = s, j
+        if best_j is not None:
+            return [best_j]
+    except Exception:
+        pass
+    return pick
+
+
 def choose_action(obs, deck=STARMIE_DECK):
     """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default. Finally,
-    R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn."""
+    R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn;
+    and ATTACH_MEGA_NOT_ENGINE_V1 (default off): prefer the Mega line over the engine when attaching."""
     if obs.get("select") is None:
         return list(deck)
     pick = None
@@ -783,6 +833,7 @@ def choose_action(obs, deck=STARMIE_DECK):
             pick = None
     if pick is None:
         pick = DP.default_selection(obs)
+    pick = _attach_mega_pref(obs, pick)
     return _force_attack_over_end(obs, pick)
 
 
