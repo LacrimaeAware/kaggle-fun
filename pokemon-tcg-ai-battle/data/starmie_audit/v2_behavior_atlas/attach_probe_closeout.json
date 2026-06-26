@@ -51,7 +51,25 @@
     },
     "reads": "field +6/+1, mirror -3 (noise); NO catastrophic regression (unlike attack-floor)"
   },
-  "ab_n500": "RUNNING (_attach_n500.log)",
+  "ab_n500": {
+    "budget_s": 0.3,
+    "mirror": {
+      "baseline": 42,
+      "attach_on": 43,
+      "delta": 1
+    },
+    "alakazam": {
+      "baseline": 79,
+      "attach_on": 82,
+      "delta": 3
+    },
+    "denpa92": {
+      "baseline": 90,
+      "attach_on": 88,
+      "delta": -2
+    },
+    "reads": "neutral within noise (CI ~+-4%); n=100 field +6 shrank to +3; no regression, no measured win-rate gain"
+  },
   "regressions": "none catastrophic at n=100; mirror -3 within noise",
   "example_trigger_states": [
     {
@@ -133,5 +151,6 @@
       }
     }
   ],
-  "verdict_n100": "B_DIRECTIONAL_ONLY (mechanism clearly works: ATTACH agreement +9.4, Cinderace attaches 55->0; A/B non-negative but within noise at n=100). Escalating to n=500 per the gate; if field holds and mirror non-regressed -> A_VERIFIED_PROMOTION_CANDIDATE."
+  "verdict_n100": "B_DIRECTIONAL_ONLY (mechanism clearly works: ATTACH agreement +9.4, Cinderace attaches 55->0; A/B non-negative but within noise at n=100). Escalating to n=500 per the gate; if field holds and mirror non-regressed -> A_VERIFIED_PROMOTION_CANDIDATE.",
+  "verdict_final": "A_VERIFIED_PROMOTION_CANDIDATE by literal criteria (6/6 mechanics tests; mechanism supported: ATTACH agreement +9.4 vs #1 pilot, Cinderace attaches 55->0; field A/B nonnegative, NO regression at n=500). HONEST: local win-rate NEUTRAL (mirror +1, alakazam +3, denpa92 -2, within noise) -- value is behavioral alignment with the #1 pilot in the worst-agreement family, not a measured local win gain. Best-motivated non-regressing candidate of the session; strongest ladder-test / Model-A-feature candidate. Default OFF; not merged/submitted."
 }
