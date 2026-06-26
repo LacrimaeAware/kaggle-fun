@@ -687,21 +687,32 @@ def _veto_search_pick(obs, mv):
     if not (0 <= i < len(opts)):
         return None
     o = opts[i]
+    player, opp, _ = _me_opp(obs)
     if o.get("type") == PLAY and DP.option_card_id(o, obs) == WALLYS:
-        player, opp, _ = _me_opp(obs)
         if not _wally_useful(player):
             atk = _best_attack_index(obs, opts, opp)
             if atk is not None:
                 return [atk]
+    # Mistake fix: never ATTACH Ignition Energy unless it funds a Nebula KO this turn (_attach_score>0). Ignition
+    # is discarded end of turn, so attaching it to a non-attacker (Cinderace / a benched Staryu) wastes it. Veto
+    # a 0-value Ignition attach -> a useful Water attach to the line if one exists, else END (keep the Ignition).
+    if o.get("type") == ATTACH and DP.option_card_id(o, obs) == IGNITION and _attach_score(obs, o, player) <= 0:
+        best = _best_attach_index(obs, opts, player)
+        if best is not None and DP.option_card_id(opts[best], obs) != IGNITION:
+            return [best]
+        end_idx = next((k for k, ok in enumerate(opts) if ok.get("type") == END), None)
+        if end_idx is not None:
+            return [end_idx]
     # Ladder bug fix: never PASS the turn (END) with a thin board when development is still available -- search
     # was picking END over a Night Stretcher recovery / search with an empty bench, wasting the turn. If the
     # board is thin (<=2 in play), prefer a developing option (attach/evolve/play a search/recover/Pokemon).
     if o.get("type") == END:
-        player = _me_opp(obs)[0]
         if (1 if DP._active(player) else 0) + len(DP._bench(player)) <= 2:
             for j, oj in enumerate(opts):
                 t = oj.get("type")
-                if t in (ATTACH, EVOLVE):
+                if t == EVOLVE:
+                    return [j]
+                if t == ATTACH and DP.option_card_id(oj, obs) != IGNITION:   # not a wasteful Ignition attach
                     return [j]
                 if t == PLAY:
                     cid = DP.option_card_id(oj, obs)
