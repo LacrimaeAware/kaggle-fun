@@ -26,6 +26,13 @@ is the ONLY real test; local A/B + imitation mislead (sub_starmie2 went 7-6 desp
       field A/B or ladder to verify (low-frequency; imitation can't rank them).
 
 ## TODO — heuristics (ranked by likely ladder impact)
+- [~] **MIRROR MISPLAY = develop-XOR-attack (DIAGNOSED 2026-06-26).** Heavy under-attacks: in mirror losses it
+      makes 3.07 attacks vs deployed's 5.02, first attack ~3 decisions later; 64% of armed-Mega-with-attack
+      decisions don't attack (it digs/passes). Root: the chain's only turn-ending attack is the KO floor (R9),
+      no chip floor; and the develop-rollout digs forever and never attacks. FIX candidate (default off):
+      `STARMIE_ATTACK_FLOOR=1` extends R9 to chip with an armed Mega Starmie (develop THEN attack). A/B running.
+      Deeper half (TODO): fix the develop-rollout so it attacks after building, not digs forever. See
+      dropoff/inbox/2026-06-26-mirror-misplay-develop-xor-attack.md.
 - [ ] **Search-verified "material impact" guard (user's idea).** Use deck_policy_v3.compare_selections (paired
       hidden-world sim) to check a heuristic/search action MATERIALLY improves the state in 1-2 plies vs the
       default/END; veto no-op plays (redundant attach, pointless search) that change nothing. HIGH value:

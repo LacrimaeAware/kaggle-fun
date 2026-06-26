@@ -1,0 +1,176 @@
+{
+  "verdict": "BASELINE_FROZEN",
+  "generated_by": "tools/starmie_baseline_freeze_v1.py",
+  "git": {
+    "head_commit": "6c38e58603eeaa35acbf4974e6821e89c55dd5ae",
+    "head_short": "6c38e58",
+    "branch": "main",
+    "head_includes_359f9ae_fixes": true,
+    "note": "ATTACK_FLOOR candidate (uncommitted) is default-OFF; baseline behaviour = HEAD default config."
+  },
+  "deck": {
+    "ids": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      17,
+      17,
+      17,
+      17,
+      666,
+      666,
+      666,
+      666,
+      1030,
+      1030,
+      1030,
+      1031,
+      1031,
+      1031,
+      1086,
+      1086,
+      1086,
+      1086,
+      1097,
+      1097,
+      1120,
+      1120,
+      1120,
+      1120,
+      1121,
+      1122,
+      1122,
+      1122,
+      1122,
+      1145,
+      1145,
+      1145,
+      1145,
+      1159,
+      1182,
+      1189,
+      1189,
+      1189,
+      1189,
+      1223,
+      1223,
+      1225,
+      1225,
+      1227,
+      1227,
+      1227,
+      1227,
+      1229,
+      1229,
+      1229,
+      1229
+    ],
+    "n_cards": 60,
+    "sha1": "2d0186cae2f487b33cebeaef19babb02a56f98f7"
+  },
+  "heuristic_profile": {
+    "rules": [
+      "_go_first",
+      "_no_suicide",
+      "_main_action",
+      "_opp_bench_target",
+      "_tutor_target"
+    ],
+    "disabled_default": [],
+    "attack_floor_default": false,
+    "veto_enabled_R13": true
+  },
+  "search_config": {
+    "DEFAULT_BUDGET": 0.6,
+    "N_DETERM": 8,
+    "USE_DYNAMIC_ATTACKS_default": false,
+    "leaf_mode": "deckout",
+    "rollout_mode": "develop",
+    "require_complete_world": true,
+    "agent_call": "choose_action -> choose() heuristics, else best_option(leaf_mode='deckout', rollout_mode='develop') + veto(R13), else default"
+  },
+  "eval_weights": {
+    "W_BODY": 30.0,
+    "W_CA_HAND": 25.0,
+    "W_ENERGY": 8.0,
+    "W_HP": 1.0,
+    "W_POWERFUL_HAND": 0.0,
+    "W_PRIZE": 1000.0,
+    "W_V3_BACKUP_ATTACKER": 0.0,
+    "W_V3_DECKOUT": 0.0,
+    "W_V3_PH_POTENTIAL": 0.0,
+    "DECKOUT_TEST": 100.0,
+    "PH_TEST": 1.0,
+    "WIN": 1000000.0,
+    "LOSS": -1000000.0
+  },
+  "opponent_prior": {
+    "file": "opponent_meta_v1.json",
+    "sha256": null,
+    "use_meta_opp_prior": true,
+    "n_opp_decks": 30
+  },
+  "submission": {
+    "sub_starmie2_tar_sha256": "68a18d52a75dafaca98263e0c250b9b5fd939de248ee674978557acc95cce3af",
+    "sub_starmie2_bytes": 1199669,
+    "sub_starmie2_heuristics_sha256": "5fde101519cc5fba37a58f8776acc5841cbafee0a6b6849d0ab3314f6b550c64",
+    "source_commit_note": "sub_starmie2 rebuilt from main 359f9ae (per session log)"
+  },
+  "replay_corpus_snapshot": {
+    "specialist_corpus": "data/starmie_corpus/starmie_specialist_corpus_v1.jsonl (gitignored)",
+    "rows": 52335,
+    "sha256_first_1MB": "3fec14725fcb7cb36415c88c228bc08c760466273bfddfd530626e42999c6653",
+    "corpus_manifest": null
+  },
+  "file_hashes": {
+    "agent/eval.py": "5b16c04ab54619168ade34cd93d82bfb9c21a810f60db0a4ccad419700a81bc3",
+    "agent/search_v3.py": "a5c19eddf794418999742723d96dad28175cfb7259f26a0a3bdd22c4d3a95178",
+    "agent/deck_policy_v3.py": "06f16dcd17e52410f86e83736ccdcdb5c0da4ddf1751d64bd46acaca12edb61e",
+    "agent/starmie_heuristics.py": "e2ea6364a3258d47a7536b40b51969a1977decc6dec2193f164d9c1a0489feca",
+    "agent/main.py": "a63e5b6e5c62c81a9f4cc771a379d3b4467a9c4dde54d99e2b4f73a0f98e180a"
+  },
+  "correctness_checks": {
+    "deck_matches_main_agent": {
+      "ok": true,
+      "detail": "heuristics deck == main.STARMIE_DECK: True"
+    },
+    "opp_meta_prior_not_self": {
+      "ok": true,
+      "detail": "USE_META_OPP_PRIOR=True, n_opp_decks=30"
+    },
+    "boss_not_retarget_existing_ko": {
+      "ok": true,
+      "detail": "Boss/Wally in _high_value_play gated on `not ko_avail`"
+    },
+    "wally_not_strip_ko_energy": {
+      "ok": true,
+      "detail": "Wally gated on `not ko_avail` + _wally_useful KO-range proxy"
+    },
+    "ignition_three_units_on_evolution": {
+      "ok": true,
+      "detail": "Ignition on Mega=3 (want 3), on Staryu=1 (want 1)"
+    },
+    "tutor_respects_source_zone": {
+      "ok": true,
+      "detail": "_sel_card resolves via option.area / _AREA_ZONE"
+    },
+    "no_suicide_only_self_removing": {
+      "ok": true,
+      "detail": "_no_suicide only blocks self-removing abilities"
+    },
+    "develop_before_attack_enabled": {
+      "ok": true,
+      "detail": "free development precedes the KO floor in _main_action; R2/R3/R9 enabled by default"
+    },
+    "head_includes_accepted_fix_commits": {
+      "ok": true,
+      "detail": "359f9ae (heuristic fixes) is an ancestor of HEAD"
+    }
+  }
+}
