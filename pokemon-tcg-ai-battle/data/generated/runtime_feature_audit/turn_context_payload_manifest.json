@@ -1,0 +1,127 @@
+{
+  "purpose": "Public turn-context payload for Model A Feature V3 packer. PREP only -- NOT wired into the live selector. Read-only; excludes current.result and all future/pilot/outcome data.",
+  "extractor": "agent/turn_context_v0.extract_turn_context(obs)",
+  "samples": 602,
+  "setup_phase_rows": 38,
+  "fields": {
+    "global_turn_number": {
+      "source": "current.turn",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "first_player": {
+      "source": "current.firstPlayer",
+      "confidence": "present (-1 during setup until resolved)",
+      "nonnull_pct": 100.0
+    },
+    "first_player_resolved": {
+      "source": "derived",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "am_i_first_player": {
+      "source": "yourIndex == firstPlayer",
+      "confidence": "derived; null until first_player resolved",
+      "nonnull_pct": 100.0
+    },
+    "is_setup_phase": {
+      "source": "turn==0 or firstPlayer==-1",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "turn_action_count": {
+      "source": "current.turnActionCount",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "decision_index_in_turn": {
+      "source": "current.turnActionCount",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "supporter_used_this_turn": {
+      "source": "current.supporterPlayed",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "energy_attached_this_turn": {
+      "source": "current.energyAttached",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "retreated_this_turn": {
+      "source": "current.retreated",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "stadium_played_this_turn": {
+      "source": "current.stadiumPlayed",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "stadium_in_play": {
+      "source": "bool(current.stadium)",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "active_appeared_this_turn": {
+      "source": "active.appearThisTurn",
+      "confidence": "present",
+      "nonnull_pct": 92.0
+    },
+    "bench_appeared_this_turn_count": {
+      "source": "sum(bench.appearThisTurn)",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "status_conditions": {
+      "source": "player.asleep/paralyzed/confused/burned/poisoned",
+      "confidence": "present",
+      "nonnull_pct": 100.0
+    },
+    "attack_available": {
+      "source": "scan options type==13",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "end_available": {
+      "source": "scan options type==14",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "terminal_legal_option_count": {
+      "source": "count type in {13,14}",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "nonterminal_legal_option_count": {
+      "source": "count type not in {13,14}",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "information_revealing_legal_count": {
+      "source": "count type==3 (SELECT_CARD)",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "safe_development_legal_count": {
+      "source": "count type in {7,8,9}",
+      "confidence": "derived",
+      "nonnull_pct": 100.0
+    },
+    "is_our_first_turn_best_effort": {
+      "source": "post-setup turn parity",
+      "confidence": "BEST_EFFORT -- verify; setup-phase caveat",
+      "nonnull_pct": 93.7
+    },
+    "is_first_player_first_turn_best_effort": {
+      "source": "turn==1",
+      "confidence": "BEST_EFFORT -- verify; setup-phase caveat",
+      "nonnull_pct": 93.7
+    }
+  },
+  "no_mutation": true,
+  "forbidden_field_leaks": 0,
+  "setup_phase_nuance": "global turn 0 is a SHARED setup phase (both seats act; firstPlayer=-1 until resolved). turn_action_count is a global counter during setup, per-turn after. Player-turn-index (is_our_first_turn / is_first_player_first_turn) is BEST_EFFORT -- Model A should finalize.",
+  "wiring_status": "NOT wired into choose_action/selector. Wire into learned_selector_bridge only AFTER Model A Feature V3 export exists, then re-run the adapter parity gate to keep it bit-exact."
+}

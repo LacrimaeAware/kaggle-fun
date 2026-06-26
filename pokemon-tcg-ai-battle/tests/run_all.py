@@ -25,6 +25,7 @@ MODULES = [
     "test_proposer_adapter_v0",     # learned-proposer adapter + safety spec (disabled, cannot change action)
     "test_selector_wiring_v1",      # STARMIE_SELECTOR_MODE wiring (off = identity, modes legal, fail-closed)
     "test_selector_v2_wiring_v1",   # conservative C3 (c3_family_limited): never overrides into ATTACK/END/RETREAT
+    "test_turn_context_v0",         # read-only turn-context extractor (PREP; unwired, schema-stable, no leak)
 ]
 
 

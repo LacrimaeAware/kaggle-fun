@@ -1,0 +1,21 @@
+{
+  "task": "STARMIE RUNTIME TURN-CONTEXT ADAPTER PREP V0 (Model B)",
+  "verdict": "A_TURN_CONTEXT_ADAPTER_READY",
+  "extractor": "agent/turn_context_v0.extract_turn_context(obs) -- read-only, NOT wired into gameplay",
+  "fields": 23,
+  "examples": 602,
+  "setup_rows": 38,
+  "guarantees": {
+    "no_obs_mutation": true,
+    "forbidden_field_leaks": 0,
+    "current_result_excluded": true,
+    "missing_fields_explicit_null": true,
+    "schema_stable": true,
+    "not_wired": true
+  },
+  "tests": "tests/test_turn_context_v0.py -- ALL 7 PASS (no-mutation, schema-stable, forbidden-excluded, missing-null, values-correct, setup-caveat, not-wired); registered in run_all (10 suites pass)",
+  "setup_caveat": "global turn 0 is a SHARED setup phase (both seats act; firstPlayer=-1 until resolved). turn_action_count is a global counter during setup, per-turn after. Player-turn-index (is_our_first_turn / is_first_player_first_turn) is BEST_EFFORT -- Model A should finalize.",
+  "wiring_status": "NOT wired into choose_action/selector. Wire into learned_selector_bridge only AFTER Model A Feature V3 export exists, then re-run the adapter parity gate to keep it bit-exact.",
+  "handoff_to_model_a": "extract_turn_context(obs) returns the public temporal payload Feature V3 needs. Raw current.* fields are 100% present + high confidence; player-turn-index (is_our_first_turn/is_first_player_first_turn) is BEST_EFFORT due to the shared setup turn -- Model A finalizes. When V3 export exists, Model B wires this into learned_selector_bridge + re-runs the adapter parity gate.",
+  "constraints_honored": "no gameplay/selector/submission/A-B change; Model A files untouched; module unwired."
+}
