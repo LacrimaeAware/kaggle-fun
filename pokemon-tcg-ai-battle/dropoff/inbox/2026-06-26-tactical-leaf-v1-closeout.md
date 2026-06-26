@@ -43,21 +43,26 @@ All work is isolated; no submission built automatically.
   those changes move toward the narrow "build/use the Mega line" direction measured, and pilot agreement is FLAT
   (58.2%->57.8%). Weak directional signal (direction classifier is also crude — it doesn't credit
   "stop over-investing in Cinderace" changes).
-- **S7 A/B**: head-to-head heavy(+term) vs heavy(baseline) mirror + each vs the frozen field (alakazam/denpa92,
-  pilots use leaf_mode="hand" so they are UNAFFECTED -> isolates the term). RESULT: <PENDING — fill on completion>.
+- **S7 A/B** (n=120/matchup, budget 0.4): head-to-head heavy(+term) vs heavy(baseline) mirror + each vs the
+  frozen field (alakazam/denpa92 use leaf_mode="hand" -> UNAFFECTED, isolating the term). RESULT:
+  MIRROR continuity vs baseline 65-55 = **54.2%** for continuity; vs alakazam 79.2% vs 78.3% (+0.9); vs denpa92
+  89.2% vs 85.8% (+3.4). **Positive direction, NO regression -- the opposite of the refuted attack-floor.** But
+  the mirror +4.2 is within noise at n=120 and the offline mechanism signal was weak. Escalation to n=240 running.
 - **S8 handoff** (`tactical_feature_schema.json`, `tactical_coordinate_summary.json`,
   `starmie_tactical_state_v1.jsonl`, the audit/A-B reports): feature taxonomy (deck-independent vs Starmie
   semantic-role vs exact-card-id vs public-runtime vs eval-only) so Model A can consume the situation rows.
 
 ## Verdicts (S9)
-- ATTACKER_CONTINUITY: <fill from A/B — A VERIFIED / B DIRECTIONAL / C BASELINE_LEAF_PREFERRED>. The structural
-  deck-blindness is real and prevalent (strong motivation), but the offline mechanism signal is weak and the A/B
-  is the promotion decider. Do NOT promote on the local mirror alone (ladder is the only real test; the
-  attack-floor refutation this same session shows local intuitions can be wrong).
-- TACTICAL_STATE_EXPORT: A TACTICAL_STATE_DATA_READY_FOR_MODEL_A — 22,083 clean rows, all observations resolved,
-  runtime/eval separation leak-checked, schema documented.
+- ATTACKER_CONTINUITY: **B. ATTACKER_CONTINUITY_DIRECTIONAL** (at n=120). Tests pass; the structural deck-blindness
+  it targets is real + prevalent; the A/B direction is POSITIVE with NO regression (unlike the attack-floor). But
+  the mirror gain is within noise at n=120 and the offline mechanism signal is weak -> not VERIFIED yet. n=240
+  escalation running; upgrade to A only if it firms up. Ladder is the only real test.
+- TACTICAL_STATE_EXPORT: **A. TACTICAL_STATE_DATA_READY_FOR_MODEL_A** — 22,083 clean rows, all observations
+  resolved, runtime/eval separation leak-checked, schema documented.
 
 ## Submission decision
 - main is UNCHANGED (attack-floor reverted; term default-off on a branch). A submission from main == sub_starmie2
-  already on the ladder -> no point. A new submission is only justified if S7 shows the term materially helps AND
-  we enable it; even then, a local-mirror gain is weak ladder evidence. Decision recorded with the A/B result.
+  already on the ladder. The leaf term is a promising NON-REGRESSING candidate (mirror +4.2, field +0.9/+3.4) but
+  within noise at n=120 -> await the n=240 escalation. If it firms up clearly >50% mirror with the field holding,
+  enabling the term + a submission is defensible (it is the first non-regressing improvement found, with a strong
+  structural justification). If it regresses to ~50%, no submission. Do NOT ship on the within-noise n=120 result.
