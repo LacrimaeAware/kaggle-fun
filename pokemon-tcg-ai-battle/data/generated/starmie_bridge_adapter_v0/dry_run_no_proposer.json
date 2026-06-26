@@ -1,0 +1,17 @@
+{
+  "mode": "A_NO_PROPOSER",
+  "trace": "yushin_trace.jsonl",
+  "rows": 2182,
+  "adapter_disabled_cannot_change_action": true,
+  "baseline_trace_agreement_pct": 51.7,
+  "safety_sanity_on_agent_actions": {
+    "checked": 500,
+    "hard_veto_count": 0,
+    "soft_flag_count": 25,
+    "soft_by_filter": {
+      "v7_bad_retreat": 5,
+      "v2_loses_guaranteed_ko": 20
+    },
+    "interpretation": "the current agent's own actions should hard-veto ~never; a high hard count would mean the safety spec is too aggressive. Soft flags are advisory."
+  }
+}

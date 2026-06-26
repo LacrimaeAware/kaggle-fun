@@ -1,0 +1,13 @@
+{
+  "expected_from_model_a": [
+    "data/generated/starmie_specialist/starmie_behavior_proposer_runtime_v1.json (runtime export)",
+    "data/generated/starmie_specialist/proposer_runtime_v1/validation_logits.jsonl",
+    ".../test_logits.jsonl",
+    "per-decision ranked semantic keys joinable by decision_id to data/generated/starmie_bridge_trace_v0/model_a_bridge_input.jsonl"
+  ],
+  "join_key": "decision_id + semantic_action_key",
+  "dry_run_modes_ready": [
+    "B_LOGITS_ONLY",
+    "C_RUNTIME_PROPOSER"
+  ]
+}

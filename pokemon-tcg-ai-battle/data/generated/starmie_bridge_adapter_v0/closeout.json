@@ -1,0 +1,17 @@
+{
+  "ADAPTER_VERDICT": "A_ADAPTER_READY_WAITING_FOR_MODEL_A",
+  "SAFETY_VERDICT": "A_SAFETY_FILTER_SPEC_READY",
+  "adapter_disabled": true,
+  "imported_by_live_agent": false,
+  "gameplay_unchanged": true,
+  "dry_run": "mode A passed (adapter cannot change action; baseline agreement 51.7%; 0 hard vetoes on agent actions)",
+  "tests": "7/7 adapter tests pass; full suite green",
+  "waiting_on": "Model A runtime proposer artifact (then dry-run mode B/C + candidate-set coverage)",
+  "artifacts": [
+    "adapter_manifest.json",
+    "dry_run_no_proposer.json",
+    "expected_model_a_artifacts.json",
+    "safety_filter_spec.json",
+    "semantic_key_compatibility.json"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "module": "agent/learned_proposer_adapter.py",
+  "sha256": "45c3fd152a23ea7c",
+  "status": "DISABLED_BY_DEFAULT",
+  "env_enable": "STARMIE_PROPOSER_ENABLED=1 (still does not wire into choose_action)",
+  "imported_by_live_agent": false,
+  "cannot_change_action": true,
+  "interface": [
+    "load_proposer(path)->ProposerHandle",
+    "rank_actions(handle,obs,top_k)->ProposerResult(ranked_actions=[] while disabled)",
+    "semantic_key(option,obs)",
+    "option_index_to_key(obs)",
+    "key_to_indices(obs)",
+    "safety_check(obs,proposed_index)"
+  ],
+  "note": "standalone adapter; the live Starmie agent (starmie_heuristics.choose_action) does NOT import it. Integration requires a separate explicit, tested step."
+}

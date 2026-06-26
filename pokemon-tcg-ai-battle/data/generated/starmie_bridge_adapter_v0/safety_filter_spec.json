@@ -1,0 +1,16 @@
+{
+  "filters": {
+    "v0": "illegal/stale option (HARD)",
+    "v1": "misses available game-winning attack (HARD)",
+    "v2": "a guaranteed KO is available but proposal is not an attack (SOFT -- develop-then-attack is legitimate)",
+    "v3": "play draws past a near-empty deck = deck-out (HARD)",
+    "v4": "Wally returns energy needed for an available KO (SOFT)",
+    "v5": "Boss gust when the active is already KO-able (SOFT)",
+    "v6": "Ignition attach without same-turn Nebula value (SOFT)",
+    "v7": "retreat with no ready benched Mega to promote (SOFT)",
+    "v8": "no semantic-key mapping / unsupported (HARD)"
+  },
+  "aggregation": "hard_veto = any HARD filter fires; soft_flags = advisory SOFT filters",
+  "offline_validation": "on 500 current-agent actions (Yushin trace): 0 HARD vetoes (filters not over-aggressive); soft flags v2=20 (develop-then-attack), v7=5 (retreat) -- advisory, sensible",
+  "caveat": "NOT claimed complete; a first gate. Never active in live selection."
+}

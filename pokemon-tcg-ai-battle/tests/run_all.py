@@ -19,6 +19,7 @@ MODULES = [
     "test_attacker_continuity_v1",  # ATTACKER_CONTINUITY_V1 leaf term (tactical-leaf task)
     "test_attach_mega_not_engine_v1",  # ATTACH_MEGA_NOT_ENGINE_V1 attach-targeting probe
     "test_bridge_trace_v0",         # proposer-bridge trace logger (runtime/eval separation, no behaviour change)
+    "test_proposer_adapter_v0",     # learned-proposer adapter + safety spec (disabled, cannot change action)
 ]
 
 

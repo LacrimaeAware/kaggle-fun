@@ -1,0 +1,45 @@
+{
+  "consistency": "matches build_bridge_trace_v0._semkey (the Model B trace format) and the Model A proposer expected keys",
+  "examples": {
+    "ATTACH": [
+      "ATTACH:Water:Mega",
+      "ATTACH:Water:Staryu",
+      "ATTACH:Water:Cinderace",
+      "ATTACH:Ignition:Mega"
+    ],
+    "ATTACK": [
+      "ATTACK:Jetting",
+      "ATTACK:Nebula",
+      "ATTACK:Turbo Flare"
+    ],
+    "PLAY": [
+      "PLAY:Crushing Hammer",
+      "PLAY:Wally's Compassion",
+      "PLAY:Boss's Orders",
+      "PLAY:Mega Signal"
+    ],
+    "SELECT_CARD": [
+      "SELECT_CARD:Mega Starmie ex",
+      "SELECT_CARD:Staryu",
+      "SELECT_CARD:Water"
+    ],
+    "EVOLVE": [
+      "EVOLVE:Mega"
+    ],
+    "RETREAT": [
+      "RETREAT:<role>"
+    ],
+    "other": [
+      "END",
+      "YES",
+      "NO",
+      "DISCARD"
+    ]
+  },
+  "guarantees": [
+    "same observation -> same keys (deterministic)",
+    "duplicate semantic actions collapse to one key with multiple raw indices (key_to_indices)",
+    "raw option index maps back via option_index_to_key",
+    "unknown option -> string(type) rather than crash"
+  ]
+}
