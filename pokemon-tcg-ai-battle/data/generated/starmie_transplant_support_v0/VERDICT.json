@@ -1,0 +1,46 @@
+{
+  "task": "STARMIE SELECTOR / TRANSPLANT TRACE SUPPORT PACK V0 (Model B)",
+  "verdict": "A_TRANSPLANT_SUPPORT_DATA_READY",
+  "decisions": 7182,
+  "cohorts": [
+    "yushin",
+    "keidroid",
+    "old_exact"
+  ],
+  "pilot_cohorts": 3,
+  "coverage": {
+    "same_turn_sequence_pct": 100.0,
+    "turn_end_delta_resolved_pct": 100.0,
+    "next_own_resolved": 6153,
+    "next_own_missing_game_ended": 1029
+  },
+  "integrity": {
+    "runtime_eval_separation": "PASS (0 leaks; verified 2 ways -- substring + agent!=pilot on 37% of rows)",
+    "split_leakage_episodes": 0,
+    "duplicate_decision_ids": 0,
+    "cross_cohort_episode_overlap": 0
+  },
+  "family_support": {
+    "SELECT_CARD": 2614,
+    "PLAY": 1949,
+    "ATTACK": 978,
+    "ATTACH": 796,
+    "EVOLVE": 287,
+    "OTHER": 239,
+    "YES_NO": 224,
+    "RETREAT": 95
+  },
+  "lowest_support_family": "RETREAT (95 pilot decisions) -- transplant neighbors will be sparse for RETREAT; Model A should abstain/widen for it",
+  "value_signal_present": "ATTACH decisions show mean opp_board_hp delta -81.4 + ready_main +0.46 by turn-end (attaching enables damage/readiness) -- the consequence signal is real and family-discriminative",
+  "artifacts": {
+    "trace_inventory": "trace_inventory.json",
+    "same_turn_sequences": "same_turn_sequences.jsonl (7182; future seq + dev-before-attack + terminal/consume/active flags)",
+    "turn_end_deltas": "turn_end_deltas.jsonl (7182; decision/turn-end/next-own public-state deltas via status-delimited turns)",
+    "action_semantics": "action_semantics.jsonl (per-option family/role/terminal/consumes/blocked_by_c3)",
+    "model_a_join": "model_a_transplant_join.jsonl (runtime state vs eval_only targets, strictly separated)",
+    "data_quality": "data_quality_report.json",
+    "review": "review_examples.{html,jsonl} (60 examples, 5 categories)"
+  },
+  "how_model_a_uses_it": "runtime.{tactical_state, legal_semantic_keys, action_semantics} for family-specific similarity; eval_only.{same_turn flags, turn_end_delta, next_own_delta, outcome_won} as short-horizon consequence TARGETS. Runtime carries NO pilot/outcome/future.",
+  "constraints_honored": "data/support only; no gameplay, no A/B, no heuristics/submission/merge, Model A files untouched."
+}

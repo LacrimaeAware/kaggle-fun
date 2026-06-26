@@ -1,0 +1,78 @@
+{
+  "decisions": 7182,
+  "coverage": {
+    "same_turn_seq": 7182,
+    "turn_end_delta_resolved": 7182,
+    "action_semantics": 7182,
+    "same_turn_pct": 100.0,
+    "turn_end_pct": 100.0
+  },
+  "family_support_counts": {
+    "SELECT_CARD": 2614,
+    "PLAY": 1949,
+    "ATTACK": 978,
+    "ATTACH": 796,
+    "EVOLVE": 287,
+    "OTHER": 239,
+    "YES_NO": 224,
+    "RETREAT": 95
+  },
+  "missingness_by_family": {
+    "SELECT_CARD": {
+      "n": 2614,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "PLAY": {
+      "n": 1949,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "ATTACK": {
+      "n": 978,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "ATTACH": {
+      "n": 796,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "EVOLVE": {
+      "n": 287,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "OTHER": {
+      "n": 239,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "YES_NO": {
+      "n": 224,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    },
+    "RETREAT": {
+      "n": 95,
+      "no_seq": 0,
+      "no_turn_end": 0,
+      "turn_end_resolved_pct": 100.0
+    }
+  },
+  "duplicate_decision_ids": 0,
+  "duplicate_examples": {},
+  "split_leakage_episodes": 0,
+  "split_leakage_examples": [],
+  "cross_cohort_episodes": 0,
+  "cross_cohort_examples": [],
+  "runtime_metadata_leaks": 0,
+  "runtime_eval_separation": "PASS"
+}
