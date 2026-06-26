@@ -1,0 +1,16 @@
+{
+  "proposer_export_exists": true,
+  "export_sha256": "bc0cf1eb045a49d5",
+  "live_enabled": false,
+  "system_id": "P2_S2_EXACT_ID_RUNTIME_V1",
+  "status": "disabled",
+  "logits_present": [
+    "C:\\Users\\EcceNihilum\\.codex\\worktrees\\0557\\pokemon-ai-agent\\data\\generated\\starmie_specialist\\proposer_runtime_v1\\validation_logits.jsonl",
+    "C:\\Users\\EcceNihilum\\.codex\\worktrees\\0557\\pokemon-ai-agent\\data\\generated\\starmie_specialist\\proposer_runtime_v1\\test_logits.jsonl"
+  ],
+  "runtime_inference_in_repo": false,
+  "runtime_blocker": "Model A's feature pipeline + card data + model live in the 0557 worktree; running it in kaggle-fun would require importing Model A code or re-implementing the feature pipeline (a different model). Using LOGITS_ONLY.",
+  "semantic_key_format_mismatch": "Model A keys are structured JSON; Model B keys are compact strings -> join by decision_id, compare semantics via Model B key mapper on Model A's raw_option_index.",
+  "join_key": "decision_id (':' normalised to '_') + raw_option_index",
+  "mode": "LOGITS_ONLY"
+}

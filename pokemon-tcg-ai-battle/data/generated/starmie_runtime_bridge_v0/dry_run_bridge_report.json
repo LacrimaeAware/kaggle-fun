@@ -1,0 +1,199 @@
+{
+  "mode": "LOGITS_ONLY",
+  "cohort": "Yushin (val+test logit decisions)",
+  "joined_decisions": 644,
+  "no_obs": 0,
+  "coverage_pct": {
+    "agent_alone": 63.8,
+    "proposer_top1": 78.9,
+    "proposer_top3": 96.0,
+    "proposer_top5": 99.5,
+    "agent_union_proposer_top3": 96.7
+  },
+  "proposer_adds_pilot_when_agent_missed": 212,
+  "proposer_omits_pilot_when_agent_had_it": 5,
+  "safety_hard_veto_on_proposer_top1": 7,
+  "ood_unsupported": 0,
+  "by_family": {
+    "ATTACH": {
+      "n": 94,
+      "agent_pct": 42.6,
+      "proposer_top3_pct": 94.7,
+      "union3_pct": 96.8
+    },
+    "ATTACK": {
+      "n": 102,
+      "agent_pct": 53.9,
+      "proposer_top3_pct": 95.1,
+      "union3_pct": 95.1
+    },
+    "EVOLVE": {
+      "n": 32,
+      "agent_pct": 87.5,
+      "proposer_top3_pct": 100.0,
+      "union3_pct": 100.0
+    },
+    "OTHER": {
+      "n": 26,
+      "agent_pct": 69.2,
+      "proposer_top3_pct": 100.0,
+      "union3_pct": 100.0
+    },
+    "PLAY": {
+      "n": 180,
+      "agent_pct": 40.0,
+      "proposer_top3_pct": 91.7,
+      "union3_pct": 93.3
+    },
+    "RETREAT": {
+      "n": 10,
+      "agent_pct": 70.0,
+      "proposer_top3_pct": 90.0,
+      "union3_pct": 90.0
+    },
+    "SELECT_CARD": {
+      "n": 171,
+      "agent_pct": 99.4,
+      "proposer_top3_pct": 100.0,
+      "union3_pct": 100.0
+    },
+    "YES_NO": {
+      "n": 29,
+      "agent_pct": 72.4,
+      "proposer_top3_pct": 100.0,
+      "union3_pct": 100.0
+    }
+  },
+  "examples_proposer_adds": [
+    {
+      "decision_id": "81814921_10_1",
+      "family": "PLAY",
+      "agent_key": "PLAY:Buddy-Buddy Poffin",
+      "pilot_key": "PLAY:Salvatore",
+      "proposer_top3": [
+        "PLAY:Buddy-Buddy Poffin",
+        "PLAY:Salvatore",
+        "PLAY:Lillie's Determination"
+      ]
+    },
+    {
+      "decision_id": "81814921_15_1",
+      "family": "ATTACH",
+      "agent_key": "ATTACH:Water:Cinderace",
+      "pilot_key": "ATTACH:Water:Mega",
+      "proposer_top3": [
+        "ATTACH:Water:Mega",
+        "PLAY:Buddy-Buddy Poffin",
+        "ATTACH:Water:Staryu"
+      ]
+    },
+    {
+      "decision_id": "81814921_4_1",
+      "family": "YES_NO",
+      "agent_key": "YES",
+      "pilot_key": "NO",
+      "proposer_top3": [
+        "YES",
+        "NO"
+      ]
+    },
+    {
+      "decision_id": "81814921_9_1",
+      "family": "PLAY",
+      "agent_key": "PLAY:Buddy-Buddy Poffin",
+      "pilot_key": "PLAY:Staryu",
+      "proposer_top3": [
+        "PLAY:Buddy-Buddy Poffin",
+        "PLAY:Staryu",
+        "PLAY:Salvatore"
+      ]
+    },
+    {
+      "decision_id": "81816926_11_0",
+      "family": "ATTACH",
+      "agent_key": "ATTACH:Water:Cinderace",
+      "pilot_key": "ATTACH:Water:Staryu",
+      "proposer_top3": [
+        "ATTACH:Water:Staryu",
+        "ATTACH:Water:Cinderace",
+        "END"
+      ]
+    },
+    {
+      "decision_id": "81816926_12_0",
+      "family": "OTHER",
+      "agent_key": "PLAY:Ultra Ball",
+      "pilot_key": "END",
+      "proposer_top3": [
+        "END",
+        "RETREAT:Cinderace",
+        "PLAY:Ultra Ball"
+      ]
+    },
+    {
+      "decision_id": "81816926_26_0",
+      "family": "ATTACH",
+      "agent_key": "ATTACH:Water:Cinderace",
+      "pilot_key": "ATTACH:Water:Mega",
+      "proposer_top3": [
+        "ATTACK:Jetting",
+        "PLAY:Pok\u00e9gear 3.0",
+        "ATTACH:Water:Mega"
+      ]
+    },
+    {
+      "decision_id": "81816926_45_0",
+      "family": "ATTACK",
+      "agent_key": "ATTACH:Water:Cinderace",
+      "pilot_key": "ATTACK:Jetting",
+      "proposer_top3": [
+        "ATTACK:Jetting",
+        "ATTACH:Water:Mega",
+        "PLAY:Pok\u00e9gear 3.0"
+      ]
+    },
+    {
+      "decision_id": "81816926_4_0",
+      "family": "YES_NO",
+      "agent_key": "YES",
+      "pilot_key": "NO",
+      "proposer_top3": [
+        "YES",
+        "NO"
+      ]
+    },
+    {
+      "decision_id": "81816926_74_0",
+      "family": "ATTACK",
+      "agent_key": "PLAY:Crushing Hammer",
+      "pilot_key": "ATTACK:Nebula",
+      "proposer_top3": [
+        "ATTACK:Nebula",
+        "ATTACK:Jetting",
+        "PLAY:Pok\u00e9gear 3.0"
+      ]
+    },
+    {
+      "decision_id": "81816926_84_0",
+      "family": "ATTACK",
+      "agent_key": "PLAY:Buddy-Buddy Poffin",
+      "pilot_key": "ATTACK:Nebula",
+      "proposer_top3": [
+        "ATTACK:Nebula",
+        "ATTACH:Water:Mega",
+        "ATTACK:Jetting"
+      ]
+    },
+    {
+      "decision_id": "81816926_89_0",
+      "family": "ATTACK",
+      "agent_key": "ATTACK:Jetting",
+      "pilot_key": "ATTACK:Nebula",
+      "proposer_top3": [
+        "ATTACK:Nebula",
+        "ATTACK:Jetting",
+        "PLAY:Pok\u00e9gear 3.0"
+      ]
+    }
+  ]
+}

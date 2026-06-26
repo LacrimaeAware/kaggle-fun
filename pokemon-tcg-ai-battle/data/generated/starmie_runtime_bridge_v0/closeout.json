@@ -1,0 +1,39 @@
+{
+  "PRIMARY_VERDICT": "B_BRIDGE_DRY_RUN_READY_LIVE_NOT_TESTED",
+  "PROPOSER_MODE_RECOMMENDATION": "off only -- dry-run done via LOGITS_ONLY; live smoke blocked because Model A runtime inference is not runnable in kaggle-fun (its feature pipeline + model live in the 0557 worktree; re-implementing = a different model, prohibited). Await a self-contained runtime module + Model A selector, THEN tiny smoke.",
+  "mode": "LOGITS_ONLY",
+  "joined_decisions": 644,
+  "candidate_coverage": {
+    "agent_alone_pct": 63.8,
+    "proposer_top1_pct": 78.9,
+    "proposer_top3_pct": 96.0,
+    "agent_union_proposer_top3_pct": 96.7,
+    "proposer_top5_pct": 99.5
+  },
+  "bridge_value": {
+    "proposer_adds_pilot_when_agent_missed": 212,
+    "proposer_omits_when_agent_had_it": 5,
+    "biggest_family_lift": "ATTACH 42.6->96.8, PLAY 40.0->93.3, ATTACK 53.9->95.1 (union3)"
+  },
+  "safety": {
+    "hard_veto_on_proposer_top1": 7,
+    "ood_unsupported": 0,
+    "note": "safety layer would catch the 7 risky top-1 proposals"
+  },
+  "compatibility_findings": [
+    "Model A semantic keys are structured JSON (!= Model B compact keys) -> joined by decision_id + raw_option_index, compared via Model B key mapper",
+    "Model A packs semantically-equivalent options -> option_count != raw n_legal; semantic comparison handles it",
+    "runtime inference NOT importable in-repo -> LOGITS_ONLY (faithful, uses Model A outputs)"
+  ],
+  "gameplay_unchanged": true,
+  "proposer_enabled": false,
+  "live_agent_modified": false,
+  "stop_reason": "Section 4 gate (runtime inference deterministic + latency) cannot be satisfied in-repo -> stop at dry-run per the prompt",
+  "next": "Model A: selector/arbitration V1 (choose 1 from the small covered set) + a self-contained runtime module; then Model B tiny live smoke.",
+  "artifacts": [
+    "baseline_manifest.json",
+    "proposer_compatibility.json",
+    "dry_run_bridge_report.json",
+    "closeout.json"
+  ]
+}

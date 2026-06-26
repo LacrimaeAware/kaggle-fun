@@ -1,0 +1,10 @@
+{
+  "git_head": "19499ff2d655f638f7a0b5424f2d409706a9f6eb",
+  "branch": "exp/starmie-tactical-leaf-v1",
+  "starmie_heuristics_sha256": "906e3a219a1752e0",
+  "search_v3_sha256": "a5c19eddf7944189",
+  "eval_sha256": "0e76685754c5f196",
+  "R15_default_on": true,
+  "ATTACH_MEGA_default_off": true,
+  "traced_agent": "deployed baseline = sub_starmie2 (R15 disabled in traces, ATTACH_MEGA off)"
+}
