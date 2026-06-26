@@ -810,12 +810,16 @@ def _attach_mega_pref(obs, pick):
 
 
 # ---------------------------------------------------------------- learned selector (default OFF, fail-closed)
-# STARMIE_SELECTOR_MODE: off (default) | top1_gate | top3_selector. The learned proposer+selector (Model A,
-# vendored read-only under agent/vendor/portable_selector_v1) may override the heuristic baseline ONLY on
-# single-select decisions, ONLY when SUPPORTED (in-distribution), legal, and not hard-vetoed. Any error, OOD,
-# illegal pick, or safety veto falls back to the heuristic baseline. Uses only Model A's frozen S5/C4 selector.
+# STARMIE_SELECTOR_MODE: off (default) | top1_gate | top3_selector | c3_family_limited. The learned
+# proposer+selector (Model A, vendored read-only) may override the heuristic baseline ONLY on single-select
+# decisions, ONLY when SUPPORTED, legal, and not hard-vetoed. Any error, OOD, illegal pick, or safety veto falls
+# back to the heuristic baseline.
+#   - top1_gate / top3_selector use the V1 S5/C4 selector (rank-gated by Model B).
+#   - c3_family_limited uses Model A's conservative V2 runtime (portable_selector_v2): the runtime itself blocks
+#     terminal (ATTACK/END/RETREAT) overrides and only allows ATTACH/SELECT_CARD/EVOLVE/PLAY family overrides.
 SELECTOR_MODE = os.environ.get("STARMIE_SELECTOR_MODE", "off").strip().lower()
 _SELECTOR_RT = "uninitialised"
+_SELECTOR_RT_V2 = "uninitialised"
 
 
 def _selector_runtime():
@@ -829,6 +833,60 @@ def _selector_runtime():
         except Exception:
             _SELECTOR_RT = None
     return _SELECTOR_RT
+
+
+def _selector_runtime_v2():
+    """Load the conservative C3 V2 runtime under a distinct module name (its packer is byte-identical to V1's)."""
+    global _SELECTOR_RT_V2
+    if _SELECTOR_RT_V2 == "uninitialised":
+        try:
+            import importlib.util
+            import learned_selector_bridge  # noqa: F401  ensures the shared packer is importable
+            _vd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vendor", "portable_selector_v2")
+            _spec = importlib.util.spec_from_file_location("starmie_selector_runtime_v2",
+                                                           os.path.join(_vd, "starmie_selector_runtime.py"))
+            _mod = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            _SELECTOR_RT_V2 = _mod.StarmieSelectorRuntime.from_dir(_vd)
+        except Exception:
+            _SELECTOR_RT_V2 = None
+    return _SELECTOR_RT_V2
+
+
+def _selector_override_v2(obs, pick, base, n):
+    """c3_family_limited: the V2 runtime applies family-limiting + terminal-override blocking + safety internally.
+    Fail-closed: only accept a genuine selector override of an allowed family; otherwise keep the baseline."""
+    rt = _selector_runtime_v2()
+    if rt is None:
+        return pick
+    try:
+        import learned_selector_bridge as BR
+        import learned_proposer_adapter as AD
+        import starmie_feature_v2_packer as PK  # identical to the V2 packer
+        payload = BR.cabt_to_payload(obs, baseline_action={"raw_option_index": base, "raw_option_indexes": [base]})
+        packed = PK.pack_cabt_observation(payload, payload["raw_legal_options"])
+        out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                 packed.get("search_action"), mode="c3_family_limited")
+    except Exception:
+        return pick
+    if not isinstance(out, dict) or out.get("status") != "READY":
+        return pick
+    if str(out.get("support_status") or "") not in ("SUPPORTED", "SAFETY_FALLBACK"):
+        return pick
+    sel_raw = out.get("selected_raw_option_index")
+    if not isinstance(sel_raw, int) or not (0 <= sel_raw < n) or sel_raw == base:
+        return pick
+    # only a genuine, non-blocked selector override is trusted
+    if out.get("source") != "selector" or out.get("terminal_override_blocked"):
+        return pick
+    try:
+        if not DP.valid_selection(obs, [sel_raw]):
+            return pick
+        if AD.safety_check(obs, sel_raw).get("hard_veto"):
+            return pick
+    except Exception:
+        return pick
+    return [sel_raw]
 
 
 def _selector_override(obs, pick):
@@ -848,6 +906,10 @@ def _selector_override(obs, pick):
     base = pick[0]
     n = len((sel.get("option") or []))
     if not (0 <= base < n):
+        return pick
+    if mode == "c3_family_limited":
+        return _selector_override_v2(obs, pick, base, n)
+    if mode not in ("top1_gate", "top3_selector"):
         return pick
     rt = _selector_runtime()
     if rt is None:

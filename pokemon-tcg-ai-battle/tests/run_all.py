@@ -24,6 +24,7 @@ MODULES = [
     "test_bridge_trace_v0",         # proposer-bridge trace logger (runtime/eval separation, no behaviour change)
     "test_proposer_adapter_v0",     # learned-proposer adapter + safety spec (disabled, cannot change action)
     "test_selector_wiring_v1",      # STARMIE_SELECTOR_MODE wiring (off = identity, modes legal, fail-closed)
+    "test_selector_v2_wiring_v1",   # conservative C3 (c3_family_limited): never overrides into ATTACK/END/RETREAT
 ]
 
 
