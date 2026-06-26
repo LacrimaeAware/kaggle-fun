@@ -1,0 +1,55 @@
+{
+  "task": "STARMIE SELECTOR LIVE-SMOKE DIAGNOSTIC PACK V1 (Model B)",
+  "diagnostic_verdict": "B_FAILURE_MODE_DIRECTIONAL",
+  "one_line": "top3_selector regresses on the deployed mirror (20% vs 55% off); offline mechanism points to low-confidence rank-2/3 turn-terminating overrides, but the causal link to the live losses is NOT measured.",
+  "data_gaps_forcing_directional": [
+    "no per-game outcome linkage (smoke saved aggregate win/loss only; games not re-run) -> mechanism is confidence-based not outcome-based",
+    "classification on EXPERT replay states; regression manifested on OUR-AGENT mirror states (distribution shift)",
+    "live outcome split is n=20/mirror-cell: top1-vs-top3 Fisher p~=0.18 (NOT significant); aggregate 78-81% flat (off-vs-top3 p=1.0)",
+    "proposer rank is a coarsening of proposer prob (AUC 0.98) -> rank and prob are one confidence axis, not two corroborating findings",
+    "rank-1 gating necessary-at-best not sufficient: top1_gate still -10pp mirror + 128 rank-1 premature terminations (60% of premature)",
+    "non-terminal co-driver not excluded: 93 of 220 top3-exclusive overrides are non-terminal incl. a RETREAT family present ONLY in top3 (33 picks) + 21 attack re-targets"
+  ],
+  "offline_mechanism_counts": {
+    "decisions": 2564,
+    "records": 5128,
+    "override_rate": {
+      "top1_gate": 43.2,
+      "top3_selector": 51.8
+    },
+    "terminal_overrides": {
+      "top1_gate": 261,
+      "top3_selector": 388
+    },
+    "premature_terminal": {
+      "top1_gate": 128,
+      "top3_selector": 213
+    },
+    "develop_to_attack": {
+      "top1_gate": 205,
+      "top3_selector": 287
+    },
+    "develop_to_end": {
+      "top1_gate": 37,
+      "top3_selector": 81
+    },
+    "terminal_proposer_prob_mean": {
+      "rank1": 0.707,
+      "rank2plus": 0.184
+    },
+    "retreat_family_picks": {
+      "top1_gate": 0,
+      "top3_selector": 33
+    }
+  },
+  "live_smoke_mirror": {
+    "off": "11/20 (55%)",
+    "top1_gate": "9/20 (45%)",
+    "top3_selector": "4/20 (20%)"
+  },
+  "field_vs_mirror": "top3 beats off on 3/5 field decks (+10pp) but crashes the mirror (-35pp) -- selection helps weak policies, hurts the strong mirror.",
+  "v2_recommendation_for_model_a": "Gate terminal (ATTACK/END) overrides on STAKES not rank alone: block when safe-dev remains AND no guaranteed-KO AND no game-win (reaches the 128 rank-1 premature terminations a pure rank gate misses). Allow KO/gamewin terminals. Decide separately on the 33 top3-only RETREAT picks + attack re-targets. Do not ship any gate as outcome-validated.",
+  "verification": "4 independent adversarial reviewers + synthesis (Workflow). All returned holds_with_caveats; synthesis independently set B_FAILURE_MODE_DIRECTIONAL. Every quantitative claim re-derived from the JSONL and reproduces exactly.",
+  "integrity": "PASS (artifacts exist, JSONL parses, no pilot/outcome/future leak in runtime fields, selector default off, no gameplay files modified)",
+  "constraints_honored": "no games run; heuristics/selector unchanged; no submission; not merged; Model A files untouched."
+}
