@@ -1,0 +1,23 @@
+{
+  "crushing_hammer": {
+    "n_plays": 123,
+    "by_opp_active_energy": {
+      "0": 27,
+      "1": 70,
+      "2": 15,
+      "3": 6,
+      "4": 5
+    },
+    "pct_opp_0_energy": 22
+  },
+  "wally": {
+    "n_plays": 132,
+    "by_our_active": {
+      "nonMega": 30,
+      "mega<=165": 77,
+      "mega>165": 25
+    },
+    "pct_mega_premature_gt165": 19
+  },
+  "status": "CASE INVENTORY ONLY (section 8); no Hammer/Wally rule changed."
+}

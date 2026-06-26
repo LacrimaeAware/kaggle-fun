@@ -1,0 +1,19 @@
+{
+  "name": "RETREAT_GUARD_V1 (SPECIFICATION ONLY - not implemented this task, per section 6)",
+  "problem": "Audit finding I (upheld): only _retreat_pivot (Cinderace->ready Mega) exists; there is no general anti-retreat veto, so search may retreat Mega Starmie needlessly or retreat without a ready replacement.",
+  "scope": "A veto layer in _veto_search_pick (search-sourced RETREAT picks only); heuristic retreat (_retreat_pivot) is unchanged.",
+  "veto_a_search_retreat_when": [
+    "the active is Mega Starmie ex AND there is NO benched Pokemon ready to attack next turn (no benched Mega Starmie with energy / no benched attacker), OR",
+    "retreating strands us (the replacement cannot attack and is not safer), OR",
+    "the retreat moves us INTO an immediate KO of the promoted Pokemon, OR",
+    "the only reason is that the active cannot attack THIS turn (chip/develop is better than burning the retreat energy)."
+  ],
+  "allow_retreat_when": [
+    "a benched attacker is ready (energy + a usable attack) and is a strictly better attacker, OR",
+    "retreating escapes a lock/special-condition (asleep/paralyzed/effect) that prevents attacking, OR",
+    "survival gain (avoid a lethal next turn) clearly exceeds the [C][C] energy cost."
+  ],
+  "replacement_action_when_vetoed": "the best attack (chip) if available, else END; never a worse retreat.",
+  "validation_required_before_implementing": "a real-observation survey of when choose_action returns RETREAT (count, board states, whether a ready replacement existed) + an A/B vs baseline; do NOT bundle with the develop rule.",
+  "status": "SPEC ONLY - implement in a later isolated task if the develop rule is rejected or after it lands."
+}

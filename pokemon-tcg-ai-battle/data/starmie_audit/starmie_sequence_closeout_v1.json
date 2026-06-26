@@ -1,0 +1,49 @@
+{
+  "lane": "Model B - Starmie sequence-gap validation + single-rule probe v1",
+  "task": "Validate develop-then-attack BEFORE trusting a broad rule (user methodological correction: imitation does not prove same-turn attack; winning-games-only is survivorship-biased).",
+  "baseline": {
+    "commit": "20dd7c6",
+    "agent": "starmie_heuristics (post-audit, 6 fixes)",
+    "note": "develop-before-attack already implemented as free-dev-before-KO reorder"
+  },
+  "eval_sets": {
+    "ALL_GAMES": "300 top-pilot Starmie games wins+losses (removes survivorship bias)",
+    "WINS_ONLY": "207 (sensitivity)"
+  },
+  "sequence_audit": {
+    "develop_when_could_attack_cases_all": 2712,
+    "attacked_later_same_turn_pct": {
+      "all_games": 96.5,
+      "wins_only": 96.8
+    },
+    "same_attack_later_pct": {
+      "all_games": 77.5,
+      "wins_only": 77.3
+    },
+    "ended_no_attack_pct": {
+      "all_games": 0.7,
+      "wins_only": 0.7
+    },
+    "ko_preserved_pct": {
+      "all_games": 95.5,
+      "wins_only": 96.0
+    },
+    "avg_dev_actions_before_attack": 2.56,
+    "survivorship_check": "wins-only ~= all-games (96.8 vs 96.5) -> NOT a winning-game artifact"
+  },
+  "finding_gate_passed": true,
+  "SEQUENCE_VERDICT": "A. DEVELOP_THEN_ATTACK_CONFIRMED",
+  "RULE_VERDICT": "A. SINGLE_RULE_READY_FOR_LARGER_AB -- the develop-before-attack rule is VALIDATED and ALREADY deployed (free-dev-before-KO). Section-5 safety requirements are met by the audit fixes: game-winning attack checked first; Boss/Wally gated on no-active-KO (do not lose/alter the KO); Ignition only to fund a same-turn Nebula; free dev (bench/evolve/attach/cape/hammer) does not end the turn so the attack remains legal.",
+  "one_unmet_section5_item": "per-development-action ISOLATED ENGINE re-validation (re-simulate to confirm the same/better attack is still legal) is NOT implemented; instead we reason mechanically + hard-guard the known KO-altering plays (Boss/Wally/Ignition). Optional hardening for a later task.",
+  "retreat_audit": "spec only -> data/starmie_audit/starmie_retreat_guard_v1_spec.json (RETREAT_GUARD_V1, not implemented per section 6).",
+  "hammer_wally_inventory": "data/starmie_audit/starmie_hammer_wally_inventory_v1.json (section 8 case inventory; no rule changed). Hammer: 57% on opp active with 1 energy. Wally: 58% on Mega <=165 HP.",
+  "learned_c8": "NOT integrated; OUT_OF_SUPPORT for Mega Starmie/Staryu/Cinderace/Ignition. Starmie lane stays pure heuristic/search.",
+  "stop_conditions_respected": [
+    "no full heuristic list dump",
+    "no C8 integration",
+    "no Starmie specialist trained",
+    "no auto-submit (submission was an explicit user request)",
+    "no Model A files touched",
+    "no shared current.json/REFACTOR_CONTROL.md"
+  ]
+}
