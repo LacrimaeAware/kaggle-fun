@@ -1,0 +1,180 @@
+{
+  "decisions_resolved": 220,
+  "scored": 220,
+  "selected_match_pct": 91.4,
+  "top1_of_top3_match_pct": 28.6,
+  "state_feature_match_pct": {
+    "our_hand_size": 100.0,
+    "our_deck_count": 100.0,
+    "our_prize_count": 100.0,
+    "our_bench_count": 100.0,
+    "our_attack_ready_count": 100.0,
+    "opp_hand_size": 100.0,
+    "opp_deck_count": 100.0,
+    "opp_prize_count": 100.0,
+    "opp_attack_ready_count": 91.4,
+    "option_count": 100.0
+  },
+  "tactical_feature_match_pct": {
+    "board.energy_on_main_attackers": 100.0,
+    "board.engine_overinvestment_units": 100.0,
+    "board.exposed_three_prize_liability": 100.0,
+    "board.my_backup_ready": 100.0,
+    "board.my_deck_count": 100.0,
+    "board.my_main_one_short": 100.0,
+    "board.my_ready_main_attackers": 100.0,
+    "board.my_units": 100.0,
+    "board.opp_units": 100.0,
+    "board.prize_diff": 100.0,
+    "commitment.attachment_unused": 100.0,
+    "commitment.end_available": 100.0,
+    "commitment.game_winning_attack_available": 100.0,
+    "commitment.guaranteed_ko_available": 100.0,
+    "commitment.nonterminal_attack_available": 100.0,
+    "commitment.retreat_available": 100.0,
+    "commitment.safe_development_available": 100.0,
+    "value.deckout_pressure": 100.0,
+    "value.energy_dev_diff": 100.0,
+    "value.ready_attacker_diff": 100.0
+  },
+  "board_entity_exact_row_match_pct": 100.0,
+  "board_entity_field_mismatches": {},
+  "option_feature_match_pct": {
+    "type_id": 100.0,
+    "attack_id": 100.0,
+    "ability_id": 100.0,
+    "source_card_id": 95.7,
+    "target_card_id": 99.9,
+    "context_card_id": 100.0
+  },
+  "selection_mismatch_examples": [
+    {
+      "decision_id": "81825476:43:0",
+      "my_raw": 8,
+      "their_raw": 13,
+      "my_packed": 8,
+      "their_packed": 9,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1229,\"source_owner\":\"our\",\"source_slot\":5,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":1487,\"family\":\"END\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81825476:71:0",
+      "my_raw": 2,
+      "their_raw": 1,
+      "my_packed": 2,
+      "their_packed": 0,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"SELECT_CARD\",\"number_value\":null,\"select_context_id\":15,\"source_card_id\":null,\"source_owner\":null,\"source_slot\":null,\"source_zone\":null,\"target_card_id\":879,\"target_owner\":\"opp\",\"target_slot\":2,\"target_zone\":\"bench\",\"type_id\":3,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"SELECT_CARD\",\"number_value\":null,\"select_context_id\":15,\"source_card_id\":null,\"source_owner\":null,\"source_slot\":null,\"source_zone\":null,\"target_card_id\":879,\"target_owner\":\"opp\",\"target_slot\":null,\"target_zone\":\"bench\",\"type_id\":3,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81825476:7:0",
+      "my_raw": 0,
+      "their_raw": 3,
+      "my_packed": 0,
+      "their_packed": 0,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":3,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"hand\",\"target_card_id\":1030,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1122,\"source_owner\":\"our\",\"source_slot\":3,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:24:0",
+      "my_raw": 4,
+      "their_raw": 5,
+      "my_packed": 4,
+      "their_packed": 3,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"EVOLVE\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":7,\"source_zone\":\"hand\",\"target_card_id\":1030,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"bench\",\"type_id\":9,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":7,\"source_zone\":\"hand\",\"target_card_id\":1030,\"target_owner\":\"our\",\"target_slot\":1,\"target_zone\":\"bench\",\"type_id\":9,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:38:0",
+      "my_raw": 4,
+      "their_raw": 6,
+      "my_packed": 4,
+      "their_packed": 5,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":17,\"source_owner\":\"our\",\"source_slot\":6,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":17,\"source_owner\":\"our\",\"source_slot\":6,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":1,\"target_zone\":\"bench\",\"type_id\":8,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:39:0",
+      "my_raw": 2,
+      "their_raw": 4,
+      "my_packed": 2,
+      "their_packed": 1,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1159,\"source_owner\":\"our\",\"source_slot\":4,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1159,\"source_owner\":\"our\",\"source_slot\":4,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":1,\"target_zone\":\"bench\",\"type_id\":8,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:67:0",
+      "my_raw": 2,
+      "their_raw": 13,
+      "my_packed": 2,
+      "their_packed": 2,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1225,\"source_owner\":\"our\",\"source_slot\":3,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":1487,\"family\":\"END\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:82:0",
+      "my_raw": 5,
+      "their_raw": 6,
+      "my_packed": 5,
+      "their_packed": 1,
+      "my_key": "{\"ability_id\":null,\"attack_id\":1488,\"family\":\"ATTACK\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"UNKNOWN\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":12,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81826409:83:0",
+      "my_raw": 4,
+      "their_raw": 5,
+      "my_packed": 4,
+      "their_packed": 3,
+      "my_key": "{\"ability_id\":null,\"attack_id\":1488,\"family\":\"ATTACK\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"UNKNOWN\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":12,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81915137:34:1",
+      "my_raw": 1,
+      "their_raw": 0,
+      "my_packed": 1,
+      "their_packed": 1,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":17,\"source_owner\":\"our\",\"source_slot\":1,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1120,\"source_owner\":\"our\",\"source_slot\":null,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81915137:57:1",
+      "my_raw": 1,
+      "their_raw": 4,
+      "my_packed": 1,
+      "their_packed": 1,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1229,\"source_owner\":\"our\",\"source_slot\":1,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":3,\"source_owner\":\"our\",\"source_slot\":null,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81915137:84:1",
+      "my_raw": 9,
+      "their_raw": 4,
+      "my_packed": 9,
+      "their_packed": 9,
+      "my_key": "{\"ability_id\":null,\"attack_id\":1487,\"family\":\"ATTACK\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"ATTACH\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":17,\"source_owner\":\"our\",\"source_slot\":4,\"source_zone\":\"hand\",\"target_card_id\":1031,\"target_owner\":\"our\",\"target_slot\":0,\"target_zone\":\"active\",\"type_id\":8,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81915137:91:1",
+      "my_raw": 0,
+      "their_raw": 11,
+      "my_packed": 0,
+      "their_packed": 1,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1229,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":1487,\"family\":\"END\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}"
+    },
+    {
+      "decision_id": "81915137:98:1",
+      "my_raw": 7,
+      "their_raw": 15,
+      "my_packed": 7,
+      "their_packed": 4,
+      "my_key": "{\"ability_id\":null,\"attack_id\":null,\"family\":\"PLAY\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1225,\"source_owner\":\"our\",\"source_slot\":6,\"source_zone\":\"hand\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":7,\"yes_no_value\":null}",
+      "their_key": "{\"ability_id\":null,\"attack_id\":1487,\"family\":\"END\",\"number_value\":null,\"select_context_id\":0,\"source_card_id\":1031,\"source_owner\":\"our\",\"source_slot\":0,\"source_zone\":\"active\",\"target_card_id\":null,\"target_owner\":null,\"target_slot\":null,\"target_zone\":null,\"type_id\":13,\"yes_no_value\":null}"
+    }
+  ],
+  "verdict": "ADAPTER_FAITHFUL",
+  "summary": "CABT->Feature-V2 adapter reproduces Model A exact selection 91.4% on 220 parity decisions. Feature parity: tactical 100% (all 20 keys), board_entities 100%, state 100% except opp_attack_ready_count 91.4%, option exact-IDs: type/attack/ability/context 100%, target 99.9%, source 95.7%. Portable runtime self-reproduces Model A 100% on Model A own packed options, so the residual 8.6% is in this adapter: near-indifferent selector decisions, minor key-format grouping (target_slot), and small feature gaps. Faithful for default-OFF gated live use."
+}
