@@ -1,0 +1,48 @@
+{
+  "task": "STARMIE CONSERVATIVE SELECTOR V2 SECOND TINY SMOKE (Model B)",
+  "verdict": "WAITING_FOR_SELECTOR_V2",
+  "gate": "Section 0 required Model A artifact is ABSENT",
+  "required_but_missing": {
+    "export_dir": "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v2/export",
+    "required_files": [
+      "starmie_selector_runtime.py (V2, with mode=\"c3_family_limited\" + terminal-override blocking)",
+      "starmie_feature_v2_packer.py",
+      "selector_v2_config.json",
+      "selector_export_v2.json",
+      "manifest.json",
+      "api_contract.json (documenting rank_and_select(...,mode=\"c3_family_limited\") + blocked-terminal-family return field)",
+      "parity_inputs.jsonl",
+      "parity_expected.jsonl",
+      "README_FOR_MODEL_B.md"
+    ],
+    "required_verdict": "PORTABLE_SELECTOR_V2_READY_FOR_MODEL_B_SMOKE (not found anywhere under starmie_specialist/)"
+  },
+  "what_model_a_HAS_done": {
+    "dir": ".../starmie_specialist/selector_v2/ (offline forensics + conservative-selector design)",
+    "selected_policy": "C3_FAMILY_LIMITED_SELECTOR (mode C3; thresholds margin_min=0.02, probability_min=0.55; live_enabled=false)",
+    "files_present": [
+      "selector_export_v2.json",
+      "conservative_selector_report.json",
+      "failure_mode_report.json",
+      "distribution_shift_report.json",
+      "artifact_audit.json",
+      "closeout.json",
+      "review_examples.{html,jsonl}"
+    ],
+    "note": "This is the OFFLINE C3 design (first Model A prompt). The PORTABLE RUNTIME EXPORT (second Model A prompt) is not yet produced: no runtime.py/packer.py/parity in selector_v2/, no portable_selector_v2/export/."
+  },
+  "why_model_b_stops": "The C3 family-limiting + terminal-override-block + threshold logic is not in any runtime Model B can call. Re-implementing C3 in-repo would be a divergent pipeline (Model A owns the portable export). Reusing V1 top3_selector is forbidden except as negative-control reference. So the smoke cannot run faithfully yet.",
+  "done_now_independent_of_artifact": {
+    "baseline_freeze": "data/generated/starmie_selector_v2_smoke/baseline_manifest.json (git d30da55, branch exp/starmie-tactical-leaf-v1, selector default off, R15 on, ATTACH_MEGA off)"
+  },
+  "on_arrival_plan": [
+    "1. Re-check the export dir + verdict; if present, vendor V2 runtime+packer read-only into agent/vendor/portable_selector_v2/.",
+    "2. Run Model A V2 parity set: packer fields 100%, selected>=99%, top-k>=99%, terminal-override-block 100%, deterministic, no metadata leak, no obs mutation. Stop if it fails.",
+    "3. Wire STARMIE_SELECTOR_MODE=c3_family_limited using Model A V2 runtime API (mode arg + blocked-terminal-family return). Keep off=baseline-identical (re-run test_selector_wiring_v1 off-identity).",
+    "4. Fixed safety tests: ATTACK/END override blocked when baseline develops + safe-dev remains; ATTACH/SELECT/EVOLVE allowed when safe; illegal/stale veto; Wally/Boss/KO hard vetoes; packed_option_indexes duplicate-prompt support.",
+    "5. NEW per-game changed-decision logging (the key fix vs first smoke): build harness to log per game/decision {game_id, matchup, mode, step, baseline action+family, selector action+family, proposer top-k, confidence, veto, blocked_terminal_flag, tactical_state, first_changed_flag, game_result}.",
+    "6. Second smoke: S0 off / S1 top1_gate (reference) / S2 c3_family_limited; opponents deployed,mirror,alakazam,denpa92,first,(random); 20 games/matchup, up to 50 if clean; stop on crash.",
+    "7. diagnostic_report.json + review_examples.html; verdict A/B/C/D/E + promotion status."
+  ],
+  "constraints_honored": "no games run, no merge, no submission, no threshold tuning, heuristics/selector unchanged, selector default off, Model A files untouched (read-only check only)."
+}

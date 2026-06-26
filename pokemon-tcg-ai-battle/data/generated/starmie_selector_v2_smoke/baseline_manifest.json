@@ -1,0 +1,14 @@
+{
+  "git_head": "d30da55edcaf2b908068dac2e26a3dce30bf4b42",
+  "branch": "exp/starmie-tactical-leaf-v1",
+  "starmie_heuristics_sha256": "b5d6b564c29f324d",
+  "search_v3_sha256": "a5c19eddf7944189",
+  "eval_sha256": "0e76685754c5f196",
+  "deck_policy_v3_sha256": "06f16dcd17e52410",
+  "learned_selector_bridge_sha256": "8e42cfd93bc12e7c",
+  "vendored_v1_runtime_sha256": "3c6b058604a50d06",
+  "R15_default_on": true,
+  "ATTACH_MEGA_default_off": true,
+  "selector_mode_default": "off",
+  "note": "baseline freeze for V2 second smoke (on-arrival prep). Gameplay unchanged; selector default off."
+}
