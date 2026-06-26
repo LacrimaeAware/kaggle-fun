@@ -365,11 +365,32 @@ def _no_suicide(obs):
     return None
 
 
+def _develop_bench(obs, opts, player):
+    """Build a board so one KO doesn't end the game. Loss analysis: 54% of decisions in lost games had an EMPTY
+    bench -- we evolved our only Staryu and got swept / decked out. The deck's only basic is Staryu (Cinderace
+    enters via Explosiveness at setup), so when in-play Pokemon <= 2 we Poffin for 2 Staryu, or bench a Staryu
+    from hand. FREE (does not end the turn), so it never costs us an attack."""
+    if (1 if DP._active(player) else 0) + len(DP._bench(player)) > 2:
+        return None
+    poffin = staryu = None
+    for i, o in enumerate(opts):
+        if o.get("type") == PLAY:
+            cid = DP.option_card_id(o, obs)
+            if cid == POFFIN and poffin is None:
+                poffin = i
+            elif cid == STARYU and staryu is None:
+                staryu = i
+    if poffin is not None:
+        return poffin                 # fetch 2 Staryu to the bench (biggest board boost)
+    return staryu
+
+
 def _main_action(obs):
-    """Force only the high-confidence mechanical moves; defer the ambiguous "which setup card / chip vs
-    one-more-play" judgment to search (returning None). High-confidence (in order): win now; take a KO
-    (Jetting-preferred); evolve Staryu->Mega Starmie; gust/heal/tool (free high-value plays); route energy onto
-    the line; pivot Cinderace -> Mega Starmie. These are the imitation-gap wins that search gets wrong."""
+    """Do all FREE development (bench, evolve, gust/heal/tool, energy, disruption -- none end the turn), THEN
+    take the turn-ending KO/attack, THEN defer the ambiguous rest (which trainer / chip vs setup) to search.
+    Doing free development before the KO is safe (the KO is preserved) and fixes the empty-bench losses; the
+    earlier blunt "stop developing once you can attack" gate was the WRONG way and regressed -- this only forces
+    concrete free development, never generic search/draw."""
     sel = DP._selection(obs)
     if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1:
         return None
@@ -384,27 +405,33 @@ def _main_action(obs):
     gw = _game_winning_attack(obs, opts, opp)
     if gw is not None:
         return [gw]
-    ko = _best_ko_index(obs, opts, opp)
-    if ko is not None:
-        return [ko]
-    # evolve Staryu->Mega Starmie, but never a 3rd (>=2 Mega in play is enough; a 3rd over-exposes prizes).
-    if sum(1 for c in _ids_in_play(player) if c == MEGA_STARMIE) < 2:
+
+    # --- FREE development first (none of these end the turn; the KO below is preserved) ---
+    bd = _develop_bench(obs, opts, player)
+    if bd is not None:
+        return [bd]
+    if sum(1 for c in _ids_in_play(player) if c == MEGA_STARMIE) < 2:   # evolve, but never a 3rd Mega
         for i, o in enumerate(opts):
             if o.get("type") == EVOLVE and DP.option_card_id(o, obs) == MEGA_STARMIE:
                 return [i]
-    hv = _high_value_play(obs, opts, player, opp)
+    hv = _high_value_play(obs, opts, player, opp)     # gust-to-KO / Wally's heal / Hero's Cape
     if hv is not None:
         return [hv]
-    ea = _best_attach_index(obs, opts, player)
+    ea = _best_attach_index(obs, opts, player)        # energy onto the line
     if ea is not None:
         return [ea]
-    ch = _crushing_hammer_play(obs, opts, opp)   # free disruption: discard opp energy (coin flip)
+    ch = _crushing_hammer_play(obs, opts, opp)        # free disruption (coin flip)
     if ch is not None:
         return [ch]
+
+    # --- now end the turn: take the KO (Jetting-first), else pivot, else defer chip/trainer to search ---
+    ko = _best_ko_index(obs, opts, opp)
+    if ko is not None:
+        return [ko]
     rp = _retreat_pivot(obs, opts, player)
     if rp is not None:
         return [rp]
-    return None   # defer the rest (which trainer / chip vs setup / end) to search
+    return None
 
 
 def _sel_card(sel, o):

@@ -1,33 +1,33 @@
 {
-  "note": "Top disagreement moments between our HEAVY Starmie agent (all heuristics) and top pilots. Full regenerable file = data/imitation_gap_heavy.json via tools/imitation_gap_v1.py --agent heavy. Each moment: board (current HP+energy), all options labeled, pilot pick vs our pick.",
-  "agreement_rate": 0.5531,
+  "note": "Top disagreement moments: HEAVY Starmie agent (all heuristics + bench-development) vs top pilots. Full file regenerable via tools/imitation_gap_v1.py --agent heavy. Board has current HP+energy; options labeled; pilot pick vs our pick.",
+  "agreement_rate": 0.5794,
   "n_games": 40,
   "total_decisions": 1517,
   "category_agreement": {
     "select_card": {
       "decisions": 561,
-      "agree": 372,
-      "rate": 0.663
+      "agree": 376,
+      "rate": 0.67
     },
     "play": {
       "decisions": 394,
-      "agree": 108,
-      "rate": 0.274
+      "agree": 157,
+      "rate": 0.398
     },
     "attack": {
       "decisions": 194,
-      "agree": 148,
-      "rate": 0.763
+      "agree": 138,
+      "rate": 0.711
     },
     "energy_attach": {
       "decisions": 175,
-      "agree": 104,
-      "rate": 0.594
+      "agree": 98,
+      "rate": 0.56
     },
     "evolve": {
       "decisions": 75,
-      "agree": 52,
-      "rate": 0.693
+      "agree": 57,
+      "rate": 0.76
     },
     "retreat": {
       "decisions": 25,
@@ -46,8 +46,8 @@
     },
     "end_turn": {
       "decisions": 20,
-      "agree": 7,
-      "rate": 0.35
+      "agree": 5,
+      "rate": 0.25
     },
     "number": {
       "decisions": 10,
@@ -638,88 +638,6 @@
     {
       "episode": 81353876,
       "seat": 0,
-      "step": 93,
-      "category": "attack",
-      "significance": 8.1,
-      "our_source": "search",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY",
-        "RETREAT"
-      ],
-      "pilot_pick": [
-        2
-      ],
-      "our_pick": [
-        0
-      ],
-      "pilot_labels": [
-        "ATTACK: Nebula Beam (~210)"
-      ],
-      "our_labels": [
-        "PLAY Mega Signal"
-      ],
-      "options": [
-        "PLAY Mega Signal",
-        "PLAY Mega Signal",
-        "ATTACK: Nebula Beam (~210)",
-        "RETREAT",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 330,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Mega Starmie ex",
-              "hp": 230,
-              "energy": 0
-            }
-          ],
-          "hand": [
-            "Salvatore",
-            "Basic {W} Energy",
-            "Cinderace",
-            "Mega Signal",
-            "Harlequin",
-            "Wally's Compassion",
-            "Salvatore",
-            "Mega Signal",
-            "Basic {W} Energy"
-          ],
-          "handCount": 9,
-          "prizeLeft": 2,
-          "deckCount": 22
-        },
-        "opp": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 330,
-            "energy": 0
-          },
-          "bench": [
-            {
-              "name": "Mega Starmie ex",
-              "hp": 280,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 10,
-          "prizeLeft": 3,
-          "deckCount": 21
-        },
-        "step": 93
-      }
-    },
-    {
-      "episode": 81353876,
-      "seat": 0,
       "step": 103,
       "category": "attack",
       "significance": 8.1,
@@ -733,7 +651,7 @@
         2
       ],
       "our_pick": [
-        0
+        1
       ],
       "pilot_labels": [
         "ATTACK: Jetting Blow (~120)"
@@ -880,6 +798,215 @@
       }
     },
     {
+      "episode": 81353995,
+      "seat": 1,
+      "step": 71,
+      "category": "attack",
+      "significance": 8.1,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        11
+      ],
+      "our_pick": [
+        0
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Cinderace",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Cinderace",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Salvatore",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Cinderace",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Lillie's Determination",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 330,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Cinderace",
+              "hp": 30,
+              "energy": 1
+            },
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 0
+            }
+          ],
+          "hand": [
+            "Wally's Compassion",
+            "Mega Starmie ex",
+            "Basic {W} Energy",
+            "Basic {W} Energy",
+            "Wally's Compassion",
+            "Salvatore",
+            "Basic {W} Energy",
+            "Lillie's Determination"
+          ],
+          "handCount": 8,
+          "prizeLeft": 2,
+          "deckCount": 34
+        },
+        "opp": {
+          "active": {
+            "name": "Solrock",
+            "hp": 110,
+            "energy": 0
+          },
+          "bench": [
+            {
+              "name": "Riolu",
+              "hp": 30,
+              "energy": 0
+            },
+            {
+              "name": "Solrock",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Riolu",
+              "hp": 80,
+              "energy": 0
+            }
+          ],
+          "hand": [],
+          "handCount": 0,
+          "prizeLeft": 6,
+          "deckCount": 33
+        },
+        "step": null
+      }
+    },
+    {
+      "episode": 81397378,
+      "seat": 1,
+      "step": 123,
+      "category": "attack",
+      "significance": 8.1,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACK",
+        "END",
+        "PLAY",
+        "RETREAT"
+      ],
+      "pilot_pick": [
+        8
+      ],
+      "our_pick": [
+        6
+      ],
+      "pilot_labels": [
+        "ATTACK: Nebula Beam (~210)"
+      ],
+      "our_labels": [
+        "PLAY Buddy-Buddy Poffin"
+      ],
+      "options": [
+        "PLAY Ultra Ball",
+        "PLAY Salvatore",
+        "PLAY Lillie's Determination",
+        "PLAY Salvatore",
+        "PLAY Harlequin",
+        "PLAY Wally's Compassion",
+        "PLAY Buddy-Buddy Poffin",
+        "ATTACK: Jetting Blow (~120)",
+        "ATTACK: Nebula Beam (~210)",
+        "RETREAT",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 260,
+            "energy": 2
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 0
+            }
+          ],
+          "hand": [
+            "Ultra Ball",
+            "Cinderace",
+            "Salvatore",
+            "Lillie's Determination",
+            "Salvatore",
+            "Harlequin",
+            "Basic {W} Energy",
+            "Basic {W} Energy",
+            "Wally's Compassion",
+            "Buddy-Buddy Poffin",
+            "Basic {W} Energy"
+          ],
+          "handCount": 11,
+          "prizeLeft": 2,
+          "deckCount": 27
+        },
+        "opp": {
+          "active": {
+            "name": "Hop\u2019s Snorlax",
+            "hp": 150,
+            "energy": 0
+          },
+          "bench": [
+            {
+              "name": "Hop\u2019s Snorlax",
+              "hp": 150,
+              "energy": 0
+            },
+            {
+              "name": "Dunsparce",
+              "hp": 60,
+              "energy": 0
+            },
+            {
+              "name": "Dunsparce",
+              "hp": 60,
+              "energy": 0
+            },
+            {
+              "name": "Hop's Phantump",
+              "hp": 70,
+              "energy": 1
+            }
+          ],
+          "hand": [],
+          "handCount": 6,
+          "prizeLeft": 5,
+          "deckCount": 10
+        },
+        "step": null
+      }
+    },
+    {
       "episode": 81516517,
       "seat": 0,
       "step": 108,
@@ -978,6 +1105,106 @@
       }
     },
     {
+      "episode": 81775321,
+      "seat": 0,
+      "step": 91,
+      "category": "attack",
+      "significance": 8.1,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        7
+      ],
+      "our_pick": [
+        6
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "PLAY Buddy-Buddy Poffin"
+      ],
+      "options": [
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "PLAY Boss\u2019s Orders",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Crushing Hammer",
+        "PLAY Buddy-Buddy Poffin",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 30,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 0
+            }
+          ],
+          "hand": [
+            "Cinderace",
+            "Mega Starmie ex",
+            "Ignition Energy",
+            "Cinderace",
+            "Boss\u2019s Orders",
+            "Basic {W} Energy",
+            "Crushing Hammer",
+            "Buddy-Buddy Poffin"
+          ],
+          "handCount": 8,
+          "prizeLeft": 2,
+          "deckCount": 37
+        },
+        "opp": {
+          "active": {
+            "name": "Solrock",
+            "hp": 110,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Lunatone",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Riolu",
+              "hp": 80,
+              "energy": 0
+            },
+            {
+              "name": "Makuhita",
+              "hp": 80,
+              "energy": 0
+            },
+            {
+              "name": "Riolu",
+              "hp": 180,
+              "energy": 0
+            }
+          ],
+          "hand": [],
+          "handCount": 5,
+          "prizeLeft": 5,
+          "deckCount": 10
+        },
+        "step": 91
+      }
+    },
+    {
       "episode": 81281273,
       "seat": 1,
       "step": 145,
@@ -993,13 +1220,13 @@
         3
       ],
       "our_pick": [
-        2
+        0
       ],
       "pilot_labels": [
         "ATTACK: Jetting Blow (~120)"
       ],
       "our_labels": [
-        "PLAY Staryu"
+        "PLAY Ultra Ball"
       ],
       "options": [
         "PLAY Ultra Ball",
@@ -1154,6 +1381,89 @@
           "handCount": 3,
           "prizeLeft": 6,
           "deckCount": 37
+        },
+        "step": null
+      }
+    },
+    {
+      "episode": 80850578,
+      "seat": 1,
+      "step": 59,
+      "category": "attack",
+      "significance": 7.7,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        6
+      ],
+      "our_pick": [
+        1
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "PLAY Buddy-Buddy Poffin",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Staryu",
+        "ATTACH Basic {W} Energy -> Snorunt",
+        "PLAY Hilda",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 330,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 120,
+              "energy": 2
+            },
+            {
+              "name": "Staryu",
+              "hp": 70,
+              "energy": 0
+            },
+            {
+              "name": "Snorunt",
+              "hp": 70,
+              "energy": 0
+            }
+          ],
+          "hand": [
+            "Buddy-Buddy Poffin",
+            "Basic {W} Energy",
+            "Hilda"
+          ],
+          "handCount": 3,
+          "prizeLeft": 3,
+          "deckCount": 37
+        },
+        "opp": {
+          "active": {
+            "name": "Latias ex",
+            "hp": 90,
+            "energy": 3
+          },
+          "bench": [],
+          "hand": [],
+          "handCount": 3,
+          "prizeLeft": 6,
+          "deckCount": 36
         },
         "step": null
       }
@@ -1323,96 +1633,22 @@
       }
     },
     {
-      "episode": 81730319,
-      "seat": 0,
-      "step": 64,
+      "episode": 81397378,
+      "seat": 1,
+      "step": 94,
       "category": "attack",
       "significance": 7.7,
-      "our_source": "search",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "RETREAT"
-      ],
-      "pilot_pick": [
-        0
-      ],
-      "our_pick": [
-        1
-      ],
-      "pilot_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "our_labels": [
-        "RETREAT"
-      ],
-      "options": [
-        "ATTACK: Jetting Blow (~120)",
-        "RETREAT",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 330,
-            "energy": 2
-          },
-          "bench": [
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 0
-            }
-          ],
-          "hand": [
-            "Wally's Compassion",
-            "Lillie's Determination",
-            "Basic {W} Energy",
-            "Ignition Energy",
-            "Basic {W} Energy"
-          ],
-          "handCount": 5,
-          "prizeLeft": 3,
-          "deckCount": 28
-        },
-        "opp": {
-          "active": {
-            "name": "Mega Abomasnow ex",
-            "hp": 300,
-            "energy": 1
-          },
-          "bench": [],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 30
-        },
-        "step": 64
-      }
-    },
-    {
-      "episode": 81282397,
-      "seat": 0,
-      "step": 85,
-      "category": "attack",
-      "significance": 7.7,
-      "our_source": "search",
+      "our_source": "sh_heuristic",
       "menu_types": [
         "ATTACK",
         "END",
         "PLAY"
       ],
       "pilot_pick": [
-        1
+        7
       ],
       "our_pick": [
-        0
+        6
       ],
       "pilot_labels": [
         "ATTACK: Jetting Blow (~120)"
@@ -1421,6 +1657,12 @@
         "PLAY Buddy-Buddy Poffin"
       ],
       "options": [
+        "PLAY Ultra Ball",
+        "PLAY Salvatore",
+        "PLAY Lillie's Determination",
+        "PLAY Salvatore",
+        "PLAY Harlequin",
+        "PLAY Wally's Compassion",
         "PLAY Buddy-Buddy Poffin",
         "ATTACK: Jetting Blow (~120)",
         "END turn"
@@ -1429,51 +1671,57 @@
         "me": {
           "active": {
             "name": "Mega Starmie ex",
-            "hp": 330,
+            "hp": 260,
             "energy": 1
           },
           "bench": [
             {
-              "name": "Cinderace",
-              "hp": 160,
-              "energy": 1
-            },
-            {
-              "name": "Staryu",
-              "hp": 70,
+              "name": "Mega Starmie ex",
+              "hp": 330,
               "energy": 0
             }
           ],
           "hand": [
+            "Ultra Ball",
+            "Cinderace",
             "Salvatore",
+            "Lillie's Determination",
             "Salvatore",
-            "Buddy-Buddy Poffin",
-            "Basic {W} Energy"
+            "Harlequin",
+            "Basic {W} Energy",
+            "Basic {W} Energy",
+            "Wally's Compassion",
+            "Buddy-Buddy Poffin"
           ],
-          "handCount": 4,
+          "handCount": 10,
           "prizeLeft": 3,
-          "deckCount": 35
+          "deckCount": 28
         },
         "opp": {
           "active": {
-            "name": "Hop\u2019s Snorlax",
-            "hp": 150,
-            "energy": 0
+            "name": "Hop's Phantump",
+            "hp": 70,
+            "energy": 1
           },
           "bench": [
             {
-              "name": "Hop's Phantump",
-              "hp": 20,
-              "energy": 0
-            },
-            {
-              "name": "Hop's Phantump",
-              "hp": 70,
+              "name": "Hop\u2019s Snorlax",
+              "hp": 150,
               "energy": 0
             },
             {
               "name": "Dunsparce",
-              "hp": 10,
+              "hp": 60,
+              "energy": 0
+            },
+            {
+              "name": "Dunsparce",
+              "hp": 60,
+              "energy": 0
+            },
+            {
+              "name": "Dunsparce",
+              "hp": 60,
               "energy": 0
             },
             {
@@ -1484,10 +1732,186 @@
           ],
           "hand": [],
           "handCount": 4,
-          "prizeLeft": 3,
-          "deckCount": 25
+          "prizeLeft": 5,
+          "deckCount": 20
         },
-        "step": 85
+        "step": null
+      }
+    },
+    {
+      "episode": 80876989,
+      "seat": 0,
+      "step": 50,
+      "category": "attack",
+      "significance": 7.7,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        7
+      ],
+      "our_pick": [
+        4
+      ],
+      "pilot_labels": [
+        "ATTACK: Nebula Beam (~210)"
+      ],
+      "our_labels": [
+        "PLAY Staryu"
+      ],
+      "options": [
+        "PLAY Salvatore",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Lillie's Determination",
+        "PLAY Energy Search",
+        "PLAY Staryu",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACK: Jetting Blow (~120)",
+        "ATTACK: Nebula Beam (~210)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 310,
+            "energy": 3
+          },
+          "bench": [],
+          "hand": [
+            "Mega Froslass ex",
+            "Night Stretcher",
+            "Mega Froslass ex",
+            "Salvatore",
+            "Switch",
+            "Basic {W} Energy",
+            "Mega Starmie ex",
+            "Lillie's Determination",
+            "Energy Search",
+            "Staryu",
+            "Basic {W} Energy"
+          ],
+          "handCount": 11,
+          "prizeLeft": 3,
+          "deckCount": 37
+        },
+        "opp": {
+          "active": {
+            "name": "Crustle",
+            "hp": 150,
+            "energy": 1
+          },
+          "bench": [],
+          "hand": [],
+          "handCount": 5,
+          "prizeLeft": 6,
+          "deckCount": 30
+        },
+        "step": 50
+      }
+    },
+    {
+      "episode": 80952352,
+      "seat": 1,
+      "step": 77,
+      "category": "attack",
+      "significance": 7.7,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        8
+      ],
+      "our_pick": [
+        3
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "ATTACH Ignition Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "PLAY Wally's Compassion",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Salvatore",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 330,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 1
+            }
+          ],
+          "hand": [
+            "Wally's Compassion",
+            "Basic {W} Energy",
+            "Ignition Energy",
+            "Cinderace",
+            "Basic {W} Energy",
+            "Mega Starmie ex",
+            "Salvatore"
+          ],
+          "handCount": 7,
+          "prizeLeft": 3,
+          "deckCount": 39
+        },
+        "opp": {
+          "active": {
+            "name": "Solrock",
+            "hp": 110,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Lunatone",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Makuhita",
+              "hp": 30,
+              "energy": 0
+            },
+            {
+              "name": "Riolu",
+              "hp": 80,
+              "energy": 0
+            },
+            {
+              "name": "Riolu",
+              "hp": 80,
+              "energy": 0
+            }
+          ],
+          "hand": [],
+          "handCount": 6,
+          "prizeLeft": 5,
+          "deckCount": 18
+        },
+        "step": null
       }
     },
     {
@@ -2147,6 +2571,109 @@
       }
     },
     {
+      "episode": 80952352,
+      "seat": 1,
+      "step": 97,
+      "category": "play",
+      "significance": 7.5,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        0
+      ],
+      "our_pick": [
+        1
+      ],
+      "pilot_labels": [
+        "PLAY Wally's Compassion"
+      ],
+      "our_labels": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "PLAY Wally's Compassion",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Salvatore",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Crushing Hammer",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 200,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 1
+            }
+          ],
+          "hand": [
+            "Wally's Compassion",
+            "Basic {W} Energy",
+            "Ignition Energy",
+            "Cinderace",
+            "Basic {W} Energy",
+            "Mega Starmie ex",
+            "Salvatore",
+            "Basic {W} Energy",
+            "Crushing Hammer",
+            "Ignition Energy"
+          ],
+          "handCount": 10,
+          "prizeLeft": 1,
+          "deckCount": 38
+        },
+        "opp": {
+          "active": {
+            "name": "Mega Lucario ex",
+            "hp": 440,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Lunatone",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Mega Lucario ex",
+              "hp": 340,
+              "energy": 2
+            },
+            {
+              "name": "Solrock",
+              "hp": 110,
+              "energy": 1
+            }
+          ],
+          "hand": [],
+          "handCount": 6,
+          "prizeLeft": 5,
+          "deckCount": 10
+        },
+        "step": null
+      }
+    },
+    {
       "episode": 81280497,
       "seat": 0,
       "step": 136,
@@ -2426,109 +2953,6 @@
       }
     },
     {
-      "episode": 80952352,
-      "seat": 1,
-      "step": 97,
-      "category": "play",
-      "significance": 7.5,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACH",
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        0
-      ],
-      "our_pick": [
-        1
-      ],
-      "pilot_labels": [
-        "PLAY Wally's Compassion"
-      ],
-      "our_labels": [
-        "ATTACH Basic {W} Energy -> Mega Starmie ex"
-      ],
-      "options": [
-        "PLAY Wally's Compassion",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "PLAY Salvatore",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "ATTACH Basic {W} Energy -> Mega Starmie ex",
-        "PLAY Crushing Hammer",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 200,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            }
-          ],
-          "hand": [
-            "Wally's Compassion",
-            "Basic {W} Energy",
-            "Ignition Energy",
-            "Cinderace",
-            "Basic {W} Energy",
-            "Mega Starmie ex",
-            "Salvatore",
-            "Basic {W} Energy",
-            "Crushing Hammer",
-            "Ignition Energy"
-          ],
-          "handCount": 10,
-          "prizeLeft": 1,
-          "deckCount": 38
-        },
-        "opp": {
-          "active": {
-            "name": "Mega Lucario ex",
-            "hp": 440,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Lunatone",
-              "hp": 110,
-              "energy": 0
-            },
-            {
-              "name": "Mega Lucario ex",
-              "hp": 340,
-              "energy": 2
-            },
-            {
-              "name": "Solrock",
-              "hp": 110,
-              "energy": 1
-            }
-          ],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 10
-        },
-        "step": null
-      }
-    },
-    {
       "episode": 81282397,
       "seat": 0,
       "step": 107,
@@ -2621,87 +3045,6 @@
     {
       "episode": 80951290,
       "seat": 0,
-      "step": 67,
-      "category": "attack",
-      "significance": 7.3,
-      "our_source": "search",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY",
-        "RETREAT"
-      ],
-      "pilot_pick": [
-        2
-      ],
-      "our_pick": [
-        0
-      ],
-      "pilot_labels": [
-        "ATTACK: Nebula Beam (~210)"
-      ],
-      "our_labels": [
-        "PLAY Salvatore"
-      ],
-      "options": [
-        "PLAY Salvatore",
-        "ATTACK: Jetting Blow (~120)",
-        "ATTACK: Nebula Beam (~210)",
-        "RETREAT",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 330,
-            "energy": 3
-          },
-          "bench": [
-            {
-              "name": "Cinderace",
-              "hp": 160,
-              "energy": 1
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 2
-            }
-          ],
-          "hand": [
-            "Salvatore",
-            "Cinderace",
-            "Mega Starmie ex"
-          ],
-          "handCount": 3,
-          "prizeLeft": 4,
-          "deckCount": 33
-        },
-        "opp": {
-          "active": {
-            "name": "Mega Lucario ex",
-            "hp": 340,
-            "energy": 0
-          },
-          "bench": [
-            {
-              "name": "Makuhita",
-              "hp": 80,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 1,
-          "prizeLeft": 6,
-          "deckCount": 34
-        },
-        "step": 67
-      }
-    },
-    {
-      "episode": 80951290,
-      "seat": 0,
       "step": 77,
       "category": "attack",
       "significance": 7.3,
@@ -2776,6 +3119,196 @@
           "deckCount": 32
         },
         "step": 77
+      }
+    },
+    {
+      "episode": 81774870,
+      "seat": 1,
+      "step": 93,
+      "category": "attack",
+      "significance": 7.3,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END",
+        "PLAY"
+      ],
+      "pilot_pick": [
+        5
+      ],
+      "our_pick": [
+        1
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "PLAY Salvatore",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "PLAY Lillie's Determination",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 200,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 0
+            },
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 0
+            }
+          ],
+          "hand": [
+            "Cinderace",
+            "Cinderace",
+            "Salvatore",
+            "Basic {W} Energy",
+            "Lillie's Determination"
+          ],
+          "handCount": 5,
+          "prizeLeft": 4,
+          "deckCount": 36
+        },
+        "opp": {
+          "active": {
+            "name": "Ceruledge ex",
+            "hp": 30,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Solrock",
+              "hp": 10,
+              "energy": 0
+            },
+            {
+              "name": "Ceruledge ex",
+              "hp": 270,
+              "energy": 1
+            },
+            {
+              "name": "Charcadet",
+              "hp": 70,
+              "energy": 1
+            },
+            {
+              "name": "Lunatone",
+              "hp": 110,
+              "energy": 0
+            }
+          ],
+          "hand": [],
+          "handCount": 5,
+          "prizeLeft": 6,
+          "deckCount": 6
+        },
+        "step": null
+      }
+    },
+    {
+      "episode": 80952352,
+      "seat": 1,
+      "step": 66,
+      "category": "attack",
+      "significance": 7.3,
+      "our_source": "sh_heuristic",
+      "menu_types": [
+        "ATTACH",
+        "ATTACK",
+        "END"
+      ],
+      "pilot_pick": [
+        6
+      ],
+      "our_pick": [
+        2
+      ],
+      "pilot_labels": [
+        "ATTACK: Jetting Blow (~120)"
+      ],
+      "our_labels": [
+        "ATTACH Ignition Energy -> Mega Starmie ex"
+      ],
+      "options": [
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Ignition Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACH Basic {W} Energy -> Mega Starmie ex",
+        "ATTACK: Jetting Blow (~120)",
+        "END turn"
+      ],
+      "board": {
+        "me": {
+          "active": {
+            "name": "Mega Starmie ex",
+            "hp": 430,
+            "energy": 1
+          },
+          "bench": [
+            {
+              "name": "Mega Starmie ex",
+              "hp": 330,
+              "energy": 1
+            }
+          ],
+          "hand": [
+            "Wally's Compassion",
+            "Basic {W} Energy",
+            "Ignition Energy",
+            "Cinderace",
+            "Basic {W} Energy"
+          ],
+          "handCount": 5,
+          "prizeLeft": 4,
+          "deckCount": 40
+        },
+        "opp": {
+          "active": {
+            "name": "Hariyama",
+            "hp": 50,
+            "energy": 2
+          },
+          "bench": [
+            {
+              "name": "Lunatone",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Solrock",
+              "hp": 110,
+              "energy": 0
+            },
+            {
+              "name": "Makuhita",
+              "hp": 80,
+              "energy": 0
+            }
+          ],
+          "hand": [],
+          "handCount": 7,
+          "prizeLeft": 5,
+          "deckCount": 22
+        },
+        "step": null
       }
     },
     {
@@ -2995,13 +3528,13 @@
         4
       ],
       "our_pick": [
-        10
+        7
       ],
       "pilot_labels": [
         "PLAY Pok\u00e9gear 3.0"
       ],
       "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
       ],
       "options": [
         "PLAY Budew",
@@ -3105,13 +3638,13 @@
         9
       ],
       "our_pick": [
-        10
+        6
       ],
       "pilot_labels": [
         "PLAY Hilda"
       ],
       "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
+        "ATTACH Basic {W} Energy -> Mega Starmie ex"
       ],
       "options": [
         "PLAY Budew",
@@ -3196,529 +3729,6 @@
           "deckCount": 29
         },
         "step": 72
-      }
-    },
-    {
-      "episode": 81278895,
-      "seat": 0,
-      "step": 76,
-      "category": "play",
-      "significance": 7.1,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        1
-      ],
-      "our_pick": [
-        5
-      ],
-      "pilot_labels": [
-        "PLAY Pok\u00e9 Pad"
-      ],
-      "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "options": [
-        "PLAY Budew",
-        "PLAY Pok\u00e9 Pad",
-        "PLAY Ultra Ball",
-        "PLAY Pok\u00e9 Pad",
-        "PLAY Staryu",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 400,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Munkidori",
-              "hp": 110,
-              "energy": 0
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            }
-          ],
-          "hand": [
-            "Budew",
-            "Lillie's Determination",
-            "Pok\u00e9 Pad",
-            "Ultra Ball",
-            "Pok\u00e9 Pad",
-            "Risky Ruins",
-            "Staryu",
-            "Dusknoir",
-            "Mega Starmie ex",
-            "Basic {W} Energy"
-          ],
-          "handCount": 10,
-          "prizeLeft": 2,
-          "deckCount": 31
-        },
-        "opp": {
-          "active": {
-            "name": "Alakazam",
-            "hp": 120,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            },
-            {
-              "name": "Kadabra",
-              "hp": 60,
-              "energy": 1
-            },
-            {
-              "name": "Abra",
-              "hp": 30,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 29
-        },
-        "step": 76
-      }
-    },
-    {
-      "episode": 81278895,
-      "seat": 0,
-      "step": 78,
-      "category": "play",
-      "significance": 7.1,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        4
-      ],
-      "our_pick": [
-        5
-      ],
-      "pilot_labels": [
-        "PLAY Duskull"
-      ],
-      "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "options": [
-        "PLAY Budew",
-        "PLAY Ultra Ball",
-        "PLAY Pok\u00e9 Pad",
-        "PLAY Staryu",
-        "PLAY Duskull",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 400,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Munkidori",
-              "hp": 110,
-              "energy": 0
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            }
-          ],
-          "hand": [
-            "Budew",
-            "Lillie's Determination",
-            "Ultra Ball",
-            "Pok\u00e9 Pad",
-            "Risky Ruins",
-            "Staryu",
-            "Dusknoir",
-            "Mega Starmie ex",
-            "Basic {W} Energy",
-            "Duskull"
-          ],
-          "handCount": 10,
-          "prizeLeft": 2,
-          "deckCount": 30
-        },
-        "opp": {
-          "active": {
-            "name": "Alakazam",
-            "hp": 120,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            },
-            {
-              "name": "Kadabra",
-              "hp": 60,
-              "energy": 1
-            },
-            {
-              "name": "Abra",
-              "hp": 30,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 29
-        },
-        "step": 78
-      }
-    },
-    {
-      "episode": 81278895,
-      "seat": 0,
-      "step": 79,
-      "category": "play",
-      "significance": 7.1,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        1
-      ],
-      "our_pick": [
-        4
-      ],
-      "pilot_labels": [
-        "PLAY Ultra Ball"
-      ],
-      "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "options": [
-        "PLAY Budew",
-        "PLAY Ultra Ball",
-        "PLAY Pok\u00e9 Pad",
-        "PLAY Staryu",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 400,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Munkidori",
-              "hp": 110,
-              "energy": 0
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            },
-            {
-              "name": "Duskull",
-              "hp": 40,
-              "energy": 0
-            }
-          ],
-          "hand": [
-            "Budew",
-            "Lillie's Determination",
-            "Ultra Ball",
-            "Pok\u00e9 Pad",
-            "Risky Ruins",
-            "Staryu",
-            "Dusknoir",
-            "Mega Starmie ex",
-            "Basic {W} Energy"
-          ],
-          "handCount": 9,
-          "prizeLeft": 2,
-          "deckCount": 30
-        },
-        "opp": {
-          "active": {
-            "name": "Alakazam",
-            "hp": 120,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            },
-            {
-              "name": "Kadabra",
-              "hp": 60,
-              "energy": 1
-            },
-            {
-              "name": "Abra",
-              "hp": 30,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 29
-        },
-        "step": 79
-      }
-    },
-    {
-      "episode": 81278895,
-      "seat": 0,
-      "step": 82,
-      "category": "play",
-      "significance": 7.1,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        1
-      ],
-      "our_pick": [
-        2
-      ],
-      "pilot_labels": [
-        "PLAY Staryu"
-      ],
-      "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "options": [
-        "PLAY Budew",
-        "PLAY Staryu",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 400,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Munkidori",
-              "hp": 110,
-              "energy": 0
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            },
-            {
-              "name": "Duskull",
-              "hp": 40,
-              "energy": 0
-            }
-          ],
-          "hand": [
-            "Budew",
-            "Risky Ruins",
-            "Staryu",
-            "Dusknoir",
-            "Mega Starmie ex",
-            "Basic {W} Energy",
-            "Dusclops"
-          ],
-          "handCount": 7,
-          "prizeLeft": 2,
-          "deckCount": 29
-        },
-        "opp": {
-          "active": {
-            "name": "Alakazam",
-            "hp": 120,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            },
-            {
-              "name": "Kadabra",
-              "hp": 60,
-              "energy": 1
-            },
-            {
-              "name": "Abra",
-              "hp": 30,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 6,
-          "prizeLeft": 5,
-          "deckCount": 29
-        },
-        "step": 82
-      }
-    },
-    {
-      "episode": 81076204,
-      "seat": 0,
-      "step": 77,
-      "category": "play",
-      "significance": 7.1,
-      "our_source": "sh_heuristic",
-      "menu_types": [
-        "ATTACH",
-        "ATTACK",
-        "END",
-        "PLAY"
-      ],
-      "pilot_pick": [
-        1
-      ],
-      "our_pick": [
-        6
-      ],
-      "pilot_labels": [
-        "PLAY Pok\u00e9 Pad"
-      ],
-      "our_labels": [
-        "ATTACK: Jetting Blow (~120)"
-      ],
-      "options": [
-        "PLAY Lillie's Determination",
-        "PLAY Pok\u00e9 Pad",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACH Ignition Energy -> Budew",
-        "ATTACH Ignition Energy -> Mega Starmie ex",
-        "ATTACH Ignition Energy -> Duskull",
-        "ATTACK: Jetting Blow (~120)",
-        "END turn"
-      ],
-      "board": {
-        "me": {
-          "active": {
-            "name": "Mega Starmie ex",
-            "hp": 330,
-            "energy": 1
-          },
-          "bench": [
-            {
-              "name": "Budew",
-              "hp": 30,
-              "energy": 0
-            },
-            {
-              "name": "Mega Starmie ex",
-              "hp": 330,
-              "energy": 1
-            },
-            {
-              "name": "Duskull",
-              "hp": 60,
-              "energy": 0
-            }
-          ],
-          "hand": [
-            "Dusknoir",
-            "Lillie's Determination",
-            "Pok\u00e9 Pad",
-            "Ignition Energy"
-          ],
-          "handCount": 4,
-          "prizeLeft": 2,
-          "deckCount": 35
-        },
-        "opp": {
-          "active": {
-            "name": "Alakazam",
-            "hp": 20,
-            "energy": 0
-          },
-          "bench": [
-            {
-              "name": "Alakazam",
-              "hp": 140,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 70,
-              "energy": 0
-            },
-            {
-              "name": "Dunsparce",
-              "hp": 50,
-              "energy": 0
-            },
-            {
-              "name": "Abra",
-              "hp": 30,
-              "energy": 0
-            }
-          ],
-          "hand": [],
-          "handCount": 4,
-          "prizeLeft": 5,
-          "deckCount": 25
-        },
-        "step": 77
       }
     }
   ]

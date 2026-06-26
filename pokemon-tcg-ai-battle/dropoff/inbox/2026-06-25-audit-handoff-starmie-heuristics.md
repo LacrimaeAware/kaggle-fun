@@ -29,9 +29,11 @@ confirm direction, then the ladder is the real test. Top Starmie pilots win 65-8
   `STARMIE_DECK` constant in `agent/starmie_heuristics.py`.
 
 ## Result so far
-Heavy agent agreement 49.4% (deployed) -> 55.3% over 40 top-pilot winning games. Per-category heavy vs deployed:
-evolve 25->69%, energy_attach 30->59%, go_first 55->86%, retreat 0->60%, select_card 63->66% (effect.id tutor);
-attack ~= deployed; `play` 32->27% (we still develop less than pilots in nuanced spots -- the known soft spot).
+Heavy agent agreement 49.4% (deployed) -> 57.9% over 40 top-pilot winning games. Per-category vs deployed:
+evolve 25->76%, energy_attach 30->56%, go_first 55->86%, retreat 0->60%, select_card 63->67% (effect.id tutor),
+play 32->40% (fixed by bench-development + free-dev-before-attack reorder). Loss analysis (starmie_loss_findings)
+found the failure = EMPTY BENCH (54% of losing-game decisions, 0 missed KOs); the fix raised both imitation and
+mirror win-rate (38->55%) and cut empty-bench decisions 54->46%. Local A/B: field 80-85%, mirror ~55%.
 Local A/B (catastrophe check, NOT ladder-predictive -- mirror self-play has repeatedly failed to predict the
 ladder): heavy beats field decks (vs alakazam ~73%, vs denpa92 ~87%) but loses the same-deck mirror to the
 pure-search deployed agent (~37%, noisy). Submission built+verified: `submissions/sub_starmie2` (6/8 vs first).
