@@ -1,0 +1,225 @@
+{
+  "decisions_single_select": 150,
+  "modes": {
+    "top1_gate": {
+      "single_select_decisions": 150,
+      "overrode_heuristic": 58,
+      "override_rate_pct": 38.7,
+      "from_family_distribution": {
+        "ATTACH": 30,
+        "PLAY": 20,
+        "SELECT_CARD": 8
+      },
+      "to_family_distribution": {
+        "ATTACH": 12,
+        "ATTACK": 25,
+        "SELECT_CARD": 8,
+        "PLAY": 11,
+        "END": 1,
+        "EVOLVE": 1
+      }
+    },
+    "top3_selector": {
+      "single_select_decisions": 150,
+      "overrode_heuristic": 72,
+      "override_rate_pct": 48.0,
+      "from_family_distribution": {
+        "ATTACH": 32,
+        "PLAY": 31,
+        "SELECT_CARD": 8,
+        "EVOLVE": 1
+      },
+      "to_family_distribution": {
+        "ATTACH": 15,
+        "ATTACK": 30,
+        "SELECT_CARD": 8,
+        "PLAY": 12,
+        "END": 5,
+        "EVOLVE": 1,
+        "RETREAT": 1
+      }
+    }
+  },
+  "override_examples_top3": [
+    {
+      "decision_id": "81819358:22:0",
+      "from": "ATTACH:Ignition:Mega",
+      "to": "ATTACH:Water:Mega",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81819358:33:0",
+      "from": "ATTACH:Water:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81819358:35:0",
+      "from": "ATTACH:Water:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81819358:39:0",
+      "from": "ATTACH:Ignition:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81819358:40:0",
+      "from": "PLAY:Crushing Hammer",
+      "to": "ATTACK:Nebula",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81820273:27:0",
+      "from": "SELECT_CARD:None",
+      "to": "SELECT_CARD:None",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81820273:4:0",
+      "from": "ATTACH:Water:Staryu",
+      "to": "PLAY:Mega Signal",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81820273:5:0",
+      "from": "ATTACH:Water:Staryu",
+      "to": "PLAY:Mega Signal",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81820273:8:0",
+      "from": "PLAY:Pok\u00e9gear 3.0",
+      "to": "END",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:27:0",
+      "from": "ATTACH:Ignition:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:28:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:30:0",
+      "from": "ATTACH:Ignition:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:31:0",
+      "from": "SELECT_CARD:None",
+      "to": "SELECT_CARD:None",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:43:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "PLAY:Wally's Compassion",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:45:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACH:Water:Mega",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:46:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:48:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:50:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:55:0",
+      "from": "ATTACH:Ignition:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:58:0",
+      "from": "ATTACH:Water:Mega",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:5:0",
+      "from": "ATTACH:Water:Staryu",
+      "to": "PLAY:Mega Signal",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:69:0",
+      "from": "PLAY:Staryu",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:70:0",
+      "from": "PLAY:Staryu",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:71:0",
+      "from": "SELECT_CARD:None",
+      "to": "SELECT_CARD:None",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:81:0",
+      "from": "PLAY:Staryu",
+      "to": "ATTACK:Jetting",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:8:0",
+      "from": "PLAY:Pok\u00e9gear 3.0",
+      "to": "END",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81825476:91:0",
+      "from": "PLAY:Staryu",
+      "to": "ATTACH:Water:Mega",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81826409:110:0",
+      "from": "PLAY:Buddy-Buddy Poffin",
+      "to": "ATTACH:Water:Mega",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81826409:112:0",
+      "from": "SELECT_CARD:None",
+      "to": "SELECT_CARD:None",
+      "safety_hard_veto": false
+    },
+    {
+      "decision_id": "81826409:37:0",
+      "from": "EVOLVE:Mega",
+      "to": "ATTACH:Ignition:Mega",
+      "safety_hard_veto": false
+    }
+  ]
+}
