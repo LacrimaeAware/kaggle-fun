@@ -658,6 +658,22 @@ def _veto_search_pick(obs, mv):
             atk = _best_attack_index(obs, opts, opp)
             if atk is not None:
                 return [atk]
+    # Ladder bug fix: never PASS the turn (END) with a thin board when development is still available -- search
+    # was picking END over a Night Stretcher recovery / search with an empty bench, wasting the turn. If the
+    # board is thin (<=2 in play), prefer a developing option (attach/evolve/play a search/recover/Pokemon).
+    if o.get("type") == END:
+        player = _me_opp(obs)[0]
+        if (1 if DP._active(player) else 0) + len(DP._bench(player)) <= 2:
+            for j, oj in enumerate(opts):
+                t = oj.get("type")
+                if t in (ATTACH, EVOLVE):
+                    return [j]
+                if t == PLAY:
+                    cid = DP.option_card_id(oj, obs)
+                    eff = CEFF.get(str(cid), {}) or {}
+                    if (eff.get("search") or eff.get("search_to_bench") or eff.get("recover_discard")
+                            or (CDB.get(str(cid), {}) or {}).get("hp")):
+                        return [j]
     return None
 
 
