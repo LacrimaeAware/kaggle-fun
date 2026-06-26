@@ -1,0 +1,26 @@
+{
+  "VERDICT": "E_WAITING_FOR_PACKER_PARITY",
+  "PROMOTION_STATUS": "DO_NOT_SUBMIT",
+  "reason": "Section 0 gate not met: Model A official CABT->FeatureV2 packer (starmie_feature_v2_packer.py) + packer-parity artifacts are absent, and no PACKER_PARITY_READY_FOR_MODEL_B_LIVE_SMOKE verdict. Per the prompt, do not implement the live smoke and do not use the previous hand-written converter.",
+  "required_missing": [
+    "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v1/export/starmie_feature_v2_packer.py",
+    "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v1/export/packer_parity_raw_inputs.jsonl",
+    "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v1/export/packer_parity_expected_packed.jsonl",
+    "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v1/packer_parity_report.json"
+  ],
+  "already_verified_model_b": {
+    "runtime_parity": "PASS bit-exact (220/220 selected, 100% top-3, 0.0 logit diff, deterministic, obs not mutated) -- vendored at agent/vendor/portable_selector_v1/",
+    "off_mode_safe": "selector not wired into choose_action; default off; gameplay = baseline",
+    "conversion_gap_diagnosed": "my hand-written CABT->packed matched exact-IDs 100% but SELECT_CARD/context card resolution only ~89% -> the precise reason the official packer is needed (handed to Model A)"
+  },
+  "on_arrival_plan": [
+    "vendor Model A starmie_feature_v2_packer.py (read-only)",
+    "raw-observation parity: official packer -> runtime, require 100% packed-field + selected/top3 match",
+    "off-mode reproduction (action-identical to baseline)",
+    "safety-gated STARMIE_SELECTOR_MODE top1_gate/top3_selector using ONLY Model A frozen thresholds",
+    "fixed tests (off=baseline, missing=baseline, OOD=baseline, SELECT_CARD duplicates, packed_option_indexes, no metadata leak)",
+    "tiny smoke S0/S1/S2 x20 games/matchup (stop on crash/regression)",
+    "changed-decision trace + review + verdict"
+  ],
+  "note": "Use ONLY the official packer; the previous hand-written converter is retired."
+}
