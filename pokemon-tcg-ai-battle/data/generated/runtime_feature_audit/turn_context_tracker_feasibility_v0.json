@@ -1,0 +1,100 @@
+{
+  "summary": "Nearly all turn-context is a DIRECT current.* field or trivially DERIVABLE -- no history tracker needed for the key signals. The gap is EXTRACTION/PACKING, not availability.",
+  "features": [
+    {
+      "feature": "who_went_first",
+      "source": "current.firstPlayer",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "global_turn_count",
+      "source": "current.turn",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "player_turn_count",
+      "source": "derive: current.turn + firstPlayer + yourIndex",
+      "classification": "DERIVABLE"
+    },
+    {
+      "feature": "action_index_in_turn",
+      "source": "current.turnActionCount",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "supporter_used_this_turn",
+      "source": "current.supporterPlayed",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "attachment_used_this_turn",
+      "source": "current.energyAttached",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "retreat_used_this_turn",
+      "source": "current.retreated",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "stadium_in_play",
+      "source": "current.stadium / current.stadiumPlayed",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "attack_available",
+      "source": "scan select.option for type==13",
+      "classification": "DERIVABLE"
+    },
+    {
+      "feature": "end_available",
+      "source": "scan select.option for type==14",
+      "classification": "DERIVABLE"
+    },
+    {
+      "feature": "nonterminal_legal_count",
+      "source": "count non-13/14 options",
+      "classification": "DERIVABLE"
+    },
+    {
+      "feature": "entity_appeared_this_turn",
+      "source": "entity.appearThisTurn (summoning sickness)",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "status_conditions",
+      "source": "player.asleep/paralyzed/confused/burned/poisoned",
+      "classification": "DIRECT_OBS_FIELD"
+    },
+    {
+      "feature": "previous_actions_this_turn",
+      "source": "obs.logs (short recent list only)",
+      "classification": "PARTIAL_NEEDS_LOCAL_MEMORY"
+    },
+    {
+      "feature": "previous_action_families_this_turn",
+      "source": "not in obs; logs too short",
+      "classification": "REQUIRES_LOCAL_MEMORY"
+    },
+    {
+      "feature": "ability_used_flags",
+      "source": "not in obs (has_ability is card text, not a used-flag)",
+      "classification": "UNSUPPORTED_OR_LOCAL_MEMORY"
+    }
+  ],
+  "direct_field_nonnull_pct": {
+    "firstPlayer": 100.0,
+    "turn": 100.0,
+    "turnActionCount": 100.0,
+    "supporterPlayed": 100.0,
+    "energyAttached": 100.0,
+    "retreated": 100.0
+  },
+  "classification_counts": {
+    "DIRECT_OBS_FIELD": 9,
+    "DERIVABLE": 4,
+    "PARTIAL_NEEDS_LOCAL_MEMORY": 1,
+    "REQUIRES_LOCAL_MEMORY": 1,
+    "UNSUPPORTED_OR_LOCAL_MEMORY": 1
+  }
+}

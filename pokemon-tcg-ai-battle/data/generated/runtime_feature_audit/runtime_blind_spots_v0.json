@@ -1,0 +1,68 @@
+{
+  "verdict": "B_RUNTIME_TURN_CONTEXT_GAPS_FOUND",
+  "headline": "The live obs is information-rich and READY for Model A's stack audit -- every public fact audited is observable. The one actionable RUNTIME gap is turn-context: present in EVERY obs (current.turnActionCount/supporterPlayed/energyAttached/retreated/turn/firstPlayer) but extracted by neither the adapter nor the model. This is an EXTRACTION gap (cheap), not an availability gap, and it maps onto the selector's develop-vs-attack failure.",
+  "blind_spots_ranked": [
+    {
+      "rank": 1,
+      "name": "turn_context_features",
+      "severity": "CRITICAL",
+      "detail": "current.turnActionCount/supporterPlayed/energyAttached/retreated/turn/firstPlayer are present in EVERY obs but reach neither the adapter nor the model's 11 state features. Directly drives the develop-vs-attack timing the selector got wrong (it cannot see how much of the turn is spent).",
+      "fix": "extract into adapter state_features + tactical (DIRECT fields, cheap)",
+      "needs_retrain": true,
+      "needs_runtime_adapter": true,
+      "logging_only": false
+    },
+    {
+      "rank": 2,
+      "name": "status_conditions_and_summoning_sickness",
+      "severity": "HIGH",
+      "detail": "player.asleep/paralyzed/confused/burned/poisoned + entity.appearThisTurn are present, not extracted. Affect attack/retreat legality + tempo.",
+      "fix": "extract into board_entities/state_features",
+      "needs_retrain": true,
+      "needs_runtime_adapter": true,
+      "logging_only": false
+    },
+    {
+      "rank": 3,
+      "name": "discard_zone_belief",
+      "severity": "HIGH",
+      "detail": "both players' discards are fully visible; not used for prize/deck-copy belief or known-remaining counts.",
+      "fix": "add discard-derived belief features",
+      "needs_retrain": true,
+      "needs_runtime_adapter": true,
+      "logging_only": false
+    },
+    {
+      "rank": 4,
+      "name": "conditional_damage_and_ignore_prevention_taxonomy",
+      "severity": "MEDIUM",
+      "detail": "Nebula ignore-wk/rs + Alakazam scaling + any prevention are HARDCODED in deck_policy, not clean card_effect features; opaque to the model via card_id/attack_id.",
+      "fix": "extend card_effects.json with ignore/prevent/conditional tags (Model A's stack)",
+      "needs_retrain": true,
+      "needs_runtime_adapter": false,
+      "logging_only": false
+    },
+    {
+      "rank": 5,
+      "name": "tools_stadium",
+      "severity": "LOW",
+      "detail": "entity.tools + current.stadium present, not extracted; low relevance for this deck (no stadium, Hero's Cape tool matters for KO threshold).",
+      "fix": "extract tool_card_id (Cape +100 HP) into board_entities",
+      "needs_retrain": true,
+      "needs_runtime_adapter": true,
+      "logging_only": false
+    },
+    {
+      "rank": 6,
+      "name": "full_same_turn_action_history",
+      "severity": "LOW",
+      "detail": "obs.logs is a short recent list; full prev-action-families this turn needs a local state tracker.",
+      "fix": "optional local action-history tracker",
+      "needs_retrain": true,
+      "needs_runtime_adapter": true,
+      "logging_only": true
+    }
+  ],
+  "good_news": "no history tracker needed for the key turn-context signals; all are direct current.* fields.",
+  "constraints_honored": "audit only; no gameplay, no heuristics/model/submission change, Model A untouched."
+}

@@ -1,0 +1,186 @@
+{
+  "card_stats_fields": [
+    "hp",
+    "wk(weakness)",
+    "rs(resistance)",
+    "ty(type)",
+    "stage",
+    "retreat",
+    "prize",
+    "ex/mega",
+    "atks(cost/dmg/cE)"
+  ],
+  "available_at_runtime": "card_stats.json + card_effects.json + attack_stats.json loaded by deck_policy_v3",
+  "observable_from_obs": {
+    "remaining_hp": "entity.hp",
+    "max_hp": "entity.maxHp",
+    "damage": "derive maxHp-hp (entity.damage often null)",
+    "energy_units": "entity.energies (engine pre-expands Ignition to 3 units)",
+    "energy_cards": "entity.energyCards",
+    "status": "player.asleep/...",
+    "tools": "entity.tools",
+    "evolution_line": "entity.preEvolution"
+  },
+  "mismatches_gaps": {
+    "special_energy_behavior": "Ignition unit-expansion handled by engine in entity.energies (OBSERVABLE); but 'Ignition only on evolution / discarded end of turn' is HARDCODED in deck_policy, not a card_effect feature",
+    "conditional_scaling_damage": "Nebula flat-210-ignore-wk/rs and Alakazam 20x-hand are HARDCODED in deck_policy.attack_profile; NOT in card_effects -> opaque to the model",
+    "ignore_weakness_resistance_effects": "NOT present in card_effects.json",
+    "damage_prevention": "NOT present in card_effects.json (no prevent/Crustle-style tag)",
+    "effect_taxonomy_present": "card_effects HAS search/heal/gust/switch/discard/has_ability tags"
+  },
+  "sample_cards": [
+    {
+      "card_id": 1031,
+      "name": "Mega Starmie ex",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 1030,
+      "name": "Staryu",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 666,
+      "name": "Cinderace",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": [
+        "search",
+        "has_ability"
+      ]
+    },
+    {
+      "card_id": 17,
+      "name": "Ignition Energy",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 3,
+      "name": "Basic {W} Energy",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 1159,
+      "name": "Hero\u2019s Cape",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 1229,
+      "name": "Wally's Compassion",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 1488,
+      "name": null,
+      "card_stats_has": {
+        "hp": false,
+        "wk": false,
+        "rs": false,
+        "ty": false,
+        "stage": false,
+        "retreat": false,
+        "prize": false,
+        "atks": false
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 1487,
+      "name": null,
+      "card_stats_has": {
+        "hp": false,
+        "wk": false,
+        "rs": false,
+        "ty": false,
+        "stage": false,
+        "retreat": false,
+        "prize": false,
+        "atks": false
+      },
+      "card_effects_tags": []
+    },
+    {
+      "card_id": 965,
+      "name": "Swirlix",
+      "card_stats_has": {
+        "hp": true,
+        "wk": true,
+        "rs": true,
+        "ty": true,
+        "stage": true,
+        "retreat": true,
+        "prize": true,
+        "atks": true
+      },
+      "card_effects_tags": []
+    }
+  ]
+}

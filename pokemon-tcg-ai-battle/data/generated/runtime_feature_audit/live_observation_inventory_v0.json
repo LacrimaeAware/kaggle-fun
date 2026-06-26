@@ -1,0 +1,79 @@
+{
+  "sampled_decisions": 501,
+  "field_presence_pct": {
+    "current.energyAttached": 100.0,
+    "current.firstPlayer": 100.0,
+    "current.looking": 100.0,
+    "current.result": 100.0,
+    "current.retreated": 100.0,
+    "current.stadium": 100.0,
+    "current.stadiumPlayed": 100.0,
+    "current.supporterPlayed": 100.0,
+    "current.turn": 100.0,
+    "current.turnActionCount": 100.0,
+    "current.yourIndex": 100.0,
+    "entity.appearThisTurn": 88.8,
+    "entity.energies": 88.8,
+    "entity.energyCards": 88.8,
+    "entity.hp": 88.8,
+    "entity.maxHp": 88.8,
+    "entity.preEvolution": 88.8,
+    "entity.serial": 88.8,
+    "entity.tools": 88.8,
+    "obs.logs": 100.0,
+    "obs.remainingOverageTime": 100.0,
+    "obs.step": 50.1,
+    "player.asleep": 100.0,
+    "player.burned": 100.0,
+    "player.confused": 100.0,
+    "player.deckCount": 100.0,
+    "player.discard": 100.0,
+    "player.handCount": 100.0,
+    "player.paralyzed": 100.0,
+    "player.poisoned": 100.0,
+    "player.prize": 100.0
+  },
+  "adapter_consumes": {
+    "entity": [
+      "energies",
+      "energyCards",
+      "hp",
+      "id",
+      "maxHp"
+    ],
+    "player": [
+      "active",
+      "bench",
+      "deckCount",
+      "handCount",
+      "prize"
+    ],
+    "select": [
+      "context",
+      "contextCard",
+      "option"
+    ],
+    "current": [
+      "players",
+      "yourIndex"
+    ]
+  },
+  "public_strategic_fields_NOT_consumed_by_adapter": [
+    "current.turn",
+    "current.firstPlayer",
+    "current.turnActionCount",
+    "current.supporterPlayed",
+    "current.energyAttached",
+    "current.retreated",
+    "current.stadium",
+    "player.asleep/paralyzed/confused/burned/poisoned (status conditions)",
+    "entity.appearThisTurn (summoning sickness)",
+    "entity.tools",
+    "entity.preEvolution (evolution line)",
+    "player.discard (visible -> prize/deck belief)",
+    "obs.logs (recent events)"
+  ],
+  "forbidden_runtime_field_present": {
+    "current.result": "game outcome; -1 mid-game; must NOT be a feature"
+  }
+}
