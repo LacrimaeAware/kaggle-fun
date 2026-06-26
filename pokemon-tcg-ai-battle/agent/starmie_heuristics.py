@@ -86,7 +86,7 @@ DRAW_SUPPORTERS = {LILLIE, HARLEQUIN}
 # Disable rules via env STARMIE_DISABLE="R8,R5" or by setting starmie_heuristics.DISABLED at runtime. Keys:
 #   R0 go_first  R1 no_suicide  R2 bench_dev  R3 evolve_mega  R4 boss_gust  R5 wally  R6 heros_cape
 #   R7 energy_attach  R8 crushing_hammer  R9 ko_floor  R10 retreat_pivot  R11 tutor_target  R12 bench_target
-#   R13 wally_veto  R14 no_third_mega_guard
+#   R13 wally_veto  R14 no_third_mega_guard  R15 attack_at_end_of_turn (force an attack instead of passing)
 DISABLED = set(x.strip() for x in os.environ.get("STARMIE_DISABLE", "").split(",") if x.strip())
 
 
@@ -734,25 +734,56 @@ def choose(obs):
     return None
 
 
-def choose_action(obs, deck=STARMIE_DECK):
-    """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default."""
-    if obs.get("select") is None:
-        return list(deck)
-    h = choose(obs)
-    if h is not None:
-        return list(h)
+def _force_attack_over_end(obs, pick):
+    """R15 -- the simple end-of-turn rule: if we are about to END/pass the turn and an attack is on the menu,
+    ATTACK instead. This fires ONLY on the turn-ENDING decision, so it never cuts development short (all the
+    play/attach/evolve/dig already happened on this turn's earlier moves). In the Starmie deck there is no
+    hand-size / Powerful-Hand downside to attacking (that was an Alakazam-only concern), and the only reasons not
+    to attack -- we retreated, or we have no energy -- already remove every attack from the menu. So passing the
+    turn with an attack available is never right; the question is only WHEN (end of turn), not WHETHER."""
+    if not _on("R15"):
+        return pick
     try:
-        import search_v3 as S
-        S.USE_DYNAMIC_ATTACKS = True
-        kw = ({"opp_decks": _OPP_DECKS, "opp_weights": _OPP_WEIGHTS}
-              if (USE_META_OPP_PRIOR and _OPP_DECKS) else {})
-        mv = S.best_option(obs, list(deck), leaf_mode="deckout", rollout_mode="develop", **kw)
-        if mv:
-            veto = _veto_search_pick(obs, list(mv)) if _on("R13") else None
-            return list(veto) if (veto and DP.valid_selection(obs, veto)) else list(mv)
+        sel = DP._selection(obs)
+        if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1 or not pick or len(pick) != 1:
+            return pick
+        opts = DP._items(DP._get(sel, "option", []))
+        i = pick[0]
+        if not (0 <= i < len(opts)) or opts[i].get("type") != END:
+            return pick
+        opp = _me_opp(obs)[1]
+        ai = _best_attack_index(obs, opts, opp)
+        if ai is not None and 0 <= ai < len(opts) and opts[ai].get("type") == ATTACK:
+            return [ai]
     except Exception:
         pass
-    return DP.default_selection(obs)
+    return pick
+
+
+def choose_action(obs, deck=STARMIE_DECK):
+    """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default. Finally,
+    R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn."""
+    if obs.get("select") is None:
+        return list(deck)
+    pick = None
+    h = choose(obs)
+    if h is not None:
+        pick = list(h)
+    else:
+        try:
+            import search_v3 as S
+            S.USE_DYNAMIC_ATTACKS = True
+            kw = ({"opp_decks": _OPP_DECKS, "opp_weights": _OPP_WEIGHTS}
+                  if (USE_META_OPP_PRIOR and _OPP_DECKS) else {})
+            mv = S.best_option(obs, list(deck), leaf_mode="deckout", rollout_mode="develop", **kw)
+            if mv:
+                veto = _veto_search_pick(obs, list(mv)) if _on("R13") else None
+                pick = list(veto) if (veto and DP.valid_selection(obs, veto)) else list(mv)
+        except Exception:
+            pick = None
+    if pick is None:
+        pick = DP.default_selection(obs)
+    return _force_attack_over_end(obs, pick)
 
 
 def agent(obs):
