@@ -435,26 +435,58 @@ def _no_suicide(obs):
     return None
 
 
+def _has_ready_mega(player):
+    """True if a Mega Starmie ex with >=1 energy is in play (active or bench) -- i.e. we have a real attacker,
+    not just Cinderace (the engine) doing 50 Turbo Flares."""
+    pool = ([DP._active(player)] if DP._active(player) else []) + DP._bench(player)
+    return any(DP._cid(e) == MEGA_STARMIE and DP._attached_count(e) >= 1 for e in pool)
+
+
 def _develop_bench(obs, opts, player):
-    """Build a board so one KO doesn't end the game. Loss analysis: 54% of decisions in lost games had an EMPTY
-    bench -- we evolved our only Staryu and got swept / decked out. The deck's only basic is Staryu (Cinderace
-    enters via Explosiveness at setup), so when in-play Pokemon <= 2 we Poffin for 2 Staryu, or bench a Staryu
-    from hand. FREE (does not end the turn), so it never costs us an attack."""
+    """Build a Mega Starmie attacker so we don't loop Cinderace's 50-damage Turbo Flare for 0 prizes (the real
+    ladder-loss pattern). When the board is thin (<=2 in play): bench a basic (Poffin->2 Staryu, or a Staryu
+    from hand); and if we have NO ready Mega Starmie attacker, DIG for the line (Mega Signal/Ultra Ball/Night
+    Stretcher/search/draw) instead of passing the turn with Turbo Flare. All FREE-ish (does not skip an attack
+    we could make -- Cinderace's Turbo Flare is the thing we are correctly preferring NOT to loop)."""
     if not _on("R2"):
         return None
     if (1 if DP._active(player) else 0) + len(DP._bench(player)) > 2:
         return None
     poffin = staryu = None
     for i, o in enumerate(opts):
-        if o.get("type") == PLAY:
-            cid = DP.option_card_id(o, obs)
-            if cid == POFFIN and poffin is None:
-                poffin = i
-            elif cid == STARYU and staryu is None:
-                staryu = i
+        if o.get("type") != PLAY:
+            continue
+        cid = DP.option_card_id(o, obs)
+        if cid == POFFIN and poffin is None:
+            poffin = i
+        elif cid == STARYU and staryu is None:
+            staryu = i
     if poffin is not None:
         return poffin                 # fetch 2 Staryu to the bench (biggest board boost)
-    return staryu
+    return staryu                     # bench a Staryu from hand (or None)
+
+
+def _dig_for_line(obs, opts, player):
+    """Last-resort development when the board is thin (<=2 in play) and we have NO ready Mega Starmie attacker:
+    dig for the line (Mega Signal/Ultra Ball/Night Stretcher/search/draw) instead of passing the turn with
+    Cinderace's 50-damage Turbo Flare. Runs AFTER bench/evolve/energy-attach, so we energize a real attacker
+    first and only dig when nothing better builds it. This is the fix for the 0-prize Turbo-Flare-loop losses."""
+    if not _on("R2"):
+        return None
+    if (1 if DP._active(player) else 0) + len(DP._bench(player)) > 2 or _has_ready_mega(player):
+        return None
+    digs = {}
+    for i, o in enumerate(opts):
+        if o.get("type") == PLAY:
+            digs.setdefault(DP.option_card_id(o, obs), i)
+    need = _needs(player)
+    for cid in (MEGA_SIGNAL, ULTRA_BALL, NIGHT_STRETCHER, SALVATORE, HILDA, POKEGEAR, LILLIE, HARLEQUIN):
+        if cid not in digs:
+            continue
+        if cid == MEGA_SIGNAL and (need["have_mega_play"] or need["have_mega_hand"]):
+            continue                  # already have the Mega; don't fetch a redundant one
+        return digs[cid]
+    return None
 
 
 def _main_action(obs):
@@ -495,6 +527,9 @@ def _main_action(obs):
         ea = _best_attach_index(obs, opts, player)
         if ea is not None:
             return [ea]
+    dg = _dig_for_line(obs, opts, player)             # thin board + no Mega attacker -> dig, don't loop Turbo Flare
+    if dg is not None:
+        return [dg]
     ch = _crushing_hammer_play(obs, opts, opp)        # free disruption (coin flip)
     if ch is not None:
         return [ch]
