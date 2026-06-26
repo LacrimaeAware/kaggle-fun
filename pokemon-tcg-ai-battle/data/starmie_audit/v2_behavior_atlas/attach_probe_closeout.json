@@ -1,0 +1,137 @@
+{
+  "probe": "ATTACH_MEGA_NOT_ENGINE_V1",
+  "toggle": "STARMIE_ATTACH_MEGA_NOT_ENGINE_V1=1",
+  "default": "OFF",
+  "fixed_mechanics_tests": "6/6 PASS (tests/test_attach_mega_not_engine_v1.py); full suite green",
+  "imitation_trigger_audit": {
+    "cohort": "Yushin Ito #1 exact-deck zero-shot (2182 decisions)",
+    "trigger_count": "~55 (ATTACH decisions where baseline agent attached Cinderace -> rule redirects to Mega/Staryu; measured by target shift Cinderace 55->0, NOT the label-based count which is confounded by sampled-search stochasticity)",
+    "attach_agreement_pct": {
+      "baseline": 39.1,
+      "attach_on": 48.5,
+      "delta": 9.4
+    },
+    "overall_agreement_pct": {
+      "baseline": 51.7,
+      "attach_on": 52.3
+    },
+    "agent_attach_target_dist": {
+      "baseline": {
+        "Mega": 160,
+        "Cinderace": 55,
+        "Staryu": 22,
+        "null": 62
+      },
+      "attach_on": {
+        "Mega": 189,
+        "Cinderace": 0,
+        "Staryu": 48,
+        "null": 62
+      }
+    },
+    "reads": "rule eliminated Cinderace attaches (55->0), redirected to Mega/Staryu line; matches #1 pilot ~80% Mega / 2% Cinderace",
+    "caveat": "the agent uses sampled determinization search, so a Cinderace-attach and a Mega-attach share the label ATTACH:Basic {W} Energy; the rule effect is measured by RESOLVED target (Cinderace 55->0) and ATTACH agreement (+9.4), not by label diffs."
+  },
+  "ab_n100_isolated_R15off": {
+    "budget_s": 0.3,
+    "mirror": {
+      "baseline": 37,
+      "attach_on": 34,
+      "delta": -3
+    },
+    "alakazam": {
+      "baseline": 80,
+      "attach_on": 86,
+      "delta": 6
+    },
+    "denpa92": {
+      "baseline": 88,
+      "attach_on": 89,
+      "delta": 1
+    },
+    "reads": "field +6/+1, mirror -3 (noise); NO catastrophic regression (unlike attack-floor)"
+  },
+  "ab_n500": "RUNNING (_attach_n500.log)",
+  "regressions": "none catastrophic at n=100; mirror -3 within noise",
+  "example_trigger_states": [
+    {
+      "decision_id": "81956160_22_1",
+      "episode": 81956160,
+      "step": 22,
+      "pilot_target": "Mega",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 0,
+        "my_main_one_short": 1,
+        "my_units": 0
+      }
+    },
+    {
+      "decision_id": "81956160_105_1",
+      "episode": 81956160,
+      "step": 105,
+      "pilot_target": "Mega",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 1,
+        "my_main_one_short": 1,
+        "my_units": 1
+      }
+    },
+    {
+      "decision_id": "81956160_112_1",
+      "episode": 81956160,
+      "step": 112,
+      "pilot_target": "Mega",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 1,
+        "my_main_one_short": 2,
+        "my_units": 2
+      }
+    },
+    {
+      "decision_id": "81936255_24_1",
+      "episode": 81936255,
+      "step": 24,
+      "pilot_target": "Cinderace",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 0,
+        "my_main_one_short": 0,
+        "my_units": 0
+      }
+    },
+    {
+      "decision_id": "81956160_43_1",
+      "episode": 81956160,
+      "step": 43,
+      "pilot_target": "Staryu",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 1,
+        "my_main_one_short": 0,
+        "my_units": 1
+      }
+    },
+    {
+      "decision_id": "81907876_11_0",
+      "episode": 81907876,
+      "step": 11,
+      "pilot_target": "Staryu",
+      "baseline_agent_target": "Cinderace",
+      "rule_redirects_to": "Mega/Staryu line",
+      "feat": {
+        "my_ready_main": 0,
+        "my_main_one_short": 0,
+        "my_units": 0
+      }
+    }
+  ],
+  "verdict_n100": "B_DIRECTIONAL_ONLY (mechanism clearly works: ATTACH agreement +9.4, Cinderace attaches 55->0; A/B non-negative but within noise at n=100). Escalating to n=500 per the gate; if field holds and mirror non-regressed -> A_VERIFIED_PROMOTION_CANDIDATE."
+}

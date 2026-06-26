@@ -1,0 +1,34 @@
+{
+  "n_decisions": 2182,
+  "trigger_count": 46,
+  "overall_agreement": {
+    "baseline": 51.7,
+    "attach_on": 52.3,
+    "n": 2182
+  },
+  "attach_agreement": {
+    "baseline": 39.1,
+    "attach_on": 48.5,
+    "n": 299
+  },
+  "agent_attach_target_dist_baseline": {
+    "Mega": 160,
+    "Cinderace": 55,
+    "Staryu": 22,
+    "null": 62
+  },
+  "agent_attach_target_dist_attach_on": {
+    "null": 299
+  },
+  "trigger_examples": [
+    "81973693_11_0",
+    "81956160_106_1",
+    "81956160_110_1",
+    "81956160_61_1",
+    "81956160_66_1",
+    "81913908_87_0",
+    "81913908_44_0",
+    "81913908_48_0"
+  ],
+  "note": "baseline and candidate tables both built with R15 default-on; only ATTACH_MEGA differs."
+}
