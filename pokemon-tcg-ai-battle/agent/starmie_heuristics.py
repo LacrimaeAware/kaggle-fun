@@ -955,11 +955,8 @@ def _selector_override(obs, pick):
     return [sel_raw]
 
 
-def choose_action(obs, deck=STARMIE_DECK):
-    """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default. Finally,
-    R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn;
-    and ATTACH_MEGA_NOT_ENGINE_V1 (default off): prefer the Mega line over the engine when attaching.
-    STARMIE_SELECTOR_MODE (default off): a learned selector may override the baseline, fail-closed."""
+def _baseline_pick(obs, deck=STARMIE_DECK):
+    """The heuristic+search+default pick BEFORE the learned selector (production baseline, selector excluded)."""
     if obs.get("select") is None:
         return list(deck)
     pick = None
@@ -981,8 +978,68 @@ def choose_action(obs, deck=STARMIE_DECK):
     if pick is None:
         pick = DP.default_selection(obs)
     pick = _attach_mega_pref(obs, pick)
-    pick = _force_attack_over_end(obs, pick)
-    return _selector_override(obs, pick)
+    return _force_attack_over_end(obs, pick)
+
+
+def choose_action(obs, deck=STARMIE_DECK):
+    """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default. Finally,
+    R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn;
+    and ATTACH_MEGA_NOT_ENGINE_V1 (default off): prefer the Mega line over the engine when attaching.
+    STARMIE_SELECTOR_MODE (default off): a learned selector may override the baseline, fail-closed."""
+    if obs.get("select") is None:
+        return list(deck)
+    return _selector_override(obs, _baseline_pick(obs, deck))
+
+
+def selector_trace(obs, base_raw, mode=None):
+    """Diagnostics-only: replay the selector pipeline on a fixed baseline and return a structured record of what
+    it would do (deterministic; identical to what _selector_override decided on the same base). Used by the V2
+    smoke's per-game changed-decision logging. Returns None when no selector is active for this decision."""
+    mode = (mode or os.environ.get("STARMIE_SELECTOR_MODE", "off")).strip().lower()
+    sel = obs.get("select") or {}
+    rec = {"mode": mode, "base_raw": base_raw, "changed": False, "selector_raw": base_raw,
+           "terminal_override_blocked": None, "blocked_override_reason": None, "source": None,
+           "support_status": None, "confidence": None, "entropy": None, "top1_margin": None,
+           "proposer_top_k": None, "hard_veto": None}
+    if mode in ("", "off") or not isinstance(base_raw, int):
+        return None
+    try:
+        if int(sel.get("maxCount", 1) or 1) != 1 or int(sel.get("minCount", 1) or 1) != 1:
+            return None
+        n = len(sel.get("option") or [])
+        if not (0 <= base_raw < n):
+            return None
+        import learned_selector_bridge as BR
+        import learned_proposer_adapter as AD
+        import starmie_feature_v2_packer as PK
+        payload = BR.cabt_to_payload(obs, baseline_action={"raw_option_index": base_raw, "raw_option_indexes": [base_raw]})
+        packed = PK.pack_cabt_observation(payload, payload["raw_legal_options"])
+        if mode == "c3_family_limited":
+            rt = _selector_runtime_v2()
+            out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                     packed.get("search_action"), mode="c3_family_limited") if rt else {}
+        else:
+            rt = _selector_runtime()
+            out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                     packed.get("search_action"), 5) if rt else {}
+        final = _selector_override(obs, [base_raw])
+        rec["selector_raw"] = final[0] if isinstance(final, list) and final else base_raw
+        rec["changed"] = rec["selector_raw"] != base_raw
+        rec["terminal_override_blocked"] = out.get("terminal_override_blocked")
+        rec["blocked_override_reason"] = out.get("blocked_override_reason")
+        rec["source"] = out.get("source")
+        rec["support_status"] = out.get("support_status")
+        rec["confidence"] = out.get("confidence")
+        rec["entropy"] = out.get("entropy")
+        rec["top1_margin"] = out.get("top1_margin")
+        rec["runtime_selected_raw"] = out.get("selected_raw_option_index")
+        try:
+            rec["hard_veto"] = bool(AD.safety_check(obs, rec["selector_raw"]).get("hard_veto"))
+        except Exception:
+            rec["hard_veto"] = None
+        return rec
+    except Exception:
+        return rec
 
 
 def agent(obs):
