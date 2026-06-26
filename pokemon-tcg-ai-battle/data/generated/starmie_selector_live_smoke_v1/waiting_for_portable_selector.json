@@ -1,0 +1,40 @@
+{
+  "VERDICT": "E_WAITING_FOR_PORTABLE_SELECTOR",
+  "PROMOTION_STATUS": "DO_NOT_SUBMIT",
+  "reason": "Section 0 gate not met: Model A portable selector runtime bundle is absent. Per the prompt, the runtime bridge / live smoke is NOT implemented until the bundle exists.",
+  "expected_bundle_dir": "C:/Users/EcceNihilum/.codex/worktrees/0557/pokemon-ai-agent/data/generated/starmie_specialist/portable_selector_v1/export",
+  "required_files_status": {
+    "starmie_selector_runtime.py": "MISSING",
+    "model/checkpoint JSON": "MISSING",
+    "feature vocab JSON": "MISSING",
+    "selector config JSON": "MISSING",
+    "api_contract.json": "MISSING",
+    "parity_inputs.jsonl": "MISSING",
+    "parity_expected.jsonl": "MISSING",
+    "manifest/README_FOR_MODEL_B.md": "MISSING"
+  },
+  "model_b_already_ready": {
+    "note": "When the bundle lands, the bridge can proceed with minimal new work -- the agent-side pieces already exist and are tested.",
+    "adapter": "agent/learned_proposer_adapter.py (DISABLED by default; load_proposer/rank_actions/safety_check; not imported by choose_action)",
+    "semantic_key_mapper": "matches the trace format; joins to Model A via decision_id + raw_option_index (Model A keys are structured JSON -> raw-index join)",
+    "safety_filters": "V0-V8 offline hard-veto spec (0 hard vetoes on agent actions; validated)",
+    "traces": "data/generated/starmie_bridge_trace_v0/ (7182 aligned decisions) + model_a_bridge_input.jsonl",
+    "logits_only_dry_run": "data/generated/starmie_runtime_bridge_v0/ -- agent-union-proposer-top3 coverage 96.7%, proposer adds pilot move in 212 agent-missed states, 7/644 safety vetoes (verdict B BRIDGE_DRY_RUN_READY)"
+  },
+  "on_bundle_arrival_plan": [
+    "baseline freeze",
+    "import portable runtime as DISABLED module (STARMIE_SELECTOR_MODE=off default)",
+    "parity test vs Model A parity_expected (>=99% selected/top3 match, 100% key alignment)",
+    "off-mode reproduction (action-for-action == baseline)",
+    "safety-gated top1_gate/top3_selector modes",
+    "fixed tests",
+    "tiny live smoke S0/S1/S2 x 20 games/matchup (stop on crash/regression)",
+    "changed-decision trace + review pack + verdict"
+  ],
+  "baseline_at_wait": {
+    "git_head": "062dfa7",
+    "branch": "exp/starmie-tactical-leaf-v1",
+    "selector_enabled": false,
+    "gameplay_unchanged": true
+  }
+}
