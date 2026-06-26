@@ -3,6 +3,7 @@
   "config": {
     "out_dir": "data/generated/starmie_specialist/portable_selector_v1",
     "pack_dir": "data/generated/transition_ranker/starmie_behavior_v2/starmie_behavior_packs_v0/P5_NEW_TOP1_EXACT_SINGLE_PILOT",
+    "packer_source_path": "src/pokemon_ai_agent/transition_ranker/starmie_feature_v2_packer_portable.py",
     "parity_max_decisions": 220,
     "parity_min_decisions": 100,
     "runtime_dir": "data/generated/starmie_specialist/proposer_runtime_v1",
@@ -13,7 +14,7 @@
     "selector_export_path": "data/generated/starmie_specialist/selector_v1/selector_export.json",
     "top_k": 5
   },
-  "created_utc": "2026-06-26T13:48:44.587112+00:00",
+  "created_utc": "2026-06-26T14:46:51.860772+00:00",
   "forbidden_inputs": [
     "pilot ID",
     "replay ID",
@@ -38,7 +39,7 @@
       ]
     },
     "observation": {
-      "notes": "Packed public Feature-V2 observation. Live CABT state must be converted by Model B adapter.",
+      "notes": "Packed public Feature-V2 observation emitted by starmie_feature_v2_packer.py.",
       "optional_public_fields": [
         "zone_inventory",
         "runtime_tactical",
@@ -79,6 +80,54 @@
     "support_status": "string",
     "top1_margin": "float"
   },
+  "packer_callable": "pack_cabt_observation(observation, legal_options=None)",
+  "packer_input_shape": {
+    "legal_options": {
+      "equivalence_fields": [
+        "source_option_indexes",
+        "raw_option_indexes",
+        "packed_option_indexes"
+      ],
+      "identity_fields": [
+        "source_card_id",
+        "target_card_id",
+        "context_card_id",
+        "attack_id",
+        "ability_id",
+        "target_owner",
+        "target_zone",
+        "target_slot"
+      ],
+      "required_or_resolvable": [
+        "type_id",
+        "features.type_id"
+      ]
+    },
+    "observation": {
+      "legal_option_sources": [
+        "legal_options argument",
+        "observation.legal_options",
+        "observation.options"
+      ],
+      "notes": "CABT objects must be converted by Model B into this public payload. The packer resolves aliases such as card_id/card/inPlayArea/inPlayIndex and strips forbidden metadata.",
+      "optional_public_fields": [
+        "zone_inventory",
+        "tactical_state_features",
+        "runtime_tactical",
+        "baseline_action",
+        "search_action",
+        "top_k"
+      ],
+      "required_public_fields": [
+        "state_features",
+        "board_entities"
+      ]
+    }
+  },
+  "recommended_call_sequence": [
+    "packed = starmie_feature_v2_packer.pack_cabt_observation(raw_public_observation, raw_legal_options)",
+    "runtime.rank_and_select(packed, packed['packed_options'], baseline_action=packed.get('baseline_action'), search_action=packed.get('search_action'), top_k=packed.get('top_k', 5))"
+  ],
   "safety_filter_contract": {
     "expected_option_field": "hard_safety_flags",
     "known_flags": [

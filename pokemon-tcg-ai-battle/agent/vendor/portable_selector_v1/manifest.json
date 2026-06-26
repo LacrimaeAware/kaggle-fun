@@ -1,20 +1,20 @@
 {
-  "api_contract_sha256": "EE14A8770244F63CF3C06E4773BC6BFC9FFBE99D2E23EBF59204889AF110E29F",
-  "artifact_inventory_sha256": "D4B802E520DC9F83188938811E65611E4DA401A4EF3EDF89283CEC7CF2FF6D8B",
+  "api_contract_sha256": "D170169171022A096A56248D7602D386C18BC4BB94C735C2570A6D0635427775",
+  "artifact_inventory_sha256": "CCAFD29B9ECAAC6447CB0A41DC335527BAA04B8C53D5E1F8A70C36E58F6E9D31",
   "callable": "rank_and_select(observation, legal_options, baseline_action=None, search_action=None, top_k=5)",
-  "created_utc": "2026-06-26T13:48:45.295345+00:00",
+  "created_utc": "2026-06-26T14:46:54.369786+00:00",
   "default_mode": "off",
   "expected_model_b_adapter_version": "starmie_selector_live_smoke_v1",
   "files": {
     "README_FOR_MODEL_B.md": {
-      "bytes": 457,
+      "bytes": 973,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\README_FOR_MODEL_B.md",
-      "sha256": "A4B12994CA7C11BD0D9E07803035D53A9048C93B1122550D4FFD62DDB648E7DC"
+      "sha256": "48F162296C93510A4105190289C7FDCA9586D750D40F2F7A0803F13EFF3D5CF8"
     },
     "api_contract.json": {
-      "bytes": 3704,
+      "bytes": 5414,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\api_contract.json",
-      "sha256": "EE14A8770244F63CF3C06E4773BC6BFC9FFBE99D2E23EBF59204889AF110E29F"
+      "sha256": "D170169171022A096A56248D7602D386C18BC4BB94C735C2570A6D0635427775"
     },
     "feature_manifest.json": {
       "bytes": 2439,
@@ -36,6 +36,26 @@
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\model_checkpoint.json",
       "sha256": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8"
     },
+    "packer_artifact_audit.json": {
+      "bytes": 6130,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\packer_artifact_audit.json",
+      "sha256": "398EB69521E20C0FD0AF0648CD81093CB28453F47877D8876F298BB1F4092F73"
+    },
+    "packer_parity_expected_packed.jsonl": {
+      "bytes": 6616061,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\packer_parity_expected_packed.jsonl",
+      "sha256": "1885F1B2B45B5FB62005288B90B31951AC85B2F23495534DA9C3CD4B0EC1D0D8"
+    },
+    "packer_parity_raw_inputs.jsonl": {
+      "bytes": 6530373,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\packer_parity_raw_inputs.jsonl",
+      "sha256": "8009AA2AA5D77F94181926DB3E9588B3C6EE708F1EB8D350AE2589305739DD2F"
+    },
+    "packer_parity_report.json": {
+      "bytes": 1384,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\packer_parity_report.json",
+      "sha256": "8318CE41B4C20DFF5E056B9A5440F888999504E26320574C06BA6BDA3200E40C"
+    },
     "parity_expected.jsonl": {
       "bytes": 598809,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\parity_expected.jsonl",
@@ -46,10 +66,20 @@
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\parity_inputs.jsonl",
       "sha256": "D3FCBC9932E19FEB0941200AA74A828C759622B8424DC2334DA2D2774188FD5A"
     },
+    "parity_report.json": {
+      "bytes": 720,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\parity_report.json",
+      "sha256": "5E8FA4CE2070766BB3182ADEC3FC2330F7229534D9B01516F831BBDFB6FC23BE"
+    },
     "selector_config.json": {
       "bytes": 49277,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\selector_config.json",
       "sha256": "01DD0A03C69ACF7D379C9E687A0E9845DA76F5C51DA5200777404A5B6A944637"
+    },
+    "starmie_feature_v2_packer.py": {
+      "bytes": 18440,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v1\\export\\starmie_feature_v2_packer.py",
+      "sha256": "BEBC2B212B4EBD847FE07F1DD688AAE3E38F4A8F438CF5308FD8AC6D98E7EF85"
     },
     "starmie_selector_runtime.py": {
       "bytes": 29290,
@@ -65,6 +95,14 @@
     "selected_selector_test_exact_agreement": 0.7368,
     "test_candidate_coverage": 0.9737
   },
+  "packer_artifact_audit_sha256": "398EB69521E20C0FD0AF0648CD81093CB28453F47877D8876F298BB1F4092F73",
+  "packer_callable": "pack_cabt_observation(observation, legal_options=None)",
+  "packer_module_sha256": "BEBC2B212B4EBD847FE07F1DD688AAE3E38F4A8F438CF5308FD8AC6D98E7EF85",
+  "packer_parity_report_sha256": "8318CE41B4C20DFF5E056B9A5440F888999504E26320574C06BA6BDA3200E40C",
+  "recommended_call_sequence": [
+    "packed = starmie_feature_v2_packer.pack_cabt_observation(raw_public_observation, raw_legal_options)",
+    "runtime.rank_and_select(packed, packed['packed_options'], baseline_action=packed.get('baseline_action'), search_action=packed.get('search_action'), top_k=packed.get('top_k', 5))"
+  ],
   "runtime_ready": true,
   "schema_version": "starmie_portable_selector_v1.export_manifest",
   "selected_selector": "S5_LIGHTWEIGHT_SELECTOR",

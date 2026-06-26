@@ -1,0 +1,19 @@
+{
+  "gate": "RAW_OBSERVATION_PARITY",
+  "status": "PASS",
+  "via": "official Model A starmie_feature_v2_packer + starmie_selector_runtime (vendored)",
+  "decisions": 220,
+  "selected_match_pct": 100.0,
+  "deterministic": true,
+  "obs_mutated": 0,
+  "packed_field_parity_pct": {
+    "type_id": 100.0,
+    "attack_id": 100.0,
+    "source_card_id": 100.0,
+    "target_card_id": 100.0,
+    "packed_option_index": 100.0,
+    "semantic_action_key": 100.0,
+    "raw_option_indexes": 100.0
+  },
+  "note": "raw CABT payload -> official packer -> runtime reproduces Model A expected selection + packed fields bit-exactly. The SELECT_CARD/context resolution gap from the hand-written converter is SOLVED by the official packer."
+}
