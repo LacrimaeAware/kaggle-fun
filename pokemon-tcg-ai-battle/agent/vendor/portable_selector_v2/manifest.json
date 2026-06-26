@@ -1,0 +1,178 @@
+{
+  "allowed_override_families": [
+    "ATTACH",
+    "SELECT_CARD",
+    "EVOLVE",
+    "PLAY"
+  ],
+  "api_contract_sha256": "3B467FE286799B415DEA5D2F8DF40D9846845E623C1D20400AC20FFB6ED4F3C8",
+  "artifact_audit_sha256": "1404B52AB3ADCA340170658F1AC5785B75178D7287AD08458EB666E8BE515E35",
+  "blocked_live_override_families": [
+    "ATTACK",
+    "END",
+    "RETREAT"
+  ],
+  "callable": "rank_and_select(observation, legal_options, baseline_action, search_action=None, mode=\"c3_family_limited\")",
+  "created_utc": "2026-06-26T18:12:02.280242+00:00",
+  "default_mode": "off",
+  "files": {
+    "README_FOR_MODEL_B.md": {
+      "bytes": 678,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\README_FOR_MODEL_B.md",
+      "sha256": "6EFF4894B012FA1CE156AFD577DC8E050F1A41CFE6496F592357DFE5C5577A02"
+    },
+    "api_contract.json": {
+      "bytes": 2450,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\api_contract.json",
+      "sha256": "3B467FE286799B415DEA5D2F8DF40D9846845E623C1D20400AC20FFB6ED4F3C8"
+    },
+    "feature_manifest.json": {
+      "bytes": 2439,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\feature_manifest.json",
+      "sha256": "2A3DB26499E6AA094EF34530B70AABD6E3F44421650AA5021DC87D54D8690EF1"
+    },
+    "feature_vocab.json": {
+      "bytes": 354538,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\feature_vocab.json",
+      "sha256": "6D1D9A9A3F886648E9671047A7B1C0F647168182BB8204D806F1744220B34421"
+    },
+    "inference_config.json": {
+      "bytes": 1313,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\inference_config.json",
+      "sha256": "7DB1875002ED7FE5CD7C0DDFF3C4D3E2AD5D57E589D6C745878AD38E11C3DF68"
+    },
+    "manifest.json": {
+      "bytes": 7377,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\manifest.json",
+      "sha256": "B093C26776B844E6EC4770524A968A53344EDF015BF821B15C3EE71913DE2EB9"
+    },
+    "model_checkpoint.json": {
+      "bytes": 934437,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\model_checkpoint.json",
+      "sha256": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8"
+    },
+    "packer_artifact_audit.json": {
+      "bytes": 6643,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\packer_artifact_audit.json",
+      "sha256": "2CD44BF260E616E0A9105093E1F89D252BAD451F4E40C9682E2027A2722763F1"
+    },
+    "packer_parity_expected_packed.jsonl": {
+      "bytes": 6529885,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\packer_parity_expected_packed.jsonl",
+      "sha256": "ADF9A5F29F92EA9BE8EB9165EF9FF446547B8B0D46DDB09E04C6525E0F451836"
+    },
+    "packer_parity_raw_inputs.jsonl": {
+      "bytes": 6448602,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\packer_parity_raw_inputs.jsonl",
+      "sha256": "C687F7A622F82FF199C3F9B6C557A7670B60A818BCE80BEBD420C6D140D6B61F"
+    },
+    "packer_parity_report.json": {
+      "bytes": 1384,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\packer_parity_report.json",
+      "sha256": "0CA36FCEA358DAFFCE8D3BF45519C0EB625FE3388F8D0C0B9CAC6734C126CFE3"
+    },
+    "parity_expected.jsonl": {
+      "bytes": 366339,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\parity_expected.jsonl",
+      "sha256": "177AECD0786394C557D7A2683883C7E1CEDFDC0FC7C12FADA90FAC60FD06B5B5"
+    },
+    "parity_inputs.jsonl": {
+      "bytes": 6316788,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\parity_inputs.jsonl",
+      "sha256": "DEFBE7C74CD47C82B8FA5C3057627A9D0F95A1A1101822296812F86281F5CA30"
+    },
+    "parity_report.json": {
+      "bytes": 1341,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\parity_report.json",
+      "sha256": "5E994BC3B3A9165D31B0A94B4CF7041A80BA791159CD4C5F3F1BE1CE4ECCC951"
+    },
+    "selector_config.json": {
+      "bytes": 15227,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\selector_config.json",
+      "sha256": "FFFDBD78A4A4C5946971A03D974FB9E136CE6C455C603E7660AF0596FCD6E288"
+    },
+    "selector_export_v2.json": {
+      "bytes": 21391,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\selector_export_v2.json",
+      "sha256": "BB7ABBF012FD28F0DBAE14D655F2CACBE165ABA52D2BFE5F47C63F1475A52B2E"
+    },
+    "selector_v2_config.json": {
+      "bytes": 15227,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\selector_v2_config.json",
+      "sha256": "FFFDBD78A4A4C5946971A03D974FB9E136CE6C455C603E7660AF0596FCD6E288"
+    },
+    "starmie_feature_v2_packer.py": {
+      "bytes": 18440,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\starmie_feature_v2_packer.py",
+      "sha256": "BEBC2B212B4EBD847FE07F1DD688AAE3E38F4A8F438CF5308FD8AC6D98E7EF85"
+    },
+    "starmie_selector_runtime.py": {
+      "bytes": 35348,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v2\\export\\starmie_selector_runtime.py",
+      "sha256": "7EBD8934C2DE5720C95E8B4AAADC2A4685614E86D777FD0FA5393AB8BA2EA61A"
+    }
+  },
+  "live_enabled": false,
+  "locked_metrics": {
+    "allowed_override_families": [
+      "ATTACH",
+      "SELECT_CARD",
+      "EVOLVE",
+      "PLAY"
+    ],
+    "blocked_live_override_families": [
+      "ATTACK",
+      "END",
+      "RETREAT"
+    ],
+    "live_enabled": false,
+    "selected_policy": "C3_FAMILY_LIMITED_SELECTOR",
+    "verdict": "CONSERVATIVE_SELECTOR_READY_FOR_SECOND_TINY_SMOKE"
+  },
+  "packer_callable": "pack_cabt_observation(observation, legal_options=None)",
+  "packer_module_sha256": "BEBC2B212B4EBD847FE07F1DD688AAE3E38F4A8F438CF5308FD8AC6D98E7EF85",
+  "packer_parity": {
+    "decision_count": 220,
+    "forbidden_metadata_failure_count": 0,
+    "passed": true
+  },
+  "packer_parity_report_sha256": "0CA36FCEA358DAFFCE8D3BF45519C0EB625FE3388F8D0C0B9CAC6734C126CFE3",
+  "parity": {
+    "decision_count": 220,
+    "forbidden_metadata_failure_count": 0,
+    "passed": true,
+    "selected_action_match_rate": 1.0,
+    "terminal_override_block_behavior_rate": 1.0
+  },
+  "parity_report_sha256": "5E994BC3B3A9165D31B0A94B4CF7041A80BA791159CD4C5F3F1BE1CE4ECCC951",
+  "runtime_module_sha256": "7EBD8934C2DE5720C95E8B4AAADC2A4685614E86D777FD0FA5393AB8BA2EA61A",
+  "schema_version": "starmie_portable_selector_v2.export_manifest",
+  "selected_selector": "C3_FAMILY_LIMITED_SELECTOR",
+  "selector_v2_config_sha256": "FFFDBD78A4A4C5946971A03D974FB9E136CE6C455C603E7660AF0596FCD6E288",
+  "smoke_mode": "c3_family_limited",
+  "stop_conditions": [
+    "Do not enable selector by default.",
+    "Do not submit from this bundle.",
+    "Do not tune thresholds on smoke win rate.",
+    "Do not reuse old top3_selector except as a negative-control reference."
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "allowed_override_families": [
+    "ATTACH",
+    "SELECT_CARD",
+    "EVOLVE",
+    "PLAY"
+  ],
+  "blocked_live_override_families": [
+    "ATTACK",
+    "END",
+    "RETREAT"
+  ],
+  "callable": "rank_and_select(observation, legal_options, baseline_action, search_action=None, mode=\"c3_family_limited\")",
+  "config": {
+    "out_dir": "data/generated/starmie_specialist/portable_selector_v2",
+    "pack_dir": "data/generated/transition_ranker/starmie_behavior_v2/starmie_behavior_packs_v0/P5_NEW_TOP1_EXACT_SINGLE_PILOT",
+    "packer_source_path": "src/pokemon_ai_agent/transition_ranker/starmie_feature_v2_packer_portable.py",
+    "parity_max_decisions": 220,
+    "parity_min_decisions": 100,
+    "runtime_dir": "data/generated/starmie_specialist/proposer_runtime_v1",
+    "runtime_source_path": "src/pokemon_ai_agent/transition_ranker/starmie_selector_runtime_portable_v2.py",
+    "selector_v1_export_path": "data/generated/starmie_specialist/selector_v1/selector_export.json",
+    "selector_v2_closeout_path": "data/generated/starmie_specialist/selector_v2/closeout.json",
+    "selector_v2_dir": "data/generated/starmie_specialist/selector_v2",
+    "selector_v2_export_path": "data/generated/starmie_specialist/selector_v2/selector_export_v2.json",
+    "top_k": 5
+  },
+  "created_utc": "2026-06-26T18:11:59.083265+00:00",
+  "forbidden_inputs": [
+    "pilot/team identity",
+    "replay id",
+    "split id",
+    "outcome",
+    "future actions",
+    "selected labels"
+  ],
+  "live_enabled": false,
+  "packer_callable": "pack_cabt_observation(observation, legal_options=None)",
+  "recommended_call_sequence": [
+    "packed = starmie_feature_v2_packer.pack_cabt_observation(raw_public_observation, raw_legal_options)",
+    "runtime.rank_and_select(packed, packed[\"packed_options\"], baseline_action=packed.get(\"baseline_action\"), search_action=packed.get(\"search_action\"), mode=\"c3_family_limited\")"
+  ],
+  "return_object": [
+    "selected_raw_option_index",
+    "selected_packed_option_index",
+    "selected_semantic_key",
+    "source: baseline|selector|fallback|veto",
+    "terminal_override_blocked",
+    "blocked_override_reason",
+    "proposer_top_k",
+    "selector_candidate_set",
+    "confidence",
+    "entropy",
+    "top1_margin",
+    "safety_diagnostics"
+  ],
+  "schema_version": "starmie_portable_selector_v2.api_contract",
+  "selected_selector": "C3_FAMILY_LIMITED_SELECTOR"
+}

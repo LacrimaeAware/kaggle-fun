@@ -1,0 +1,46 @@
+{
+  "selector_parity": {
+    "decisions": 220,
+    "selected_match_pct": 100.0,
+    "terminal_block_match_pct": 100.0,
+    "top1_of_topk_match_pct": 100.0,
+    "deterministic_pct": 100.0,
+    "obs_mutated": 0,
+    "max_logit_abs_diff": 0.0,
+    "logit_tolerance_documented": 1e-06,
+    "selected_match_by_category": {
+      "allow_ATTACH": "15/15",
+      "allow_EVOLVE": "2/2",
+      "allow_PLAY": "16/16",
+      "allow_SELECT_CARD": "1/1",
+      "block_ATTACK": "46/46",
+      "block_END": "4/4",
+      "block_RETREAT": "4/4",
+      "duplicate_SELECT_CARD": "43/43",
+      "observe_ATTACH": "6/6",
+      "observe_ATTACK": "14/14",
+      "observe_END": "2/2",
+      "observe_EVOLVE": "10/10",
+      "observe_PLAY": "11/11",
+      "observe_RETREAT": "5/5",
+      "observe_SELECT_CARD": "24/24",
+      "observe_TYPE_0": "2/2",
+      "observe_TYPE_6": "1/1",
+      "observe_YES_PROMPT": "14/14"
+    },
+    "block_category_count": 54,
+    "mismatches": []
+  },
+  "packer_parity": {
+    "decisions": 220,
+    "field_match_pct": {
+      "type_id": 100.0,
+      "attack_id": 100.0,
+      "source_card_id": 100.0,
+      "target_card_id": 100.0,
+      "semantic_action_key": 100.0,
+      "raw_option_indexes": 100.0
+    }
+  },
+  "GATE": "PASS"
+}
