@@ -1,0 +1,34 @@
+{
+  "PRIMARY_VERDICT": "BRIDGE_PARITY_VERIFIED_LIVE_SMOKE_BLOCKED_ON_BITEXACT_CONVERSION",
+  "maps_to_prompt_verdict": "(not A/B/C: smoke not run; not D: nothing failed; not E: bundle present) -- closest honest state: runtime parity-verified, live smoke gated on a bit-exact CABT->packed converter",
+  "PROMOTION_STATUS": "DO_NOT_SUBMIT",
+  "parity": {
+    "status": "PASS",
+    "decisions": 220,
+    "selected_match_pct": 100.0,
+    "top3_match_pct": 100.0,
+    "logit_max_abs_diff": 0.0,
+    "obs_mutated": 0,
+    "deterministic": true,
+    "note": "vendored runtime reproduces Model A bit-exactly when fed Model A pre-packed inputs"
+  },
+  "off_mode": {
+    "status": "SAFE",
+    "reason": "selector/runtime is NOT imported by starmie_heuristics.choose_action; default STARMIE_SELECTOR_MODE=off; gameplay byte-for-byte baseline"
+  },
+  "cabt_to_packed_conversion": {
+    "status": "FEASIBLE_NOT_BITEXACT",
+    "exact_id_fields_pct": {
+      "type_id": 100,
+      "attack_id": 100,
+      "ability_id": 100,
+      "source_card_id": 88.7,
+      "target_card_id": 88.7,
+      "context_card_id": 90.4
+    },
+    "gap": "SELECT_CARD/tutor card + context_card_id resolution"
+  },
+  "live_smoke": "NOT RUN -- a ~90% conversion is a divergent feature pipeline, which the task prohibits. Will not feed the model wrong features to manufacture a smoke.",
+  "handoff_to_model_a": "To unblock the live smoke bit-exactly, Model A should EITHER (a) ship a CABT->packed converter (its pack pipeline accepting a raw CABT observation) into the portable bundle, OR (b) document the exact SELECT_CARD/tutor source/target card resolution + context_card_id (effect.id) rules so Model B can match them. Then the validated conversion -> rank_and_select runs the tiny smoke with no divergence.",
+  "model_b_ready": "vendored runtime + parity harness + safety filters + adapter all in place; only the bit-exact CABT conversion remains."
+}

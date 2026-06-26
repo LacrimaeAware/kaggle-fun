@@ -1,0 +1,14 @@
+{
+  "decisions": 60,
+  "options_compared": 291,
+  "per_field_match_pct": {
+    "type_id": 100.0,
+    "attack_id": 100.0,
+    "ability_id": 100.0,
+    "source_card_id": 88.7,
+    "target_card_id": 88.7,
+    "context_card_id": 90.4
+  },
+  "gap": "SELECT_CARD/tutor card resolution + context_card_id (~10% of options). Model A resolves fetched/target cards (e.g. Mega Signal 1145, Mega Starmie 1031) where deck_policy_v3.option_card_id returns None, and differs on effect.id context handling.",
+  "conclusion": "exact-ID conversion is FEASIBLE and ~90% there, but NOT bit-exact -> running the live smoke on it would be a divergent feature pipeline (prohibited)."
+}
