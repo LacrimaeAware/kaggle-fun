@@ -33,20 +33,21 @@
       "mirror_isolated_continuity_vs_baseline": {"record": "65-55", "pct_for_continuity": 54.2},
       "vs_alakazam": {"continuity_pct": 79.2, "baseline_pct": 78.3, "delta": 0.9},
       "vs_denpa92": {"continuity_pct": 89.2, "baseline_pct": 85.8, "delta": 3.4},
-      "read": "positive direction, NO regression (opposite of the refuted attack-floor heuristic); mirror +4.2 within noise at n=120",
-      "escalation_n240": "RUNNING (leaf_ab_n240.txt)"},
+      "read": "n=120 looked positive but was within noise",
+      "escalation_n240": {"mirror_pct_for_continuity": 47.1, "vs_alakazam_delta": -3.7, "vs_denpa92_delta": -0.8,
+        "pooled_mirror_pct": 49.4, "read": "REFUTED: neutral mirror, slightly negative field; n=120 gain was noise"}},
     "S8_handoff": {"artifacts": ["tactical_feature_schema.json", "tactical_coordinate_summary.json",
       "starmie_tactical_state_v1.jsonl", "current_leaf_failure_audit.json", "offline_selection_audit.json"]}
   },
 
   "verdicts": {
-    "ATTACKER_CONTINUITY": "B_ATTACKER_CONTINUITY_DIRECTIONAL",
-    "ATTACKER_CONTINUITY_rationale": "Fixed tests pass and the structural deck-blindness it targets is real and prevalent. The A/B direction is POSITIVE with NO regression (mirror +4.2, field +0.9/+3.4), unlike the refuted attack-floor heuristic. But the n=120 mirror gain is within noise and the offline mechanism signal is weak, so it is not yet VERIFIED. Escalation to n=240 is running; ladder is the only real test -- do not promote on the local mirror alone.",
+    "ATTACKER_CONTINUITY": "C_BASELINE_LEAF_PREFERRED",
+    "ATTACKER_CONTINUITY_rationale": "Fixed tests pass and the structural deck-blindness it targets is real and prevalent, but the candidate does NOT improve the win rate. n=120 looked positive (mirror +4.2) but the n=240 escalation REFUTED it: mirror 47.1% (49.4% pooled = even), alakazam -3.7, denpa92 -0.8. The n=120 gain was noise; the offline mechanism signal was already weak. Keep the term DISABLED (documented dead-end); the deck-blind FINDING is still valid input for Model A's learned approach, but the hand-weighted leaf term is not promotable.",
     "TACTICAL_STATE_EXPORT": "A_TACTICAL_STATE_DATA_READY_FOR_MODEL_A",
     "TACTICAL_STATE_EXPORT_rationale": "22,083 rows, every observation resolved, runtime/eval separation leak-checked, feature taxonomy documented (deck-independent vs Starmie-role vs card-id vs public-runtime vs eval-only)."
   },
 
-  "submission_decision": "main is unchanged (term default-off on this branch); a bundle from main == sub_starmie2 already on the ladder. The leaf term is a promising NON-REGRESSING candidate but is within noise at n=120 -> await the n=240 escalation before enabling it for a submission. Do NOT ship a search-leaf change on a within-noise local-mirror gain.",
+  "submission_decision": "NO SUBMISSION. Nothing materially improved. main is unchanged == sub_starmie2 already on the ladder. BOTH candidate fixes this session were refuted by proper A/B (attack-floor heuristic regressed everything; ATTACKER_CONTINUITY leaf neutral/slightly-negative at n=240). The diagnoses were real but neither fix won. Lesson: n~120 local A/B is noise-dominated; local intuitions keep failing to beat the agent's own search judgment.",
 
   "stop_conditions_respected": ["no learned policy trained", "no generic C8 weights used",
     "no Model A research files modified", "only ONE leaf term added", "no race/sweep/wall hard rules",

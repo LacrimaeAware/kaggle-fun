@@ -1,0 +1,46 @@
+leaf A/B: continuity vs baseline | n=240/matchup budget=0.4s
+  [10/400] mirror: +17-13
+  [20/400] mirror: +31-29
+  [30/400] mirror: +47-43
+  [40/400] mirror: +61-59
+  [50/400] mirror: +75-75
+  [60/400] mirror: +91-89
+  [70/400] mirror: +98-112
+  [80/400] mirror: +113-127
+  [90/400] cont_vs_alakazam: +28-2
+  [100/400] cont_vs_alakazam: +52-8
+  [110/400] cont_vs_alakazam: +75-15
+  [120/400] cont_vs_alakazam: +101-19
+  [130/400] cont_vs_alakazam: +123-27
+  [140/400] cont_vs_alakazam: +147-33
+  [150/400] cont_vs_alakazam: +167-43
+  [160/400] base_vs_alakazam: +2-1
+  [170/400] base_vs_alakazam: +28-2
+  [180/400] base_vs_alakazam: +54-6
+  [190/400] base_vs_alakazam: +77-13
+  [200/400] base_vs_alakazam: +98-22
+  [210/400] base_vs_alakazam: +123-27
+  [220/400] base_vs_alakazam: +149-31
+  [230/400] base_vs_alakazam: +176-34
+  [240/400] cont_vs_denpa92: +3-0
+  [250/400] cont_vs_denpa92: +22-8
+  [260/400] cont_vs_denpa92: +50-10
+  [270/400] cont_vs_denpa92: +79-11
+  [280/400] cont_vs_denpa92: +106-14
+  [290/400] cont_vs_denpa92: +134-16
+  [300/400] cont_vs_denpa92: +160-20
+  [310/400] cont_vs_denpa92: +183-27
+  [320/400] base_vs_denpa92: +6-0
+  [330/400] base_vs_denpa92: +29-1
+  [340/400] base_vs_denpa92: +52-8
+  [350/400] base_vs_denpa92: +76-14
+  [360/400] base_vs_denpa92: +103-17
+  [370/400] base_vs_denpa92: +131-19
+  [380/400] base_vs_denpa92: +156-24
+  [390/400] base_vs_denpa92: +183-27
+  [400/400] base_vs_denpa92: +210-30
+
+=== RESULTS (A = first-named) ===
+  MIRROR  continuity vs baseline : 113-127  (47.1% for continuity, draws 0)
+  vs alakazam : continuity 191-49 (79.6%) | baseline 200-40 (83.3%)  delta -3.7
+  vs denpa92  : continuity 208-32 (86.7%) | baseline 210-30 (87.5%)  delta -0.8

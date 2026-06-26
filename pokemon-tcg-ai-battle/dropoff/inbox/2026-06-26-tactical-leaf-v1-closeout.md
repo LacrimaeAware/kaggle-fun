@@ -46,23 +46,26 @@ All work is isolated; no submission built automatically.
 - **S7 A/B** (n=120/matchup, budget 0.4): head-to-head heavy(+term) vs heavy(baseline) mirror + each vs the
   frozen field (alakazam/denpa92 use leaf_mode="hand" -> UNAFFECTED, isolating the term). RESULT:
   MIRROR continuity vs baseline 65-55 = **54.2%** for continuity; vs alakazam 79.2% vs 78.3% (+0.9); vs denpa92
-  89.2% vs 85.8% (+3.4). **Positive direction, NO regression -- the opposite of the refuted attack-floor.** But
-  the mirror +4.2 is within noise at n=120 and the offline mechanism signal was weak. Escalation to n=240 running.
+  89.2% vs 85.8% (+3.4). Looked positive -- but within noise at n=120. **n=240 ESCALATION REFUTED IT:** mirror
+  47.1% (113-127), alakazam 79.6% vs 83.3% (-3.7), denpa92 86.7% vs 87.5% (-0.8). Pooled mirror (n=120+240) =
+  **49.4% (even)**. The n=120 "+4.2/+0.9/+3.4" was ALL NOISE; at the reliable sample the term is neutral in the
+  mirror and slightly NEGATIVE vs the field. The hand-weighted leaf term does NOT translate to a win-rate gain.
 - **S8 handoff** (`tactical_feature_schema.json`, `tactical_coordinate_summary.json`,
   `starmie_tactical_state_v1.jsonl`, the audit/A-B reports): feature taxonomy (deck-independent vs Starmie
   semantic-role vs exact-card-id vs public-runtime vs eval-only) so Model A can consume the situation rows.
 
-## Verdicts (S9)
-- ATTACKER_CONTINUITY: **B. ATTACKER_CONTINUITY_DIRECTIONAL** (at n=120). Tests pass; the structural deck-blindness
-  it targets is real + prevalent; the A/B direction is POSITIVE with NO regression (unlike the attack-floor). But
-  the mirror gain is within noise at n=120 and the offline mechanism signal is weak -> not VERIFIED yet. n=240
-  escalation running; upgrade to A only if it firms up. Ladder is the only real test.
+## Verdicts (S9) -- FINAL
+- ATTACKER_CONTINUITY: **C. BASELINE_LEAF_PREFERRED.** Tests pass and the structural deck-blindness it targets is
+  real + prevalent, but the candidate does NOT improve the win rate: at n=240 it is neutral in the mirror (49.4%
+  pooled) and slightly NEGATIVE vs the field (-3.7 alakazam). The n=120 positive was noise; the offline mechanism
+  signal was already weak. KEEP the term DISABLED (default off, documented dead-end on this branch); the deck-blind
+  FINDING remains valid input for Model A's learned approach, but the hand-weighted leaf term is not promotable.
 - TACTICAL_STATE_EXPORT: **A. TACTICAL_STATE_DATA_READY_FOR_MODEL_A** — 22,083 clean rows, all observations
-  resolved, runtime/eval separation leak-checked, schema documented.
+  resolved, runtime/eval separation leak-checked, schema documented. This is the durable deliverable.
 
-## Submission decision
-- main is UNCHANGED (attack-floor reverted; term default-off on a branch). A submission from main == sub_starmie2
-  already on the ladder. The leaf term is a promising NON-REGRESSING candidate (mirror +4.2, field +0.9/+3.4) but
-  within noise at n=120 -> await the n=240 escalation. If it firms up clearly >50% mirror with the field holding,
-  enabling the term + a submission is defensible (it is the first non-regressing improvement found, with a strong
-  structural justification). If it regresses to ~50%, no submission. Do NOT ship on the within-noise n=120 result.
+## Submission decision -- FINAL: NO SUBMISSION
+Nothing materially improved. main is unchanged == sub_starmie2 already on the ladder. BOTH candidate fixes this
+session were REFUTED by proper A/B: the attack-floor heuristic (regressed everything) and the ATTACKER_CONTINUITY
+leaf term (neutral mirror, slightly negative field at n=240). The diagnoses were real (under-attack;
+deck-blindness) but neither fix translated into wins. Lesson reinforced: n~120 local A/B is noise-dominated and
+local intuitions repeatedly fail to beat the current agent's own search judgment. Ladder remains the only real test.
