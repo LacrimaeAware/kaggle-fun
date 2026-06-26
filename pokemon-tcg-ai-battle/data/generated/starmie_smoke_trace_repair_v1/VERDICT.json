@@ -1,0 +1,19 @@
+{
+  "task": "STARMIE SELECTOR / TRANSPLANT SMOKE TRACE REPAIR V1 (Model B)",
+  "verdict": "A_TRACE_HARNESS_READY_FOR_SELECTOR_V3_SMOKE",
+  "micro_smoke": "off + c3_family_limited x 6 opponents x 2 games = 24 games, 0 errors, 118 logged decision rows, 12 games-with-records",
+  "validation": "ALL 8 checks PASS (game_id unique/consistent, every decision has outcome, blocked proposals logged 42==42, first_changed once/game, modes normalized, terminal flags correct, override count 76==76, no metadata leak)",
+  "fixes_confirmed": [
+    "game_id now globally-unique (was colliding 24-for-360)",
+    "blocked terminal decisions now logged as outcome-linked rows (were counters only)",
+    "first_changed correct (once per changed game)"
+  ],
+  "harness_changes": "tools/selector_v2_smoke_v1.py parametrized with --modes/--out/--trace-file/--summary-file (default full smoke unchanged). Fixed a latent bug: summary write + final print used hardcoded OUT instead of --out (clobbered the committed V2 summary on the first micro run; restored from git).",
+  "existing_suite": "ALL SUITES PASS (9 modules)",
+  "limitations": [
+    "live-smoke decisions have NO replay decision_id -> join to transplant records is by family + tactical similarity, not exact id",
+    "transplant scores at smoke time are OOD retrievals (our-agent states vs expert replay states) -> gate on support/abstain",
+    "micro-smoke is schema validation only, not win-rate evidence"
+  ],
+  "constraints_honored": "no large smoke (micro only, 24 games), no gameplay/heuristic/submission/merge changes, Model A files untouched."
+}

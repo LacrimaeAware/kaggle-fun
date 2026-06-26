@@ -226,12 +226,19 @@ def main():
     ap.add_argument("--budget", type=float, default=0.2)
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument("--chunk", type=int, default=2)
+    ap.add_argument("--modes", default="", help="comma list of mode values (e.g. off,c3_family_limited); default all")
+    ap.add_argument("--out", default=str(OUT), help="output directory")
+    ap.add_argument("--trace-file", default="changed_decisions.jsonl")
+    ap.add_argument("--summary-file", default="live_smoke_summary.json")
     args = ap.parse_args()
     args.games = min(args.games, 50)
-    OUT.mkdir(parents=True, exist_ok=True)
+    outdir = Path(args.out)
+    outdir.mkdir(parents=True, exist_ok=True)
+    req = {m.strip() for m in args.modes.split(",") if m.strip()}
+    selected = {k: v for k, v in MODES.items() if (not req) or v in req or k in req}
     tasks = []
     _t = 0
-    for mk in MODES:
+    for mk in selected:
         for opp in OPPONENTS:
             rem, seat = args.games, 0
             while rem > 0:
@@ -240,7 +247,7 @@ def main():
                 _t += 1
                 seat = (seat + k) % 2
                 rem -= k
-    print(f"V2 second smoke: modes {list(MODES.items())} vs {OPPONENTS}, n={args.games}/matchup, budget={args.budget}s",
+    print(f"V2 smoke: modes {list(selected.items())} vs {OPPONENTS}, n={args.games}/matchup, budget={args.budget}s",
           flush=True)
     print("CAVEAT: local self-play does NOT predict the ladder; safety/direction smoke only.\n", flush=True)
 
@@ -267,14 +274,14 @@ def main():
             if done % 12 == 0 or done == total:
                 print(f"  [{done}/{total}] chunks done", flush=True)
 
-    with open(OUT / "changed_decisions.jsonl", "w", encoding="utf-8") as fh:
+    with open(outdir / args.trace_file, "w", encoding="utf-8") as fh:
         for r in all_records:
             fh.write(json.dumps(r, default=str) + "\n")
 
-    summary = {"games_per_matchup": args.games, "budget": args.budget, "modes": MODES, "opponents": OPPONENTS,
+    summary = {"games_per_matchup": args.games, "budget": args.budget, "modes": selected, "opponents": OPPONENTS,
                "results": {}, "metrics": {}}
     print("\n=== win rate by mode x opponent ===", flush=True)
-    for mk, mname in MODES.items():
+    for mk, mname in selected.items():
         row = {}
         for opp in OPPONENTS:
             wt, wo, dr, err = (agg[(mk, opp, k)] for k in ("wt", "wo", "dr", "err"))
@@ -286,8 +293,8 @@ def main():
             print(f"  {mk}({mname:16s}) vs {opp:9s}: {wt}-{wo} ({wr}% win, {dr}d, {err}e) "
                   f"ov={mb.get('overrides',0)} blkT={mb.get('blocked_terminal',0)} veto={mb.get('veto',0)}", flush=True)
         summary["results"][mk] = row
-    (OUT / "live_smoke_summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
-    print(f"\nwrote {OUT/'live_smoke_summary.json'} + changed_decisions.jsonl ({len(all_records)} changed decisions)",
+    (outdir / args.summary_file).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    print(f"\nwrote {outdir/args.summary_file} + {outdir/args.trace_file} ({len(all_records)} changed decisions)",
           flush=True)
 
 

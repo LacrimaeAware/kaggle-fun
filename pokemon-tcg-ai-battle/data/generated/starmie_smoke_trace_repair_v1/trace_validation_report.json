@@ -1,0 +1,44 @@
+{
+  "trace_rows": 118,
+  "games_with_records": 12,
+  "ALL_PASS": true,
+  "checks": {
+    "game_id_unique_consistent": {
+      "pass": true,
+      "distinct_game_ids": 12,
+      "note": "each game_id -> one (mode,matchup,result)"
+    },
+    "every_decision_has_outcome": {
+      "pass": true,
+      "missing_outcome": 0
+    },
+    "blocked_proposals_logged": {
+      "pass": true,
+      "blocked_rows": 42,
+      "summary_blocked_counter": 42
+    },
+    "first_changed_once_per_changed_game": {
+      "pass": true,
+      "violations": []
+    },
+    "mode_labels_normalized": {
+      "pass": true,
+      "modes_seen": [
+        "c3_family_limited"
+      ]
+    },
+    "terminal_flags_correct": {
+      "pass": true,
+      "c3_terminal_overrides": 0
+    },
+    "override_count_matches": {
+      "pass": true,
+      "override_rows": 76,
+      "summary_overrides": 76
+    },
+    "no_metadata_leak": {
+      "pass": true,
+      "leaks": 0
+    }
+  }
+}

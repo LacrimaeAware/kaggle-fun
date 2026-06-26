@@ -1,0 +1,59 @@
+{
+  "schema_version": "selector_v3_trace.v1",
+  "note": "Required fields for a future Selector V3 smoke. The current harness (tools/selector_v2_smoke_v1.py) already emits the runtime fields below; transplant_* are RESERVED and populated when the V3 selector runtime exposes them via SH.selector_trace.",
+  "per_game": {
+    "game_id": "str unique (mode:opponent:tTASK:i)",
+    "mode": "off|top1_gate|c3_family_limited|selector_v3",
+    "opponent": "deployed|mirror|alakazam|denpa92|first|random",
+    "seat": "int 0|1",
+    "result": "win|loss|draw",
+    "error_flag": "bool (game raised)",
+    "total_selector_calls": "int",
+    "total_overrides": "int",
+    "total_blocked_proposals": "int",
+    "total_vetoes": "int",
+    "first_changed_decision_id": "str|null (game_id+step of first override)"
+  },
+  "per_decision": {
+    "game_id": "str",
+    "decision_id": "str|null (live games lack replay decision_id; step is the within-game index)",
+    "step": "int (within-game decision counter)",
+    "baseline_raw": "int",
+    "selector_raw": "int",
+    "baseline_family": "str",
+    "selector_family": "str",
+    "source": "baseline|selector|fallback|veto",
+    "proposer_top_k": "list|null (V3 selector output)",
+    "transplant_support_count": "number|null (RESERVED for V3)",
+    "transplant_effective_n": "number|null",
+    "transplant_value_same_turn": "number|null",
+    "transplant_readiness_delta": "number|null",
+    "transplant_prize_delta": "number|null",
+    "transplant_contradiction_rate": "number|null",
+    "transplant_confidence": "number|null",
+    "hard_veto": "bool",
+    "terminal_override_blocked": "bool",
+    "blocked_terminal": "bool (true only on blocked-baseline rows)",
+    "blocked_override_reason": "str|null",
+    "confidence": "number|null",
+    "entropy": "number|null",
+    "top1_margin": "number|null",
+    "tactical": "{commitment.guaranteed_ko_available, commitment.game_winning_attack_available, commitment.safe_development_available, board.prize_diff}",
+    "game_result": "win|loss|draw (linked after the game)",
+    "first_changed": "bool (exactly once per changed game)"
+  },
+  "join_keys": {
+    "to_transplant_records": "tactical + baseline/selector semantic family (live games have no replay decision_id; join is by family + tactical-state similarity, NOT exact decision_id)",
+    "to_proposer": "selector_trace already runs the proposer; proposer_top_k carried inline when V3 exposes it"
+  },
+  "invariants_enforced_by_validator": [
+    "game_id unique + consistent (mode,opponent,result)",
+    "every decision row has game_result",
+    "blocked proposals logged + count == summary counter",
+    "first_changed exactly once per changed game",
+    "mode labels normalized",
+    "c3/v3 override never into ATTACK/END/RETREAT (unless V3 KO/gamewin gate)",
+    "override count == summary counter",
+    "no pilot/replay/future metadata leak"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "harness": "tools/selector_v2_smoke_v1.py (the smoke harness; default off, parametrized --modes/--out)",
+  "logging_flow": "test_agent -> SH.selector_trace(obs, baseline) -> _LOG records; run_chunk tags each record with game_result after the game; metrics counters per (mode,opponent).",
+  "fields": {
+    "game_id": "f\"{mode_key}:{opp_name}:t{tidx}:{i}\" where tidx is a GLOBALLY UNIQUE per-task index -> unique per game",
+    "mode_labels": [
+      "off",
+      "top1_gate",
+      "c3_family_limited"
+    ],
+    "opponent_labels": [
+      "deployed",
+      "mirror(pinned-off)",
+      "alakazam",
+      "denpa92",
+      "first",
+      "random"
+    ],
+    "seat": "t_seat=(seat0+i)%2 alternates; test agent at seat t_seat",
+    "first_changed": "set True on the FIRST override per game (via _CTX first_changed_done), False thereafter and on blocked rows",
+    "blocked_decision_logging": "terminal overrides that are blocked keep baseline AND are logged as rows with blocked_terminal=True + blocked_override_reason",
+    "veto_logging": "metrics.veto incremented when hard_veto on a logged record",
+    "terminal_override_logging": "terminal_override_blocked flag per record + selector_family",
+    "fallback_logging": "metrics.fallback when source==fallback",
+    "outcome_linkage": "rec.game_result set per game (win/loss/draw) after env.run"
+  },
+  "fixes_since_v2_smoke": {
+    "game_id_non_unique": "FIXED -- was \"{mode}:{opp}:{seat0}:{i}\" colliding across chunks (24 distinct for 360 games); now uses globally-unique tidx",
+    "blocked_decisions_unlogged": "FIXED -- blocked terminals were counters only; now logged as rows with outcome linkage",
+    "first_changed_outcomes_miskeyed": "FIXED in the diagnostic (iterated mode-keys vs mode-values)"
+  },
+  "validated_by": "tools/validate_smoke_trace_v1.py on the micro-smoke -> ALL 8 checks PASS"
+}
