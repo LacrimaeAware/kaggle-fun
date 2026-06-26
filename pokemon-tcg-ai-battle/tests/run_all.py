@@ -2,15 +2,18 @@
 
     PYTHONIOENCODING=utf-8 python tests/run_all.py
 
-Each module exposes a main() -> int (0 = pass). Add new test modules to MODULES.
+Each module is run as its own subprocess (its __main__ block) and judged by exit code, so modules may use
+main()/sys.exit/module-level execution interchangeably and one module cannot abort the rest. Add modules to MODULES.
 """
 from __future__ import annotations
 
-import importlib
+import os
+import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
 
 MODULES = [
     "test_split_base_v2",          # schema / encoding / teacher parity
@@ -20,17 +23,25 @@ MODULES = [
     "test_attach_mega_not_engine_v1",  # ATTACH_MEGA_NOT_ENGINE_V1 attach-targeting probe
     "test_bridge_trace_v0",         # proposer-bridge trace logger (runtime/eval separation, no behaviour change)
     "test_proposer_adapter_v0",     # learned-proposer adapter + safety spec (disabled, cannot change action)
+    "test_selector_wiring_v1",      # STARMIE_SELECTOR_MODE wiring (off = identity, modes legal, fail-closed)
 ]
 
 
 def main() -> int:
-    rc = 0
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    env.pop("STARMIE_SELECTOR_MODE", None)  # suite runs against the default (off) agent
+    failed = []
     for name in MODULES:
         print(f"\n===== {name} =====")
-        mod = importlib.import_module(name)
-        rc |= mod.main()
-    print(f"\n{'ALL SUITES PASS' if rc == 0 else 'SOME SUITES FAILED'}")
-    return rc
+        proc = subprocess.run([sys.executable, str(HERE / f"{name}.py")], env=env,
+                              capture_output=True, text=True, encoding="utf-8", errors="replace")
+        sys.stdout.write(proc.stdout)
+        if proc.stderr.strip():
+            sys.stdout.write(proc.stderr)
+        if proc.returncode != 0:
+            failed.append(name)
+    print(f"\n{'ALL SUITES PASS' if not failed else 'SOME SUITES FAILED: ' + ', '.join(failed)}")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

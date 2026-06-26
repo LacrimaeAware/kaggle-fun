@@ -809,10 +809,95 @@ def _attach_mega_pref(obs, pick):
     return pick
 
 
+# ---------------------------------------------------------------- learned selector (default OFF, fail-closed)
+# STARMIE_SELECTOR_MODE: off (default) | top1_gate | top3_selector. The learned proposer+selector (Model A,
+# vendored read-only under agent/vendor/portable_selector_v1) may override the heuristic baseline ONLY on
+# single-select decisions, ONLY when SUPPORTED (in-distribution), legal, and not hard-vetoed. Any error, OOD,
+# illegal pick, or safety veto falls back to the heuristic baseline. Uses only Model A's frozen S5/C4 selector.
+SELECTOR_MODE = os.environ.get("STARMIE_SELECTOR_MODE", "off").strip().lower()
+_SELECTOR_RT = "uninitialised"
+
+
+def _selector_runtime():
+    global _SELECTOR_RT
+    if _SELECTOR_RT == "uninitialised":
+        try:
+            import learned_selector_bridge  # noqa: F401  puts the vendor dir on sys.path
+            import starmie_selector_runtime as _RT
+            _vd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vendor", "portable_selector_v1")
+            _SELECTOR_RT = _RT.StarmieSelectorRuntime.from_dir(_vd)
+        except Exception:
+            _SELECTOR_RT = None
+    return _SELECTOR_RT
+
+
+def _selector_override(obs, pick):
+    """Apply the learned selector to a single-select heuristic baseline. Fail-closed: returns `pick` unchanged
+    on the slightest doubt (wrong mode, multi-select, error, OOD, illegal, or hard safety veto)."""
+    mode = os.environ.get("STARMIE_SELECTOR_MODE", "off").strip().lower()
+    if mode in ("", "off"):
+        return pick
+    sel = obs.get("select") or {}
+    try:
+        if int(sel.get("maxCount", 1) or 1) != 1 or int(sel.get("minCount", 1) or 1) != 1:
+            return pick
+    except Exception:
+        return pick
+    if not isinstance(pick, list) or len(pick) != 1 or not isinstance(pick[0], int):
+        return pick
+    base = pick[0]
+    n = len((sel.get("option") or []))
+    if not (0 <= base < n):
+        return pick
+    rt = _selector_runtime()
+    if rt is None:
+        return pick
+    try:
+        import learned_selector_bridge as BR
+        import learned_proposer_adapter as AD
+        import starmie_feature_v2_packer as PK
+        payload = BR.cabt_to_payload(obs, baseline_action={"raw_option_index": base, "raw_option_indexes": [base]})
+        packed = PK.pack_cabt_observation(payload, payload["raw_legal_options"])
+        out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                 packed.get("search_action"), 5)
+    except Exception:
+        return pick
+    if not isinstance(out, dict) or out.get("status") != "READY":
+        return pick
+    if str(out.get("support_status") or "") not in ("SUPPORTED", "SAFETY_FALLBACK"):
+        return pick  # OOD / unsupported -> baseline
+    sel_raw = out.get("selected_raw_option_index")
+    if not isinstance(sel_raw, int) or not (0 <= sel_raw < n):
+        return pick
+    if sel_raw == base:
+        return pick  # selector confirms baseline; nothing to change
+    # mode gate on the override's proposer rank
+    rank = {a.get("raw_option_index"): a.get("rank") for a in (out.get("ranked_actions") or [])}.get(sel_raw)
+    if mode == "top1_gate" and rank != 1:
+        return pick
+    if mode == "top3_selector" and rank not in (1, 2, 3):
+        return pick
+    if mode not in ("top1_gate", "top3_selector"):
+        return pick
+    # a safety fallback that disagrees with baseline must not be trusted
+    if out.get("source") == "fallback":
+        return pick
+    # legality + hard safety veto on the override
+    try:
+        if not DP.valid_selection(obs, [sel_raw]):
+            return pick
+        if AD.safety_check(obs, sel_raw).get("hard_veto"):
+            return pick
+    except Exception:
+        return pick
+    return [sel_raw]
+
+
 def choose_action(obs, deck=STARMIE_DECK):
     """Heuristic-first, then forward-model search (with a veto on known-bad picks), then legal default. Finally,
     R15: never pass the turn with an attack available (_force_attack_over_end) -- attack at the END of the turn;
-    and ATTACH_MEGA_NOT_ENGINE_V1 (default off): prefer the Mega line over the engine when attaching."""
+    and ATTACH_MEGA_NOT_ENGINE_V1 (default off): prefer the Mega line over the engine when attaching.
+    STARMIE_SELECTOR_MODE (default off): a learned selector may override the baseline, fail-closed."""
     if obs.get("select") is None:
         return list(deck)
     pick = None
@@ -834,7 +919,8 @@ def choose_action(obs, deck=STARMIE_DECK):
     if pick is None:
         pick = DP.default_selection(obs)
     pick = _attach_mega_pref(obs, pick)
-    return _force_attack_over_end(obs, pick)
+    pick = _force_attack_over_end(obs, pick)
+    return _selector_override(obs, pick)
 
 
 def agent(obs):
