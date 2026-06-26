@@ -1,0 +1,22 @@
+{
+  "lane": "Model B - learned-adviser readiness v0 (section 6)",
+  "interface_file": "agent/learned_adviser.py",
+  "entrypoint": "rank_same_family(observation, legal_options, action_family) -> {ranking, confidence, support_status, model_id}",
+  "enabled": false,
+  "master_switch": "learned_adviser.ENABLED = False (hard default)",
+  "supported_families_initial": [
+    "ATTACH"
+  ],
+  "select_card_target": "only if Model A reports support",
+  "guarantees": [
+    "pre-action observable features only",
+    "same-family legal alternatives only",
+    "never overrides a game-winning attack or a hard safety rule (caller-enforced)",
+    "abstains below frozen confidence threshold",
+    "exposes model/artifact hash via model_id",
+    "returns OUT_OF_SUPPORT / MODEL_ARTIFACT_NOT_AVAILABLE when coverage absent"
+  ],
+  "blocked_on": "Model A C8A.5 artifact data/starmie_audit/c8a5_starmie_adviser_coverage_v1.json with status SUPPORTED or DIRECTIONAL_ONLY",
+  "offline_prototype_section7": "NOT RUN - requires Model A coverage artifact (status SUPPORTED/DIRECTIONAL_ONLY); P0/P1/P2 comparison deferred",
+  "learned_adviser_verdict": "D. MODEL_ARTIFACT_NOT_AVAILABLE"
+}

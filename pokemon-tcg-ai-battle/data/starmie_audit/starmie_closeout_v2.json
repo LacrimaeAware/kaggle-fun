@@ -1,0 +1,111 @@
+{
+  "lane": "Model B - Starmie heuristic forensic audit + learned-adviser readiness v0",
+  "branch": "exp/starmie-heuristic-audit-v2",
+  "baseline_commit": "d04191b",
+  "repo_note": "Starmie agent lives in kaggle-fun/pokemon-tcg-ai-battle (Model A prompt assumed pokemon-ai-agent); artifacts adapted to data/starmie_audit and tests/.",
+  "sections_done": [
+    "0 baseline",
+    "1 toggles R0-R14",
+    "2 forensic audit (workflow, 10 concerns)",
+    "4 ablation Stage A",
+    "5 loss mining (prior: empty-bench)",
+    "6 adviser interface stub (disabled)",
+    "9 artifacts",
+    "10 verdicts"
+  ],
+  "sections_blocked": [
+    "6 adviser ENABLE (needs Model A coverage)",
+    "7 offline feature prototype (needs Model A SUPPORTED/DIRECTIONAL_ONLY)"
+  ],
+  "forensic_audit": {
+    "concerns": 10,
+    "bugs_upheld": 9,
+    "refuted": 1,
+    "refuted_item": "E attack-damage (adversarial verifier rejected its proposed fix: Jetting snipe hits a different target, not the gusted-active)"
+  },
+  "fixes_applied": [
+    {
+      "id": "A",
+      "area": "search opponent prior",
+      "was": "search determinized opponent as OUR Starmie deck",
+      "fix": "pass top-30 meta decks (opponent_meta_v1.json) as opp_decks/opp_weights",
+      "test": "field A/B"
+    },
+    {
+      "id": "B",
+      "area": "Boss gust before KO re-targets it",
+      "fix": "gate Boss on no active KO",
+      "test": "frozen test_B"
+    },
+    {
+      "id": "C",
+      "area": "Wally before KO strips attacker energy",
+      "fix": "gate Wally on no active KO",
+      "test": "covered by B gate"
+    },
+    {
+      "id": "F",
+      "area": "Ignition read as 1 energy (is 3 on evolution)",
+      "fix": "_energy_units counter in _our_max_hit",
+      "test": "frozen test_F"
+    },
+    {
+      "id": "G",
+      "area": "_sel_card ignored option zone",
+      "fix": "respect option.area; else resolve only if unambiguous",
+      "test": "frozen test_G"
+    },
+    {
+      "id": "J",
+      "area": "_no_suicide suppressed ALL abilities",
+      "fix": "only suppress self-shuffle/discard abilities",
+      "test": "frozen test_J"
+    }
+  ],
+  "deferred_stageB": [
+    {
+      "id": "D",
+      "area": "Crushing Hammer breadth",
+      "why_deferred": "ablation shows the broad any-energy rule MATCHES pilots (+2.4pp imitation when on); winning-vs-imitation tension -> needs a field A/B of threshold-crossing variants, not an imitation change"
+    },
+    {
+      "id": "H",
+      "area": "tutor _need_value too static",
+      "why_deferred": "richer need-model (hand/board counts) is medium-risk; ablation shows tutor already helps (+2.6pp); escalate carefully"
+    },
+    {
+      "id": "I",
+      "area": "no general anti-retreat veto",
+      "why_deferred": "add a retreat veto in _veto_search_pick; needs a real-obs survey of when search retreats Mega Starmie"
+    }
+  ],
+  "ablation_stageA": {
+    "base_overall": 0.588,
+    "clear_helpers": [
+      "R3 evolve(-3.6)",
+      "R11 tutor(-2.6)",
+      "R8 hammer(-2.4)",
+      "R7 energy(-2.2)",
+      "R2 bench(-2.0)"
+    ],
+    "only_possible_hurter": "R6 heros_cape(+0.6, within noise)",
+    "note": "24-game screen; deltas<1pp are noise"
+  },
+  "validation": {
+    "imitation_clean_baseline": 0.573,
+    "imitation_after_fixes": 0.574,
+    "imitation_regression": false,
+    "frozen_tests": "4/4 pass (B,F,G,J)",
+    "field_ab": {
+      "vs_alakazam": 0.8,
+      "vs_denpa92": 0.98
+    },
+    "mirror_ab": 0.38,
+    "mirror_note": "noise-dominated (37/58/38/50 across runs); NOT ladder-predictive",
+    "submission": "sub_starmie2 rebuilt, verified 0 errors, opponent_meta bundled"
+  },
+  "HEURISTIC_AUDIT_VERDICT": "A. VERIFIED_IMPROVEMENTS_READY (6 confirmed bugs fixed; no imitation regression; 4 frozen tests pass; field A/B not catastrophic; isolated behind R0-R14 toggles + USE_META_OPP_PRIOR; hashes recorded). CAVEAT: these are correctness fixes; the win-rate magnitude is unproven locally (field held, mirror is noise) -> ladder is the real test.",
+  "LEARNED_ADVISER_VERDICT": "D. MODEL_ARTIFACT_NOT_AVAILABLE (interface stub built + hard-disabled; blocked on Model A c8a5_starmie_adviser_coverage_v1.json)",
+  "promotion": "Candidate submissions/sub_starmie2.tar.gz built; PROMOTION to ladder is a separate MANUAL decision (per section 8). Not auto-merged to main.",
+  "shared_file_rule": "No C8 research modules, Model A artifacts, shared current.json, or REFACTOR_CONTROL.md touched."
+}

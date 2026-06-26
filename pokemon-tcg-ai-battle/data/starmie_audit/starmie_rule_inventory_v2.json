@@ -1,0 +1,61 @@
+{
+  "lane": "Model B - Starmie heuristic forensic audit",
+  "branch": "exp/starmie-heuristic-audit-v2",
+  "baseline_commit": "d04191b",
+  "note": "Code lives in kaggle-fun/pokemon-tcg-ai-battle (NOT pokemon-ai-agent as Model A assumed). Toggles default to baseline behavior.",
+  "file_hashes_current": {
+    "starmie_heuristics.py": "7e20932f7240068b614aa197caaef5a6131d0275",
+    "deck_policy_v3.py": "7afdb665c0523f0833ed565d81a13999259fcee2",
+    "search_v3.py": "d4f46a200c7dbb1dafde6269e234aa092a65a7de",
+    "eval.py": "f31a8ad20f72fc4f2731ef91643f8fd88e6d2dbb"
+  },
+  "deck_sha1": "2d0186cae2f4",
+  "deck_len": 60,
+  "deck_note": "MOST-COMMON Mega-Starmie list (527 corpus games, 66.4% wr); not winrate-selected. Only basic = Staryu x3.",
+  "rules_order": [
+    "_go_first",
+    "_no_suicide",
+    "_main_action",
+    "_opp_bench_target",
+    "_tutor_target"
+  ],
+  "main_action_order": [
+    "game_winning_attack",
+    "R2 bench_dev",
+    "R3 evolve_mega(+R14 no_third_guard)",
+    "R4 boss_gust/R5 wally/R6 cape",
+    "R7 energy_attach",
+    "R8 crushing_hammer",
+    "R9 ko_floor",
+    "R10 retreat_pivot",
+    "defer->search"
+  ],
+  "toggles": {
+    "R0": "go_first",
+    "R1": "no_suicide",
+    "R2": "bench_dev",
+    "R3": "evolve_mega",
+    "R4": "boss_gust",
+    "R5": "wally",
+    "R6": "heros_cape",
+    "R7": "energy_attach",
+    "R8": "crushing_hammer",
+    "R9": "ko_floor",
+    "R10": "retreat_pivot",
+    "R11": "tutor_target",
+    "R12": "bench_target",
+    "R13": "wally_veto",
+    "R14": "no_third_mega_guard"
+  },
+  "toggle_mechanism": "env STARMIE_DISABLE=\"R8,R5\" or set starmie_heuristics.DISABLED; default empty=baseline",
+  "search_cfg": {
+    "leaf_mode": "deckout",
+    "rollout_mode": "develop",
+    "DEFAULT_BUDGET": 0.6,
+    "N_DETERM": 8,
+    "DEPTH_CAP": 80
+  },
+  "confirmed_bugs_pre_workflow": {
+    "A_search_opp_prior": "choose_action calls best_option without opp_decks/opp_prior -> search_v3 _search line 275 defaults op_src to OUR deck. CONFIRMED. Fix: pass top-N decks from data/opponent_meta_v1.json (count/freq/deck)."
+  }
+}

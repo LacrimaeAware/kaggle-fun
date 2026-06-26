@@ -1,0 +1,262 @@
+{
+  "games": 24,
+  "base_overall": 0.5878,
+  "rows": [
+    {
+      "rule": "BASE",
+      "name": "all_on",
+      "overall": 0.5878,
+      "delta_vs_base": 0.0,
+      "decisions": 905,
+      "cats": {
+        "play": 0.411,
+        "attack": 0.709,
+        "select_card": 0.697,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.462
+      }
+    },
+    {
+      "rule": "R0",
+      "name": "go_first",
+      "overall": 0.579,
+      "delta_vs_base": -0.0088,
+      "decisions": 905,
+      "cats": {
+        "play": 0.399,
+        "attack": 0.709,
+        "select_card": 0.7,
+        "energy_attach": 0.546,
+        "evolve": 0.7,
+        "retreat": 0.5,
+        "end_turn": 0.385
+      }
+    },
+    {
+      "rule": "R1",
+      "name": "no_suicide",
+      "overall": 0.5856,
+      "delta_vs_base": -0.0022,
+      "decisions": 905,
+      "cats": {
+        "play": 0.411,
+        "attack": 0.709,
+        "select_card": 0.703,
+        "energy_attach": 0.546,
+        "evolve": 0.7,
+        "retreat": 0.5,
+        "end_turn": 0.308
+      }
+    },
+    {
+      "rule": "R2",
+      "name": "bench_dev",
+      "overall": 0.568,
+      "delta_vs_base": -0.0198,
+      "decisions": 905,
+      "cats": {
+        "play": 0.306,
+        "attack": 0.726,
+        "select_card": 0.703,
+        "energy_attach": 0.602,
+        "evolve": 0.725,
+        "retreat": 0.5,
+        "end_turn": 0.385
+      }
+    },
+    {
+      "rule": "R3",
+      "name": "evolve_mega",
+      "overall": 0.5514,
+      "delta_vs_base": -0.0364,
+      "decisions": 905,
+      "cats": {
+        "play": 0.395,
+        "attack": 0.692,
+        "select_card": 0.694,
+        "energy_attach": 0.556,
+        "evolve": 0.125,
+        "retreat": 0.556,
+        "end_turn": 0.231
+      }
+    },
+    {
+      "rule": "R4",
+      "name": "boss_gust",
+      "overall": 0.5834,
+      "delta_vs_base": -0.0044,
+      "decisions": 905,
+      "cats": {
+        "play": 0.387,
+        "attack": 0.709,
+        "select_card": 0.7,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.538
+      }
+    },
+    {
+      "rule": "R5",
+      "name": "wally",
+      "overall": 0.5757,
+      "delta_vs_base": -0.0121,
+      "decisions": 905,
+      "cats": {
+        "play": 0.375,
+        "attack": 0.726,
+        "select_card": 0.684,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.462
+      }
+    },
+    {
+      "rule": "R6",
+      "name": "heros_cape",
+      "overall": 0.5934,
+      "delta_vs_base": 0.0056,
+      "decisions": 905,
+      "cats": {
+        "play": 0.403,
+        "attack": 0.718,
+        "select_card": 0.722,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.308
+      }
+    },
+    {
+      "rule": "R7",
+      "name": "energy_attach",
+      "overall": 0.5657,
+      "delta_vs_base": -0.0221,
+      "decisions": 905,
+      "cats": {
+        "play": 0.44,
+        "attack": 0.744,
+        "select_card": 0.7,
+        "energy_attach": 0.269,
+        "evolve": 0.725,
+        "retreat": 0.667,
+        "end_turn": 0.231
+      }
+    },
+    {
+      "rule": "R8",
+      "name": "crushing_hammer",
+      "overall": 0.5635,
+      "delta_vs_base": -0.0243,
+      "decisions": 905,
+      "cats": {
+        "play": 0.359,
+        "attack": 0.718,
+        "select_card": 0.681,
+        "energy_attach": 0.546,
+        "evolve": 0.7,
+        "retreat": 0.5,
+        "end_turn": 0.308
+      }
+    },
+    {
+      "rule": "R9",
+      "name": "ko_floor",
+      "overall": 0.5779,
+      "delta_vs_base": -0.0099,
+      "decisions": 905,
+      "cats": {
+        "play": 0.411,
+        "attack": 0.573,
+        "select_card": 0.716,
+        "energy_attach": 0.565,
+        "evolve": 0.825,
+        "retreat": 0.5,
+        "end_turn": 0.231
+      }
+    },
+    {
+      "rule": "R10",
+      "name": "retreat_pivot",
+      "overall": 0.5768,
+      "delta_vs_base": -0.011,
+      "decisions": 905,
+      "cats": {
+        "play": 0.383,
+        "attack": 0.718,
+        "select_card": 0.697,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.5,
+        "end_turn": 0.308
+      }
+    },
+    {
+      "rule": "R11",
+      "name": "tutor_target",
+      "overall": 0.5613,
+      "delta_vs_base": -0.0265,
+      "decisions": 905,
+      "cats": {
+        "play": 0.387,
+        "attack": 0.709,
+        "select_card": 0.656,
+        "energy_attach": 0.546,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.231
+      }
+    },
+    {
+      "rule": "R12",
+      "name": "bench_target",
+      "overall": 0.5757,
+      "delta_vs_base": -0.0121,
+      "decisions": 905,
+      "cats": {
+        "play": 0.379,
+        "attack": 0.718,
+        "select_card": 0.694,
+        "energy_attach": 0.546,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.385
+      }
+    },
+    {
+      "rule": "R13",
+      "name": "wally_veto",
+      "overall": 0.5845,
+      "delta_vs_base": -0.0033,
+      "decisions": 905,
+      "cats": {
+        "play": 0.399,
+        "attack": 0.692,
+        "select_card": 0.706,
+        "energy_attach": 0.556,
+        "evolve": 0.7,
+        "retreat": 0.556,
+        "end_turn": 0.462
+      }
+    },
+    {
+      "rule": "R14",
+      "name": "no_third_mega_guard",
+      "overall": 0.5834,
+      "delta_vs_base": -0.0044,
+      "decisions": 905,
+      "cats": {
+        "play": 0.379,
+        "attack": 0.701,
+        "select_card": 0.697,
+        "energy_attach": 0.556,
+        "evolve": 0.825,
+        "retreat": 0.556,
+        "end_turn": 0.462
+      }
+    }
+  ]
+}

@@ -56,8 +56,42 @@ def _load(fn):
 
 CDB = _load("card_stats.json")
 CEFF = _load("card_effects.json")
+
+
+def _load_data(fn):
+    """Load a data/ artifact (checks agent dir, ../data, and the kaggle bundle root)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for p in (os.path.join(here, fn), os.path.join(here, "..", "data", fn),
+              os.path.join("/kaggle_simulations/agent", fn), fn):
+        try:
+            with open(p, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            continue
+    return {}
+
+
+# Audit A fix: a realistic opponent prior for search determinization. Without this, search_v3 determinizes the
+# opponent's hidden cards from OUR Starmie deck (assumes a mirror). Top-30 meta decks by frequency (5276 games).
+_META = _load_data("opponent_meta_v1.json")
+_OPP = [d for d in (_META.get("decks") or []) if isinstance(d.get("deck"), list) and len(d["deck"]) == 60][:30]
+_OPP_DECKS = [d["deck"] for d in _OPP]
+_OPP_WEIGHTS = [float(d.get("count", 1) or 1) for d in _OPP]
+USE_META_OPP_PRIOR = bool(_OPP_DECKS)   # set False to A/B against the old mirror-prior behavior
+
 SEARCH_TRAINERS = {MEGA_SIGNAL, POFFIN, ULTRA_BALL, POKEGEAR, SALVATORE, HILDA}
 DRAW_SUPPORTERS = {LILLIE, HARLEQUIN}
+
+# ---- rule toggles (audit/ablation; default empty = current behavior) -------------------------------------
+# Disable rules via env STARMIE_DISABLE="R8,R5" or by setting starmie_heuristics.DISABLED at runtime. Keys:
+#   R0 go_first  R1 no_suicide  R2 bench_dev  R3 evolve_mega  R4 boss_gust  R5 wally  R6 heros_cape
+#   R7 energy_attach  R8 crushing_hammer  R9 ko_floor  R10 retreat_pivot  R11 tutor_target  R12 bench_target
+#   R13 wally_veto  R14 no_third_mega_guard
+DISABLED = set(x.strip() for x in os.environ.get("STARMIE_DISABLE", "").split(",") if x.strip())
+
+
+def _on(key):
+    return key not in DISABLED
 
 
 # ---------- board helpers ----------
@@ -247,12 +281,15 @@ def _high_value_play(obs, opts, player, opp):
             continue
         cid = DP.option_card_id(o, obs)
         idx.setdefault(cid, i)
-    if BOSS in idx and _boss_enables_ko(obs, player, opp):
+    # Audit B/C fix: Boss (re-targets the KO to a lower-value bench mon) and Wally's (returns the attacker's
+    # energy to hand, disabling the attack) are NOT free before a KO. Only play them when no active KO exists.
+    ko_avail = _best_ko_index(obs, opts, opp) is not None
+    if _on("R4") and not ko_avail and BOSS in idx and _boss_enables_ko(obs, player, opp):
         return idx[BOSS]
-    if WALLYS in idx and _wally_useful(player):
+    if _on("R5") and not ko_avail and WALLYS in idx and _wally_useful(player):
         return idx[WALLYS]
     a = DP._active(player)
-    if HEROS_CAPE in idx and a and DP._cid(a) == MEGA_STARMIE:
+    if _on("R6") and HEROS_CAPE in idx and a and DP._cid(a) == MEGA_STARMIE:
         return idx[HEROS_CAPE]
     return None
 
@@ -271,6 +308,8 @@ def _best_attach_index(obs, opts, player):
 def _retreat_pivot(obs, opts, player):
     """Active Cinderace (the energy engine, not an attacker) with a ready benched Mega Starmie ex -> retreat to
     promote the attacker. Pilots do this consistently; our agent never retreated (0% agreement)."""
+    if not _on("R10"):
+        return None
     a = DP._active(player)
     if not a or DP._cid(a) != CINDERACE:
         return None
@@ -283,14 +322,31 @@ def _retreat_pivot(obs, opts, player):
     return None
 
 
+def _energy_units(entity):
+    """Energy UNITS provided, not card COUNT (audit F): Ignition Energy gives 3 on an Evolution (Mega Starmie),
+    1 otherwise; every other attached energy gives 1. Falls back to 1/card if the energy id can't be resolved,
+    so worst case equals the old card-count behavior."""
+    cards = DP._get(entity, "energyCards", None)
+    if cards is None:
+        cards = DP._get(entity, "energies", None)
+    cards = DP._items(cards)
+    if not cards:
+        return 0
+    is_evo = DP._cid(entity) == MEGA_STARMIE
+    units = 0
+    for c in cards:
+        units += 3 if (DP._cid(c) == IGNITION and is_evo) else 1
+    return units
+
+
 def _our_max_hit(player):
     """Our active's best single-hit this turn, by what it can actually pay for (engine offers payable attacks
-    only; we approximate from attached energy). Mega Starmie: Nebula 210 at >=3 energy, Jetting 120 at >=1.
+    only; we approximate from attached energy UNITS). Mega Starmie: Nebula 210 at >=3 units, Jetting 120 at >=1.
     Cinderace: Turbo Flare 50. Used to judge whether a gusted bench target is KO-able."""
     a = DP._active(player)
     if not a:
         return 0.0
-    e = DP._attached_count(a)
+    e = _energy_units(a)
     cid = DP._cid(a)
     if cid == MEGA_STARMIE:
         return 210.0 if e >= 3 else (120.0 if e >= 1 else 0.0)
@@ -329,6 +385,8 @@ def _wally_useful(player):
 def _crushing_hammer_play(obs, opts, opp):
     """Play Crushing Hammer (free item; coin flip discards 1 opp energy) when the opponent's active has energy
     to strip. Pilots use it heavily; it costs only the card, not the attack."""
+    if not _on("R8"):
+        return None
     d = DP._active(opp)
     if not d or DP._attached_count(d) < 1:
         return None
@@ -340,6 +398,8 @@ def _crushing_hammer_play(obs, opts, opp):
 
 # ---------- rules ----------
 def _go_first(obs):
+    if not _on("R0"):
+        return None
     sel = DP._selection(obs)
     if not sel or int(DP._get(sel, "context", -1) or -1) != CTX_IS_FIRST:
         return None
@@ -351,6 +411,8 @@ def _go_first(obs):
 
 
 def _no_suicide(obs):
+    if not _on("R1"):
+        return None
     sel = DP._selection(obs)
     if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1:
         return None
@@ -360,8 +422,16 @@ def _no_suicide(obs):
     if in_play > 1:
         return None
     end_idx = next((i for i, o in enumerate(opts) if o.get("type") == END), None)
-    if end_idx is not None and any(o.get("type") == ABILITY for o in opts):
-        return [end_idx]
+    if end_idx is None:
+        return None
+    # Audit J fix: only suppress an ability that would REMOVE our last Pokemon (a self-shuffle/discard, e.g.
+    # Run Away Draw), not every ability. Safe abilities (Cinderace Explosiveness etc.) are fine to use.
+    for o in opts:
+        if o.get("type") != ABILITY:
+            continue
+        eff = CEFF.get(str(DP.option_card_id(o, obs)), {}) or {}
+        if eff.get("shuffle_hand") or eff.get("shuffle_self") or eff.get("self_to_deck"):
+            return [end_idx]
     return None
 
 
@@ -370,6 +440,8 @@ def _develop_bench(obs, opts, player):
     bench -- we evolved our only Staryu and got swept / decked out. The deck's only basic is Staryu (Cinderace
     enters via Explosiveness at setup), so when in-play Pokemon <= 2 we Poffin for 2 Staryu, or bench a Staryu
     from hand. FREE (does not end the turn), so it never costs us an attack."""
+    if not _on("R2"):
+        return None
     if (1 if DP._active(player) else 0) + len(DP._bench(player)) > 2:
         return None
     poffin = staryu = None
@@ -410,41 +482,56 @@ def _main_action(obs):
     bd = _develop_bench(obs, opts, player)
     if bd is not None:
         return [bd]
-    if sum(1 for c in _ids_in_play(player) if c == MEGA_STARMIE) < 2:   # evolve, but never a 3rd Mega
-        for i, o in enumerate(opts):
-            if o.get("type") == EVOLVE and DP.option_card_id(o, obs) == MEGA_STARMIE:
-                return [i]
+    if _on("R3"):                                     # evolve Staryu->Mega Starmie
+        mega_cap = 2 if _on("R14") else 99            # R14: never a 3rd Mega (a 3rd over-exposes prizes)
+        if sum(1 for c in _ids_in_play(player) if c == MEGA_STARMIE) < mega_cap:
+            for i, o in enumerate(opts):
+                if o.get("type") == EVOLVE and DP.option_card_id(o, obs) == MEGA_STARMIE:
+                    return [i]
     hv = _high_value_play(obs, opts, player, opp)     # gust-to-KO / Wally's heal / Hero's Cape
     if hv is not None:
         return [hv]
-    ea = _best_attach_index(obs, opts, player)        # energy onto the line
-    if ea is not None:
-        return [ea]
+    if _on("R7"):                                     # energy onto the line
+        ea = _best_attach_index(obs, opts, player)
+        if ea is not None:
+            return [ea]
     ch = _crushing_hammer_play(obs, opts, opp)        # free disruption (coin flip)
     if ch is not None:
         return [ch]
 
     # --- now end the turn: take the KO (Jetting-first), else pivot, else defer chip/trainer to search ---
-    ko = _best_ko_index(obs, opts, opp)
-    if ko is not None:
-        return [ko]
+    if _on("R9"):
+        ko = _best_ko_index(obs, opts, opp)
+        if ko is not None:
+            return [ko]
     rp = _retreat_pivot(obs, opts, player)
     if rp is not None:
         return [rp]
     return None
 
 
+_AREA_ZONE = {1: "deck", 2: "hand"}   # known option.area codes (A_DECK=1, A_HAND=2)
+
+
 def _sel_card(sel, o):
-    """Resolve a CARD option to its card id via the selection-local zones (deck/discard/prize/hand)."""
+    """Resolve a CARD option to its card id, RESPECTING the option's own zone (audit G). The old code tried
+    deck/discard/prize/hand in fixed order at the same index, which could resolve to the wrong card when more
+    than one zone is populated. Use option.area when known (deck/hand); otherwise resolve only when exactly one
+    of the selection-local zones is populated (unambiguous), else return None (defer to search)."""
     idx = DP._get(o, "index", None)
     try:
         idx = int(idx)
     except Exception:
         return None
-    for key in ("deck", "discard", "prize", "hand"):
-        zone = DP._items(DP._get(sel, key, []))
-        if 0 <= idx < len(zone):
-            return DP._cid(zone[idx])
+    area = DP._get(o, "area", DP._get(o, "inPlayArea", None))
+    if area in _AREA_ZONE:
+        zone = DP._items(DP._get(sel, _AREA_ZONE[area], []))
+        return DP._cid(zone[idx]) if 0 <= idx < len(zone) else None
+    nonempty = [(k, DP._items(DP._get(sel, k, []))) for k in ("deck", "discard", "prize", "hand")]
+    nonempty = [(k, z) for k, z in nonempty if z]
+    if len(nonempty) == 1:
+        z = nonempty[0][1]
+        return DP._cid(z[idx]) if 0 <= idx < len(z) else None
     return None
 
 
@@ -453,6 +540,8 @@ def _tutor_target(obs):
     Turbo Flare (Cinderace) -> up to N Basic Water; Poffin -> Basic Pokemon (Staryu); Mega Signal / Ultra Ball /
     Salvatore / Hilda / etc. -> the highest-need card. Cards resolve via sel.deck[index] (a hidden reveal zone,
     e.g. Pokegear, exposes nothing -> defer to search)."""
+    if not _on("R11"):
+        return None
     sel = DP._selection(obs)
     if not sel:
         return None
@@ -484,6 +573,8 @@ def _opp_bench_target(obs):
     """Gust (Boss's Orders) or Jetting Blow bench-snipe target. Keyed on sel.effect.id. Pick the opponent
     benched Pokemon we can KO this turn (gust = main attack 120/210; snipe = 50), preferring higher prize then
     Water-weak then lowest HP (counter-specific). Falls through to search if nothing resolves."""
+    if not _on("R12"):
+        return None
     sel = DP._selection(obs)
     if not sel or int(DP._get(sel, "maxCount", 0) or 0) != 1:
         return None
@@ -591,9 +682,11 @@ def choose_action(obs, deck=STARMIE_DECK):
     try:
         import search_v3 as S
         S.USE_DYNAMIC_ATTACKS = True
-        mv = S.best_option(obs, list(deck), leaf_mode="deckout", rollout_mode="develop")
+        kw = ({"opp_decks": _OPP_DECKS, "opp_weights": _OPP_WEIGHTS}
+              if (USE_META_OPP_PRIOR and _OPP_DECKS) else {})
+        mv = S.best_option(obs, list(deck), leaf_mode="deckout", rollout_mode="develop", **kw)
         if mv:
-            veto = _veto_search_pick(obs, list(mv))
+            veto = _veto_search_pick(obs, list(mv)) if _on("R13") else None
             return list(veto) if (veto and DP.valid_selection(obs, veto)) else list(mv)
     except Exception:
         pass
