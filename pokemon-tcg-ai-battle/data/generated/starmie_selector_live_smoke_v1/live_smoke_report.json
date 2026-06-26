@@ -1,0 +1,129 @@
+{
+  "games_per_matchup": 20,
+  "budget": 0.2,
+  "modes": {
+    "S0": "off",
+    "S1": "top1_gate",
+    "S2": "top3_selector"
+  },
+  "opponents": [
+    "deployed",
+    "alakazam",
+    "denpa92",
+    "first",
+    "random"
+  ],
+  "results": {
+    "S0": {
+      "deployed": {
+        "win": 11,
+        "loss": 9,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 55.0
+      },
+      "alakazam": {
+        "win": 17,
+        "loss": 3,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 85.0
+      },
+      "denpa92": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      },
+      "first": {
+        "win": 14,
+        "loss": 6,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 70.0
+      },
+      "random": {
+        "win": 18,
+        "loss": 2,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 90.0
+      }
+    },
+    "S1": {
+      "deployed": {
+        "win": 9,
+        "loss": 11,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 45.0
+      },
+      "alakazam": {
+        "win": 18,
+        "loss": 2,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 90.0
+      },
+      "denpa92": {
+        "win": 20,
+        "loss": 0,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 100.0
+      },
+      "first": {
+        "win": 15,
+        "loss": 5,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 75.0
+      },
+      "random": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      }
+    },
+    "S2": {
+      "deployed": {
+        "win": 4,
+        "loss": 16,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 20.0
+      },
+      "alakazam": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      },
+      "denpa92": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      },
+      "first": {
+        "win": 16,
+        "loss": 4,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 80.0
+      },
+      "random": {
+        "win": 20,
+        "loss": 0,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 100.0
+      }
+    }
+  }
+}

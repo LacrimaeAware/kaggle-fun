@@ -1,0 +1,30 @@
+{
+  "task": "STARMIE SELECTOR LIVE-SMOKE BRIDGE V1 (official packer)",
+  "pipeline": "raw CABT obs -> learned_selector_bridge adapter -> official Model A packer -> portable selector runtime",
+  "gates": {
+    "raw_observation_parity": "PASS 220/220 selected + 100% packed fields (official packer)",
+    "runtime_self_reproduction": "PASS 100% on Model A own packed options",
+    "adapter_feature_parity": "tactical 100% (20 keys), board_entities 100%, state 100% except opp_attack_ready 91.4%, option IDs 95-100%",
+    "adapter_exact_selection_vs_modelA": "91.4% on 220 parity decisions",
+    "off_mode_reproduction": "PASS action-identical to baseline (test_selector_wiring_v1, strict identity)",
+    "live_smoke_clean": "PASS 0 errors / 0 illegal across 300 games"
+  },
+  "smoke": {
+    "games_per_matchup": 20,
+    "budget": 0.2,
+    "aggregate_win_pct": {
+      "S0_off": 79.0,
+      "S1_top1_gate": 81.0,
+      "S2_top3_selector": 78.0
+    },
+    "vs_deployed_mirror_win_pct": {
+      "S0_off": 55.0,
+      "S1_top1_gate": 45.0,
+      "S2_top3_selector": 20.0
+    },
+    "vs_field_decks": "neutral-to-slightly-positive for both modes (alakazam/denpa92/first/random)"
+  },
+  "verdict": "B_NEUTRAL for top1_gate; C_REGRESSIVE for top3_selector vs deployed mirror (20% vs 55% off, -35pp, outside n=20 noise). Field-neutral. CONFIRMS heuristic develop-before-attack: the learned selectors develop->attack shift hurts vs the strongest opponent.",
+  "promotion_status": "DO_NOT_PROMOTE -- default STARMIE_SELECTOR_MODE stays off; not submitted. Infrastructure (faithful adapter, fail-closed wiring, official packer) proven + reusable; current selector model does not improve local win rate and top3 regresses in the mirror.",
+  "caveat": "Local self-play does NOT predict the ladder (proven: sub_starmie 33-7 local but 0.480 ladder). This is a safety/direction smoke, not a ranking."
+}

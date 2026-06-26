@@ -1,0 +1,37 @@
+Selector live smoke: modes [('S0', 'off'), ('S1', 'top1_gate'), ('S2', 'top3_selector')] vs ['deployed', 'alakazam', 'denpa92', 'first', 'random'], n=20/matchup, budget=0.2s
+CAVEAT: local self-play does NOT predict the ladder; this is a safety/direction smoke.
+
+  [10/150] chunks done
+  [20/150] chunks done
+  [30/150] chunks done
+  [40/150] chunks done
+  [50/150] chunks done
+  [60/150] chunks done
+  [70/150] chunks done
+  [80/150] chunks done
+  [90/150] chunks done
+  [100/150] chunks done
+  [110/150] chunks done
+  [120/150] chunks done
+  [130/150] chunks done
+  [140/150] chunks done
+  [150/150] chunks done
+
+=== heavy Starmie win rate by mode x opponent ===
+  S0(off          ) vs deployed : 11-9  (55.0% win, 0 draw, 0 err)
+  S0(off          ) vs alakazam : 17-3  (85.0% win, 0 draw, 0 err)
+  S0(off          ) vs denpa92  : 19-1  (95.0% win, 0 draw, 0 err)
+  S0(off          ) vs first    : 14-6  (70.0% win, 0 draw, 0 err)
+  S0(off          ) vs random   : 18-2  (90.0% win, 0 draw, 0 err)
+  S1(top1_gate    ) vs deployed : 9-11  (45.0% win, 0 draw, 0 err)
+  S1(top1_gate    ) vs alakazam : 18-2  (90.0% win, 0 draw, 0 err)
+  S1(top1_gate    ) vs denpa92  : 20-0  (100.0% win, 0 draw, 0 err)
+  S1(top1_gate    ) vs first    : 15-5  (75.0% win, 0 draw, 0 err)
+  S1(top1_gate    ) vs random   : 19-1  (95.0% win, 0 draw, 0 err)
+  S2(top3_selector) vs deployed : 4-16  (20.0% win, 0 draw, 0 err)
+  S2(top3_selector) vs alakazam : 19-1  (95.0% win, 0 draw, 0 err)
+  S2(top3_selector) vs denpa92  : 19-1  (95.0% win, 0 draw, 0 err)
+  S2(top3_selector) vs first    : 16-4  (80.0% win, 0 draw, 0 err)
+  S2(top3_selector) vs random   : 20-0  (100.0% win, 0 draw, 0 err)
+
+wrote C:\Users\EcceNihilum\Desktop\GithubRepos\kaggle-fun\pokemon-tcg-ai-battle\data\generated\starmie_selector_live_smoke_v1\live_smoke_report.json
