@@ -99,6 +99,15 @@ def test_agent(obs):
         _CTX["first_changed_done"] = True
     if rec and rec.get("terminal_override_blocked"):
         _CTX["blocked_terminal"] = _CTX.get("blocked_terminal", 0) + 1
+        # log blocked terminal decisions too (they keep baseline -> not a "change", but we need outcome linkage)
+        _LOG.append({
+            "game_id": _CTX.get("game_id"), "matchup": _CTX.get("matchup"), "mode": mode,
+            "step": _CTX.get("calls"), "baseline_raw": base[0], "selector_raw": base[0],
+            "baseline_family": _fam(obs, base[0]), "selector_family": _fam(obs, base[0]),
+            "blocked_terminal": True, "blocked_override_reason": rec.get("blocked_override_reason"),
+            "source": rec.get("source"), "confidence": rec.get("confidence"), "first_changed": False,
+            "tactical": _tac(obs), "terminal_override_blocked": True, "hard_veto": rec.get("hard_veto"),
+        })
     return final
 
 
@@ -168,7 +177,7 @@ def _winner(env):
 
 
 def run_chunk(task):
-    mode_key, opp_name, n, seat0 = task
+    mode_key, opp_name, n, seat0, tidx = task
     os.environ["STARMIE_SELECTOR_MODE"] = MODES[mode_key]
     make, SH = _G["make"], _G["SH"]
     opp = _opp(opp_name)
@@ -180,7 +189,7 @@ def run_chunk(task):
         pair = [test_agent, opp] if t_seat == 0 else [opp, test_agent]
         _LOG.clear()
         _CTX.clear()
-        gid = f"{mode_key}:{opp_name}:{seat0}:{i}"
+        gid = f"{mode_key}:{opp_name}:t{tidx}:{i}"  # tidx is globally unique per task -> game_id unique
         _CTX.update(game_id=gid, matchup=opp_name)
         try:
             with contextlib.redirect_stdout(io.StringIO()):
@@ -221,12 +230,14 @@ def main():
     args.games = min(args.games, 50)
     OUT.mkdir(parents=True, exist_ok=True)
     tasks = []
+    _t = 0
     for mk in MODES:
         for opp in OPPONENTS:
             rem, seat = args.games, 0
             while rem > 0:
                 k = min(args.chunk, rem)
-                tasks.append((mk, opp, k, seat))
+                tasks.append((mk, opp, k, seat, _t))
+                _t += 1
                 seat = (seat + k) % 2
                 rem -= k
     print(f"V2 second smoke: modes {list(MODES.items())} vs {OPPONENTS}, n={args.games}/matchup, budget={args.budget}s",

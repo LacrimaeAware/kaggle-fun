@@ -31,18 +31,29 @@ def main() -> int:
     c3 = [r for r in rows if r["mode"] == "c3_family_limited"]
     c3_terminal_overrides = [r for r in c3 if r["selector_family"] in TERMINAL]
     c3_fam_to = collections.Counter(r["selector_family"] for r in c3)
-    c3_blocked_terminal = sum(1 for r in c3 if r.get("terminal_override_blocked"))
+    # blocked terminals keep the baseline (not a "changed" decision), so count them from the smoke metrics
+    c3_blocked_terminal = sum(v.get("blocked_terminal", 0) for k, v in summary.get("metrics", {}).items()
+                              if k.startswith("S2:"))
     total_err = sum(res[m][o]["err"] for m in summary["modes"] for o in opps)
 
     # mirror regression check vs off + vs V1 top3 (20%)
     v1 = json.load(open(V1, encoding="utf-8")) if V1.exists() else None
     v1_top3_mirror = v1["results"]["S2"]["deployed"]["win_pct"] if v1 else None  # V1 S2 was top3 vs 'deployed'
 
-    # first-changed-decision outcomes (per mode)
-    def first_changed_outcomes(mode):
-        fc = [r for r in rows if r["mode"] == mode and r.get("first_changed")]
+    # first-changed-decision outcomes (per mode). NB rows store the mode VALUE (off/top1_gate/c3_family_limited).
+    def first_changed_outcomes(mode_value):
+        fc = [r for r in rows if r["mode"] == mode_value and r.get("first_changed")]
         out = collections.Counter(r.get("game_result") for r in fc)
         return {"n_games_with_change": len(fc), "result_dist": dict(out)}
+
+    # combined key matchups (the two disciplined-Starmie opponents) -- the matchups that actually matter
+    KEY = ["deployed", "mirror"]
+    FIELD = [o for o in opps if o not in KEY]
+
+    def comb(mode, group):
+        w = sum(res[mode][o]["win"] for o in group)
+        l = sum(res[mode][o]["loss"] for o in group)
+        return round(100 * w / (w + l), 1) if (w + l) else None
 
     # family transition matrix (c3)
     fam_matrix = collections.Counter((r["baseline_family"], r["selector_family"]) for r in c3)
@@ -67,23 +78,45 @@ def main() -> int:
         "field_non_catastrophic": {o: {"S0": winpct("S0", o), "S2": winpct("S2", o),
                                        "delta_pp": round((winpct("S2", o) or 0) - (winpct("S0", o) or 0), 1)}
                                    for o in opps if o not in ("mirror", "deployed")},
-        "first_changed_outcomes": {m: first_changed_outcomes(m) for m in summary["modes"]},
+        "first_changed_outcomes": {mv: first_changed_outcomes(mv) for mv in summary["modes"].values()},
         "c3_family_transition_matrix": {f"{a}->{b}": c for (a, b), c in sorted(fam_matrix.items(), key=lambda x: -x[1])},
         "metrics": summary.get("metrics", {}),
     }
 
-    # ---- verdict ----
+    # key-matchup (deployed+mirror) analysis -- the verdict basis, NOT the field aggregate
+    key_off, key_top1, key_c3 = comb("S0", KEY), comb("S1", KEY), comb("S2", KEY)
+    field_off, field_c3 = comb("S0", FIELD), comb("S2", FIELD)
+    agg_off, agg_c3 = comb("S0", opps), comb("S2", opps)
+    extra_wins_total = sum(res["S2"][o]["win"] - res["S0"][o]["win"] for o in opps)
+    extra_wins_field = sum(res["S2"][o]["win"] - res["S0"][o]["win"] for o in FIELD)
+    report["key_matchup_analysis"] = {
+        "key_opponents": KEY,
+        "combined_winpct": {"off": key_off, "top1_gate": key_top1, "c3": key_c3},
+        "c3_minus_off_pp_on_key": round((key_c3 or 0) - (key_off or 0), 1),
+        "c3_vs_top1_on_key_pp": round((key_c3 or 0) - (key_top1 or 0), 1),
+        "deployed_c3_vs_top1": {"c3": res["S2"]["deployed"]["win_pct"], "top1_gate": res["S1"]["deployed"]["win_pct"]},
+        "note": "C3 is flat vs off on the key matchups and BELOW the simpler top1_gate; the only gains are vs weak field decks.",
+    }
+    report["aggregate_decomposition"] = {
+        "aggregate_off": agg_off, "aggregate_c3": agg_c3,
+        "field_off": field_off, "field_c3": field_c3,
+        "extra_wins_c3_over_off_total": extra_wins_total, "extra_wins_from_field": extra_wins_field,
+        "pct_of_gain_from_field": round(100 * extra_wins_field / extra_wins_total, 0) if extra_wins_total else None,
+        "note": "100% of C3's extra wins over off come from weak field decks; 0 from deployed+mirror.",
+    }
+
+    # ---- verdict: decided on the KEY matchups (deployed+mirror), not the field aggregate ----
     field_deltas = [v["delta_pp"] for v in report["field_non_catastrophic"].values()]
-    mirror_delta = report["mirror"]["S2_minus_off_pp"]
-    deployed_delta = report["mirror"]["deployed_mirror_S2_minus_off_pp"]
+    key_delta = report["key_matchup_analysis"]["c3_minus_off_pp_on_key"]
     catastrophic_field = any(d <= -30 for d in field_deltas)
     if total_err > 0 or len(c3_terminal_overrides) > 0:
         verdict = "D_C3_SELECTOR_UNSAFE_OR_INVALID"
-    elif (mirror_delta <= -25 or deployed_delta <= -25) or catastrophic_field:
+    elif key_delta <= -25 or catastrophic_field:
         verdict = "C_C3_SELECTOR_STILL_REGRESSIVE"
-    elif (mirror_delta >= 5 or deployed_delta >= 5) and not catastrophic_field and c3_fam_to:
+    elif key_delta >= 10 and not catastrophic_field:
         verdict = "A_C3_SELECTOR_SMOKE_CLEAN_DIRECTIONAL"
     else:
+        # flat on the key matchups (n=20, Fisher p~1.0): safe + non-catastrophic but not a directional win
         verdict = "B_C3_SELECTOR_SMOKE_NEUTRAL"
     # promotion: n=20 is underpowered (per the V1 diagnostic), so never submit/large-AB on this alone
     if verdict.startswith("D"):
@@ -95,10 +128,21 @@ def main() -> int:
     else:
         promotion = "NEEDS_N500"
     report["DIAGNOSTIC_VERDICT"] = verdict
-    report["PROMOTION_STATUS"] = "DO_NOT_SUBMIT / " + promotion
-    report["caveat"] = ("n=20/matchup is underpowered (per the V1 diagnostic: a 20-game mirror cell carries ~+/-20pp "
-                        "CIs). The terminal-override elimination and 0-error safety are solid; win-rate direction is "
-                        "indicative only. Local self-play does NOT predict the ladder.")
+    report["PROMOTION_STATUS"] = "DO_NOT_PROMOTE / " + promotion
+    report["what_holds"] = ("Deterministic safety: C3 emitted 0 terminal (ATTACK/END/RETREAT) overrides and blocked "
+                            f"{c3_blocked_terminal} live. No catastrophic regression: the V1 top3 -35pp deployed-mirror "
+                            "crash did NOT recur (combined key matchups flat vs off).")
+    report["what_is_overclaimed"] = ("'Field-positive / directional win' is NOT supported. On the matchups that decide "
+                                     "the ladder (deployed+mirror) C3 is FLAT vs off (0.0pp combined) and BELOW the "
+                                     "simpler top1_gate (deployed 45% vs 60%). 100% of C3's aggregate gain is vs weak "
+                                     "field decks. At n=20 every cell is Fisher p~1.0 -- no win-rate direction is real.")
+    report["promotion_conditions"] = [
+        "fix the trace logger to record BLOCKED decisions + true per-game ids (current game_id is a non-unique shard "
+        "label; blocked terminals are only counters, so 'blocking avoids mirror loss' has no per-decision evidence)",
+        "before any N500, pre-commit to judging promotion on the deployed+mirror cells, NOT the field aggregate",
+    ]
+    report["caveat"] = ("n=20/matchup is underpowered (~+/-20pp CIs; need ~+30pp/cell for p<0.05). Local self-play "
+                        "does NOT predict the ladder. Verdict adversarially reviewed and downgraded A->B.")
     (OUT / "diagnostic_report.json").write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
 
     # ---- review html ----

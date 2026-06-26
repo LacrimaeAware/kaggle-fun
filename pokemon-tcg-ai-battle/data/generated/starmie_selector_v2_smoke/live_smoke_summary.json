@@ -1,0 +1,261 @@
+{
+  "games_per_matchup": 20,
+  "budget": 0.2,
+  "modes": {
+    "S0": "off",
+    "S1": "top1_gate",
+    "S2": "c3_family_limited"
+  },
+  "opponents": [
+    "deployed",
+    "mirror",
+    "alakazam",
+    "denpa92",
+    "first",
+    "random"
+  ],
+  "results": {
+    "S0": {
+      "deployed": {
+        "win": 10,
+        "loss": 10,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 50.0
+      },
+      "mirror": {
+        "win": 11,
+        "loss": 9,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 55.0
+      },
+      "alakazam": {
+        "win": 13,
+        "loss": 7,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 65.0
+      },
+      "denpa92": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      },
+      "first": {
+        "win": 12,
+        "loss": 8,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 60.0
+      },
+      "random": {
+        "win": 18,
+        "loss": 2,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 90.0
+      }
+    },
+    "S1": {
+      "deployed": {
+        "win": 12,
+        "loss": 8,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 60.0
+      },
+      "mirror": {
+        "win": 11,
+        "loss": 9,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 55.0
+      },
+      "alakazam": {
+        "win": 18,
+        "loss": 2,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 90.0
+      },
+      "denpa92": {
+        "win": 16,
+        "loss": 4,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 80.0
+      },
+      "first": {
+        "win": 14,
+        "loss": 6,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 70.0
+      },
+      "random": {
+        "win": 19,
+        "loss": 1,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 95.0
+      }
+    },
+    "S2": {
+      "deployed": {
+        "win": 9,
+        "loss": 11,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 45.0
+      },
+      "mirror": {
+        "win": 12,
+        "loss": 8,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 60.0
+      },
+      "alakazam": {
+        "win": 20,
+        "loss": 0,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 100.0
+      },
+      "denpa92": {
+        "win": 20,
+        "loss": 0,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 100.0
+      },
+      "first": {
+        "win": 16,
+        "loss": 4,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 80.0
+      },
+      "random": {
+        "win": 20,
+        "loss": 0,
+        "draw": 0,
+        "err": 0,
+        "win_pct": 100.0
+      }
+    }
+  },
+  "metrics": {
+    "S0:deployed": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S0:mirror": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S0:alakazam": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S0:denpa92": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S0:first": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S0:random": {
+      "selector_calls": 0,
+      "overrides": 0,
+      "blocked_terminal": 0,
+      "sel_ms": 0.0
+    },
+    "S1:deployed": {
+      "selector_calls": 553,
+      "overrides": 136,
+      "blocked_terminal": 0,
+      "sel_ms": 1675.5273997841869
+    },
+    "S1:mirror": {
+      "selector_calls": 718,
+      "overrides": 163,
+      "blocked_terminal": 0,
+      "sel_ms": 1837.013600365026
+    },
+    "S1:alakazam": {
+      "selector_calls": 435,
+      "overrides": 163,
+      "blocked_terminal": 0,
+      "sel_ms": 1176.6716999700293
+    },
+    "S1:denpa92": {
+      "selector_calls": 530,
+      "overrides": 168,
+      "blocked_terminal": 0,
+      "sel_ms": 1635.4395996022504
+    },
+    "S1:first": {
+      "selector_calls": 661,
+      "overrides": 176,
+      "blocked_terminal": 0,
+      "sel_ms": 1870.682100096019
+    },
+    "S1:random": {
+      "selector_calls": 458,
+      "overrides": 125,
+      "blocked_terminal": 0,
+      "sel_ms": 1207.9626997292507
+    },
+    "S2:deployed": {
+      "selector_calls": 842,
+      "overrides": 185,
+      "blocked_terminal": 86,
+      "sel_ms": 2104.8787000763696
+    },
+    "S2:mirror": {
+      "selector_calls": 733,
+      "overrides": 169,
+      "blocked_terminal": 85,
+      "sel_ms": 1731.3315999927
+    },
+    "S2:alakazam": {
+      "selector_calls": 669,
+      "overrides": 149,
+      "blocked_terminal": 88,
+      "sel_ms": 1630.7311998680234
+    },
+    "S2:denpa92": {
+      "selector_calls": 617,
+      "overrides": 146,
+      "blocked_terminal": 91,
+      "sel_ms": 1498.2491003465839
+    },
+    "S2:first": {
+      "selector_calls": 674,
+      "overrides": 134,
+      "blocked_terminal": 56,
+      "sel_ms": 1567.1610001008958
+    },
+    "S2:random": {
+      "selector_calls": 420,
+      "overrides": 65,
+      "blocked_terminal": 53,
+      "sel_ms": 928.7497997574974
+    }
+  }
+}
