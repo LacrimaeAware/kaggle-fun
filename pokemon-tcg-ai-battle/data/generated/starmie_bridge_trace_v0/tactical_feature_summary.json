@@ -1,0 +1,29 @@
+{
+  "D0_YUSHIN_TOP1": {
+    "n": 2182,
+    "commitment_true_rate": {
+      "guaranteed_ko_available": 0.15,
+      "nonterminal_attack_available": 0.229,
+      "attachment_unused": 0.367,
+      "information_action_available": 0.456
+    }
+  },
+  "D1_KEIDROID_TOP2": {
+    "n": 2500,
+    "commitment_true_rate": {
+      "guaranteed_ko_available": 0.158,
+      "nonterminal_attack_available": 0.225,
+      "attachment_unused": 0.368,
+      "information_action_available": 0.36
+    }
+  },
+  "D2_OLD_EXACT_ALL": {
+    "n": 2500,
+    "commitment_true_rate": {
+      "guaranteed_ko_available": 0.193,
+      "nonterminal_attack_available": 0.198,
+      "attachment_unused": 0.373,
+      "information_action_available": 0.356
+    }
+  }
+}

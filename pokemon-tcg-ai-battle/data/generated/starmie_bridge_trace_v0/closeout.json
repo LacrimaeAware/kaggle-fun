@@ -1,0 +1,29 @@
+{
+  "TRACE_VERDICT": "A_TRACE_DATA_READY_FOR_MODEL_A",
+  "BRIDGE_VERDICT": "B_WAITING_FOR_MODEL_A_PROPOSER",
+  "cohort_rows": {
+    "D0_YUSHIN_TOP1": 2182,
+    "D1_KEIDROID_TOP2": 2500,
+    "D2_OLD_EXACT_ALL": 2500
+  },
+  "bridge_input_rows": 7182,
+  "review_examples": 87,
+  "agreement": {
+    "D0_YUSHIN_TOP1": 51.7,
+    "D1_KEIDROID_TOP2": 49.7,
+    "D2_OLD_EXACT_ALL": 52.2
+  },
+  "artifacts": [
+    "agreement_gap_report.json",
+    "baseline_manifest.json",
+    "keidroid_trace.jsonl",
+    "model_a_bridge_input.jsonl",
+    "old_exact_trace_sample.jsonl",
+    "proposer_bridge_waiting.json",
+    "review_examples.jsonl",
+    "tactical_feature_summary.json",
+    "trace_schema.json",
+    "yushin_trace.jsonl",
+    "review_examples.html"
+  ]
+}

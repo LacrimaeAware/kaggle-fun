@@ -1,0 +1,33 @@
+{
+  "schema_version": "starmie_bridge_trace_v0",
+  "row": {
+    "decision_id": "episode_step_seat",
+    "runtime": "PUBLIC payload usable by a proposer; no hidden info/outcome/pilot",
+    "eval_meta": "evaluation-only; MUST NOT be a model input"
+  },
+  "traced_agent": "current Starmie heuristic/search agent at the DEPLOYED baseline (sub_starmie2 behaviour): STARMIE_DISABLE=R15, ATTACH_MEGA off, continuity leaf off. Trace mode is read-only and does not change the chosen action.",
+  "semantic_action_keys": {
+    "ATTACK": "ATTACK:Jetting|Nebula|Turbo",
+    "ATTACH": "ATTACH:<energy>:<target_role> e.g. ATTACH:Water:Mega / ATTACH:Ignition:Mega / ATTACH:Water:Cinderace",
+    "EVOLVE": "EVOLVE:<card>",
+    "PLAY": "PLAY:<card>",
+    "SELECT_CARD": "SELECT_CARD:<card>",
+    "ABILITY": "ABILITY:<card>",
+    "other": "RETREAT|END|YES|NO|DISCARD"
+  },
+  "join_for_model_a": "runtime.option_index_to_semantic_key maps each legal option index to its semantic key; the proposer predicts semantic keys, join to legal options + compare to current_agent_action_key and (eval_meta) pilot_action_key by decision_id.",
+  "forbidden_in_runtime": [
+    "pilot_name",
+    "outcome_won",
+    "future_same_turn_sequence",
+    "replay_link",
+    "split (as feature)"
+  ],
+  "feature_marks": {
+    "deck_independent": "board prize/HP/units/hand/deck counts, VALUE_STATE",
+    "starmie_role_specific": "ready_main/backup/engine_overinvest, SWEEP/RACE both_mains",
+    "exact_card_specific": "attach_target_role, attack key (Jetting/Nebula/Turbo), Ignition unit rule",
+    "runtime_safe": "all runtime.*",
+    "eval_only": "all eval_meta.*"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "status": "WAITING_FOR_MODEL_A_PROPOSER",
+  "expected_proposer_export": "C:\\Users\\EcceNihilum\\Desktop\\GithubRepos\\pokemon-ai-agent\\data\\generated\\starmie_specialist\\starmie_behavior_proposer_v0_export.json",
+  "also_expected": [
+    "pokemon-ai-agent/data/generated/starmie_specialist/proposer_v0_quality_report.json",
+    "pokemon-ai-agent/data/generated/starmie_specialist/proposer_v0_candidate_set_report.json"
+  ],
+  "bridge_input_ready": "data/generated/starmie_bridge_trace_v0/model_a_bridge_input.jsonl",
+  "join_key": "decision_id",
+  "instructions": "When the proposer export + per-decision logits exist, join by decision_id to the bridge input; compute candidate-set coverage C0..C4 (current_agent_action +/- proposer_top1/3/5) per Section 8."
+}

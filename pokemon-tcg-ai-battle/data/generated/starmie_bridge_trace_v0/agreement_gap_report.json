@@ -1,0 +1,158 @@
+{
+  "D0_YUSHIN_TOP1": {
+    "overall_agreement_pct": 51.7,
+    "n": 2182,
+    "by_family": {
+      "ATTACH": {
+        "agree_pct": 39.1,
+        "n": 299
+      },
+      "ATTACK": {
+        "agree_pct": 52.3,
+        "n": 331
+      },
+      "EVOLVE": {
+        "agree_pct": 83.2,
+        "n": 101
+      },
+      "OTHER": {
+        "agree_pct": 30.3,
+        "n": 76
+      },
+      "PLAY": {
+        "agree_pct": 34.1,
+        "n": 560
+      },
+      "RETREAT": {
+        "agree_pct": 67.6,
+        "n": 34
+      },
+      "SELECT_CARD": {
+        "agree_pct": 65.1,
+        "n": 697
+      },
+      "YES_NO": {
+        "agree_pct": 76.2,
+        "n": 84
+      }
+    },
+    "active_source": {
+      "heuristic": 1501,
+      "search_or_default": 681
+    },
+    "attack_when_available": {
+      "n": 806,
+      "pilot_attack_pct": 41.1,
+      "agent_attack_pct": 25.8
+    },
+    "attach_target": {
+      "n_attach": 299,
+      "pilot_mega_pct": 79.9,
+      "agent_cinderace_pct": 18.4
+    }
+  },
+  "D1_KEIDROID_TOP2": {
+    "overall_agreement_pct": 49.7,
+    "n": 2500,
+    "by_family": {
+      "ATTACH": {
+        "agree_pct": 54.4,
+        "n": 239
+      },
+      "ATTACK": {
+        "agree_pct": 51.7,
+        "n": 321
+      },
+      "EVOLVE": {
+        "agree_pct": 82.5,
+        "n": 80
+      },
+      "OTHER": {
+        "agree_pct": 38.4,
+        "n": 86
+      },
+      "PLAY": {
+        "agree_pct": 21.5,
+        "n": 683
+      },
+      "RETREAT": {
+        "agree_pct": 35.7,
+        "n": 28
+      },
+      "SELECT_CARD": {
+        "agree_pct": 65.7,
+        "n": 993
+      },
+      "YES_NO": {
+        "agree_pct": 54.3,
+        "n": 70
+      }
+    },
+    "active_source": {
+      "heuristic": 1769,
+      "search_or_default": 731
+    },
+    "attack_when_available": {
+      "n": 932,
+      "pilot_attack_pct": 34.4,
+      "agent_attack_pct": 26.2
+    },
+    "attach_target": {
+      "n_attach": 239,
+      "pilot_mega_pct": 63.6,
+      "agent_cinderace_pct": 20.9
+    }
+  },
+  "D2_OLD_EXACT_ALL": {
+    "overall_agreement_pct": 52.2,
+    "n": 2500,
+    "by_family": {
+      "ATTACH": {
+        "agree_pct": 60.9,
+        "n": 258
+      },
+      "ATTACK": {
+        "agree_pct": 62.3,
+        "n": 326
+      },
+      "EVOLVE": {
+        "agree_pct": 77.4,
+        "n": 106
+      },
+      "OTHER": {
+        "agree_pct": 40.3,
+        "n": 77
+      },
+      "PLAY": {
+        "agree_pct": 27.2,
+        "n": 706
+      },
+      "RETREAT": {
+        "agree_pct": 42.4,
+        "n": 33
+      },
+      "SELECT_CARD": {
+        "agree_pct": 64.6,
+        "n": 924
+      },
+      "YES_NO": {
+        "agree_pct": 41.4,
+        "n": 70
+      }
+    },
+    "active_source": {
+      "heuristic": 1788,
+      "search_or_default": 712
+    },
+    "attack_when_available": {
+      "n": 927,
+      "pilot_attack_pct": 35.2,
+      "agent_attack_pct": 31.7
+    },
+    "attach_target": {
+      "n_attach": 258,
+      "pilot_mega_pct": 68.2,
+      "agent_cinderace_pct": 15.1
+    }
+  }
+}

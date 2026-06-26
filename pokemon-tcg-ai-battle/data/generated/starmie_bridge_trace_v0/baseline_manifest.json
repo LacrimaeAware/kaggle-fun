@@ -1,0 +1,22 @@
+{
+  "git_head": "a83a82ea37675545a48b589428fa1f69275dede0",
+  "branch": "exp/starmie-tactical-leaf-v1",
+  "deck_sha1": "2d0186cae2f4",
+  "starmie_heuristics_sha256": "906e3a219a1752e0",
+  "search_v3_sha256": "a5c19eddf7944189",
+  "eval_sha256": "0e76685754c5f196",
+  "opponent_meta_sha256": null,
+  "toggles": {
+    "DISABLED_default": [],
+    "R15_attack_at_end_default_on": true,
+    "ATTACH_MEGA_default": false,
+    "ATTACKER_CONTINUITY_leaf_default": false
+  },
+  "search": {
+    "DEFAULT_BUDGET": 0.6,
+    "N_DETERM": 8,
+    "leaf_mode": "deckout",
+    "rollout_mode": "develop"
+  },
+  "note": "current Starmie heuristic/search agent = sub_starmie2 lineage + R15(on) + default-off probes (ATTACH_MEGA, continuity leaf). Trace mode must not change behavior."
+}
