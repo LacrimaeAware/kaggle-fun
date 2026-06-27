@@ -28,6 +28,7 @@ MODULES = [
     "test_turn_context_v0",         # read-only turn-context extractor (PREP; unwired, schema-stable, no leak)
     "test_selector_v3_wiring_v1",   # V3 transplant wiring (off-identity, fail-closed, never terminal)
     "test_transplant_v5_support_v1",  # V5 runtime-feature support pack (extractor no-mutation/no-leakage/delta probe)
+    "test_local_meta_analyze_v1",   # local-meta analyzer (pooling, early-stopping warning, primary-vs-field isolation)
 ]
 
 
