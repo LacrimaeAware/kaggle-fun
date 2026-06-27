@@ -1,0 +1,24 @@
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "PLAY:discard_energy", "query_true_value": 1, "decisive_axes": ["opponent_threat"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "PLAY:gust", "query_true_value": 1, "decisive_axes": ["prize_liability"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_redundant", "query_true_value": -1, "decisive_axes": ["attacker_readiness"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": 1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": 1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_redundant", "query_true_value": -1, "decisive_axes": ["attacker_readiness"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_missing_evolution", "query_true_value": 1, "decisive_axes": ["safe_development_remaining"], "global_NN_value": 0, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": 1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 0, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "PLAY:heal", "query_true_value": 1, "decisive_axes": ["opponent_threat"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_engine", "query_true_value": -1, "decisive_axes": ["attacker_readiness", "target_role"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACK:attack_chip", "query_true_value": -1, "decisive_axes": ["safe_development_remaining", "turn_progress", "effect_nullification"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "PLAY:heal", "query_true_value": 1, "decisive_axes": ["opponent_threat"], "global_NN_value": -1, "axis_NN_value": 1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "ATTACH:attach_main", "query_true_value": -1, "decisive_axes": ["energy_shortfall", "target_role"], "global_NN_value": 1, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 0, "axis_NN_value": -1}
+{"category": "global_falsely_accepts_axis_fixes", "query": "SELECT_CARD:fetch_redundant", "query_true_value": -1, "decisive_axes": [], "global_NN_value": 1, "axis_NN_value": -1}

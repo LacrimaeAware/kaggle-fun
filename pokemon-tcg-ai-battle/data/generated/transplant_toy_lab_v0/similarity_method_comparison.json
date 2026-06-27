@@ -1,0 +1,199 @@
+{
+  "memory_rows": 1500,
+  "query_rows": 500,
+  "methods": [
+    {
+      "name": "M0_GLOBAL_SCALAR",
+      "value_mse": 0.7803,
+      "bad_transplant_rate_pct": 43.4,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M0u_GLOBAL_UNIFORM",
+      "value_mse": 0.7108,
+      "bad_transplant_rate_pct": 43.6,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M0b_SAMEFAM_UNIFORM",
+      "value_mse": 0.431,
+      "bad_transplant_rate_pct": 28.4,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M1_FAMILY_HAND_MASK",
+      "value_mse": 0.4647,
+      "bad_transplant_rate_pct": 25.6,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M2_AXIS_CONDITIONED_DELTA",
+      "value_mse": 0.3795,
+      "bad_transplant_rate_pct": 22.0,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M4_LEARNED_AXIS_MASK",
+      "value_mse": 0.3792,
+      "bad_transplant_rate_pct": 22.8,
+      "abstention_rate_pct": 0.0,
+      "scored": 500,
+      "queries": 500
+    },
+    {
+      "name": "M5_SUPPORT_ABSTAIN",
+      "value_mse": 0.2985,
+      "bad_transplant_rate_pct": 18.5,
+      "abstention_rate_pct": 33.0,
+      "scored": 335,
+      "queries": 500
+    }
+  ],
+  "decisive_axis_detection_recall_mean": 0.62,
+  "per_role_detection": {
+    "attach_engine": {
+      "true_decisive": [
+        "attacker_readiness",
+        "target_role"
+      ],
+      "detected_top": [
+        "attacker_readiness",
+        "noise_c"
+      ],
+      "detection_recall": 0.5
+    },
+    "attach_main": {
+      "true_decisive": [
+        "energy_shortfall",
+        "target_role"
+      ],
+      "detected_top": [
+        "attacker_readiness",
+        "noise_c"
+      ],
+      "detection_recall": 0.0
+    },
+    "attach_redundant": {
+      "true_decisive": [
+        "attacker_readiness"
+      ],
+      "detected_top": [
+        "attacker_readiness"
+      ],
+      "detection_recall": 1.0
+    },
+    "fetch_missing_evolution": {
+      "true_decisive": [
+        "safe_development_remaining"
+      ],
+      "detected_top": [
+        "safe_development_remaining"
+      ],
+      "detection_recall": 1.0
+    },
+    "fetch_immediate_attacker": {
+      "true_decisive": [
+        "attacker_readiness",
+        "opponent_threat"
+      ],
+      "detected_top": [
+        "energy_shortfall",
+        "safe_development_remaining"
+      ],
+      "detection_recall": 0.0
+    },
+    "fetch_redundant": {
+      "true_decisive": [],
+      "detected_top": [
+        "safe_development_remaining"
+      ],
+      "detection_recall": 1.0
+    },
+    "attack_KO": {
+      "true_decisive": [
+        "effect_nullification",
+        "prize_liability",
+        "safe_development_remaining"
+      ],
+      "detected_top": [
+        "effect_nullification",
+        "safe_development_remaining",
+        "turn_progress"
+      ],
+      "detection_recall": 0.67
+    },
+    "attack_chip": {
+      "true_decisive": [
+        "effect_nullification",
+        "safe_development_remaining",
+        "turn_progress"
+      ],
+      "detected_top": [
+        "effect_nullification",
+        "safe_development_remaining",
+        "turn_progress"
+      ],
+      "detection_recall": 1.0
+    },
+    "discard_energy": {
+      "true_decisive": [
+        "opponent_threat"
+      ],
+      "detected_top": [
+        "opponent_threat"
+      ],
+      "detection_recall": 1.0
+    },
+    "gust": {
+      "true_decisive": [
+        "prize_liability"
+      ],
+      "detected_top": [
+        "opponent_threat"
+      ],
+      "detection_recall": 0.0
+    },
+    "heal": {
+      "true_decisive": [
+        "opponent_threat"
+      ],
+      "detected_top": [
+        "opponent_threat"
+      ],
+      "detection_recall": 1.0
+    }
+  },
+  "global_axis_weights": {
+    "attacker_readiness": 0.093,
+    "energy_shortfall": 0.003,
+    "target_role": 0.047,
+    "effect_nullification": 0.079,
+    "turn_progress": 0.046,
+    "safe_development_remaining": 0.024,
+    "prize_liability": 0.023,
+    "opponent_threat": 0.152,
+    "hidden_risk_proxy": 0.013,
+    "noise_a": 0.001,
+    "noise_b": 0.014,
+    "noise_c": 0.004
+  },
+  "verdict": "B_AXIS_DELTA_DIRECTIONAL_ONLY",
+  "isolated_axis_conditioning_gain_vs_samefam_uniform": {
+    "mse_reduction_pct": 12.0,
+    "bad_transplant_reduction_pct": 19.7
+  },
+  "family_filter_gain_global_to_samefam_uniform": {
+    "mse_reduction_pct": 44.8
+  },
+  "note": "verdict is judged on the ISOLATED axis-conditioning gain (M2/M4 vs the same-family-uniform control M0b), which separates axis-weighting from family-filtering. Both contribute."
+}

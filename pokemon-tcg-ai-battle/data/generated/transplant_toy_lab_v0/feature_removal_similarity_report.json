@@ -1,0 +1,228 @@
+{
+  "examples": [
+    {
+      "pair_id": "x1153_x883",
+      "role": "heal",
+      "full_similarity": 4.517,
+      "similarity_without_axis": {
+        "attacker_readiness": 3.643,
+        "energy_shortfall": 4.517,
+        "target_role": 4.342,
+        "effect_nullification": 4.517,
+        "turn_progress": 4.515,
+        "safe_development_remaining": 4.429,
+        "prize_liability": 4.426,
+        "opponent_threat": 4.154,
+        "hidden_risk_proxy": 4.29,
+        "noise_a": 4.333,
+        "noise_b": 4.217,
+        "noise_c": 4.434
+      },
+      "neighbor_decisive_axes_detected": [
+        "attacker_readiness",
+        "opponent_threat"
+      ],
+      "true_decisive_axes": [
+        "opponent_threat"
+      ],
+      "true_values": [
+        0,
+        1
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x1196_x1301",
+      "role": "attach_engine",
+      "full_similarity": 2.246,
+      "similarity_without_axis": {
+        "attacker_readiness": 2.063,
+        "energy_shortfall": 2.246,
+        "target_role": 1.87,
+        "effect_nullification": 2.246,
+        "turn_progress": 2.237,
+        "safe_development_remaining": 2.063,
+        "prize_liability": 2.246,
+        "opponent_threat": 2.246,
+        "hidden_risk_proxy": 2.208,
+        "noise_a": 2.159,
+        "noise_b": 2.199,
+        "noise_c": 1.983
+      },
+      "neighbor_decisive_axes_detected": [
+        "target_role",
+        "noise_c"
+      ],
+      "true_decisive_axes": [
+        "attacker_readiness",
+        "target_role"
+      ],
+      "true_values": [
+        -1,
+        0
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x479_x1145",
+      "role": "attack_KO",
+      "full_similarity": 3.844,
+      "similarity_without_axis": {
+        "attacker_readiness": 3.844,
+        "energy_shortfall": 3.844,
+        "target_role": 3.844,
+        "effect_nullification": 3.283,
+        "turn_progress": 3.783,
+        "safe_development_remaining": 3.844,
+        "prize_liability": 3.738,
+        "opponent_threat": 3.41,
+        "hidden_risk_proxy": 3.821,
+        "noise_a": 3.372,
+        "noise_b": 3.767,
+        "noise_c": 3.547
+      },
+      "neighbor_decisive_axes_detected": [
+        "effect_nullification",
+        "noise_a"
+      ],
+      "true_decisive_axes": [
+        "safe_development_remaining",
+        "prize_liability",
+        "effect_nullification"
+      ],
+      "true_values": [
+        -1,
+        0
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x336_x1228",
+      "role": "attach_redundant",
+      "full_similarity": 4.036,
+      "similarity_without_axis": {
+        "attacker_readiness": 3.028,
+        "energy_shortfall": 3.938,
+        "target_role": 3.84,
+        "effect_nullification": 4.036,
+        "turn_progress": 4.036,
+        "safe_development_remaining": 3.938,
+        "prize_liability": 4.036,
+        "opponent_threat": 3.938,
+        "hidden_risk_proxy": 3.818,
+        "noise_a": 3.791,
+        "noise_b": 4.033,
+        "noise_c": 3.833
+      },
+      "neighbor_decisive_axes_detected": [
+        "attacker_readiness",
+        "noise_a"
+      ],
+      "true_decisive_axes": [
+        "attacker_readiness"
+      ],
+      "true_values": [
+        -1,
+        0
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x1086_x120",
+      "role": "attach_main",
+      "full_similarity": 4.498,
+      "similarity_without_axis": {
+        "attacker_readiness": 4.498,
+        "energy_shortfall": 4.135,
+        "target_role": 3.748,
+        "effect_nullification": 4.498,
+        "turn_progress": 4.413,
+        "safe_development_remaining": 4.498,
+        "prize_liability": 4.498,
+        "opponent_threat": 4.41,
+        "hidden_risk_proxy": 3.524,
+        "noise_a": 4.35,
+        "noise_b": 4.478,
+        "noise_c": 4.491
+      },
+      "neighbor_decisive_axes_detected": [
+        "hidden_risk_proxy",
+        "target_role"
+      ],
+      "true_decisive_axes": [
+        "energy_shortfall",
+        "target_role"
+      ],
+      "true_values": [
+        1,
+        -1
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x223_x506",
+      "role": "attack_KO",
+      "full_similarity": 4.821,
+      "similarity_without_axis": {
+        "attacker_readiness": 4.738,
+        "energy_shortfall": 4.739,
+        "target_role": 4.13,
+        "effect_nullification": 4.821,
+        "turn_progress": 4.77,
+        "safe_development_remaining": 4.019,
+        "prize_liability": 4.737,
+        "opponent_threat": 4.483,
+        "hidden_risk_proxy": 4.689,
+        "noise_a": 4.698,
+        "noise_b": 4.71,
+        "noise_c": 4.773
+      },
+      "neighbor_decisive_axes_detected": [
+        "safe_development_remaining",
+        "target_role"
+      ],
+      "true_decisive_axes": [
+        "safe_development_remaining",
+        "prize_liability",
+        "effect_nullification"
+      ],
+      "true_values": [
+        1,
+        0
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    },
+    {
+      "pair_id": "x1370_x144",
+      "role": "fetch_missing_evolution",
+      "full_similarity": 4.494,
+      "similarity_without_axis": {
+        "attacker_readiness": 4.405,
+        "energy_shortfall": 4.494,
+        "target_role": 4.318,
+        "effect_nullification": 4.494,
+        "turn_progress": 4.166,
+        "safe_development_remaining": 4.128,
+        "prize_liability": 4.494,
+        "opponent_threat": 4.129,
+        "hidden_risk_proxy": 4.363,
+        "noise_a": 3.775,
+        "noise_b": 4.397,
+        "noise_c": 4.408
+      },
+      "neighbor_decisive_axes_detected": [
+        "noise_a",
+        "safe_development_remaining"
+      ],
+      "true_decisive_axes": [
+        "safe_development_remaining"
+      ],
+      "true_values": [
+        1,
+        -1
+      ],
+      "interpretation": "globally close but opposite value; the decisive axis (in the role's true decisive set) is what separates them -- global distance under-weights it."
+    }
+  ],
+  "count": 7
+}

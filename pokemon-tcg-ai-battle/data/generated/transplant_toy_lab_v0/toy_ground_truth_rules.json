@@ -1,0 +1,93 @@
+{
+  "axes": [
+    "attacker_readiness",
+    "energy_shortfall",
+    "target_role",
+    "effect_nullification",
+    "turn_progress",
+    "safe_development_remaining",
+    "prize_liability",
+    "opponent_threat",
+    "hidden_risk_proxy",
+    "noise_a",
+    "noise_b",
+    "noise_c"
+  ],
+  "families": {
+    "ATTACH": [
+      "attach_main",
+      "attach_engine",
+      "attach_redundant"
+    ],
+    "SELECT_CARD": [
+      "fetch_missing_evolution",
+      "fetch_redundant",
+      "fetch_immediate_attacker"
+    ],
+    "ATTACK": [
+      "attack_KO",
+      "attack_chip"
+    ],
+    "PLAY": [
+      "heal",
+      "gust",
+      "discard_energy"
+    ]
+  },
+  "decisive_axes_per_role": {
+    "attach_main": [
+      "energy_shortfall",
+      "target_role"
+    ],
+    "attach_engine": [
+      "attacker_readiness",
+      "target_role"
+    ],
+    "attach_redundant": [
+      "attacker_readiness"
+    ],
+    "fetch_missing_evolution": [
+      "safe_development_remaining"
+    ],
+    "fetch_redundant": [],
+    "fetch_immediate_attacker": [
+      "attacker_readiness",
+      "opponent_threat"
+    ],
+    "attack_KO": [
+      "safe_development_remaining",
+      "prize_liability",
+      "effect_nullification"
+    ],
+    "attack_chip": [
+      "safe_development_remaining",
+      "turn_progress",
+      "effect_nullification"
+    ],
+    "heal": [
+      "opponent_threat"
+    ],
+    "gust": [
+      "prize_liability"
+    ],
+    "discard_energy": [
+      "opponent_threat"
+    ]
+  },
+  "confounders": [
+    "hidden_risk_proxy",
+    "noise_a",
+    "noise_b",
+    "noise_c"
+  ],
+  "design": "value depends ONLY on each role's decisive axes; confounders vary randomly and never affect value; decisive axes DIFFER across families -> a single global weighting cannot be optimal for all.",
+  "rules_human_readable": {
+    "attach_main": "+1 if energy_shortfall<=1 and target_role=main; -1 if target_role!=main",
+    "attach_engine": "+1 if attacker_readiness=0 and target_role=engine; -1 if target_role!=engine",
+    "attack_KO": "-1 if effect_nullification; else +1 if safe_dev=0 or prize_liability>=3",
+    "attack_chip": "-1 if effect_nullification; else -1 if safe_dev>=1 and turn_progress early",
+    "heal": "+1 if opponent_threat>=2",
+    "gust": "+1 if prize_liability>=2",
+    "fetch_redundant": "-1 always"
+  }
+}
