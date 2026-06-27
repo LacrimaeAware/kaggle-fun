@@ -1116,6 +1116,10 @@ def selector_trace(obs, base_raw, mode=None):
         rec["transplant_support"] = out.get("transplant_support")
         rec["transplant_features"] = out.get("transplant_features")
         rec["selector_score"] = out.get("selector_score")
+        # V3 surfaces these at the top level of the output (the nested transplant_support is under "raw_selector")
+        rec["transplant_lookup_key"] = out.get("transplant_lookup_key")
+        rec["transplant_table_hit"] = out.get("transplant_table_hit")
+        rec["transplant_support_source"] = out.get("transplant_support_source")
         try:
             rec["hard_veto"] = bool(AD.safety_check(obs, rec["selector_raw"]).get("hard_veto"))
         except Exception:

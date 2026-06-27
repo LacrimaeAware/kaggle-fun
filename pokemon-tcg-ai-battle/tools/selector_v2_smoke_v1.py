@@ -112,14 +112,15 @@ def test_agent(obs):
 
 
 def _transplant_fields(rec):
-    """V3 transplant logging (Section 6): lookup key, table hit, support source + scores."""
-    ts = rec.get("transplant_support")
-    if not isinstance(ts, dict):
-        return {"transplant_support_source": rec.get("source"), "transplant_table_hit": None}
-    return {"transplant_lookup_key": ts.get("lookup_key"), "transplant_table_hit": ts.get("table_hit"),
-            "transplant_support_source": ts.get("source"), "transplant_support_count": ts.get("support_count"),
-            "transplant_effective_n": ts.get("effective_n"), "transplant_confidence": ts.get("confidence"),
-            "transplant_usable": ts.get("usable")}
+    """V3 transplant logging (Section 6). lookup_key/table_hit/source are surfaced at the top level by selector_trace;
+    the nested transplant_support['raw_selector'] carries the scores."""
+    inner = (rec.get("transplant_support") or {}).get("raw_selector") if isinstance(rec.get("transplant_support"), dict) else None
+    inner = inner if isinstance(inner, dict) else {}
+    return {"transplant_lookup_key": rec.get("transplant_lookup_key"),
+            "transplant_table_hit": rec.get("transplant_table_hit"),
+            "transplant_support_source": rec.get("transplant_support_source") or rec.get("source"),
+            "transplant_support_count": inner.get("support_count"), "transplant_effective_n": inner.get("effective_n"),
+            "transplant_confidence": inner.get("confidence"), "transplant_usable": inner.get("usable")}
 
 
 def _tac(obs):
