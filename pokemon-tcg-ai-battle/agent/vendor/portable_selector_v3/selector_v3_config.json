@@ -1,0 +1,209 @@
+{
+  "allowed_override_families": [
+    "ATTACH",
+    "SELECT_CARD",
+    "EVOLVE",
+    "PLAY"
+  ],
+  "blocked_live_override_families": [
+    "ATTACK",
+    "END",
+    "RETREAT"
+  ],
+  "created_utc": "2026-06-27T07:18:19.048606+00:00",
+  "default_mode": "off",
+  "live_enabled": false,
+  "schema_version": "starmie_portable_selector_v3.selector_v3_config",
+  "selected_policy": {
+    "allowed_families": [
+      "ATTACH",
+      "EVOLVE",
+      "PLAY",
+      "SELECT_CARD"
+    ],
+    "candidate_set_id": "C3",
+    "feature_mode": "t1",
+    "kind": "linear",
+    "selector_id": "T1_C3_PLUS_TRANSPLANT_SCORE",
+    "top_weights": [
+      {
+        "feature": "proposer:logit_scaled",
+        "weight": 2.959069253091272
+      },
+      {
+        "feature": "proposer:probability",
+        "weight": 1.6165949593028863
+      },
+      {
+        "feature": "source:proposer_top5",
+        "weight": 0.6974450641314552
+      },
+      {
+        "feature": "transplant:confidence",
+        "weight": -0.643853510081116
+      },
+      {
+        "feature": "transplant:contradiction_inverse",
+        "weight": -0.6438535100807881
+      },
+      {
+        "feature": "family:EVOLVE",
+        "weight": 0.554279472461432
+      },
+      {
+        "feature": "proposer:rank_reciprocal",
+        "weight": 0.3411810967684512
+      },
+      {
+        "feature": "source:proposer_top3",
+        "weight": 0.30771009222522155
+      },
+      {
+        "feature": "transplant:mean:attacker_readiness_delta",
+        "weight": 0.2874108635779861
+      },
+      {
+        "feature": "transplant:mean:backup_continuity_delta",
+        "weight": 0.2874108635779861
+      },
+      {
+        "feature": "candidate:option_zero",
+        "weight": 0.18587163978955942
+      },
+      {
+        "feature": "source:heuristic",
+        "weight": 0.18587163978955942
+      },
+      {
+        "feature": "transplant:mean:deck_safety_delta",
+        "weight": -0.17175707811004165
+      },
+      {
+        "feature": "transplant:mean:utility_score",
+        "weight": 0.16632567084447972
+      },
+      {
+        "feature": "family:PLAY",
+        "weight": -0.1409889617158671
+      },
+      {
+        "feature": "transplant:score",
+        "weight": 0.133600112893824
+      },
+      {
+        "feature": "source:proposer_top1",
+        "weight": 0.11480313733572324
+      },
+      {
+        "feature": "transplant:mean:prize_delta",
+        "weight": -0.06472278640370414
+      },
+      {
+        "feature": "family:ATTACH",
+        "weight": 0.030267109032656576
+      },
+      {
+        "feature": "transplant:effective_n",
+        "weight": -0.01193446464146233
+      },
+      {
+        "feature": "transplant:support_count",
+        "weight": 0.006589116571069996
+      },
+      {
+        "feature": "bias",
+        "weight": -0.001243085281230873
+      },
+      {
+        "feature": "transplant:recommended:strong",
+        "weight": -0.001243085281230873
+      },
+      {
+        "feature": "proposer:margin",
+        "weight": -0.00121926423224546
+      },
+      {
+        "feature": "family:SELECT_CARD",
+        "weight": -0.0007848827931330696
+      }
+    ],
+    "weight_count": 25,
+    "weights": {
+      "bias": -0.001243085281230873,
+      "candidate:option_zero": 0.18587163978955942,
+      "family:ATTACH": 0.030267109032656576,
+      "family:EVOLVE": 0.554279472461432,
+      "family:PLAY": -0.1409889617158671,
+      "family:SELECT_CARD": -0.0007848827931330696,
+      "proposer:logit_scaled": 2.959069253091272,
+      "proposer:margin": -0.00121926423224546,
+      "proposer:probability": 1.6165949593028863,
+      "proposer:rank_reciprocal": 0.3411810967684512,
+      "source:heuristic": 0.18587163978955942,
+      "source:proposer_top1": 0.11480313733572324,
+      "source:proposer_top3": 0.30771009222522155,
+      "source:proposer_top5": 0.6974450641314552,
+      "transplant:confidence": -0.643853510081116,
+      "transplant:contradiction_inverse": -0.6438535100807881,
+      "transplant:effective_n": -0.01193446464146233,
+      "transplant:mean:attacker_readiness_delta": 0.2874108635779861,
+      "transplant:mean:backup_continuity_delta": 0.2874108635779861,
+      "transplant:mean:deck_safety_delta": -0.17175707811004165,
+      "transplant:mean:prize_delta": -0.06472278640370414,
+      "transplant:mean:utility_score": 0.16632567084447972,
+      "transplant:recommended:strong": -0.001243085281230873,
+      "transplant:score": 0.133600112893824,
+      "transplant:support_count": 0.006589116571069996
+    }
+  },
+  "selected_selector": {
+    "candidate_set_id": "C3",
+    "feature_mode": "t1",
+    "kind": "linear",
+    "selector_id": "T1_C3_PLUS_TRANSPLANT_SCORE",
+    "weights": {
+      "bias": -0.001243085281230873,
+      "candidate:option_zero": 0.18587163978955942,
+      "family:ATTACH": 0.030267109032656576,
+      "family:EVOLVE": 0.554279472461432,
+      "family:PLAY": -0.1409889617158671,
+      "family:SELECT_CARD": -0.0007848827931330696,
+      "proposer:logit_scaled": 2.959069253091272,
+      "proposer:margin": -0.00121926423224546,
+      "proposer:probability": 1.6165949593028863,
+      "proposer:rank_reciprocal": 0.3411810967684512,
+      "source:heuristic": 0.18587163978955942,
+      "source:proposer_top1": 0.11480313733572324,
+      "source:proposer_top3": 0.30771009222522155,
+      "source:proposer_top5": 0.6974450641314552,
+      "transplant:confidence": -0.643853510081116,
+      "transplant:contradiction_inverse": -0.6438535100807881,
+      "transplant:effective_n": -0.01193446464146233,
+      "transplant:mean:attacker_readiness_delta": 0.2874108635779861,
+      "transplant:mean:backup_continuity_delta": 0.2874108635779861,
+      "transplant:mean:deck_safety_delta": -0.17175707811004165,
+      "transplant:mean:prize_delta": -0.06472278640370414,
+      "transplant:mean:utility_score": 0.16632567084447972,
+      "transplant:recommended:strong": -0.001243085281230873,
+      "transplant:score": 0.133600112893824,
+      "transplant:support_count": 0.006589116571069996
+    }
+  },
+  "smoke_mode": "selector_v3_transplant",
+  "source_selector_export_v3_sha256": "AA67AA2273B64EE4E15D8AE90CE7DB5354CFDBA2BD108A9123FF978829A2DB03",
+  "transplant_runtime_policy": {
+    "confidence_min": 0.2,
+    "contradiction_rate_max": 0.75,
+    "effective_n_min": 4.0,
+    "fallback_behavior": "if a non-baseline selector override lacks supported transplant evidence, return baseline/fallback loudly",
+    "offline_equivalence": "exact only for parity rows carrying the same precomputed transplant summaries; ordinary live states without support summaries are not equivalent to the offline replay-join report",
+    "provider_order": [
+      "per-option transplant/V_transplant field",
+      "observation.transplant_support_by_packed_index",
+      "observation.transplant_support_by_semantic_key",
+      "exported transplant_support_table exact semantic key",
+      "fallback/abstain"
+    ],
+    "support_count_min": 4.0
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "created_utc": "2026-06-26T11:45:00.152381+00:00",
+  "forbidden_feature_audit": {
+    "forbidden_fields": [
+      "decision_id",
+      "future",
+      "label",
+      "outcome",
+      "pilot",
+      "replay_id",
+      "selected",
+      "split",
+      "team",
+      "winner",
+      "won"
+    ],
+    "forbidden_token_count": 0,
+    "forbidden_token_examples": [],
+    "passed": true,
+    "weight_count": 5219
+  },
+  "forbidden_model_facing_inputs": [
+    "decision_id",
+    "future",
+    "label",
+    "outcome",
+    "pilot",
+    "replay_id",
+    "selected",
+    "split",
+    "team",
+    "winner",
+    "won"
+  ],
+  "model_facing_inputs": [
+    "state_features",
+    "board_entities",
+    "zone_inventory",
+    "grouped_legal_actions/options",
+    "card_stats",
+    "attack_stats",
+    "card_effects_v1"
+  ],
+  "runtime_available": true,
+  "schema_version": "starmie_runtime_proposer_v1.feature_manifest_v1",
+  "source_feature_manifest_path": "C:\\Users\\EcceNihilum\\.codex\\worktrees\\0557\\pokemon-ai-agent\\data\\generated\\transition_ranker\\starmie_top_pilot_feature_v2_manifest.json",
+  "source_feature_manifest_sha256": "AE20F3844483D973CE472526C53591B994F2B1150FE304AD4640F48B12F7F138",
+  "source_relationship_manifest_path": "C:\\Users\\EcceNihilum\\.codex\\worktrees\\0557\\pokemon-ai-agent\\data\\generated\\starmie_specialist\\starmie_feature_relationship_manifest_v1.json",
+  "source_relationship_manifest_sha256": "AC464FDBD68E39CD560B9C190B8ACAFF66688F9ADAD0D6E75FBE0ACBD47305EB",
+  "support_policy": {
+    "fail_closed_statuses": [
+      "OOD",
+      "UNSUPPORTED"
+    ],
+    "supported_input": "packed public Starmie Feature-V2 observation plus current grouped legal actions",
+    "unsupported_input": [
+      "live CABT state not converted to packed observation",
+      "unseen schema lacking state_features/options/features",
+      "hidden card identities",
+      "pilot/team/outcome/replay/split/selected labels as model inputs"
+    ]
+  },
+  "variant": {
+    "description": "Exact card/action IDs plus root/entity state and interactions.",
+    "include_attack_mechanics": false,
+    "include_dynamic": false,
+    "include_effects": false,
+    "include_entity_state": true,
+    "include_exact_ids": true,
+    "include_interactions": true,
+    "include_printed": false,
+    "include_tactical": false,
+    "variant_id": "V0_EXACT_ID_BASELINE"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "decisions": 102,
+  "selected_match_pct": 100.0,
+  "terminal_block_match_pct": 100.0,
+  "source_match_pct": 100.0,
+  "top1_of_topk_match_pct": 100.0,
+  "transplant_support_match_pct": 100.0,
+  "transplant_support_compared": 102,
+  "deterministic_pct": 100.0,
+  "obs_mutated": 0,
+  "selected_by_category": {
+    "allow_ATTACH": "6/6",
+    "allow_EVOLVE": "1/1",
+    "allow_PLAY": "14/14",
+    "allow_SELECT_CARD": "1/1",
+    "block_ATTACK": "6/6",
+    "block_END": "1/1",
+    "block_RETREAT": "1/1",
+    "duplicate_SELECT_CARD": "23/23",
+    "low_support_fallback": "1/1",
+    "observe_ATTACH": "4/4",
+    "observe_ATTACK": "9/9",
+    "observe_END": "1/1",
+    "observe_EVOLVE": "4/4",
+    "observe_PLAY": "8/8",
+    "observe_SELECT_CARD": "12/12",
+    "observe_YES_PROMPT": "10/10"
+  },
+  "modelA_parity_passed": true,
+  "baseline_git_head": "d0f696a46b0c8008152340a488e911dcf1aa53ad",
+  "mismatches": [],
+  "GATE": "PASS"
+}

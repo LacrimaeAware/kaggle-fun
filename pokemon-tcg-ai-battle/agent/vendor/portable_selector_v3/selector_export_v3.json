@@ -1,0 +1,1010 @@
+{
+  "created_utc": "2026-06-26T19:52:42.474127+00:00",
+  "feature_list": [
+    "axis:energy_units_added",
+    "axis:energy_units_added&&family:ATTACH",
+    "bias",
+    "candidate:option_zero",
+    "family:ATTACH",
+    "proposer:logit_scaled",
+    "proposer:margin",
+    "proposer:probability",
+    "proposer:rank_reciprocal",
+    "source:heuristic",
+    "source:proposer_top1",
+    "source:proposer_top3",
+    "source:proposer_top5",
+    "tactical:commitment.safe_development_available",
+    "transplant:confidence",
+    "transplant:contradiction_inverse",
+    "transplant:effective_n",
+    "transplant:mean:utility_score",
+    "transplant:recommended:weak",
+    "transplant:score",
+    "transplant:support_count"
+  ],
+  "input_hashes": {
+    "feature_v2_manifest": "2A3DB26499E6AA094EF34530B70AABD6E3F44421650AA5021DC87D54D8690EF1",
+    "model_b_action_semantics": "802C41FC1E9F6870A536245CE00F4EC065FEC751A68AFB4744229891E3B46A03",
+    "model_b_data_quality_report": "61C83490DE36ABF692712B49C960A6FAB248AC41C04A68C80962BDDD2F78EDE3",
+    "model_b_model_a_transplant_join": "1599F70B90BD28C42B6C6325BC65521AD1C813C90CC0B8A88D84CA95D78F1691",
+    "model_b_same_turn_sequences": "650635AA246D1C1B891466ED1E1A5E77D17267D77C411681F4F7108F1E2FF69A",
+    "model_b_smoke_changed_decisions": "723C74B98616C01DA19B3E30D0658D839206D048035A45B8C73D123B355191AA",
+    "model_b_turn_end_deltas": "744FDF2878A006C7DBF3C22722E191A4A69E96C08B2C542A93F7CA6160024E01",
+    "runtime_manifest": "EA6B181412AF8FB37A3A1B88571E1C795C7F02E7AE1285A232AD6F423E068FC3",
+    "runtime_model_checkpoint": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8",
+    "runtime_test_logits": "930A69F08C64B164313CE9903381F26668F91B7EA2B38DA02C2291FD1F2A141C",
+    "runtime_validation_logits": "03F76E9EDC04A7FCC93BD880D74AD0D8426DD88EE01A6503C10F324AD7A2D3D2",
+    "selector_v1_candidate_sets": "BBC66F5F739D36164276BAF613C57E71D8AF1B89F781EDEFB56829D5EC4E0212",
+    "selector_v1_export": "01DD0A03C69ACF7D379C9E687A0E9845DA76F5C51DA5200777404A5B6A944637",
+    "selector_v2_closeout": "BF82844F03F05E6C6735DEA38B32E5FB7C81BFA7F2B88BB27A8B4BF3081C566E",
+    "selector_v2_conservative_report": "D8D5B2296ACE7911CFAC75EAD2CDA92309F816DEFC57530BF43B41DFB5934333",
+    "selector_v2_export": "BB7ABBF012FD28F0DBAE14D655F2CACBE165ABA52D2BFE5F47C63F1475A52B2E",
+    "transplant_closeout": "66272E4CA39F53219F0B437E1688B204B258B58FA3C58208DCADA2AD913CAFC3",
+    "transplant_eval_report": "D5135CC00D41F5EF34826F6DE7113895D8DB770E663983F316FF8C6D9D165127",
+    "transplant_records": "93705F6D6FE5F1E23CFAD2C57C039BE0F92FDCA08F242028A23F7463C5B9F83F",
+    "transplant_selector_simulation": "5FF2A81E76AF7F779A466B94D48B231E54839E5F9FABE08B795363EE5CE80B18",
+    "transplant_value_scores": "8B13E3CE54B5BC7C05BBCAC575D330891938C927250BF4DC4F0675EF49A02F9A"
+  },
+  "live_enabled": false,
+  "no_gameplay_claim": true,
+  "reason_disabled": "Offline selector V3 artifact only; Model B trace harness and an explicit smoke prompt are required before live use.",
+  "safety_policy": {
+    "blocked_live_families_by_default": [
+      "ATTACK",
+      "END",
+      "RETREAT"
+    ],
+    "hard_veto_policy": "hard safety flags are retained in export and counted in offline report; live smoke must verify behavior before enabling",
+    "terminal_overrides": "blocked unless immediate gamewin, guaranteed KO, no safe development remains, or validation-selected transplant support gate passes"
+  },
+  "schema_version": "starmie_selector_v3_transplant_conservative_arbitration.selector_export_v3",
+  "selected_policy": {
+    "allowed_families": [
+      "ATTACH",
+      "EVOLVE",
+      "PLAY",
+      "SELECT_CARD"
+    ],
+    "candidate_set_id": "C3",
+    "feature_mode": "t1",
+    "kind": "linear",
+    "selector_id": "T1_C3_PLUS_TRANSPLANT_SCORE",
+    "top_weights": [
+      {
+        "feature": "proposer:logit_scaled",
+        "weight": 2.959069253091272
+      },
+      {
+        "feature": "proposer:probability",
+        "weight": 1.6165949593028863
+      },
+      {
+        "feature": "source:proposer_top5",
+        "weight": 0.6974450641314552
+      },
+      {
+        "feature": "transplant:confidence",
+        "weight": -0.643853510081116
+      },
+      {
+        "feature": "transplant:contradiction_inverse",
+        "weight": -0.6438535100807881
+      },
+      {
+        "feature": "family:EVOLVE",
+        "weight": 0.554279472461432
+      },
+      {
+        "feature": "proposer:rank_reciprocal",
+        "weight": 0.3411810967684512
+      },
+      {
+        "feature": "source:proposer_top3",
+        "weight": 0.30771009222522155
+      },
+      {
+        "feature": "transplant:mean:attacker_readiness_delta",
+        "weight": 0.2874108635779861
+      },
+      {
+        "feature": "transplant:mean:backup_continuity_delta",
+        "weight": 0.2874108635779861
+      },
+      {
+        "feature": "candidate:option_zero",
+        "weight": 0.18587163978955942
+      },
+      {
+        "feature": "source:heuristic",
+        "weight": 0.18587163978955942
+      },
+      {
+        "feature": "transplant:mean:deck_safety_delta",
+        "weight": -0.17175707811004165
+      },
+      {
+        "feature": "transplant:mean:utility_score",
+        "weight": 0.16632567084447972
+      },
+      {
+        "feature": "family:PLAY",
+        "weight": -0.1409889617158671
+      },
+      {
+        "feature": "transplant:score",
+        "weight": 0.133600112893824
+      },
+      {
+        "feature": "source:proposer_top1",
+        "weight": 0.11480313733572324
+      },
+      {
+        "feature": "transplant:mean:prize_delta",
+        "weight": -0.06472278640370414
+      },
+      {
+        "feature": "family:ATTACH",
+        "weight": 0.030267109032656576
+      },
+      {
+        "feature": "transplant:effective_n",
+        "weight": -0.01193446464146233
+      },
+      {
+        "feature": "transplant:support_count",
+        "weight": 0.006589116571069996
+      },
+      {
+        "feature": "bias",
+        "weight": -0.001243085281230873
+      },
+      {
+        "feature": "transplant:recommended:strong",
+        "weight": -0.001243085281230873
+      },
+      {
+        "feature": "proposer:margin",
+        "weight": -0.00121926423224546
+      },
+      {
+        "feature": "family:SELECT_CARD",
+        "weight": -0.0007848827931330696
+      }
+    ],
+    "weight_count": 25,
+    "weights": {
+      "bias": -0.001243085281230873,
+      "candidate:option_zero": 0.18587163978955942,
+      "family:ATTACH": 0.030267109032656576,
+      "family:EVOLVE": 0.554279472461432,
+      "family:PLAY": -0.1409889617158671,
+      "family:SELECT_CARD": -0.0007848827931330696,
+      "proposer:logit_scaled": 2.959069253091272,
+      "proposer:margin": -0.00121926423224546,
+      "proposer:probability": 1.6165949593028863,
+      "proposer:rank_reciprocal": 0.3411810967684512,
+      "source:heuristic": 0.18587163978955942,
+      "source:proposer_top1": 0.11480313733572324,
+      "source:proposer_top3": 0.30771009222522155,
+      "source:proposer_top5": 0.6974450641314552,
+      "transplant:confidence": -0.643853510081116,
+      "transplant:contradiction_inverse": -0.6438535100807881,
+      "transplant:effective_n": -0.01193446464146233,
+      "transplant:mean:attacker_readiness_delta": 0.2874108635779861,
+      "transplant:mean:backup_continuity_delta": 0.2874108635779861,
+      "transplant:mean:deck_safety_delta": -0.17175707811004165,
+      "transplant:mean:prize_delta": -0.06472278640370414,
+      "transplant:mean:utility_score": 0.16632567084447972,
+      "transplant:recommended:strong": -0.001243085281230873,
+      "transplant:score": 0.133600112893824,
+      "transplant:support_count": 0.006589116571069996
+    }
+  },
+  "selected_policy_id": "T1_C3_PLUS_TRANSPLANT_SCORE",
+  "test_metrics": {
+    "abstention_rate": 0.0,
+    "average_candidate_set_size": 3.901315789473684,
+    "brier": 0.5996570584016654,
+    "candidate_coverage": 0.993421052631579,
+    "decision_count": 152,
+    "ece": 0.17286894145776027,
+    "exact_pilot_agreement": 0.625,
+    "fallback_rate": 0.5131578947368421,
+    "families": {
+      "ABILITY": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 0
+      },
+      "ATTACH": {
+        "exact_pilot_agreement": 0.55,
+        "family_agreement": 0.7,
+        "predicted_count": 26,
+        "target_count": 20
+      },
+      "ATTACK": {
+        "exact_pilot_agreement": 0.12,
+        "family_agreement": 0.12,
+        "predicted_count": 3,
+        "target_count": 25
+      },
+      "END": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 5
+      },
+      "EVOLVE": {
+        "exact_pilot_agreement": 0.8888888888888888,
+        "family_agreement": 1.0,
+        "predicted_count": 10,
+        "target_count": 9
+      },
+      "NO_PROMPT": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 1
+      },
+      "PLAY": {
+        "exact_pilot_agreement": 0.717948717948718,
+        "family_agreement": 0.8717948717948718,
+        "predicted_count": 60,
+        "target_count": 39
+      },
+      "RETREAT": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 1
+      },
+      "SELECT_CARD": {
+        "exact_pilot_agreement": 0.8444444444444444,
+        "family_agreement": 1.0,
+        "predicted_count": 45,
+        "target_count": 45
+      },
+      "TYPE_0": {
+        "exact_pilot_agreement": 1.0,
+        "family_agreement": 1.0,
+        "predicted_count": 2,
+        "target_count": 2
+      },
+      "TYPE_6": {
+        "exact_pilot_agreement": 1.0,
+        "family_agreement": 1.0,
+        "predicted_count": 1,
+        "target_count": 1
+      },
+      "YES_PROMPT": {
+        "exact_pilot_agreement": 1.0,
+        "family_agreement": 1.0,
+        "predicted_count": 5,
+        "target_count": 4
+      }
+    },
+    "family_transition_counts": {
+      "ATTACH->ATTACH": 15,
+      "ATTACH->PLAY": 9,
+      "ATTACK->ATTACH": 1,
+      "ATTACK->ATTACK": 3,
+      "ATTACK->PLAY": 10,
+      "END->ATTACH": 3,
+      "END->PLAY": 3,
+      "EVOLVE->EVOLVE": 10,
+      "PLAY->ATTACH": 7,
+      "PLAY->PLAY": 33,
+      "RETREAT->PLAY": 5,
+      "SELECT_CARD->SELECT_CARD": 45,
+      "TYPE_0->TYPE_0": 2,
+      "TYPE_6->TYPE_6": 1,
+      "YES_PROMPT->YES_PROMPT": 5
+    },
+    "mrr": 0.7720394736842104,
+    "nll": 6.430240104211489,
+    "predicted_family_counts": {
+      "ATTACH": 26,
+      "ATTACK": 3,
+      "EVOLVE": 10,
+      "PLAY": 60,
+      "SELECT_CARD": 45,
+      "TYPE_0": 2,
+      "TYPE_6": 1,
+      "YES_PROMPT": 5
+    },
+    "prediction_examples": [
+      {
+        "decision_id": "81819358:1:0",
+        "hit": true,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 1,
+        "target_family": "YES_PROMPT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81819358:21:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "EVOLVE",
+        "selected_index": 2,
+        "target_family": "EVOLVE",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81819358:22:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 4,
+        "target_family": "ATTACH",
+        "target_index": 4
+      },
+      {
+        "decision_id": "81819358:23:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 0,
+        "target_family": "PLAY",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81819358:24:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 0,
+        "target_family": "ATTACK",
+        "target_index": 3
+      },
+      {
+        "decision_id": "81819358:25:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 1,
+        "target_family": "SELECT_CARD",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81819358:26:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 5,
+        "target_family": "SELECT_CARD",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81819358:27:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 1,
+        "target_family": "SELECT_CARD",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81819358:33:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 5,
+        "target_family": "PLAY",
+        "target_index": 7
+      },
+      {
+        "decision_id": "81819358:34:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 3
+      },
+      {
+        "decision_id": "81819358:35:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 5,
+        "target_family": "PLAY",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81819358:36:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 1,
+        "target_family": "SELECT_CARD",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81819358:37:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81819358:38:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "EVOLVE",
+        "selected_index": 7,
+        "target_family": "EVOLVE",
+        "target_index": 7
+      },
+      {
+        "decision_id": "81819358:39:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 0,
+        "target_family": "ATTACH",
+        "target_index": 6
+      },
+      {
+        "decision_id": "81819358:40:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 1,
+        "target_family": "ATTACK",
+        "target_index": 4
+      },
+      {
+        "decision_id": "81819358:41:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 2,
+        "target_family": "SELECT_CARD",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81819358:5:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 3,
+        "target_family": "PLAY",
+        "target_index": 3
+      },
+      {
+        "decision_id": "81819358:6:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81819358:7:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 1,
+        "target_family": "PLAY",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81819358:8:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81819358:9:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 1,
+        "target_family": "END",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81820273:1:0",
+        "hit": true,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 1,
+        "target_family": "YES_PROMPT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81820273:25:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "EVOLVE",
+        "selected_index": 5,
+        "target_family": "EVOLVE",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81820273:26:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 2,
+        "target_family": "ATTACK",
+        "target_index": 0
+      }
+    ],
+    "safety": {
+      "attack_override_count": 0,
+      "end_override_count": 0,
+      "hard_veto_count": 12,
+      "premature_terminal_count": 0,
+      "premature_terminal_rate": 0.0,
+      "retreat_override_count": 0,
+      "terminal_override_count": 0,
+      "terminal_override_rate": 0.0
+    },
+    "slices": {
+      "attach_mega_vs_cinderace": {
+        "count": 43,
+        "exact_pilot_agreement": 0.7209302325581395
+      },
+      "attack_now_vs_develop_first": {
+        "count": 31,
+        "exact_pilot_agreement": 0.25806451612903225
+      },
+      "c3_changed_decisions": {
+        "count": 70,
+        "exact_pilot_agreement": 0.5
+      },
+      "heuristic_missed_proposer_top3_contains_pilot": {
+        "count": 71,
+        "exact_pilot_agreement": 0.5352112676056338
+      },
+      "transplant_best_is_pilot": {
+        "count": 74,
+        "exact_pilot_agreement": 0.7027027027027027
+      },
+      "transplant_supports_pilot_over_heuristic": {
+        "count": 33,
+        "exact_pilot_agreement": 0.5454545454545454
+      },
+      "v1_bad_terminal_examples": {
+        "count": 14,
+        "exact_pilot_agreement": 0.2857142857142857
+      },
+      "v2_neutral_smoke_examples": {
+        "count": 82,
+        "exact_pilot_agreement": 0.7317073170731707
+      },
+      "wally_hammer_boss_examples": {
+        "count": 36,
+        "exact_pilot_agreement": 0.5
+      }
+    },
+    "target_family_counts": {
+      "ATTACH": 20,
+      "ATTACK": 25,
+      "END": 5,
+      "EVOLVE": 9,
+      "NO_PROMPT": 1,
+      "PLAY": 39,
+      "RETREAT": 1,
+      "SELECT_CARD": 45,
+      "TYPE_0": 2,
+      "TYPE_6": 1,
+      "YES_PROMPT": 4
+    }
+  },
+  "validation_metrics": {
+    "abstention_rate": 0.0,
+    "average_candidate_set_size": 3.766260162601626,
+    "brier": 0.5373201641472972,
+    "candidate_coverage": 0.9939024390243902,
+    "decision_count": 492,
+    "ece": 0.14855350168573417,
+    "exact_pilot_agreement": 0.6686991869918699,
+    "fallback_rate": 0.5589430894308943,
+    "families": {
+      "ABILITY": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 0
+      },
+      "ATTACH": {
+        "exact_pilot_agreement": 0.5675675675675675,
+        "family_agreement": 0.7432432432432432,
+        "predicted_count": 77,
+        "target_count": 74
+      },
+      "ATTACK": {
+        "exact_pilot_agreement": 0.35064935064935066,
+        "family_agreement": 0.35064935064935066,
+        "predicted_count": 28,
+        "target_count": 77
+      },
+      "END": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 8
+      },
+      "EVOLVE": {
+        "exact_pilot_agreement": 0.9130434782608695,
+        "family_agreement": 1.0,
+        "predicted_count": 24,
+        "target_count": 23
+      },
+      "NO_PROMPT": {
+        "exact_pilot_agreement": 0.0,
+        "family_agreement": 0.0,
+        "predicted_count": 0,
+        "target_count": 7
+      },
+      "PLAY": {
+        "exact_pilot_agreement": 0.7446808510638298,
+        "family_agreement": 0.9148936170212766,
+        "predicted_count": 197,
+        "target_count": 141
+      },
+      "RETREAT": {
+        "exact_pilot_agreement": 0.4444444444444444,
+        "family_agreement": 0.4444444444444444,
+        "predicted_count": 6,
+        "target_count": 9
+      },
+      "SELECT_CARD": {
+        "exact_pilot_agreement": 0.8333333333333334,
+        "family_agreement": 1.0,
+        "predicted_count": 126,
+        "target_count": 126
+      },
+      "TYPE_0": {
+        "exact_pilot_agreement": 1.0,
+        "family_agreement": 1.0,
+        "predicted_count": 6,
+        "target_count": 6
+      },
+      "TYPE_6": {
+        "exact_pilot_agreement": 0.5,
+        "family_agreement": 1.0,
+        "predicted_count": 4,
+        "target_count": 4
+      },
+      "YES_PROMPT": {
+        "exact_pilot_agreement": 1.0,
+        "family_agreement": 1.0,
+        "predicted_count": 24,
+        "target_count": 17
+      }
+    },
+    "family_transition_counts": {
+      "ATTACH->ATTACH": 64,
+      "ATTACH->EVOLVE": 1,
+      "ATTACH->PLAY": 58,
+      "ATTACK->ATTACK": 28,
+      "ATTACK->PLAY": 21,
+      "END->ATTACH": 4,
+      "END->PLAY": 3,
+      "EVOLVE->EVOLVE": 20,
+      "PLAY->ATTACH": 9,
+      "PLAY->EVOLVE": 3,
+      "PLAY->PLAY": 111,
+      "RETREAT->PLAY": 4,
+      "RETREAT->RETREAT": 6,
+      "SELECT_CARD->SELECT_CARD": 126,
+      "TYPE_0->TYPE_0": 6,
+      "TYPE_6->TYPE_6": 4,
+      "YES_PROMPT->YES_PROMPT": 24
+    },
+    "mrr": 0.8063008130081297,
+    "nll": 5.221530651195873,
+    "predicted_family_counts": {
+      "ATTACH": 77,
+      "ATTACK": 28,
+      "EVOLVE": 24,
+      "PLAY": 197,
+      "RETREAT": 6,
+      "SELECT_CARD": 126,
+      "TYPE_0": 6,
+      "TYPE_6": 4,
+      "YES_PROMPT": 24
+    },
+    "prediction_examples": [
+      {
+        "decision_id": "81814921:10:1",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 6,
+        "target_family": "PLAY",
+        "target_index": 4
+      },
+      {
+        "decision_id": "81814921:11:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81814921:13:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 2,
+        "target_family": "PLAY",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81814921:14:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81814921:15:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 5,
+        "target_family": "ATTACH",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81814921:16:1",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 0,
+        "target_family": "RETREAT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81814921:17:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81814921:18:1",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 2,
+        "target_family": "ATTACK",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81814921:19:1",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 5,
+        "target_family": "SELECT_CARD",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81814921:2:1",
+        "hit": true,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 1,
+        "target_family": "YES_PROMPT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81814921:4:1",
+        "hit": false,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 0,
+        "target_family": "NO_PROMPT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81814921:9:1",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 4,
+        "target_family": "PLAY",
+        "target_index": 3
+      },
+      {
+        "decision_id": "81816926:10:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 0,
+        "target_family": "SELECT_CARD",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81816926:11:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 4,
+        "target_family": "ATTACH",
+        "target_index": 4
+      },
+      {
+        "decision_id": "81816926:12:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 0,
+        "target_family": "END",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81816926:1:0",
+        "hit": true,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 0,
+        "target_family": "YES_PROMPT",
+        "target_index": 0
+      },
+      {
+        "decision_id": "81816926:23:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "EVOLVE",
+        "selected_index": 5,
+        "target_family": "EVOLVE",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81816926:24:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 1,
+        "target_family": "PLAY",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81816926:25:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 5,
+        "target_family": "ATTACH",
+        "target_index": 5
+      },
+      {
+        "decision_id": "81816926:26:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 1,
+        "target_family": "ATTACH",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81816926:27:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "PLAY",
+        "selected_index": 1,
+        "target_family": "ATTACK",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81816926:28:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 1,
+        "target_family": "SELECT_CARD",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81816926:2:0",
+        "hit": true,
+        "reason": "fallback_no_candidates",
+        "selected_family": "YES_PROMPT",
+        "selected_index": 1,
+        "target_family": "YES_PROMPT",
+        "target_index": 1
+      },
+      {
+        "decision_id": "81816926:43:0",
+        "hit": false,
+        "reason": "linear_selector",
+        "selected_family": "ATTACH",
+        "selected_index": 1,
+        "target_family": "PLAY",
+        "target_index": 2
+      },
+      {
+        "decision_id": "81816926:44:0",
+        "hit": true,
+        "reason": "linear_selector",
+        "selected_family": "SELECT_CARD",
+        "selected_index": 2,
+        "target_family": "SELECT_CARD",
+        "target_index": 2
+      }
+    ],
+    "safety": {
+      "attack_override_count": 0,
+      "end_override_count": 0,
+      "hard_veto_count": 29,
+      "premature_terminal_count": 0,
+      "premature_terminal_rate": 0.0,
+      "retreat_override_count": 0,
+      "terminal_override_count": 0,
+      "terminal_override_rate": 0.0
+    },
+    "slices": {
+      "attach_mega_vs_cinderace": {
+        "count": 158,
+        "exact_pilot_agreement": 0.7088607594936709
+      },
+      "attack_now_vs_develop_first": {
+        "count": 61,
+        "exact_pilot_agreement": 0.26229508196721313
+      },
+      "c3_changed_decisions": {
+        "count": 209,
+        "exact_pilot_agreement": 0.5454545454545454
+      },
+      "heuristic_missed_proposer_top3_contains_pilot": {
+        "count": 213,
+        "exact_pilot_agreement": 0.5446009389671361
+      },
+      "transplant_best_is_pilot": {
+        "count": 211,
+        "exact_pilot_agreement": 0.8104265402843602
+      },
+      "transplant_supports_pilot_over_heuristic": {
+        "count": 57,
+        "exact_pilot_agreement": 0.6140350877192983
+      },
+      "v1_bad_terminal_examples": {
+        "count": 33,
+        "exact_pilot_agreement": 0.2727272727272727
+      },
+      "v2_neutral_smoke_examples": {
+        "count": 283,
+        "exact_pilot_agreement": 0.7597173144876325
+      },
+      "wally_hammer_boss_examples": {
+        "count": 89,
+        "exact_pilot_agreement": 0.550561797752809
+      }
+    },
+    "target_family_counts": {
+      "ATTACH": 74,
+      "ATTACK": 77,
+      "END": 8,
+      "EVOLVE": 23,
+      "NO_PROMPT": 7,
+      "PLAY": 141,
+      "RETREAT": 9,
+      "SELECT_CARD": 126,
+      "TYPE_0": 6,
+      "TYPE_6": 4,
+      "YES_PROMPT": 17
+    }
+  }
+}

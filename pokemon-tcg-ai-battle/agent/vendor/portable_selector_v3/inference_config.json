@@ -1,0 +1,40 @@
+{
+  "created_utc": "2026-06-26T11:45:00.158828+00:00",
+  "default_top_k": 5,
+  "feature_manifest_sha256": "2A3DB26499E6AA094EF34530B70AABD6E3F44421650AA5021DC87D54D8690EF1",
+  "input_restrictions": {
+    "live_enabled": false,
+    "not_consumed_as_features": [
+      "decision_id",
+      "future",
+      "label",
+      "outcome",
+      "pilot",
+      "replay_id",
+      "selected",
+      "split",
+      "team",
+      "winner",
+      "won"
+    ],
+    "outcome_is_evaluation_metadata_only": true,
+    "pilot_identity_is_evaluation_metadata_only": true,
+    "selected_action_is_label_only": true
+  },
+  "model_checkpoint_sha256": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8",
+  "schema_version": "starmie_runtime_proposer_v1.inference_config_v1",
+  "support_policy": {
+    "fail_closed_statuses": [
+      "OOD",
+      "UNSUPPORTED"
+    ],
+    "supported_input": "packed public Starmie Feature-V2 observation plus current grouped legal actions",
+    "unsupported_input": [
+      "live CABT state not converted to packed observation",
+      "unseen schema lacking state_features/options/features",
+      "hidden card identities",
+      "pilot/team/outcome/replay/split/selected labels as model inputs"
+    ]
+  },
+  "system_id": "P2_S2_EXACT_ID_RUNTIME_V1"
+}
