@@ -27,6 +27,7 @@ MODULES = [
     "test_selector_v2_wiring_v1",   # conservative C3 (c3_family_limited): never overrides into ATTACK/END/RETREAT
     "test_turn_context_v0",         # read-only turn-context extractor (PREP; unwired, schema-stable, no leak)
     "test_selector_v3_wiring_v1",   # V3 transplant wiring (off-identity, fail-closed, never terminal)
+    "test_transplant_v5_support_v1",  # V5 runtime-feature support pack (extractor no-mutation/no-leakage/delta probe)
 ]
 
 
