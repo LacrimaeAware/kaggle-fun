@@ -1,19 +1,20 @@
 {
   "callable": "rank_and_select(observation, legal_options, baseline_action, search_action=None, mode=\"selector_v3_transplant\")",
-  "created_utc": "2026-06-27T07:18:20.365048+00:00",
+  "canonical_transplant_lookup_key": "FAMILY||COMPACT_SEMANTIC_KEY",
+  "created_utc": "2026-06-27T08:31:50.526655+00:00",
   "default_mode": "off",
   "files": {
     "README_FOR_MODEL_B.md": {
-      "bytes": 1075,
+      "bytes": 1380,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\README_FOR_MODEL_B.md",
-      "sha256": "A552328AE9B7EF5C4633C98DDE3FA485DCAC0B135539568AA0377E645F125AE4"
+      "sha256": "4085AB49A268E37379FD05DBCA25234C86969958AD101E4B9A84B0B671ECED72"
     },
     "api_contract.json": {
-      "bytes": 3581,
+      "bytes": 4317,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\api_contract.json",
-      "sha256": "C58ACB94248C95C3FAB9D7C45A48EE4ECFA136C1D79D7A7DB8B719BDFE84FAEA"
+      "sha256": "F14565C23431A6A573C36AD039B0865BC17DA3AE639A6380F1CE0414B45F1A58"
     },
     "feature_manifest.json": {
       "bytes": 2439,
@@ -33,11 +34,23 @@
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\inference_config.json",
       "sha256": "7DB1875002ED7FE5CD7C0DDFF3C4D3E2AD5D57E589D6C745878AD38E11C3DF68"
     },
+    "key_format_audit.json": {
+      "bytes": 31677,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\key_format_audit.json",
+      "sha256": "63B7B582DA815C76A0B1C4F216E872536E1DAEB7AF1A7A5A49EC1D3DFE8823BF"
+    },
+    "live_shape_support_probe.json": {
+      "bytes": 9659,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\live_shape_support_probe.json",
+      "sha256": "5E828C0A964CD3869B76A4F0522A28D95C35F54FE6EC0316E4CF2068B0CA5827"
+    },
     "manifest.json": {
-      "bytes": 512,
+      "bytes": 7542,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\manifest.json",
-      "sha256": "BD1C3FCB7521586863CFE9754B9E0966DF2909D0EB1D74611F4553A11AB6ABBC"
+      "sha256": "A568F79AC93E331EF899268424172970D0507A1E8A363D95212E13FF4201198E"
     },
     "model_checkpoint.json": {
       "bytes": 934437,
@@ -46,28 +59,34 @@
       "sha256": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8"
     },
     "parity_expected.jsonl": {
-      "bytes": 328309,
+      "bytes": 358725,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\parity_expected.jsonl",
-      "sha256": "FD5B9219599D1018C2D4537141EE66D36D6D58E6A356C7DFF52AB99C9CF853E7"
+      "sha256": "5C64B5BE1F09CDC46D2A469D70B62AF25A7BEB01FE8CED9DD7BE0693B20F4BFA"
     },
     "parity_inputs.jsonl": {
-      "bytes": 3797669,
+      "bytes": 4017170,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\parity_inputs.jsonl",
-      "sha256": "45690F83A1941CE639026ABEEDA5B0B00CD48810D5686944DFD82CF9BF0B5A9B"
+      "sha256": "E111A6F171CCC467B705E4D4084EDAA1D7058EA1155139B19B52197BB64DADDD"
     },
     "parity_report.json": {
-      "bytes": 1883,
+      "bytes": 2109,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\parity_report.json",
-      "sha256": "F0EEC8A94628D0D14E43B07D1F8C37D5B4362907EEF51CF48A134BA4CA9109DE"
+      "sha256": "EFE71EA7C5B6002D7B04544083B660091074BD56FB63DF6669E3EBAB4207015E"
+    },
+    "parity_report_repaired.json": {
+      "bytes": 2109,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\parity_report_repaired.json",
+      "sha256": "EFE71EA7C5B6002D7B04544083B660091074BD56FB63DF6669E3EBAB4207015E"
     },
     "selector_config.json": {
-      "bytes": 7145,
+      "bytes": 7275,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\selector_config.json",
-      "sha256": "527CDE9A07803798502927098BF2BBA265DBE2A779739F55BF2D330B0871CACD"
+      "sha256": "B6A74F8AFFF4F489DAB788D77D71C0A95186801F283C52A88A497B449941B9C4"
     },
     "selector_export_v3.json": {
       "bytes": 30632,
@@ -76,10 +95,10 @@
       "sha256": "AA67AA2273B64EE4E15D8AE90CE7DB5354CFDBA2BD108A9123FF978829A2DB03"
     },
     "selector_v3_config.json": {
-      "bytes": 7145,
+      "bytes": 7275,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\selector_v3_config.json",
-      "sha256": "527CDE9A07803798502927098BF2BBA265DBE2A779739F55BF2D330B0871CACD"
+      "sha256": "B6A74F8AFFF4F489DAB788D77D71C0A95186801F283C52A88A497B449941B9C4"
     },
     "starmie_feature_v2_packer.py": {
       "bytes": 18440,
@@ -88,19 +107,52 @@
       "sha256": "BEBC2B212B4EBD847FE07F1DD688AAE3E38F4A8F438CF5308FD8AC6D98E7EF85"
     },
     "starmie_selector_runtime.py": {
-      "bytes": 54317,
+      "bytes": 57860,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\starmie_selector_runtime.py",
-      "sha256": "5CD42D3C3AFEC4E38FE9199F2AA67D11E1F26CC1D2E1CF0A0BA92DC7EEF0B1A7"
+      "sha256": "7FB2648AB0C6D2D449E6074B09F5BFB48FF05306D1018BD47EB9792E70272FC8"
+    },
+    "table_fallback_parity_expected.jsonl": {
+      "bytes": 384474,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\table_fallback_parity_expected.jsonl",
+      "sha256": "8B5A5ADB0E42195F21B38FDC4E5F7E303CB15B142EDBCEAE5DCAFCB20416453E"
+    },
+    "table_fallback_parity_inputs.jsonl": {
+      "bytes": 3459910,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\table_fallback_parity_inputs.jsonl",
+      "sha256": "D5DD62252FBF19A475CF6983427F6BDC41D16EF34DFACFB8BD43422E99A52A9E"
+    },
+    "table_fallback_parity_report.json": {
+      "bytes": 1858,
+      "exists": true,
+      "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\table_fallback_parity_report.json",
+      "sha256": "74B78D80C3531B5A65E8E35A8080B14C11BB0969981C63635086C29E249246B4"
     },
     "transplant_support_table.json": {
-      "bytes": 40283,
+      "bytes": 45182,
       "exists": true,
       "path": "data\\generated\\starmie_specialist\\portable_selector_v3\\export\\transplant_support_table.json",
-      "sha256": "DBC1FA44B5C41E5D31F6E6A8C0E62CCA9CFB8961C7F0523950BA36F50023DD83"
+      "sha256": "1FD290EA45047A73B4B4CEBCF1E582952249823FB0A1A3C777EFFE7171958B7D"
     }
   },
+  "key_format_audit": {
+    "compact_lookup_hit_count": 383,
+    "options_with_explicit_transplant_lookup_key": 383,
+    "parity_option_count": 458,
+    "structured_lookup_hit_count": 1,
+    "structured_runtime_key_would_miss_when_compact_hits": true,
+    "support_table_entry_count": 40
+  },
   "live_enabled": false,
+  "live_shape_support_probe": {
+    "decision_count": 103,
+    "high_support_table_override_count": 21,
+    "passed": true,
+    "table_hit_count": 102,
+    "unsupported_fallback_count": 1
+  },
   "locked_metrics": {
     "allowed_override_families": [
       "ATTACH",
@@ -141,28 +193,41 @@
   },
   "proposer_runtime_hash": "3608D5804403D431BAA1EAEEE5C02860B521A79F205B5BD7283A7A053F3548B8",
   "rejected_policy_not_exported": "T4_AXIS_MASK_SELECTOR",
-  "runtime_hash": "5CD42D3C3AFEC4E38FE9199F2AA67D11E1F26CC1D2E1CF0A0BA92DC7EEF0B1A7",
+  "runtime_hash": "7FB2648AB0C6D2D449E6074B09F5BFB48FF05306D1018BD47EB9792E70272FC8",
   "runtime_transplant_policy": {
     "fallback_or_abstain_when_support_missing": true,
-    "offline_v3_equivalence": "only for rows carrying equivalent precomputed support; otherwise the portable runtime falls back/abstains instead of faking replay joins",
+    "offline_v3_equivalence": "parity is checked both with caller-supplied support and with caller support stripped so the bundled transplant_support_table must work by transplant_lookup_key",
+    "table_lookup_key": "transplant_lookup_key",
+    "uses_exported_table_lookup": true,
     "uses_live_transplant_retrieval": false,
     "uses_precomputed_summaries": true
   },
   "schema_version": "starmie_portable_selector_v3.export_manifest",
   "selected_policy": "T1_C3_PLUS_TRANSPLANT_SCORE",
   "selector_export_v3_hash": "AA67AA2273B64EE4E15D8AE90CE7DB5354CFDBA2BD108A9123FF978829A2DB03",
-  "selector_v3_config_hash": "527CDE9A07803798502927098BF2BBA265DBE2A779739F55BF2D330B0871CACD",
+  "selector_v3_config_hash": "B6A74F8AFFF4F489DAB788D77D71C0A95186801F283C52A88A497B449941B9C4",
   "smoke_mode": "selector_v3_transplant",
   "stop_conditions": [
     "Do not enable selector by default.",
     "Do not submit from this bundle.",
     "Do not tune thresholds on smoke win rate.",
     "Do not export or select T4_AXIS_MASK_SELECTOR for smoke.",
-    "Do not pretend live replay-decision joins exist; require support summaries or fallback."
+    "Do not pretend live replay-decision joins exist; require transplant_lookup_key/table support, caller support summaries, or fallback."
   ],
+  "table_fallback_parity": {
+    "decision_count": 103,
+    "forbidden_metadata_failure_count": 0,
+    "input_mutation_failure_count": 0,
+    "passed": true,
+    "selected_action_match_rate": 1.0,
+    "terminal_override_block_behavior_rate": 1.0,
+    "top_k_match_rate": 1.0,
+    "transplant_feature_support_match_rate": 1.0,
+    "transplant_table_hit_count": 102
+  },
   "transplant_prior_artifact_hashes": {
     "source_transplant_closeout": "66272E4CA39F53219F0B437E1688B204B258B58FA3C58208DCADA2AD913CAFC3",
     "source_transplant_value_scores": "8B13E3CE54B5BC7C05BBCAC575D330891938C927250BF4DC4F0675EF49A02F9A",
-    "support_table": "DBC1FA44B5C41E5D31F6E6A8C0E62CCA9CFB8961C7F0523950BA36F50023DD83"
+    "support_table": "1FD290EA45047A73B4B4CEBCF1E582952249823FB0A1A3C777EFFE7171958B7D"
   }
 }

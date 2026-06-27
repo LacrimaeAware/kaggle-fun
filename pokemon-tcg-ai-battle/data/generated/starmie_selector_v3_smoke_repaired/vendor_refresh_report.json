@@ -1,0 +1,15 @@
+{
+  "stale_vendor_was": {
+    "runtime": "5cd42d3c3afec4e3",
+    "table": "dbc1fa44b5c41e5d"
+  },
+  "repaired_now_vendored": {
+    "runtime": "7fb2648ab0c6d2d4",
+    "table": "1fd290ea45047a73"
+  },
+  "matches_repaired_export": {
+    "runtime": true,
+    "table": true
+  },
+  "note": "stale buggy V3 bundle replaced with repaired export (canonical FAMILY||COMPACT lookup key)."
+}

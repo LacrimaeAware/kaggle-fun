@@ -10,7 +10,7 @@
     "END",
     "RETREAT"
   ],
-  "created_utc": "2026-06-27T07:18:19.048606+00:00",
+  "created_utc": "2026-06-27T08:31:49.241862+00:00",
   "default_mode": "off",
   "live_enabled": false,
   "schema_version": "starmie_portable_selector_v3.selector_v3_config",
@@ -192,16 +192,18 @@
   "smoke_mode": "selector_v3_transplant",
   "source_selector_export_v3_sha256": "AA67AA2273B64EE4E15D8AE90CE7DB5354CFDBA2BD108A9123FF978829A2DB03",
   "transplant_runtime_policy": {
+    "canonical_lookup_key": "FAMILY||COMPACT_SEMANTIC_KEY",
     "confidence_min": 0.2,
     "contradiction_rate_max": 0.75,
     "effective_n_min": 4.0,
     "fallback_behavior": "if a non-baseline selector override lacks supported transplant evidence, return baseline/fallback loudly",
-    "offline_equivalence": "exact only for parity rows carrying the same precomputed transplant summaries; ordinary live states without support summaries are not equivalent to the offline replay-join report",
+    "offline_equivalence": "parity is checked with caller support and with caller support stripped; table fallback requires transplant_lookup_key rather than replay-decision joins",
+    "packed_option_field": "transplant_lookup_key",
     "provider_order": [
       "per-option transplant/V_transplant field",
       "observation.transplant_support_by_packed_index",
-      "observation.transplant_support_by_semantic_key",
-      "exported transplant_support_table exact semantic key",
+      "observation.transplant_support_by_semantic_key keyed by transplant_lookup_key",
+      "exported transplant_support_table keyed by transplant_lookup_key",
       "fallback/abstain"
     ],
     "support_count_min": 4.0

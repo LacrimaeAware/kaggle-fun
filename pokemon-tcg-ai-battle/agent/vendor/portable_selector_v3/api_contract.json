@@ -11,6 +11,7 @@
     "RETREAT"
   ],
   "callable": "rank_and_select(observation, legal_options, baseline_action, search_action=None, mode=\"selector_v3_transplant\")",
+  "canonical_transplant_lookup_key": "FAMILY||COMPACT_SEMANTIC_KEY",
   "config": {
     "out_dir": "data/generated/starmie_specialist/portable_selector_v3",
     "pack_dir": "data/generated/transition_ranker/starmie_behavior_v2/starmie_behavior_packs_v0/P5_NEW_TOP1_EXACT_SINGLE_PILOT",
@@ -26,7 +27,7 @@
     "top_k": 5,
     "transplant_dir": "data/generated/starmie_transplant_v0"
   },
-  "created_utc": "2026-06-27T07:18:19.049059+00:00",
+  "created_utc": "2026-06-27T08:31:49.242228+00:00",
   "default_mode": "off",
   "forbidden_inputs": [
     "pilot/team identity",
@@ -41,7 +42,8 @@
   "packer_callable": "pack_cabt_observation(observation, legal_options=None)",
   "recommended_call_sequence": [
     "packed = starmie_feature_v2_packer.pack_cabt_observation(raw_public_observation, raw_legal_options)",
-    "attach runtime-computable transplant support summaries if available; otherwise keep mode off or expect fallback",
+    "ensure each packed option has transplant_lookup_key when a compact semantic key is available",
+    "optional: attach runtime-computable transplant support summaries to override the bundled table",
     "runtime.rank_and_select(packed, packed[\"packed_options\"], baseline_action=packed.get(\"baseline_action\"), search_action=packed.get(\"search_action\"), mode=\"selector_v3_transplant\")"
   ],
   "rejected_policy_not_exported": "T4_AXIS_MASK_SELECTOR",
@@ -58,23 +60,35 @@
     "blocked_override_reason",
     "terminal_override_blocked",
     "support_status",
+    "transplant_lookup_key",
+    "transplant_table_hit",
+    "transplant_support_source",
     "model_hash",
     "selector_hash"
   ],
   "schema_version": "starmie_portable_selector_v3.api_contract",
   "selected_policy": "T1_C3_PLUS_TRANSPLANT_SCORE",
   "smoke_mode": "selector_v3_transplant",
+  "transplant_lookup_priority": [
+    "option.transplant / option.V_transplant / option.transplant_support",
+    "observation.transplant_support_by_packed_index",
+    "observation.transplant_support_by_semantic_key using transplant_lookup_key",
+    "bundled transplant_support_table keyed by transplant_lookup_key",
+    "missing-support fallback"
+  ],
   "transplant_support_definitions": {
+    "canonical_lookup_key": "FAMILY||COMPACT_SEMANTIC_KEY",
     "confidence_min": 0.2,
     "contradiction_rate_max": 0.75,
     "effective_n_min": 4.0,
     "fallback_behavior": "if a non-baseline selector override lacks supported transplant evidence, return baseline/fallback loudly",
-    "offline_equivalence": "exact only for parity rows carrying the same precomputed transplant summaries; ordinary live states without support summaries are not equivalent to the offline replay-join report",
+    "offline_equivalence": "parity is checked with caller support and with caller support stripped; table fallback requires transplant_lookup_key rather than replay-decision joins",
+    "packed_option_field": "transplant_lookup_key",
     "provider_order": [
       "per-option transplant/V_transplant field",
       "observation.transplant_support_by_packed_index",
-      "observation.transplant_support_by_semantic_key",
-      "exported transplant_support_table exact semantic key",
+      "observation.transplant_support_by_semantic_key keyed by transplant_lookup_key",
+      "exported transplant_support_table keyed by transplant_lookup_key",
       "fallback/abstain"
     ],
     "support_count_min": 4.0

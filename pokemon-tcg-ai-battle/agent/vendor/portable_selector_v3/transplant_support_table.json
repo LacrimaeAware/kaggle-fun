@@ -1,8 +1,10 @@
 {
-  "created_utc": "2026-06-27T07:18:19.154371+00:00",
+  "canonical_key_format": "FAMILY||COMPACT_SEMANTIC_KEY",
+  "created_utc": "2026-06-27T08:31:49.304063+00:00",
   "entries": {
     "ATTACH||ATTACH:Hero\u2019s Cape:Cinderace": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Hero\u2019s Cape:Cinderace",
       "confidence": 1.0,
       "consequence_means": {
         "attacker_readiness_delta": 0.9000698464049458,
@@ -23,10 +25,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.39750507766623583,
       "semantic_action_key": "ATTACH:Hero\u2019s Cape:Cinderace",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Hero\u2019s Cape:Cinderace"
     },
     "ATTACH||ATTACH:Hero\u2019s Cape:Mega": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Hero\u2019s Cape:Mega",
       "confidence": 0.96484375,
       "consequence_means": {
         "attacker_readiness_delta": 0.6413919968414742,
@@ -47,10 +51,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.28564858210670946,
       "semantic_action_key": "ATTACH:Hero\u2019s Cape:Mega",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Hero\u2019s Cape:Mega"
     },
     "ATTACH||ATTACH:Hero\u2019s Cape:Staryu": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Hero\u2019s Cape:Staryu",
       "confidence": 1.0,
       "consequence_means": {
         "attacker_readiness_delta": 0.9178023126409204,
@@ -71,10 +77,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.39570422260510296,
       "semantic_action_key": "ATTACH:Hero\u2019s Cape:Staryu",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Hero\u2019s Cape:Staryu"
     },
     "ATTACH||ATTACH:Ignition:Cinderace": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Ignition:Cinderace",
       "confidence": 0.9991319444444444,
       "consequence_means": {
         "attacker_readiness_delta": 0.905462411307096,
@@ -95,10 +103,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.39766565306865925,
       "semantic_action_key": "ATTACH:Ignition:Cinderace",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Ignition:Cinderace"
     },
     "ATTACH||ATTACH:Ignition:Mega": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Ignition:Mega",
       "confidence": 0.9649575242718447,
       "consequence_means": {
         "attacker_readiness_delta": 0.4841481528265362,
@@ -119,10 +129,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.241030281042549,
       "semantic_action_key": "ATTACH:Ignition:Mega",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Ignition:Mega"
     },
     "ATTACH||ATTACH:Ignition:Staryu": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Ignition:Staryu",
       "confidence": 0.9990234375,
       "consequence_means": {
         "attacker_readiness_delta": 0.9338828963673422,
@@ -143,10 +155,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.4020491497873388,
       "semantic_action_key": "ATTACH:Ignition:Staryu",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Ignition:Staryu"
     },
     "ATTACH||ATTACH:Water:Cinderace": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Water:Cinderace",
       "confidence": 1.0,
       "consequence_means": {
         "attacker_readiness_delta": 0.9372340928578027,
@@ -167,10 +181,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.40834981323232417,
       "semantic_action_key": "ATTACH:Water:Cinderace",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Water:Cinderace"
     },
     "ATTACH||ATTACH:Water:Mega": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Water:Mega",
       "confidence": 0.9807318652849741,
       "consequence_means": {
         "attacker_readiness_delta": 0.7421902665580753,
@@ -191,10 +207,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.3309525153600485,
       "semantic_action_key": "ATTACH:Water:Mega",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Water:Mega"
     },
     "ATTACH||ATTACH:Water:Staryu": {
       "action_family": "ATTACH",
+      "compact_semantic_action_key": "ATTACH:Water:Staryu",
       "confidence": 1.0,
       "consequence_means": {
         "attacker_readiness_delta": 0.9466404488765883,
@@ -215,10 +233,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.4045914999388259,
       "semantic_action_key": "ATTACH:Water:Staryu",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACH||ATTACH:Water:Staryu"
     },
     "ATTACK||ATTACK:1486": {
       "action_family": "ATTACK",
+      "compact_semantic_action_key": "ATTACK:1486",
       "confidence": 0.859375,
       "consequence_means": {
         "attacker_readiness_delta": 0.2562791821161013,
@@ -239,10 +259,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.023740643440927443,
       "semantic_action_key": "ATTACK:1486",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACK||ATTACK:1486"
     },
     "ATTACK||ATTACK:Jetting": {
       "action_family": "ATTACK",
+      "compact_semantic_action_key": "ATTACK:Jetting",
       "confidence": 0.9058761961722488,
       "consequence_means": {
         "attacker_readiness_delta": 0.08492822966507177,
@@ -263,10 +285,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.19267776708283493,
       "semantic_action_key": "ATTACK:Jetting",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACK||ATTACK:Jetting"
     },
     "ATTACK||ATTACK:Nebula": {
       "action_family": "ATTACK",
+      "compact_semantic_action_key": "ATTACK:Nebula",
       "confidence": 0.7126358695652174,
       "consequence_means": {
         "attacker_readiness_delta": 0.010327188910870071,
@@ -287,10 +311,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.1231126848134518,
       "semantic_action_key": "ATTACK:Nebula",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACK||ATTACK:Nebula"
     },
     "ATTACK||ATTACK:Turbo": {
       "action_family": "ATTACK",
+      "compact_semantic_action_key": "ATTACK:Turbo",
       "confidence": 0.921875,
       "consequence_means": {
         "attacker_readiness_delta": 0.13171862452225047,
@@ -311,10 +337,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.3481719991828806,
       "semantic_action_key": "ATTACK:Turbo",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "ATTACK||ATTACK:Turbo"
     },
     "END||END": {
       "action_family": "END",
+      "compact_semantic_action_key": "END",
       "confidence": 0.85,
       "consequence_means": {
         "attacker_readiness_delta": 0.42586543103486785,
@@ -335,10 +363,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.029355244999392512,
       "semantic_action_key": "END",
-      "support_count": 30.0
+      "support_count": 30.0,
+      "transplant_lookup_key": "END||END"
     },
     "EVOLVE||EVOLVE:Mega": {
       "action_family": "EVOLVE",
+      "compact_semantic_action_key": "EVOLVE:Mega",
       "confidence": 0.9739583333333334,
       "consequence_means": {
         "attacker_readiness_delta": 0.4433790654423084,
@@ -359,10 +389,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.20985517158047196,
       "semantic_action_key": "EVOLVE:Mega",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "EVOLVE||EVOLVE:Mega"
     },
     "NO_PROMPT||NO": {
       "action_family": "NO_PROMPT",
+      "compact_semantic_action_key": "NO",
       "confidence": 0.9166666666666666,
       "consequence_means": {
         "attacker_readiness_delta": 1.0,
@@ -383,10 +415,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": -0.7623911985271182,
       "semantic_action_key": "NO",
-      "support_count": 12.0
+      "support_count": 12.0,
+      "transplant_lookup_key": "NO_PROMPT||NO"
     },
     "PLAY||PLAY:Boss\u2019s Orders": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Boss\u2019s Orders",
       "confidence": 0.95625,
       "consequence_means": {
         "attacker_readiness_delta": 0.48498394195637423,
@@ -407,10 +441,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.18102302700782144,
       "semantic_action_key": "PLAY:Boss\u2019s Orders",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Boss\u2019s Orders"
     },
     "PLAY||PLAY:Buddy-Buddy Poffin": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Buddy-Buddy Poffin",
       "confidence": 0.9128196022727273,
       "consequence_means": {
         "attacker_readiness_delta": 0.38176999746551393,
@@ -431,10 +467,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.11634307249038776,
       "semantic_action_key": "PLAY:Buddy-Buddy Poffin",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Buddy-Buddy Poffin"
     },
     "PLAY||PLAY:Crushing Hammer": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Crushing Hammer",
       "confidence": 0.953125,
       "consequence_means": {
         "attacker_readiness_delta": 0.4580191175338577,
@@ -455,10 +493,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.2026411741998555,
       "semantic_action_key": "PLAY:Crushing Hammer",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Crushing Hammer"
     },
     "PLAY||PLAY:Harlequin": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Harlequin",
       "confidence": 0.8127948113207547,
       "consequence_means": {
         "attacker_readiness_delta": 0.24662447175281324,
@@ -479,10 +519,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.065944438662865,
       "semantic_action_key": "PLAY:Harlequin",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Harlequin"
     },
     "PLAY||PLAY:Hilda": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Hilda",
       "confidence": 0.9015151515151515,
       "consequence_means": {
         "attacker_readiness_delta": 0.1933412387455332,
@@ -503,10 +545,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.05063694510659296,
       "semantic_action_key": "PLAY:Hilda",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Hilda"
     },
     "PLAY||PLAY:Lillie's Determination": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Lillie's Determination",
       "confidence": 0.8079144021739131,
       "consequence_means": {
         "attacker_readiness_delta": 0.284641645666932,
@@ -527,10 +571,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.06758276290186481,
       "semantic_action_key": "PLAY:Lillie's Determination",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Lillie's Determination"
     },
     "PLAY||PLAY:Mega Signal": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Mega Signal",
       "confidence": 0.9132440476190476,
       "consequence_means": {
         "attacker_readiness_delta": 0.35909455946672275,
@@ -551,10 +597,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.10806548293940806,
       "semantic_action_key": "PLAY:Mega Signal",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Mega Signal"
     },
     "PLAY||PLAY:Night Stretcher": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Night Stretcher",
       "confidence": 0.9444444444444444,
       "consequence_means": {
         "attacker_readiness_delta": 0.3060884261917202,
@@ -575,10 +623,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.13491485963838956,
       "semantic_action_key": "PLAY:Night Stretcher",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Night Stretcher"
     },
     "PLAY||PLAY:Pok\u00e9gear 3.0": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Pok\u00e9gear 3.0",
       "confidence": 0.9093440594059405,
       "consequence_means": {
         "attacker_readiness_delta": 0.37627898711505753,
@@ -599,10 +649,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.10381873075725669,
       "semantic_action_key": "PLAY:Pok\u00e9gear 3.0",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Pok\u00e9gear 3.0"
     },
     "PLAY||PLAY:Salvatore": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Salvatore",
       "confidence": 0.9575076219512195,
       "consequence_means": {
         "attacker_readiness_delta": 0.5215075246310921,
@@ -623,10 +675,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.18378383378163834,
       "semantic_action_key": "PLAY:Salvatore",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Salvatore"
     },
     "PLAY||PLAY:Staryu": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Staryu",
       "confidence": 0.9561298076923077,
       "consequence_means": {
         "attacker_readiness_delta": 0.4757503607770118,
@@ -647,10 +701,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.18303171849698957,
       "semantic_action_key": "PLAY:Staryu",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Staryu"
     },
     "PLAY||PLAY:Ultra Ball": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Ultra Ball",
       "confidence": 0.9067234848484849,
       "consequence_means": {
         "attacker_readiness_delta": 0.30081814681444724,
@@ -671,10 +727,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.08443161169518708,
       "semantic_action_key": "PLAY:Ultra Ball",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Ultra Ball"
     },
     "PLAY||PLAY:Wally's Compassion": {
       "action_family": "PLAY",
+      "compact_semantic_action_key": "PLAY:Wally's Compassion",
       "confidence": 1.0,
       "consequence_means": {
         "attacker_readiness_delta": 0.20843142481040036,
@@ -695,10 +753,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.1620839812973533,
       "semantic_action_key": "PLAY:Wally's Compassion",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "PLAY||PLAY:Wally's Compassion"
     },
     "RETREAT||RETREAT": {
       "action_family": "RETREAT",
+      "compact_semantic_action_key": "RETREAT",
       "confidence": 0.9375,
       "consequence_means": {
         "attacker_readiness_delta": -0.0014105721657779408,
@@ -719,10 +779,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.060263119518376776,
       "semantic_action_key": "RETREAT",
-      "support_count": 24.0
+      "support_count": 24.0,
+      "transplant_lookup_key": "RETREAT||RETREAT"
     },
     "SELECT_CARD||SELECT_CARD:Cinderace": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Cinderace",
       "confidence": 0.940625,
       "consequence_means": {
         "attacker_readiness_delta": 0.48058646154652307,
@@ -743,10 +805,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.15965571536812173,
       "semantic_action_key": "SELECT_CARD:Cinderace",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Cinderace"
     },
     "SELECT_CARD||SELECT_CARD:Ignition": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Ignition",
       "confidence": 0.970703125,
       "consequence_means": {
         "attacker_readiness_delta": 0.32463202985980116,
@@ -767,10 +831,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.28285350259598246,
       "semantic_action_key": "SELECT_CARD:Ignition",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Ignition"
     },
     "SELECT_CARD||SELECT_CARD:Mega": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Mega",
       "confidence": 0.9483173076923077,
       "consequence_means": {
         "attacker_readiness_delta": 0.5062330890655846,
@@ -791,10 +857,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.16751769070212216,
       "semantic_action_key": "SELECT_CARD:Mega",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Mega"
     },
     "SELECT_CARD||SELECT_CARD:Mega Signal|SELECT_CARD:Pok\u00e9gear 3.0": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Mega Signal|SELECT_CARD:Pok\u00e9gear 3.0",
       "confidence": 0.921875,
       "consequence_means": {
         "attacker_readiness_delta": 0.19135919651968758,
@@ -815,10 +883,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.17018047769124606,
       "semantic_action_key": "SELECT_CARD:Mega Signal|SELECT_CARD:Pok\u00e9gear 3.0",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Mega Signal|SELECT_CARD:Pok\u00e9gear 3.0"
     },
     "SELECT_CARD||SELECT_CARD:None": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:None",
       "confidence": 0.9541127873563219,
       "consequence_means": {
         "attacker_readiness_delta": 0.21645710021062295,
@@ -839,10 +909,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.29337157168865236,
       "semantic_action_key": "SELECT_CARD:None",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:None"
     },
     "SELECT_CARD||SELECT_CARD:Staryu": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Staryu",
       "confidence": 0.9338942307692307,
       "consequence_means": {
         "attacker_readiness_delta": 0.7210875125824643,
@@ -863,10 +935,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.23428665922949396,
       "semantic_action_key": "SELECT_CARD:Staryu",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Staryu"
     },
     "SELECT_CARD||SELECT_CARD:Water": {
       "action_family": "SELECT_CARD",
+      "compact_semantic_action_key": "SELECT_CARD:Water",
       "confidence": 0.9375,
       "consequence_means": {
         "attacker_readiness_delta": 0.5924743020082306,
@@ -887,10 +961,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.3120216718536073,
       "semantic_action_key": "SELECT_CARD:Water",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "SELECT_CARD||SELECT_CARD:Water"
     },
     "TYPE_0||0": {
       "action_family": "TYPE_0",
+      "compact_semantic_action_key": "0",
       "confidence": 0.7998802831768422,
       "consequence_means": {
         "attacker_readiness_delta": 0.7768614143915522,
@@ -911,10 +987,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.119945162409309,
       "semantic_action_key": "0",
-      "support_count": 9.0
+      "support_count": 9.0,
+      "transplant_lookup_key": "TYPE_0||0"
     },
     "TYPE_6||6": {
       "action_family": "TYPE_6",
+      "compact_semantic_action_key": "6",
       "confidence": 0.9545454545454546,
       "consequence_means": {
         "attacker_readiness_delta": 0.5417531420624777,
@@ -935,10 +1013,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": 0.22825733422352806,
       "semantic_action_key": "6",
-      "support_count": 11.0
+      "support_count": 11.0,
+      "transplant_lookup_key": "TYPE_6||6"
     },
     "YES_PROMPT||YES": {
       "action_family": "YES_PROMPT",
+      "compact_semantic_action_key": "YES",
       "confidence": 0.9418103448275862,
       "consequence_means": {
         "attacker_readiness_delta": 0.7618006247200045,
@@ -959,11 +1039,12 @@
       "runtime_scope": "semantic-key table fallback; explicit per-option support is preferred",
       "score": -0.42015077336230017,
       "semantic_action_key": "YES",
-      "support_count": 32.0
+      "support_count": 32.0,
+      "transplant_lookup_key": "YES_PROMPT||YES"
     }
   },
   "entry_count": 40,
-  "provider": "compact semantic-action support table; exact replay decision ids are not runtime keys",
+  "provider": "canonical transplant_lookup_key table; exact replay decision ids are not runtime keys",
   "schema_version": "starmie_portable_selector_v3.transplant_support_table",
   "source_candidate_rows_sha256": "D411AE554D2677A4DC7B33595FCC8B42D2B06D2A3D7B49D330BE3FB72468E6FB"
 }

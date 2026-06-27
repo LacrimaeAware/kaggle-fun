@@ -94,7 +94,7 @@ def test_agent(obs):
             "source": rec.get("source"), "confidence": rec.get("confidence"), "entropy": rec.get("entropy"),
             "top1_margin": rec.get("top1_margin"), "terminal_override_blocked": rec.get("terminal_override_blocked"),
             "hard_veto": rec.get("hard_veto"), "first_changed": _CTX.get("first_changed_done") is None,
-            "tactical": _tac(obs),
+            "tactical": _tac(obs), **_transplant_fields(rec),
         })
         _CTX["first_changed_done"] = True
     if rec and rec.get("terminal_override_blocked"):
@@ -109,6 +109,17 @@ def test_agent(obs):
             "tactical": _tac(obs), "terminal_override_blocked": True, "hard_veto": rec.get("hard_veto"),
         })
     return final
+
+
+def _transplant_fields(rec):
+    """V3 transplant logging (Section 6): lookup key, table hit, support source + scores."""
+    ts = rec.get("transplant_support")
+    if not isinstance(ts, dict):
+        return {"transplant_support_source": rec.get("source"), "transplant_table_hit": None}
+    return {"transplant_lookup_key": ts.get("lookup_key"), "transplant_table_hit": ts.get("table_hit"),
+            "transplant_support_source": ts.get("source"), "transplant_support_count": ts.get("support_count"),
+            "transplant_effective_n": ts.get("effective_n"), "transplant_confidence": ts.get("confidence"),
+            "transplant_usable": ts.get("usable")}
 
 
 def _tac(obs):

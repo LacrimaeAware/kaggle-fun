@@ -873,9 +873,14 @@ _V3_BASE_RUNTIME_CLASS = StarmieSelectorRuntime
 def _selector_features(index, options, logits, probabilities, ranking, baseline_indexes, search_indexes, option_zero_indexes, observation):
     features = _V3_BASE_SELECTOR_FEATURES(index, options, logits, probabilities, ranking, baseline_indexes, search_indexes, option_zero_indexes, observation)
     support = _v3_resolve_transplant_support(observation, options[index], index, {})
-    transplant = _mapping(support.get("value"))
     family = _selector_family(options[index])
-    features.update(
+    return _v3_with_transplant_features(features, support, family)
+
+
+def _v3_with_transplant_features(features, support, family):
+    out = {key: value for key, value in _mapping(features).items() if not str(key).startswith("transplant:")}
+    transplant = _mapping(support.get("value"))
+    out.update(
         {
             "transplant:score": _float(transplant.get("score"), 0.0),
             "transplant:confidence": _float(transplant.get("confidence"), 0.0),
@@ -887,9 +892,9 @@ def _selector_features(index, options, logits, probabilities, ranking, baseline_
     )
     means = _mapping(transplant.get("consequence_means"))
     for key in ("utility_score", "attacker_readiness_delta", "backup_continuity_delta", "deck_safety_delta", "ko_delta", "prize_delta"):
-        features[f"transplant:mean:{key}"] = max(-5.0, min(5.0, _float(means.get(key), 0.0)))
-        features[f"transplant:mean:{key}&&family:{family}"] = max(-5.0, min(5.0, _float(means.get(key), 0.0)))
-    return {key: value for key, value in features.items() if value}
+        out[f"transplant:mean:{key}"] = max(-5.0, min(5.0, _float(means.get(key), 0.0)))
+        out[f"transplant:mean:{key}&&family:{family}"] = max(-5.0, min(5.0, _float(means.get(key), 0.0)))
+    return {key: value for key, value in out.items() if value}
 
 
 class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
@@ -970,6 +975,7 @@ class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
         for index in sorted(candidate_indexes):
             support_by_index[index] = _v3_resolve_transplant_support(observation, options[index], index, self.transplant_support_table)
             features = _selector_features(index, options, logits, probabilities, ranking, baseline_indexes, search_indexes, option_zero_indexes, observation)
+            features = _v3_with_transplant_features(features, support_by_index[index], _selector_family(options[index]))
             selector_features_by_index[index] = features
             selector_scores[index] = sum(self.selector_weights.get(token, 0.0) * value for token, value in features.items())
         ordered = sorted(candidate_indexes, key=lambda idx: (-selector_scores.get(idx, 0.0), idx))
@@ -1024,9 +1030,13 @@ class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
                 support_status = "SAFETY_VETO_NO_BASELINE"
         ranked_actions = []
         for rank, index in enumerate(ranking[: max(0, int(top_k))], start=1):
+            ranked_support = support_by_index.get(index) or _v3_resolve_transplant_support(observation, options[index], index, self.transplant_support_table)
             ranked_actions.append(
                 {
                     "semantic_action_key": semantic_keys[index],
+                    "transplant_lookup_key": ranked_support.get("lookup_key"),
+                    "transplant_table_hit": bool(ranked_support.get("table_hit")),
+                    "transplant_support_source": ranked_support.get("source"),
                     "raw_option_index": _raw_option_index(options[index], index),
                     "packed_option_index": index,
                     "probability": probabilities[index],
@@ -1044,6 +1054,9 @@ class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
                 "selector_score": selector_scores.get(index),
                 "is_baseline": index in baseline_indexes,
                 "transplant_support_status": (support_by_index.get(index) or {}).get("status"),
+                "transplant_lookup_key": (support_by_index.get(index) or {}).get("lookup_key"),
+                "transplant_table_hit": bool((support_by_index.get(index) or {}).get("table_hit")),
+                "transplant_support_source": (support_by_index.get(index) or {}).get("source"),
             }
             for index in ordered
         ]
@@ -1075,7 +1088,7 @@ class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
             "transplant_support": {
                 "raw_selector": _v3_support_public(raw_support),
                 "selected": _v3_support_public(selected_support),
-                "provider_order": ["option", "observation_by_index", "observation_by_semantic_key", "exported_semantic_table", "fallback"],
+                "provider_order": ["option", "observation_by_index", "observation_by_semantic_lookup_key", "exported_lookup_key_table", "fallback"],
             },
             "safety_diagnostics": {
                 "hard_safety_flags": vetoes,
@@ -1084,6 +1097,9 @@ class StarmieSelectorRuntime(_V3_BASE_RUNTIME_CLASS):
                 "allowed_override_families": sorted(self.allowed_override_families),
             },
             "support_status": support_status,
+            "transplant_lookup_key": raw_support.get("lookup_key"),
+            "transplant_table_hit": bool(raw_support.get("table_hit")),
+            "transplant_support_source": raw_support.get("source"),
             "forbidden_metadata_ignored": forbidden_present,
             "model_hash": self.model_hash,
             "selector_hash": self.selector_hash,
@@ -1099,25 +1115,69 @@ def rank_and_select(observation, legal_options, baseline_action=None, search_act
 
 
 def _v3_resolve_transplant_support(observation, option, index, support_table):
+    lookup_key = _v3_transplant_lookup_key(option)
     for value, source in (
         (option.get("transplant"), "option.transplant"),
         (option.get("V_transplant"), "option.V_transplant"),
         (option.get("transplant_support"), "option.transplant_support"),
     ):
         if isinstance(value, Mapping):
-            return {"status": "explicit", "source": source, "value": dict(value)}
+            return {"status": "explicit", "source": source, "lookup_key": lookup_key, "table_hit": False, "value": dict(value)}
     by_index = _mapping(observation.get("transplant_support_by_packed_index"))
     if str(index) in by_index and isinstance(by_index[str(index)], Mapping):
-        return {"status": "explicit", "source": "observation.transplant_support_by_packed_index", "value": dict(by_index[str(index)])}
-    semantic = _semantic_action_key(option)
+        return {"status": "explicit", "source": "observation.transplant_support_by_packed_index", "lookup_key": lookup_key, "table_hit": False, "value": dict(by_index[str(index)])}
     by_semantic = _mapping(observation.get("transplant_support_by_semantic_key"))
-    if semantic in by_semantic and isinstance(by_semantic[semantic], Mapping):
-        return {"status": "explicit", "source": "observation.transplant_support_by_semantic_key", "value": dict(by_semantic[semantic])}
+    for key in (lookup_key, _semantic_action_key(option)):
+        if key and key in by_semantic and isinstance(by_semantic[key], Mapping):
+            return {"status": "explicit", "source": "observation.transplant_support_by_semantic_key", "lookup_key": lookup_key, "table_hit": False, "value": dict(by_semantic[key])}
+    if lookup_key in support_table and isinstance(support_table[lookup_key], Mapping):
+        return {"status": "table", "source": "exported_transplant_support_table", "lookup_key": lookup_key, "table_hit": True, "value": dict(support_table[lookup_key])}
+    return {"status": "missing", "source": "fallback", "lookup_key": lookup_key, "table_hit": False, "value": {"recommended_use": "missing", "score": 0.0, "confidence": 0.0, "effective_n": 0.0, "support_count": 0.0, "contradiction_rate": 1.0, "consequence_means": {}}}
+
+
+def _v3_transplant_lookup_key(option):
+    explicit = option.get("transplant_lookup_key")
+    if explicit:
+        return str(explicit)
     family = _selector_family(option)
-    table_key = f"{family}||{semantic}"
-    if table_key in support_table and isinstance(support_table[table_key], Mapping):
-        return {"status": "table", "source": "exported_semantic_support_table", "value": dict(support_table[table_key])}
-    return {"status": "missing", "source": "fallback", "value": {"recommended_use": "missing", "score": 0.0, "confidence": 0.0, "effective_n": 0.0, "support_count": 0.0, "contradiction_rate": 1.0, "consequence_means": {}}}
+    compact = _v3_compact_semantic_key(option)
+    if compact:
+        return f"{family}||{compact}"
+    semantic = _semantic_action_key(option)
+    return f"{family}||{semantic}" if semantic else ""
+
+
+def _v3_compact_semantic_key(option):
+    for key in ("compact_semantic_action_key", "semantic_action_key_compact", "friendly_action_key"):
+        value = option.get(key)
+        if value:
+            return str(value)
+    projection = _mapping(option.get("projection"))
+    raw = _mapping(projection.get("raw_vector"))
+    family = _selector_family(option)
+    if family == "ATTACH":
+        energy = raw.get("attached_energy_type") or raw.get("attached_card_name") or raw.get("source_card_name")
+        target = raw.get("target_role") or raw.get("target_card_name") or raw.get("target_name")
+        if energy and target:
+            return f"ATTACH:{energy}:{target}"
+    if family == "SELECT_CARD":
+        name = raw.get("selected_card_name") or raw.get("target_card_name") or raw.get("card_name")
+        if name:
+            return f"SELECT_CARD:{name}"
+    if family == "PLAY":
+        name = raw.get("played_card_name") or raw.get("card_name") or raw.get("source_card_name")
+        if name:
+            return f"PLAY:{name}"
+    if family == "EVOLVE":
+        target = raw.get("target_role") or raw.get("evolution_name") or raw.get("target_card_name")
+        if target:
+            return f"EVOLVE:{target}"
+    if family in {"END", "RETREAT"}:
+        return family
+    attack = raw.get("attack_name")
+    if family == "ATTACK" and attack:
+        return f"ATTACK:{attack}"
+    return ""
 
 
 def _v3_support_is_usable(support):
@@ -1137,6 +1197,8 @@ def _v3_support_public(support):
     return {
         "status": support.get("status"),
         "source": support.get("source"),
+        "lookup_key": support.get("lookup_key"),
+        "table_hit": bool(support.get("table_hit")),
         "usable": _v3_support_is_usable(support),
         "score": _float(value.get("score"), 0.0),
         "confidence": _float(value.get("confidence"), 0.0),
@@ -1183,6 +1245,9 @@ def _v3_error_result(exc, model_hash, selector_hash, mode):
         "blocked_override_reason": str(exc),
         "terminal_override_blocked": False,
         "support_status": f"ERROR:{exc}",
+        "transplant_lookup_key": None,
+        "transplant_table_hit": False,
+        "transplant_support_source": "error",
         "mode": mode,
         "model_hash": model_hash,
         "selector_hash": selector_hash,

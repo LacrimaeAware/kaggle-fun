@@ -1,0 +1,27 @@
+{
+  "gate_A_support_supplied": {
+    "selected_match_pct": 100.0,
+    "terminal_block_match_pct": 100.0,
+    "transplant_support_match_pct": 100.0,
+    "deterministic_pct": 100.0,
+    "obs_mutated": 0,
+    "GATE": "PASS"
+  },
+  "gate_BC_live_shape": {
+    "decisions": 150,
+    "support_status_dist": {
+      "BASELINE_SELECTED": 74,
+      "SUPPORTED": 49,
+      "BLOCKED_TERMINAL_OR_RETREAT_OVERRIDE": 27
+    },
+    "table_supported_count": 49,
+    "table_hits_nonzero": true,
+    "overrides": 46,
+    "overrides_nonzero": true,
+    "terminal_family_overrides": 0,
+    "method": "live-packed options via learned_selector_bridge + compact_semantic_action_key bridge (AD compact key, 95.5% table-key match); NO caller-supplied transplant support; runtime resolves support from its OWN exported table by canonical FAMILY||compact key.",
+    "V3_inert": false
+  },
+  "compact_key_bridge": "agent/starmie_heuristics._attach_compact_keys attaches compact_semantic_action_key (option identity, not a support value) so the repaired runtime derives the canonical transplant_lookup_key. The portable PACKER does not emit it; ideally Model A emits it natively for a self-contained bundle.",
+  "GATE": "PASS"
+}

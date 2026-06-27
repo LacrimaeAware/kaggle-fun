@@ -854,6 +854,22 @@ def _selector_runtime_v2():
     return _SELECTOR_RT_V2
 
 
+def _attach_compact_keys(obs, packed_options, AD):
+    """Attach each option's COMPACT semantic identity (compact_semantic_action_key) so the V3 runtime can derive its
+    canonical transplant_lookup_key (FAMILY||compact) and hit the exported support table. This supplies the option's
+    IDENTITY (via the validated AD compact-key adapter, which matches the table's key format ~95.5%), NOT any
+    transplant support value -- the runtime still computes support from its own table. The portable packer does not
+    emit this field, so the live adapter must; in production the live agent packs options through this same path."""
+    try:
+        keys = AD.option_index_to_key(obs)
+    except Exception:
+        return
+    for po in packed_options:
+        ck = keys.get(po.get("raw_option_index"))
+        if ck and "compact_semantic_action_key" not in po:
+            po["compact_semantic_action_key"] = ck
+
+
 def _selector_runtime_v3():
     """Load the transplant-aware Selector V3 runtime (T1_C3_PLUS_TRANSPLANT_SCORE) under a distinct module name.
     The runtime looks up transplant support from its own exported semantic table -- Model B does NOT compute or
@@ -886,6 +902,7 @@ def _selector_override_v3(obs, pick, base, n):
         import starmie_feature_v2_packer as PK
         payload = BR.cabt_to_payload(obs, baseline_action={"raw_option_index": base, "raw_option_indexes": [base]})
         packed = PK.pack_cabt_observation(payload, payload["raw_legal_options"])
+        _attach_compact_keys(obs, packed["packed_options"], AD)
         out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
                                  packed.get("search_action"), mode="selector_v3_transplant")
     except Exception:
@@ -1078,6 +1095,7 @@ def selector_trace(obs, base_raw, mode=None):
                                      packed.get("search_action"), mode="c3_family_limited") if rt else {}
         elif mode == "selector_v3_transplant":
             rt = _selector_runtime_v3()
+            _attach_compact_keys(obs, packed["packed_options"], AD)
             out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
                                      packed.get("search_action"), mode="selector_v3_transplant") if rt else {}
         else:

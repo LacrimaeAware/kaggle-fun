@@ -1,0 +1,12 @@
+{
+  "git_head": "9dbaa4f4cfa174a9f6d2839e8f535cb97003df36",
+  "branch": "exp/starmie-tactical-leaf-v1",
+  "starmie_heuristics_sha256": "04ebd448d872eeab",
+  "learned_selector_bridge_sha256": "8e42cfd93bc12e7c",
+  "v3_runtime_sha256": "7fb2648ab0c6d2d4",
+  "v3_table_sha256": "1fd290ea45047a73",
+  "selector_mode_default": "off",
+  "R15_on": true,
+  "ATTACH_MEGA_off": true,
+  "baseline_identity": "heuristic+search+R15, selector default off"
+}
