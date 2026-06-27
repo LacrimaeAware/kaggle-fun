@@ -820,6 +820,7 @@ def _attach_mega_pref(obs, pick):
 SELECTOR_MODE = os.environ.get("STARMIE_SELECTOR_MODE", "off").strip().lower()
 _SELECTOR_RT = "uninitialised"
 _SELECTOR_RT_V2 = "uninitialised"
+_SELECTOR_RT_V3 = "uninitialised"
 
 
 def _selector_runtime():
@@ -851,6 +852,61 @@ def _selector_runtime_v2():
         except Exception:
             _SELECTOR_RT_V2 = None
     return _SELECTOR_RT_V2
+
+
+def _selector_runtime_v3():
+    """Load the transplant-aware Selector V3 runtime (T1_C3_PLUS_TRANSPLANT_SCORE) under a distinct module name.
+    The runtime looks up transplant support from its own exported semantic table -- Model B does NOT compute or
+    substitute any transplant-support value (per the V3 contract)."""
+    global _SELECTOR_RT_V3
+    if _SELECTOR_RT_V3 == "uninitialised":
+        try:
+            import importlib.util
+            import learned_selector_bridge  # noqa: F401  shared packer
+            _vd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vendor", "portable_selector_v3")
+            _spec = importlib.util.spec_from_file_location("starmie_selector_runtime_v3",
+                                                           os.path.join(_vd, "starmie_selector_runtime.py"))
+            _mod = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_mod)
+            _SELECTOR_RT_V3 = _mod.StarmieSelectorRuntime.from_dir(_vd)
+        except Exception:
+            _SELECTOR_RT_V3 = None
+    return _SELECTOR_RT_V3
+
+
+def _selector_override_v3(obs, pick, base, n):
+    """selector_v3_transplant: V3 runtime applies C3 family-limiting + terminal-block + transplant-support gating +
+    abstain, using its OWN exported support table. Fail-closed: only a genuine, non-blocked override is trusted."""
+    rt = _selector_runtime_v3()
+    if rt is None:
+        return pick
+    try:
+        import learned_selector_bridge as BR
+        import learned_proposer_adapter as AD
+        import starmie_feature_v2_packer as PK
+        payload = BR.cabt_to_payload(obs, baseline_action={"raw_option_index": base, "raw_option_indexes": [base]})
+        packed = PK.pack_cabt_observation(payload, payload["raw_legal_options"])
+        out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                 packed.get("search_action"), mode="selector_v3_transplant")
+    except Exception:
+        return pick
+    if not isinstance(out, dict) or out.get("status") != "READY":
+        return pick
+    if str(out.get("support_status") or "") not in ("SUPPORTED", "SAFETY_FALLBACK"):
+        return pick
+    sel_raw = out.get("selected_raw_option_index")
+    if not isinstance(sel_raw, int) or not (0 <= sel_raw < n) or sel_raw == base:
+        return pick
+    if out.get("source") != "selector" or out.get("terminal_override_blocked"):
+        return pick
+    try:
+        if not DP.valid_selection(obs, [sel_raw]):
+            return pick
+        if AD.safety_check(obs, sel_raw).get("hard_veto"):
+            return pick
+    except Exception:
+        return pick
+    return [sel_raw]
 
 
 def _selector_override_v2(obs, pick, base, n):
@@ -909,6 +965,8 @@ def _selector_override(obs, pick):
         return pick
     if mode == "c3_family_limited":
         return _selector_override_v2(obs, pick, base, n)
+    if mode == "selector_v3_transplant":
+        return _selector_override_v3(obs, pick, base, n)
     if mode not in ("top1_gate", "top3_selector"):
         return pick
     rt = _selector_runtime()
@@ -1018,6 +1076,10 @@ def selector_trace(obs, base_raw, mode=None):
             rt = _selector_runtime_v2()
             out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
                                      packed.get("search_action"), mode="c3_family_limited") if rt else {}
+        elif mode == "selector_v3_transplant":
+            rt = _selector_runtime_v3()
+            out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
+                                     packed.get("search_action"), mode="selector_v3_transplant") if rt else {}
         else:
             rt = _selector_runtime()
             out = rt.rank_and_select(packed, packed["packed_options"], packed.get("baseline_action"),
@@ -1033,6 +1095,9 @@ def selector_trace(obs, base_raw, mode=None):
         rec["entropy"] = out.get("entropy")
         rec["top1_margin"] = out.get("top1_margin")
         rec["runtime_selected_raw"] = out.get("selected_raw_option_index")
+        rec["transplant_support"] = out.get("transplant_support")
+        rec["transplant_features"] = out.get("transplant_features")
+        rec["selector_score"] = out.get("selector_score")
         try:
             rec["hard_veto"] = bool(AD.safety_check(obs, rec["selector_raw"]).get("hard_veto"))
         except Exception:

@@ -1,0 +1,5 @@
+{
+  "verdict": "D_V3_SELECTOR_UNSAFE_OR_INVALID",
+  "promotion": "NEEDS_SELECTOR_REPAIR",
+  "scope": "INVALID FOR LIVE TRANSPLANT TEST (not unsafe). The export is parity-clean and fail-closed safe, but the transplant layer does not reach the live runtime, so V3 == off live and the smoke cannot evaluate it."
+}

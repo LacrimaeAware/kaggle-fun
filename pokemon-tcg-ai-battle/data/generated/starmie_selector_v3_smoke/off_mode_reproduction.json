@@ -1,0 +1,5 @@
+{
+  "off_mode": "baseline-identical (test_selector_wiring_v1 + test_selector_v3_wiring_v1 off-identity PASS)",
+  "v3_currently_also_baseline": "YES -- but via abstention (TRANSPLANT_SUPPORT_MISSING_FALLBACK), not by being off",
+  "fail_closed": "missing artifact/OOD/error/veto -> baseline (tests pass)"
+}

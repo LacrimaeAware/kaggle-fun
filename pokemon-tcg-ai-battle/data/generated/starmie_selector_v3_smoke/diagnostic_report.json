@@ -1,0 +1,26 @@
+{
+  "parity": "PASS in-repo (102/102 selected, terminal-block 100%, transplant-support 100%, deterministic, no mutation)",
+  "CRITICAL_FINDING": "V3 transplant signal is INERT live: 0 overrides / 0 blocks across all S3 matchups (vs c3 8-24 overrides), 0 errors.",
+  "root_cause": "runtime _v3_resolve_transplant_support builds table_key = f\"{family}||{_semantic_action_key(option)}\" where _semantic_action_key returns the STRUCTURED JSON key; but the exported transplant_support_table.json is keyed with the COMPACT form (e.g. \"ATTACH||ATTACH:Water:Mega\"). The structured key never matches a compact table key -> every lookup returns missing -> fallback -> baseline.",
+  "why_parity_passed": "Model A parity inputs SUPPLY transplant support directly (observation.transplant_support_by_semantic_key + per-option transplant on all 21 selector-source rows), bypassing the table. Parity never exercises the table fallback, so the key-format bug was not caught.",
+  "why_model_b_cannot_work_around": "Model B has no transplant-scoring function (that is Model A V0); computing/attaching support would be the forbidden \"substitute a different transplant support calculation\". Re-keying Model A export silently is also out of scope. So the live path has no working support provider.",
+  "empirical_confirmation": {
+    "S2_c3_overrides_per_matchup": "8-24",
+    "S3_v3_overrides_per_matchup": 0,
+    "errors": 0,
+    "evidence_files": [
+      "_confirm_summary.json",
+      "_confirm_trace.jsonl"
+    ]
+  },
+  "safety": "V3 is SAFE: fail-closed to baseline, never overrides into ATTACK/END/RETREAT, 0 errors/illegal. Parity-clean.",
+  "smoke_not_run_full": "A full 360-game smoke was NOT run because S3 is provably inert (== off) live; it would only reproduce baseline and cannot test the transplant policy. A tiny confirmation (c3 vs v3) established the inertness.",
+  "verdict": "D_V3_SELECTOR_UNSAFE_OR_INVALID",
+  "verdict_scope": "INVALID FOR LIVE TRANSPLANT TEST (not unsafe). The export is parity-clean and fail-closed safe, but the transplant layer does not reach the live runtime, so V3 == off live and the smoke cannot evaluate it.",
+  "promotion_status": "NEEDS_SELECTOR_REPAIR",
+  "fix_for_model_a": [
+    "Make the runtime table-lookup key match the table key format: either (a) derive the COMPACT semantic key for the table lookup, or (b) re-export transplant_support_table.json keyed by the STRUCTURED _semantic_action_key the runtime already computes.",
+    "OR make the runtime self-contained: compute transplant support from packed features without requiring caller-supplied support maps.",
+    "Add a parity probe that exercises the TABLE fallback path (no supplied support map) so this is caught next time."
+  ]
+}
