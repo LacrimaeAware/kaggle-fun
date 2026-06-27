@@ -29,6 +29,7 @@ MODULES = [
     "test_selector_v3_wiring_v1",   # V3 transplant wiring (off-identity, fail-closed, never terminal)
     "test_transplant_v5_support_v1",  # V5 runtime-feature support pack (extractor no-mutation/no-leakage/delta probe)
     "test_local_meta_analyze_v1",   # local-meta analyzer (pooling, early-stopping warning, primary-vs-field isolation)
+    "test_f1_attach_context_v1",    # F1 ATTACH-context extractor (roles/energy/threshold, no-mutation/no-leakage)
 ]
 
 
